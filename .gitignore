@@ -1,0 +1,13 @@
+build/
+imgui/
+.vscode/
+*.o
+IdeaWalker
+.cache/
+_deps/
+bin/
+lib/
+*.wav
+*.pyc
+__pycache__/
+
