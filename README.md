@@ -9,7 +9,7 @@ O **Idea Walker** é um suporte cognitivo projetado para transformar pensamentos
 ## 🛠️ Tecnologias
 - **Linguagem**: C++17
 - **Interface**: Dear ImGui (OpenGL3 + SDL2)
-- **Cérebro (IA)**: Ollama (Qwen 2.5 local)
+- **Cérebro (IA)**: Ollama (**Qwen 2.5:14b** local)
 - **Comunicação**: cpp-httplib & nlohmann-json
 - **Arquitetura**: DDD (Domain-Driven Design)
 

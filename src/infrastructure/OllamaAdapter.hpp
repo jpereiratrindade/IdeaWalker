@@ -13,7 +13,7 @@ public:
 private:
     std::string m_host;
     int m_port;
-    std::string m_model = "qwen2.5:7b";
+    std::string m_model = "qwen2.5:14b";
 };
 
 } // namespace ideawalker::infrastructure

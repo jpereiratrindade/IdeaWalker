@@ -17,6 +17,10 @@ void OrganizerService::processInbox() {
     }
 }
 
+void OrganizerService::updateNote(const std::string& filename, const std::string& content) {
+    m_repo->updateNote(filename, content);
+}
+
 std::vector<domain::RawThought> OrganizerService::getRawThoughts() {
     return m_repo->fetchInbox();
 }

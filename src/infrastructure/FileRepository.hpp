@@ -10,6 +10,7 @@ public:
 
     std::vector<domain::RawThought> fetchInbox() override;
     void saveInsight(const domain::Insight& insight) override;
+    void updateNote(const std::string& filename, const std::string& content) override;
     std::vector<domain::Insight> fetchHistory() override;
 
 private:

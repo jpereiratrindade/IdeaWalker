@@ -13,6 +13,8 @@
 #include <thread>
 #include <atomic>
 #include <memory>
+#include <cstring>
+#include <cfloat>
 
 #include "application/OrganizerService.hpp"
 #include "infrastructure/FileRepository.hpp"
@@ -23,10 +25,13 @@ using namespace ideawalker;
 
 // === ESTADO GLOBAL DA APLICAÇÃO ===
 struct AppState {
-    std::string outputLog = "Idea Walker v2.0 - DDD Core initialized.\n";
+    std::string outputLog = "Idea Walker v0.1.0-alpha - DDD Core initialized.\n";
     std::string selectedNoteContent = "";
+    std::string selectedFilename = "";
+    char saveAsFilename[128] = "";
     bool isProcessing = false;
     
+    std::unique_ptr<domain::Insight> currentInsight;
     std::unique_ptr<application::OrganizerService> organizerService;
     std::vector<domain::RawThought> inboxThoughts;
 
@@ -101,11 +106,20 @@ void DrawUI() {
                 for (const auto& entry : fs::directory_iterator("./notas")) {
                     if (entry.is_regular_file() && entry.path().extension() == ".md") {
                         std::string filename = entry.path().filename().string();
-                        if (ImGui::Selectable(filename.c_str())) {
+                        bool isSelected = (app.selectedFilename == filename);
+                        if (ImGui::Selectable(filename.c_str(), isSelected)) {
+                            app.selectedFilename = filename;
                             std::ifstream file(entry.path());
                             std::stringstream buffer;
                             buffer << file.rdbuf();
                             app.selectedNoteContent = buffer.str();
+                            strncpy(app.saveAsFilename, filename.c_str(), sizeof(app.saveAsFilename)-1);
+                            
+                            // Update Domain Insight
+                            domain::Insight::Metadata meta;
+                            meta.id = filename;
+                            app.currentInsight = std::make_unique<domain::Insight>(meta, app.selectedNoteContent);
+                            app.currentInsight->parseActionablesFromContent();
                         }
                     }
                 }
@@ -114,11 +128,74 @@ void DrawUI() {
 
             ImGui::SameLine();
 
-            // Coluna da Direita: Conteúdo
+            // Coluna da Direita: Conteúdo / Editor
             ImGui::BeginChild("NoteContent", ImVec2(0, 0), true);
-            ImGui::TextWrapped("%s", app.selectedNoteContent.c_str());
+            if (!app.selectedFilename.empty()) {
+                if (ImGui::Button("💾 Save Changes", ImVec2(150, 30))) {
+                    app.organizerService->updateNote(app.selectedFilename, app.selectedNoteContent);
+                    app.outputLog += "[SYSTEM] Saved changes to " + app.selectedFilename + "\n";
+                }
+                ImGui::SameLine();
+                
+                ImGui::SetNextItemWidth(200.0f);
+                ImGui::InputText("##saveasname", app.saveAsFilename, sizeof(app.saveAsFilename));
+                ImGui::SameLine();
+                if (ImGui::Button("📂 Save As", ImVec2(100, 30))) {
+                    std::string newName = app.saveAsFilename;
+                    if (!newName.empty()) {
+                        if (newName.find(".md") == std::string::npos) newName += ".md";
+                        app.organizerService->updateNote(newName, app.selectedNoteContent);
+                        app.selectedFilename = newName;
+                        app.outputLog += "[SYSTEM] Saved as " + newName + "\n";
+                    }
+                }
+                
+                ImGui::Separator();
+                
+                // Editor de texto (InputTextMultiline com Resize)
+                // Usamos um buffer temporário largo o suficiente
+                static char textBuffer[64 * 1024]; 
+                static std::string lastLoadedFile = "";
+                
+                if (lastLoadedFile != app.selectedFilename) {
+                    strncpy(textBuffer, app.selectedNoteContent.c_str(), sizeof(textBuffer)-1);
+                    lastLoadedFile = app.selectedFilename;
+                }
+
+                if (ImGui::InputTextMultiline("##editor", textBuffer, sizeof(textBuffer), ImVec2(-FLT_MIN, -FLT_MIN))) {
+                    app.selectedNoteContent = textBuffer;
+                    if (app.currentInsight) {
+                        app.currentInsight->setContent(app.selectedNoteContent);
+                        app.currentInsight->parseActionablesFromContent();
+                    }
+                }
+            } else {
+                ImGui::Text("Select a note from the list to view or edit.");
+            }
             ImGui::EndChild();
 
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("🏭 Execução")) {
+            if (app.currentInsight) {
+                const auto& actionables = app.currentInsight->getActionables();
+                if (actionables.empty()) {
+                    ImGui::Text("Nenhuma tarefa extraída deste insight.");
+                } else {
+                    ImGui::TextColored(ImVec4(0, 1, 0, 1), "Extrações automáticas (Checkboxes):");
+                    ImGui::Separator();
+                    
+                    for (size_t i = 0; i < actionables.size(); ++i) {
+                        bool completed = actionables[i].isCompleted;
+                        if (ImGui::Checkbox((actionables[i].description + "##" + std::to_string(i)).c_str(), &completed)) {
+                            // In a full implementation, we'd update the Value Object state here
+                        }
+                    }
+                }
+            } else {
+                ImGui::Text("Selecione uma nota primeiro.");
+            }
             ImGui::EndTabItem();
         }
         
@@ -145,7 +222,7 @@ int main(int, char**) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-    SDL_Window* window = SDL_CreateWindow("Idea Walker v2.0 - DDD", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
+    SDL_Window* window = SDL_CreateWindow("Idea Walker v0.1.0-alpha", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
     SDL_GLContext gl_context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl_context);
     SDL_GL_SetSwapInterval(1);

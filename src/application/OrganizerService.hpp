@@ -11,6 +11,7 @@ public:
                      std::unique_ptr<domain::AIService> ai);
 
     void processInbox();
+    void updateNote(const std::string& filename, const std::string& content);
     std::vector<domain::RawThought> getRawThoughts();
     
 private:

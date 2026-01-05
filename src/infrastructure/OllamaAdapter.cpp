@@ -19,7 +19,26 @@ std::optional<domain::Insight> OllamaAdapter::processRawThought(const std::strin
 
     json requestData = {
         {"model", m_model},
-        {"prompt", "Você é um assistente TDAH. Estruture o seguinte pensamento em Markdown com as seções: # Título, ## Insight Central, ## Pontos Principais, ## Ações, ## Conexões. Texto:\n\n" + rawContent},
+        {"prompt", 
+            "Você é um Parser de Texto estrito. Sua função é converter pensamentos desorganizados em Markdown estruturado para um sistema de software.\n\n"
+            "REGRAS RÍGIDAS DE SAÍDA:\n"
+            "1. NÃO use blocos de código (```markdown). Retorne apenas o texto cru.\n"
+            "2. NÃO inclua introduções nem conclusões.\n"
+            "3. As Ações DEVEM usar estritamente o formato de checkbox: \"- [ ] Descrição da tarefa\".\n"
+            "4. Mantenha os headers exatos como abaixo.\n\n"
+            "ESTRUTURA OBRIGATÓRIA:\n"
+            "# Título: [Um Título Curto]\n\n"
+            "## Insight Central\n"
+            "(Resumo em 1 parágrafo)\n\n"
+            "## Pontos Principais\n"
+            "- (Lista de bullets)\n\n"
+            "## Ações\n"
+            "- [ ] (Ação concreta 1)\n"
+            "- [ ] (Ação concreta 2)\n\n"
+            "## Conexões\n"
+            "- [[Conceito Relacionado]]\n\n"
+            "Texto a processar:\n\n" + rawContent
+        },
         {"stream", false}
     };
 

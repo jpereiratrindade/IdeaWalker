@@ -34,6 +34,12 @@ void FileRepository::saveInsight(const domain::Insight& insight) {
     file << insight.getContent();
 }
 
+void FileRepository::updateNote(const std::string& filename, const std::string& content) {
+    fs::path outPath = fs::path(m_notesPath) / filename;
+    std::ofstream file(outPath);
+    file << content;
+}
+
 std::vector<domain::Insight> FileRepository::fetchHistory() {
     // Basic implementation: for now we just list files
     // Full implementation would parse the saved markdown files back to Insight objects
