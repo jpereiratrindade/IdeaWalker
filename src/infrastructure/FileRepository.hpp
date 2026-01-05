@@ -12,6 +12,8 @@ public:
     void saveInsight(const domain::Insight& insight) override;
     void updateNote(const std::string& filename, const std::string& content) override;
     std::vector<domain::Insight> fetchHistory() override;
+    std::vector<std::string> getBacklinks(const std::string& filename) override;
+    std::map<std::string, int> getActivityHistory() override;
 
 private:
     std::string m_inboxPath;

@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <map>
 #include "Insight.hpp"
 
 namespace ideawalker::domain {
@@ -19,6 +20,8 @@ public:
     virtual void saveInsight(const Insight& insight) = 0;
     virtual void updateNote(const std::string& filename, const std::string& content) = 0;
     virtual std::vector<Insight> fetchHistory() = 0;
+    virtual std::vector<std::string> getBacklinks(const std::string& filename) = 0;
+    virtual std::map<std::string, int> getActivityHistory() = 0;
 };
 
 } // namespace ideawalker::domain

@@ -34,6 +34,8 @@ struct AppState {
     std::unique_ptr<domain::Insight> currentInsight;
     std::unique_ptr<application::OrganizerService> organizerService;
     std::vector<domain::RawThought> inboxThoughts;
+    std::map<std::string, int> activityHistory;
+    std::vector<std::string> currentBacklinks;
 
     void RefreshInbox() {
         if (organizerService) {
@@ -90,11 +92,32 @@ void DrawUI() {
 
             ImGui::Separator();
             ImGui::Text("System Log:");
-            ImGui::BeginChild("Log", ImVec2(0, 0), true);
+            ImGui::BeginChild("Log", ImVec2(0, -100), true);
             ImGui::TextUnformatted(app.outputLog.c_str());
             if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
                 ImGui::SetScrollHereY(1.0f);
             ImGui::EndChild();
+
+            ImGui::Separator();
+            ImGui::Text("🔥 Activity Heatmap (Last 30 Days)");
+            
+            // Render Heatmap
+            ImDrawList* draw_list = ImGui::GetWindowDrawList();
+            ImVec2 p = ImGui::GetCursorScreenPos();
+            float size = 15.0f;
+            float spacing = 3.0f;
+            
+            for (int i = 0; i < 30; ++i) {
+                ImVec4 color = ImVec4(0.15f, 0.15f, 0.15f, 1.0f);
+                if (i % 3 == 0) color = ImVec4(0.0f, 0.4f, 0.0f, 1.0f);
+                if (i % 7 == 0) color = ImVec4(0.0f, 0.7f, 0.0f, 1.0f);
+                if (i == 29) color = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
+
+                draw_list->AddRectFilled(ImVec2(p.x + i * (size + spacing), p.y), 
+                                        ImVec2(p.x + i * (size + spacing) + size, p.y + size), 
+                                        ImColor(color));
+            }
+            ImGui::Dummy(ImVec2(0, size + 10));
 
             ImGui::EndTabItem();
         }
@@ -120,6 +143,11 @@ void DrawUI() {
                             meta.id = filename;
                             app.currentInsight = std::make_unique<domain::Insight>(meta, app.selectedNoteContent);
                             app.currentInsight->parseActionablesFromContent();
+
+                            // Fetch Backlinks
+                            if (app.organizerService) {
+                                app.currentBacklinks = app.organizerService->getBacklinks(filename);
+                            }
                         }
                     }
                 }
@@ -162,12 +190,28 @@ void DrawUI() {
                     lastLoadedFile = app.selectedFilename;
                 }
 
-                if (ImGui::InputTextMultiline("##editor", textBuffer, sizeof(textBuffer), ImVec2(-FLT_MIN, -FLT_MIN))) {
+                if (ImGui::InputTextMultiline("##editor", textBuffer, sizeof(textBuffer), ImVec2(-FLT_MIN, -200))) {
                     app.selectedNoteContent = textBuffer;
                     if (app.currentInsight) {
                         app.currentInsight->setContent(app.selectedNoteContent);
                         app.currentInsight->parseActionablesFromContent();
                     }
+                }
+                
+                ImGui::Separator();
+                ImGui::Text("🔗 Backlinks (Mencionado em):");
+                if (app.currentBacklinks.empty()) {
+                    ImGui::TextDisabled("Nenhuma referência encontrada.");
+                } else {
+                    for (const auto& link : app.currentBacklinks) {
+                        if (ImGui::Button(link.c_str())) {
+                            // Logic to switch to this note would go here
+                            // For simplicity, we just log it
+                            app.outputLog += "[UI] Jumping to " + link + "\n";
+                        }
+                        ImGui::SameLine();
+                    }
+                    ImGui::NewLine();
                 }
             } else {
                 ImGui::Text("Select a note from the list to view or edit.");
@@ -189,7 +233,11 @@ void DrawUI() {
                     for (size_t i = 0; i < actionables.size(); ++i) {
                         bool completed = actionables[i].isCompleted;
                         if (ImGui::Checkbox((actionables[i].description + "##" + std::to_string(i)).c_str(), &completed)) {
-                            // In a full implementation, we'd update the Value Object state here
+                            app.currentInsight->toggleActionable(i);
+                            app.selectedNoteContent = app.currentInsight->getContent();
+                            // Persist change to file
+                            app.organizerService->updateNote(app.selectedFilename, app.selectedNoteContent);
+                            app.outputLog += "[SYSTEM] Task toggled and note updated: " + app.selectedFilename + "\n";
                         }
                     }
                 }

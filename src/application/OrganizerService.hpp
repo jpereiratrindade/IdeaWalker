@@ -12,6 +12,9 @@ public:
 
     void processInbox();
     void updateNote(const std::string& filename, const std::string& content);
+    void toggleTask(const std::string& filename, int index);
+    std::vector<std::string> getBacklinks(const std::string& filename);
+    std::map<std::string, int> getActivityHistory();
     std::vector<domain::RawThought> getRawThoughts();
     
 private:

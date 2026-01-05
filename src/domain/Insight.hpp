@@ -46,6 +46,33 @@ public:
 
     void setContent(const std::string& content) { m_content = content; }
 
+    void toggleActionable(size_t index) {
+        if (index >= m_actionables.size()) return;
+
+        std::stringstream ss(m_content);
+        std::stringstream out;
+        std::string line;
+        size_t currentIdx = 0;
+        
+        while (std::getline(ss, line)) {
+            size_t pos = line.find("- [");
+            if (pos != std::string::npos && (line.find("- [ ]") != std::string::npos || line.find("- [x]") != std::string::npos)) {
+                if (currentIdx == index) {
+                    if (line.find("- [ ]") != std::string::npos) {
+                        line.replace(line.find("- [ ]"), 5, "- [x]");
+                        m_actionables[index].isCompleted = true;
+                    } else if (line.find("- [x]") != std::string::npos) {
+                        line.replace(line.find("- [x]"), 5, "- [ ]");
+                        m_actionables[index].isCompleted = false;
+                    }
+                }
+                currentIdx++;
+            }
+            out << line << "\n";
+        }
+        m_content = out.str();
+    }
+
 private:
     Metadata m_metadata;
     std::string m_content;

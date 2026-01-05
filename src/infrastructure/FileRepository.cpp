@@ -2,6 +2,8 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <chrono>
+#include <ctime>
 
 namespace fs = std::filesystem;
 
@@ -41,9 +43,65 @@ void FileRepository::updateNote(const std::string& filename, const std::string& 
 }
 
 std::vector<domain::Insight> FileRepository::fetchHistory() {
-    // Basic implementation: for now we just list files
-    // Full implementation would parse the saved markdown files back to Insight objects
-    return {}; 
+    std::vector<domain::Insight> history;
+    if (!fs::exists(m_notesPath)) return history;
+
+    for (const auto& entry : fs::directory_iterator(m_notesPath)) {
+        if (entry.is_regular_file() && entry.path().extension() == ".md") {
+            domain::Insight::Metadata meta;
+            meta.id = entry.path().filename().string();
+            history.emplace_back(meta, ""); 
+        }
+    }
+    return history;
+}
+
+std::vector<std::string> FileRepository::getBacklinks(const std::string& filename) {
+    std::vector<std::string> backlinks;
+    if (!fs::exists(m_notesPath)) return backlinks;
+
+    std::string target = filename;
+    size_t lastDot = target.find_last_of(".");
+    if (lastDot != std::string::npos) target = target.substr(0, lastDot);
+    std::string searchStr = "[[" + target + "]]";
+
+    for (const auto& entry : fs::directory_iterator(m_notesPath)) {
+        if (entry.is_regular_file() && entry.path().extension() == ".md") {
+            if (entry.path().filename().string() == filename) continue;
+
+            std::ifstream file(entry.path());
+            std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+            if (content.find(searchStr) != std::string::npos) {
+                backlinks.push_back(entry.path().filename().string());
+            }
+        }
+    }
+    return backlinks;
+}
+
+std::map<std::string, int> FileRepository::getActivityHistory() {
+    std::map<std::string, int> history;
+    if (!fs::exists(m_notesPath)) return history;
+
+    for (const auto& entry : fs::directory_iterator(m_notesPath)) {
+        if (entry.is_regular_file() && entry.path().extension() == ".md") {
+            try {
+                auto ftime = fs::last_write_time(entry);
+#if defined(__cpp_lib_chrono) && __cpp_lib_chrono >= 201907L
+                auto sctp = std::chrono::clock_cast<std::chrono::system_clock>(ftime);
+#else
+                // Fallback for older C++ standards if needed
+                auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(ftime - fs::file_time_type::clock::now() + std::chrono::system_clock::now());
+#endif
+                std::time_t tt = std::chrono::system_clock::to_time_t(sctp);
+                std::tm* gmt = std::localtime(&tt);
+                char buffer[11];
+                std::strftime(buffer, sizeof(buffer), "%Y-%m-%d", gmt);
+                history[std::string(buffer)]++;
+            } catch (...) {}
+        }
+    }
+    return history;
 }
 
 } // namespace ideawalker::infrastructure
