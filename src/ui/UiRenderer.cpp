@@ -309,13 +309,15 @@ void DrawNodeGraph(AppState& app) {
         app.UpdateGraphPhysics();
     }
 
-    // Control Panel Overlay - Absolute screen coordinates to avoid overlap
-    float panelWidth = 340.0f;
-    float panelHeight = 120.0f;
-    ImGui::SetCursorScreenPos(ImVec2(ImGui::GetWindowPos().x + 20, ImGui::GetWindowPos().y + ImGui::GetWindowSize().y - panelHeight - 20));
+    // Control Panel Overlay - Auto-adjust to content
+    ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowPos().x + 20, ImGui::GetWindowPos().y + ImGui::GetWindowSize().y - 20), ImGuiCond_Always, ImVec2(0, 1));
+    ImGui::SetNextWindowBgAlpha(0.9f);
     
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(20, 20, 20, 230));
-    ImGui::BeginChild("GraphControls", ImVec2(panelWidth, panelHeight), true, ImGuiWindowFlags_NoMove);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 5.0f);
+    ImGui::Begin("GraphControlsOverlay", nullptr, 
+        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | 
+        ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings |
+        ImGuiWindowFlags_NoNav);
     
     ImGui::TextColored(ImVec4(0.7f, 0.7f, 1.0f, 1.0f), label("🛠️ Configurações do Grafo", "Graph Settings"));
     ImGui::Separator();
@@ -343,8 +345,8 @@ void DrawNodeGraph(AppState& app) {
         app.CenterGraph();
     }
     
-    ImGui::EndChild();
-    ImGui::PopStyleColor();
+    ImGui::End();
+    ImGui::PopStyleVar();
 }
 
 } // namespace
