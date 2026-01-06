@@ -358,26 +358,29 @@ void DrawUI(AppState& app) {
         }
 
         if (ImGui::BeginMenu(label("🛠️ Tools", "Tools"))) {
-            if (ImGui::MenuItem(label("🕸️ Mostrar Tarefas", "Show Tasks"), nullptr, app.showTasksInGraph)) {
-                app.showTasksInGraph = !app.showTasksInGraph;
-                app.RebuildGraph();
-            }
-            if (ImGui::MenuItem(label("🔄 Animação", "Animation"), nullptr, app.physicsEnabled)) {
-                app.physicsEnabled = !app.physicsEnabled;
-            }
-            ImGui::Separator();
-            if (ImGui::MenuItem(label("📤 Exportar Mermaid", "Export Mermaid"))) {
-                std::string mermaid = app.ExportToMermaid();
-                ImGui::SetClipboardText(mermaid.c_str());
-                app.outputLog += "[Info] Mapa mental exportado para o clipboard.\n";
-            }
-            if (ImGui::MenuItem(label("📁 Exportar Full (.md)", "Export Full (.md)"))) {
-                std::string fullMd = app.ExportFullMarkdown();
-                ImGui::SetClipboardText(fullMd.c_str());
-                app.outputLog += "[Info] Conhecimento completo exportado para o clipboard.\n";
-            }
-            if (ImGui::MenuItem(label("🎯 Centralizar Grafo", "Center Graph"))) {
-                app.CenterGraph();
+            if (ImGui::BeginMenu(label("🕸️ Configurações do Grafo", "Neural Web Settings"))) {
+                if (ImGui::MenuItem(label("🕸️ Mostrar Tarefas", "Show Tasks"), nullptr, app.showTasksInGraph)) {
+                    app.showTasksInGraph = !app.showTasksInGraph;
+                    app.RebuildGraph();
+                }
+                if (ImGui::MenuItem(label("🔄 Animação", "Animation"), nullptr, app.physicsEnabled)) {
+                    app.physicsEnabled = !app.physicsEnabled;
+                }
+                ImGui::Separator();
+                if (ImGui::MenuItem(label("📤 Exportar Mermaid", "Export Mermaid"))) {
+                    std::string mermaid = app.ExportToMermaid();
+                    ImGui::SetClipboardText(mermaid.c_str());
+                    app.outputLog += "[Info] Mapa mental exportado para o clipboard.\n";
+                }
+                if (ImGui::MenuItem(label("📁 Exportar Full (.md)", "Export Full (.md)"))) {
+                    std::string fullMd = app.ExportFullMarkdown();
+                    ImGui::SetClipboardText(fullMd.c_str());
+                    app.outputLog += "[Info] Conhecimento completo exportado para o clipboard.\n";
+                }
+                if (ImGui::MenuItem(label("🎯 Centralizar Grafo", "Center Graph"))) {
+                    app.CenterGraph();
+                }
+                ImGui::EndMenu();
             }
             ImGui::EndMenu();
         }
