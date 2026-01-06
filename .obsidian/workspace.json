@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "notas/_Consolidated_Tasks.md",
+                "file": "IdeaWalker Knowledge Base.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "_Consolidated_Tasks"
+              "title": "IdeaWalker Knowledge Base"
             }
           }
         ]
@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 200
   },
   "right": {
     "id": "39a73bdcbad16879",
@@ -185,21 +185,21 @@
   },
   "active": "507a34ee1a0c410a",
   "lastOpenFiles": [
+    "notas/_Consolidated_Tasks.md",
+    "build/CMakeFiles/Progress/3",
+    "build/CMakeFiles/Progress/2",
+    "build/CMakeFiles/Progress/1",
+    "build/CMakeFiles/Progress/17",
+    "build/CMakeFiles/Progress/4",
+    "build/CMakeFiles/Progress/45",
+    "build/CMakeFiles/Progress/44",
+    "build/CMakeFiles/Progress/19",
+    "build/CMakeFiles/Progress/18",
+    "build/CMakeFiles/Progress/43",
     "notas/Nota_1767646148.md",
     "notas/Nota_1767645289.md",
     "notas/Nota_260106_2029_transcricao.md",
     "notas/Nota_260106_0419_transcricao.md",
-    "notas/_Consolidated_Tasks.md",
-    "build/CMakeFiles/Progress/43",
-    "build/CMakeFiles/Progress/42",
-    "build/CMakeFiles/Progress/41",
-    "build/CMakeFiles/Progress/40",
-    "build/CMakeFiles/Progress/39",
-    "build/CMakeFiles/Progress/38",
-    "build/CMakeFiles/Progress/37",
-    "build/CMakeFiles/Progress/36",
-    "build/CMakeFiles/Progress/35",
-    "build/CMakeFiles/Progress/34",
     "IdeaWalker Knowledge Base.md"
   ]
 }

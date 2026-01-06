@@ -140,6 +140,7 @@ bool IdeaWalkerApp::Init() {
 
     ImNodes::CreateContext();
     ImNodes::StyleColorsDark();
+    m_state.InitImNodes();
 
     if (!ImGui_ImplSDL2_InitForOpenGL(m_window, m_glContext)) {
         std::fprintf(stderr, "ImGui_ImplSDL2_InitForOpenGL failed.\n");
@@ -158,6 +159,7 @@ void IdeaWalkerApp::Shutdown() {
     if (m_imguiInitialized) {
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplSDL2_Shutdown();
+        m_state.ShutdownImNodes();
         ImNodes::DestroyContext();
         ImGui::DestroyContext();
         m_imguiInitialized = false;

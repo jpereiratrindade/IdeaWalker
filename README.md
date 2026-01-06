@@ -30,6 +30,7 @@ O **Idea Walker** e um suporte cognitivo projetado para transformar pensamentos 
 ## ✨ Funcionalidades
 - Ingestao de arquivos `.txt` do **inbox** e geracao de notas em Markdown.
 - **🕸️ Neural Web & Mind Map**: Visualiza conexões entre notas e tarefas em um mapa mental interativo.
+- **Static Preview**: Visualização estática, organizada e estável de gráficos Mermaid para arquivos externos.
 - **🚀 Gestão de Execução**: Kanban board sincronizado com as tarefas extraídas por IA.
 - **📤 Exportação Flexível**: Gere diagramas Mermaid ou relatórios completos em Markdown para Obsidian/GitHub.
 - **🎙️ Captura de Áudio**: Inteligência artificial local para transcrição e organização de insights.
@@ -56,7 +57,7 @@ make
 ---
 
 ## 🛡️ Governança
-- **Versao Atual**: v0.1.0-alpha
+- **Versao Atual**: v0.1.1-beta
 - **Licença**: MIT
 - **Design System**: SisterSTRATA inspired.
 - **Recursos**: Brainstorming, Task Extraction, Backlinks e Heatmap de Atividade.

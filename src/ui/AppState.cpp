@@ -12,10 +12,14 @@
 #include <cstdio>
 #include <cmath>
 #include <filesystem>
+#include <filesystem>
+#include <fstream>
 #include <regex>
 #include <sstream>
 #include <unordered_map>
 #include <unordered_set>
+
+#include "imnodes.h"
 
 namespace ideawalker::ui {
 
@@ -51,9 +55,36 @@ AppState::AppState()
     : outputLog("Idea Walker v0.1.0-alpha - DDD Core initialized.\n") {
     saveAsFilename[0] = '\0';
     projectPathBuffer[0] = '\0';
+
+    // Initialize ImNodes contexts in InitImNodes() instead
 }
 
-AppState::~AppState() = default;
+AppState::~AppState() {
+    // Cleanup in ShutdownImNodes()
+}
+
+void AppState::InitImNodes() {
+    if (!mainGraphContext) {
+        mainGraphContext = ImNodes::EditorContextCreate();
+        ImNodes::EditorContextSet((ImNodesEditorContext*)mainGraphContext);
+        ImNodes::PushAttributeFlag(ImNodesAttributeFlags_EnableLinkDetachWithDragClick);
+    }
+    
+    if (!previewGraphContext) {
+        previewGraphContext = ImNodes::EditorContextCreate();
+    }
+}
+
+void AppState::ShutdownImNodes() {
+    if (mainGraphContext) {
+        ImNodes::EditorContextFree((ImNodesEditorContext*)mainGraphContext);
+        mainGraphContext = nullptr;
+    }
+    if (previewGraphContext) {
+        ImNodes::EditorContextFree((ImNodesEditorContext*)previewGraphContext);
+        previewGraphContext = nullptr;
+    }
+}
 
 bool AppState::NewProject(const std::string& rootPath) {
     return OpenProject(rootPath);
@@ -531,6 +562,53 @@ std::string AppState::ExportFullMarkdown() const {
     }
 
     return ss.str();
+}
+
+void AppState::OpenExternalFile(const std::string& path) {
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        AppendLog("[Error] Could not open file: " + path + "\n");
+        return;
+    }
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    
+    ExternalFile extFile;
+    extFile.path = path;
+    extFile.filename = std::filesystem::path(path).filename().string();
+    extFile.content = buffer.str();
+    extFile.modified = false;
+    
+    // Check if already open
+    for (size_t i = 0; i < externalFiles.size(); ++i) {
+        if (externalFiles[i].path == path) {
+            selectedExternalFileIndex = i;
+            // Update content just in case
+            externalFiles[i].content = buffer.str();
+            return;
+        }
+    }
+
+    externalFiles.push_back(extFile);
+    selectedExternalFileIndex = externalFiles.size() - 1;
+    AppendLog("[System] Opened external file: " + path + "\n");
+    
+    // Switch to External tab (index 4)
+    requestedTab = 4; 
+}
+
+void AppState::SaveExternalFile(int index) {
+    if (index < 0 || index >= static_cast<int>(externalFiles.size())) return;
+    
+    auto& extFile = externalFiles[index];
+    std::ofstream file(extFile.path);
+    if (file.is_open()) {
+        file << extFile.content;
+        extFile.modified = false;
+        AppendLog("[System] Saved external file: " + extFile.path + "\n");
+    } else {
+        AppendLog("[Error] Could not save file: " + extFile.path + "\n");
+    }
 }
 
 } // namespace ideawalker::ui

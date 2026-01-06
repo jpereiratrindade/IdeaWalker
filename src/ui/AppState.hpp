@@ -22,6 +22,13 @@ enum class NodeType {
     TASK
 };
 
+struct ExternalFile {
+    std::string path;
+    std::string filename;
+    std::string content;
+    bool modified = false;
+};
+
 struct GraphNode {
     int id;
     std::string title;
@@ -62,11 +69,20 @@ struct AppState {
     bool showTasksInGraph = true;
     bool physicsEnabled = true;
     bool previewMode = false;
+    
+    // External files (project-independent)
+    std::vector<ExternalFile> externalFiles;
+    int selectedExternalFileIndex = -1;
+    bool showOpenFileModal = false;
+    char openFilePathBuffer[512] = "";
 
     std::string ExportToMermaid() const;
     std::string ExportFullMarkdown() const;
     void UpdateGraphPhysics(const std::unordered_set<int>& selectedNodes = {});
     void CenterGraph();
+
+    void OpenExternalFile(const std::string& path);
+    void SaveExternalFile(int index);
 
     std::unique_ptr<domain::Insight> currentInsight;
     std::unique_ptr<application::OrganizerService> organizerService;
@@ -80,10 +96,23 @@ struct AppState {
     std::vector<GraphLink> graphLinks;
     bool graphInitialized = false;
 
+    // Preview Graph State (for Mermaid in Markdown)
+    std::vector<GraphNode> previewNodes;
+    std::vector<GraphLink> previewLinks;
+    bool previewGraphInitialized = false;
+    std::string lastParsedMermaidContent; // Cache to avoid reparsing every frame
+
+    // ImNodes Contexts (void* to avoid header dependency)
+    void* mainGraphContext = nullptr;
+    void* previewGraphContext = nullptr;
+
     std::mutex logMutex;
 
     AppState();
     ~AppState();
+
+    void InitImNodes();
+    void ShutdownImNodes();
 
     bool NewProject(const std::string& rootPath);
     bool OpenProject(const std::string& rootPath);
