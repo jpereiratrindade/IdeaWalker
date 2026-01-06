@@ -39,9 +39,12 @@ set(IMGUI_DIR ${imgui_SOURCE_DIR})
 FetchContent_Declare(
     imnodes
     GIT_REPOSITORY https://github.com/nelarius/imnodes.git
-    GIT_TAG v0.5
+    GIT_TAG master
 )
-FetchContent_MakeAvailable(imnodes)
+FetchContent_GetProperties(imnodes)
+if(NOT imnodes_POPULATED)
+    FetchContent_Populate(imnodes)
+endif()
 set(IMNODES_DIR ${imnodes_SOURCE_DIR})
 
 # --- Executable ---
@@ -84,7 +87,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     dl
 )
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE IMGUI_USE_WCHAR32)
+target_compile_definitions(${PROJECT_NAME} PRIVATE IMGUI_USE_WCHAR32 IMGUI_DEFINE_MATH_OPERATORS)
 
 # Copy backends headers if fetched
 if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui.h")
