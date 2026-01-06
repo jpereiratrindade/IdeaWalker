@@ -16,11 +16,19 @@ class OrganizerService;
 
 namespace ideawalker::ui {
 
+enum class NodeType {
+    INSIGHT,
+    TASK
+};
+
 struct GraphNode {
     int id;
     std::string title;
     float x, y;
     float vx, vy;
+    NodeType type = NodeType::INSIGHT;
+    bool isCompleted = false;
+    bool isInProgress = false;
 };
 
 struct GraphLink {
@@ -50,6 +58,12 @@ struct AppState {
     std::atomic<bool> pendingRefresh{false};
     int activeTab = 0; // 0: Dashboard, 1: Knowledge, 2: Execution, 3: Neural Web
     int requestedTab = -1;
+    bool showTasksInGraph = true;
+    bool physicsEnabled = true;
+
+    std::string ExportToMermaid() const;
+    std::string ExportFullMarkdown() const;
+    void CenterGraph();
 
     std::unique_ptr<domain::Insight> currentInsight;
     std::unique_ptr<application::OrganizerService> organizerService;

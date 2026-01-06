@@ -83,7 +83,27 @@ std::vector<domain::Insight> FileRepository::fetchHistory() {
             
             domain::Insight::Metadata meta;
             meta.id = entry.path().filename().string();
-            history.emplace_back(meta, buffer.str()); 
+            std::string content = buffer.str();
+            
+            // Try to extract title from "# Título: [Title]"
+            std::string title;
+            size_t titlePos = content.find("# Título:");
+            if (titlePos != std::string::npos) {
+                size_t start = titlePos + 10; // "# Título: " length
+                size_t end = content.find("\n", start);
+                if (end != std::string::npos) {
+                    title = content.substr(start, end - start);
+                    // Trim brackets if present: [Title]
+                    if (!title.empty() && title.front() == '[') title.erase(0, 1);
+                    if (!title.empty() && title.back() == ']') title.pop_back();
+                    // Basic trim
+                    title.erase(0, title.find_first_not_of(" \t"));
+                    title.erase(title.find_last_not_of(" \t") + 1);
+                }
+            }
+            meta.title = title;
+            
+            history.emplace_back(meta, content); 
         }
     }
     return history;

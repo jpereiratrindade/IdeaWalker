@@ -233,16 +233,39 @@ void DrawFolderBrowser(const char* id,
 
 
 void DrawNodeGraph(AppState& app) {
+    auto label = [&app](const char* withEmoji, const char* plain) {
+        return app.emojiEnabled ? withEmoji : plain;
+    };
     ImNodes::BeginNodeEditor();
 
     // 1. Draw Nodes
     for (auto& node : app.graphNodes) {
-        ImNodes::SetNodeGridSpacePos(node.id, ImVec2(node.x, node.y));
+        // Set position for physics, but skip if currently selected (let user drag)
+        if (!ImNodes::IsNodeSelected(node.id)) {
+            ImNodes::SetNodeGridSpacePos(node.id, ImVec2(node.x, node.y));
+        }
+
+        bool isTask = (node.type == NodeType::TASK);
+        if (isTask) {
+            ImNodes::PushColorStyle(ImNodesCol_NodeBackground, IM_COL32(50, 50, 50, 255));
+            ImNodes::PushColorStyle(ImNodesCol_TitleBar, 
+                node.isCompleted ? IM_COL32(46, 125, 50, 200) : IM_COL32(230, 81, 0, 200));
+        }
 
         ImNodes::BeginNode(node.id);
         
         ImNodes::BeginNodeTitleBar();
+        ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + 200.0f); // Limit width to 200px
+        if (isTask) {
+             const char* emoji = "⏳ "; // Default: To-Do
+             if (node.isCompleted) emoji = "✅ ";
+             else if (node.isInProgress) emoji = "🚀 ";
+             
+             ImGui::TextUnformatted(emoji);
+             ImGui::SameLine();
+        }
         ImGui::TextUnformatted(node.title.c_str());
+        ImGui::PopTextWrapPos();
         ImNodes::EndNodeTitleBar();
 
         ImNodes::BeginOutputAttribute(node.id << 8); 
@@ -254,6 +277,11 @@ void DrawNodeGraph(AppState& app) {
         ImNodes::EndInputAttribute();
 
         ImNodes::EndNode();
+
+        if (isTask) {
+            ImNodes::PopColorStyle();
+            ImNodes::PopColorStyle();
+        }
     }
 
     // 2. Draw Links
@@ -264,11 +292,59 @@ void DrawNodeGraph(AppState& app) {
     }
 
     ImNodes::EndNodeEditor();
-    
-    // 3. Update Physics
-    if (!app.graphNodes.empty()) {
+
+    // 3. Sync User Dragging back to AppState
+    for (auto& node : app.graphNodes) {
+        if (ImNodes::IsNodeSelected(node.id)) {
+            ImVec2 pos = ImNodes::GetNodeGridSpacePos(node.id);
+            node.x = pos.x;
+            node.y = pos.y;
+            node.vx = 0; // Stop movement when holding
+            node.vy = 0;
+        }
+    }
+
+    // 4. Update Physics
+    if (!app.graphNodes.empty() && app.physicsEnabled) {
         app.UpdateGraphPhysics();
     }
+
+    // Control Panel Overlay - Absolute screen coordinates to avoid overlap
+    float panelWidth = 340.0f;
+    float panelHeight = 120.0f;
+    ImGui::SetCursorScreenPos(ImVec2(ImGui::GetWindowPos().x + 20, ImGui::GetWindowPos().y + ImGui::GetWindowSize().y - panelHeight - 20));
+    
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(20, 20, 20, 230));
+    ImGui::BeginChild("GraphControls", ImVec2(panelWidth, panelHeight), true, ImGuiWindowFlags_NoMove);
+    
+    ImGui::TextColored(ImVec4(0.7f, 0.7f, 1.0f, 1.0f), label("🛠️ Configurações do Grafo", "Graph Settings"));
+    ImGui::Separator();
+
+    if (ImGui::Checkbox(label("🕸️ Mostrar Tarefas", "Show Tasks"), &app.showTasksInGraph)) {
+        app.RebuildGraph();
+    }
+    
+    ImGui::SameLine();
+    ImGui::Checkbox(label("🔄 Animação", "Animation"), &app.physicsEnabled);
+    
+    if (ImGui::Button(label("📤 Exportar Mermaid", "Export Mermaid"))) {
+        std::string mermaid = app.ExportToMermaid();
+        ImGui::SetClipboardText(mermaid.c_str());
+        app.outputLog += "[Info] Mapa mental exportado para o clipboard.\n";
+    }
+    ImGui::SameLine();
+    if (ImGui::Button(label("📁 Exportar Full (.md)", "Export Full (.md)"))) {
+        std::string fullMd = app.ExportFullMarkdown();
+        ImGui::SetClipboardText(fullMd.c_str());
+        app.outputLog += "[Info] Conhecimento completo exportado para o clipboard.\n";
+    }
+    ImGui::SameLine();
+    if (ImGui::Button(label("🎯 Centralizar Grafo", "Center Graph"))) {
+        app.CenterGraph();
+    }
+    
+    ImGui::EndChild();
+    ImGui::PopStyleColor();
 }
 
 } // namespace

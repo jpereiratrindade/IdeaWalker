@@ -29,10 +29,11 @@ O **Idea Walker** e um suporte cognitivo projetado para transformar pensamentos 
 
 ## ✨ Funcionalidades
 - Ingestao de arquivos `.txt` do **inbox** e geracao de notas em Markdown.
-- **Execucao** com Kanban (A Fazer, Em Andamento, Feito) e drag & drop.
-- **Consolidacao** de tarefas em `notas/_Consolidated_Tasks.md`.
-- **Organized Knowledge** com visao unificada ou por arquivo, com backlinks.
-- **Dashboard** com log do sistema e heatmap de atividade.
+- **🕸️ Neural Web & Mind Map**: Visualiza conexões entre notas e tarefas em um mapa mental interativo.
+- **🚀 Gestão de Execução**: Kanban board sincronizado com as tarefas extraídas por IA.
+- **📤 Exportação Flexível**: Gere diagramas Mermaid ou relatórios completos em Markdown para Obsidian/GitHub.
+- **🎙️ Captura de Áudio**: Inteligência artificial local para transcrição e organização de insights.
+- **📜 Licença GPLv3**: Software livre e de código aberto.
 - **Menu File** com abrir/salvar/fechar projeto, Exit e criacao das pastas necessarias.
 - **Navegacao por pastas** integrada nos modais de projeto.
 

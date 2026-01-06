@@ -47,6 +47,16 @@ if(NOT imnodes_POPULATED)
 endif()
 set(IMNODES_DIR ${imnodes_SOURCE_DIR})
 
+# Whisper.cpp
+FetchContent_Declare(
+    whisper
+    GIT_REPOSITORY https://github.com/ggerganov/whisper.cpp.git
+    GIT_TAG master
+)
+set(WHISPER_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(WHISPER_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(whisper)
+
 # --- Executable ---
 
 add_executable(${PROJECT_NAME}
@@ -56,7 +66,7 @@ add_executable(${PROJECT_NAME}
     src/ui/UiRenderer.cpp
     src/infrastructure/OllamaAdapter.cpp
     src/infrastructure/FileRepository.cpp
-    src/infrastructure/WhisperScriptAdapter.cpp
+    src/infrastructure/WhisperCppAdapter.cpp
     src/application/OrganizerService.cpp
     ${IMGUI_DIR}/imgui.cpp
     ${IMGUI_DIR}/imgui_demo.cpp
@@ -85,6 +95,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     SDL2::SDL2
     OpenGL::GL
     dl
+    whisper
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE IMGUI_USE_WCHAR32 IMGUI_DEFINE_MATH_OPERATORS)

@@ -4,7 +4,9 @@
 #include "infrastructure/FileRepository.hpp"
 #include "infrastructure/FileRepository.hpp"
 #include "infrastructure/OllamaAdapter.hpp"
-#include "infrastructure/WhisperScriptAdapter.hpp"
+#include "infrastructure/FileRepository.hpp"
+#include "infrastructure/OllamaAdapter.hpp"
+#include "infrastructure/WhisperCppAdapter.hpp"
 
 #include <algorithm>
 #include <cstdio>
@@ -13,6 +15,7 @@
 #include <regex>
 #include <sstream>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace ideawalker::ui {
 
@@ -68,14 +71,12 @@ bool AppState::OpenProject(const std::string& rootPath) {
     auto repo = std::make_unique<infrastructure::FileRepository>((root / "inbox").string(), (root / "notas").string());
     auto ai = std::make_unique<infrastructure::OllamaAdapter>();
     
-    // Configurable paths? For now assume defaults or simple resolution
-    // Use "python3" from PATH and "transcritor_simples.py" from project root or executable dir
-    // IMPORTANT: In production, these paths should be robust.
-    std::string pythonPath = "python3"; 
-    std::string scriptPath = (root / "transcritor_simples.py").string();
+    // Pure C++ Implementation using Whisper.cpp
+    // Model expected at project root: ggml-medium.bin
+    std::string modelPath = (root / "ggml-medium.bin").string();
     std::string inboxPath = (root / "inbox").string();
 
-    auto transcriber = std::make_unique<infrastructure::WhisperScriptAdapter>(pythonPath, scriptPath, inboxPath);
+    auto transcriber = std::make_unique<infrastructure::WhisperCppAdapter>(modelPath, inboxPath);
 
     organizerService = std::make_unique<application::OrganizerService>(std::move(repo), std::move(ai), std::move(transcriber));
     projectRoot = root.string();
@@ -199,75 +200,136 @@ void AppState::RebuildGraph() {
     std::unordered_map<std::string, int> nameToId;
     int nextId = 0;
 
-    // 1. Create Nodes
+    // 1. Create Nodes and internal Task Links
+    int linkIdCounter = 0;
     for (const auto& insight : allInsights) {
         GraphNode node;
         node.id = nextId++;
-        node.title = insight.getMetadata().id;
+        node.type = NodeType::INSIGHT;
+        node.title = insight.getMetadata().title.empty() ? insight.getMetadata().id : insight.getMetadata().title;
         
-        // Random initial position or circle layout
         float angle = (float(node.id) / allInsights.size()) * 2.0f * 3.14159f;
-        float radius = 200.0f + (node.id * 10.0f); 
-        node.x = std::cos(angle) * radius;
-        node.y = std::sin(angle) * radius;
-        node.vx = 0.0f;
-        node.vy = 0.0f;
+        float radius = 100.0f + (rand() % 200); 
+        node.x = 800.0f + std::cos(angle) * radius;
+        node.y = 450.0f + std::sin(angle) * radius;
+        node.vx = node.vy = 0.0f;
 
         graphNodes.push_back(node);
-        nameToId[node.title] = node.id;
+        int parentId = node.id;
+        
+        nameToId[insight.getMetadata().id] = node.id;
+        if (!insight.getMetadata().title.empty()) {
+            nameToId[insight.getMetadata().title] = node.id;
+        }
+
+        // Add Tasks as sub-nodes if enabled
+        if (showTasksInGraph) {
+            for (const auto& task : insight.getActionables()) {
+                GraphNode taskNode;
+                taskNode.id = nextId++;
+                taskNode.type = NodeType::TASK;
+                taskNode.title = task.description;
+                taskNode.isCompleted = task.isCompleted;
+                taskNode.isInProgress = task.isInProgress;
+
+                // Offset slightly from parent
+                float tAngle = (float(rand()) / RAND_MAX) * 2.0f * 3.14159f;
+                taskNode.x = node.x + std::cos(tAngle) * 50.0f;
+                taskNode.y = node.y + std::sin(tAngle) * 50.0f;
+                taskNode.vx = taskNode.vy = 0.0f;
+
+                graphNodes.push_back(taskNode);
+
+                // Create Link: Parent -> Task
+                graphLinks.push_back({linkIdCounter++, parentId, taskNode.id});
+            }
+        }
     }
 
-    // 2. Create Links
-    int linkIdCounter = 0;
-    std::regex linkRegex(R"(\[\[(.*?)\]\])");
+    // 2. Create Cross-Note Links
+    std::regex linkRegex(R"(\[\[([^\]\|]+)(?:\|[^\]]*)?\]\])");
+    
+    // Pre-calculate which titles are worth searching (at least 4 chars to avoid tiny common words)
+    std::vector<std::pair<std::string, int>> searchableTitles;
+    for (const auto& insight : allInsights) {
+        std::string title = insight.getMetadata().title;
+        if (title.length() >= 4) {
+            searchableTitles.push_back({title, nameToId[title]});
+        }
+    }
+
     for (const auto& insight : allInsights) {
         std::string content = insight.getContent();
         std::string sourceName = insight.getMetadata().id;
         int sourceId = nameToId[sourceName];
 
+        // 2a. Explicit [[Wikilinks]] (High Priority)
+        std::unordered_set<int> linkedNodes;
         auto words_begin = std::sregex_iterator(content.begin(), content.end(), linkRegex);
         auto words_end = std::sregex_iterator();
 
         for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
             std::smatch match = *i;
             std::string targetName = match[1].str();
-            
-            // Normalize target name if needed (e.g., remove alias)
-            // For now, assume exact match
+            targetName.erase(0, targetName.find_first_not_of(" \t\n\r"));
+            targetName.erase(targetName.find_last_not_of(" \t\n\r") + 1);
             
             auto it = nameToId.find(targetName);
-            if (it != nameToId.end()) {
-                GraphLink link;
-                link.id = linkIdCounter++;
-                link.startNode = sourceId;
-                link.endNode = it->second;
+            if (it == nameToId.end()) it = nameToId.find(targetName + ".md");
+            
+            if (it != nameToId.end() && it->second != sourceId) {
+                if (linkedNodes.find(it->second) == linkedNodes.end()) {
+                    GraphLink link{linkIdCounter++, sourceId, it->second};
+                    graphLinks.push_back(link);
+                    linkedNodes.insert(it->second);
+                }
+            }
+        }
+
+        // 2b. Implicit Semantic Links (Search titles in text)
+        for (const auto& [title, targetId] : searchableTitles) {
+            if (targetId == sourceId) continue;
+            if (linkedNodes.find(targetId) != linkedNodes.end()) continue;
+
+            // Simple case-insensitive search or exact search
+            if (content.find(title) != std::string::npos) {
+                GraphLink link{linkIdCounter++, sourceId, targetId};
                 graphLinks.push_back(link);
+                linkedNodes.insert(targetId);
             }
         }
     }
 }
 
 void AppState::UpdateGraphPhysics() {
-    const float repulsion = 1000.0f;
-    const float springLength = 150.0f;
-    const float springK = 0.05f;
-    const float damping = 0.90f;
-    const float dt = 0.16f; // Fixed small step for stability
+    const float repulsionInsight = 1000.0f; 
+    const float repulsionTask = 200.0f;
+    const float springLengthInsight = 300.0f; // Distance between linked notes
+    const float springLengthTask = 80.0f;    // Tasks stay close to parent
+    const float springK = 0.06f;
+    const float damping = 0.60f;
+    
+    const float centerX = 800.0f;
+    const float centerY = 450.0f;
 
-    // Reset forces
     std::vector<std::pair<float, float>> forces(graphNodes.size(), {0.0f, 0.0f});
 
-    // 1. Repulsion (Nodes repel each other)
+    // 1. Repulsion
     for (size_t i = 0; i < graphNodes.size(); ++i) {
         for (size_t j = i + 1; j < graphNodes.size(); ++j) {
             float dx = graphNodes[i].x - graphNodes[j].x;
             float dy = graphNodes[i].y - graphNodes[j].y;
             float distSq = dx*dx + dy*dy;
-            if (distSq < 0.01f) distSq = 0.01f; // Avoid singularity
+            if (distSq < 400.0f) distSq = 400.0f; 
 
             float dist = std::sqrt(distSq);
-            float force = repulsion / distSq;
             
+            // Adjust repulsion based on node types
+            float r = (graphNodes[i].type == NodeType::INSIGHT && graphNodes[j].type == NodeType::INSIGHT) 
+                      ? repulsionInsight : repulsionTask;
+            
+            float force = r / dist; 
+
             float fx = (dx / dist) * force;
             float fy = (dy / dist) * force;
 
@@ -278,10 +340,8 @@ void AppState::UpdateGraphPhysics() {
         }
     }
 
-    // 2. Attraction (Links pull nodes together)
+    // 2. Attraction
     for (const auto& link : graphLinks) {
-        // Find node indices (IDs correspond to index in graphNodes because we generated them sequentially)
-        // Safety check if IDs get complex later
         if (link.startNode >= graphNodes.size() || link.endNode >= graphNodes.size()) continue;
 
         GraphNode& n1 = graphNodes[link.startNode];
@@ -290,10 +350,13 @@ void AppState::UpdateGraphPhysics() {
         float dx = n2.x - n1.x;
         float dy = n2.y - n1.y;
         float dist = std::sqrt(dx*dx + dy*dy);
-        if (dist < 0.01f) dist = 0.01f;
+        if (dist < 1.0f) dist = 1.0f;
 
-        float displacement = dist - springLength;
-        float force = displacement * springK;
+        // Tasks use shorter spring
+        float targetLen = (n1.type == NodeType::TASK || n2.type == NodeType::TASK) 
+                          ? springLengthTask : springLengthInsight;
+        
+        float force = (dist - targetLen) * springK;
 
         float fx = (dx / dist) * force;
         float fy = (dy / dist) * force;
@@ -304,25 +367,53 @@ void AppState::UpdateGraphPhysics() {
         forces[link.endNode].second -= fy;
     }
 
-    // 3. Center Gravity (Weak pull to 0,0)
+    // 3. Center Gravity
     for (size_t i = 0; i < graphNodes.size(); ++i) {
-        float dist = std::sqrt(graphNodes[i].x*graphNodes[i].x + graphNodes[i].y*graphNodes[i].y);
-        if (dist > 0.01f) {
-            forces[i].first -= (graphNodes[i].x / dist) * 0.5f;
-            forces[i].second -= (graphNodes[i].y / dist) * 0.5f;
+        if (graphNodes[i].type == NodeType::TASK) continue; // Tasks follow parents, don't pull to center directly
+
+        float dx = centerX - graphNodes[i].x;
+        float dy = centerY - graphNodes[i].y;
+        float dist = std::sqrt(dx*dx + dy*dy);
+        
+        if (dist > 10.0f) {
+            float strength = 0.02f; 
+            forces[i].first += (dx / dist) * dist * strength; 
+            forces[i].second += (dy / dist) * dist * strength;
         }
     }
 
     // 4. Update Positions
     for (size_t i = 0; i < graphNodes.size(); ++i) {
         auto& node = graphNodes[i];
-        node.vx = (node.vx + forces[i].first * dt) * damping;
-        node.vy = (node.vy + forces[i].second * dt) * damping;
+        
+        node.vx = (node.vx + forces[i].first) * damping;
+        node.vy = (node.vy + forces[i].second) * damping;
 
-        node.x += node.vx * dt;
-        node.y += node.vy * dt;
+        float v = std::sqrt(node.vx*node.vx + node.vy*node.vy);
+        const float maxV = 8.0f;
+        if (v > maxV) {
+            node.vx = (node.vx / v) * maxV;
+            node.vy = (node.vy / v) * maxV;
+        }
 
-        // Clamp generic bounds if needed, but not strictly required
+        node.x += node.vx;
+        node.y += node.vy;
+
+        // 5. Bounds Clamping (Keep nodes within a reasonable area)
+        const float margin = 2000.0f;
+        if (node.x < 800.0f - margin) node.x = 800.0f - margin;
+        if (node.x > 800.0f + margin) node.x = 800.0f + margin;
+        if (node.y < 450.0f - margin) node.y = 450.0f - margin;
+        if (node.y > 450.0f + margin) node.y = 450.0f + margin;
+    }
+}
+
+void AppState::CenterGraph() {
+    for (auto& node : graphNodes) {
+        node.x = 800.0f + (rand() % 100 - 50);
+        node.y = 450.0f + (rand() % 100 - 50);
+        node.vx = 0;
+        node.vy = 0;
     }
 }
 
@@ -364,6 +455,77 @@ void AppState::HandleFileDrop(const std::string& filePath) {
     } else {
         AppendLog("[SYSTEM] Drop ignored: Unsupported file type (" + ext + ")\n");
     }
+}
+
+std::string AppState::ExportToMermaid() const {
+    std::stringstream ss;
+    ss << "# IdeaWalker Neural Web - Export\n\n";
+    ss << "```mermaid\n";
+    ss << "mindmap\n";
+    ss << "  root((IdeaWalker Neural Web))\n";
+
+    // Build hierarchical map from app links
+    for (const auto& node : graphNodes) {
+        if (node.type == NodeType::INSIGHT) {
+            ss << "    node_" << node.id << "[" << node.title << "]\n";
+            
+            // Find its tasks
+            for (const auto& link : graphLinks) {
+                if (link.startNode == node.id) {
+                    const auto& targetNode = graphNodes[link.endNode];
+                    if (targetNode.type == NodeType::TASK) {
+                        const char* emoji = "⏳ ";
+                        if (targetNode.isCompleted) emoji = "✅ ";
+                        else if (targetNode.isInProgress) emoji = "🚀 ";
+
+                        ss << "      " << (targetNode.isCompleted ? " ((" : " (")
+                           << emoji << targetNode.title << (targetNode.isCompleted ? ")) " : ") ") << "\n";
+                    }
+                }
+            }
+        }
+    }
+
+    ss << "```\n";
+    return ss.str();
+}
+
+std::string AppState::ExportFullMarkdown() const {
+    std::stringstream ss;
+    ss << "# IdeaWalker - Knowledge Base Export\n";
+    ss << "Data: " << __DATE__ << "\n\n";
+
+    ss << "## 🕸️ Neural Web (Mermaid Flowchart)\n\n";
+    ss << "```mermaid\n";
+    ss << "graph TD\n";
+    // Add all nodes
+    for (const auto& node : graphNodes) {
+        if (node.type == NodeType::INSIGHT) {
+            ss << "  N" << node.id << "[" << node.title << "]\n";
+        }
+    }
+    // Add cross-links
+    for (const auto& link : graphLinks) {
+        const auto& start = graphNodes[link.startNode];
+        const auto& end = graphNodes[link.endNode];
+        if (start.type == NodeType::INSIGHT && end.type == NodeType::INSIGHT) {
+            ss << "  N" << link.startNode << " --> N" << link.endNode << "\n";
+        }
+    }
+    ss << "```\n\n";
+
+    ss << "## 🧠 Mind Map (Tasks & Ideas)\n\n";
+    ss << ExportToMermaid() << "\n\n";
+
+    ss << "## 📝 Document Contents\n\n";
+    for (const auto& insight : allInsights) {
+        ss << "### " << (insight.getMetadata().title.empty() ? insight.getMetadata().id : insight.getMetadata().title) << "\n";
+        ss << "ID: `" << insight.getMetadata().id << "`\n\n";
+        ss << insight.getContent() << "\n\n";
+        ss << "---\n\n";
+    }
+
+    return ss.str();
 }
 
 } // namespace ideawalker::ui
