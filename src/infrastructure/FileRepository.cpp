@@ -76,7 +76,8 @@ std::vector<domain::Insight> FileRepository::fetchHistory() {
     if (!fs::exists(m_notesPath)) return history;
 
     for (const auto& entry : fs::directory_iterator(m_notesPath)) {
-        if (entry.is_regular_file() && entry.path().extension() == ".md") {
+        std::string ext = entry.path().extension().string();
+        if (entry.is_regular_file() && (ext == ".md" || ext == ".txt")) {
             std::ifstream file(entry.path());
             std::stringstream buffer;
             buffer << file.rdbuf();
@@ -119,7 +120,8 @@ std::vector<std::string> FileRepository::getBacklinks(const std::string& filenam
     std::string searchStr = "[[" + target + "]]";
 
     for (const auto& entry : fs::directory_iterator(m_notesPath)) {
-        if (entry.is_regular_file() && entry.path().extension() == ".md") {
+        std::string ext = entry.path().extension().string();
+        if (entry.is_regular_file() && (ext == ".md" || ext == ".txt")) {
             if (entry.path().filename().string() == filename) continue;
 
             std::ifstream file(entry.path());
@@ -137,7 +139,8 @@ std::map<std::string, int> FileRepository::getActivityHistory() {
     if (!fs::exists(m_notesPath)) return history;
 
     for (const auto& entry : fs::directory_iterator(m_notesPath)) {
-        if (entry.is_regular_file() && entry.path().extension() == ".md") {
+        std::string ext = entry.path().extension().string();
+        if (entry.is_regular_file() && (ext == ".md" || ext == ".txt")) {
             try {
                 auto ftime = fs::last_write_time(entry);
 #if defined(__cpp_lib_chrono) && __cpp_lib_chrono >= 201907L

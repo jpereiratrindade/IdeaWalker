@@ -61,6 +61,7 @@ struct AppState {
     int requestedTab = -1;
     bool showTasksInGraph = true;
     bool physicsEnabled = true;
+    bool previewMode = false;
 
     std::string ExportToMermaid() const;
     std::string ExportFullMarkdown() const;

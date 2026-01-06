@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <ctime>
 #include <filesystem>
+#include <sstream>
 #include <string>
 #include <thread>
 #include <unordered_set>
@@ -18,6 +19,113 @@
 namespace ideawalker::ui {
 
 namespace {
+
+bool StartsWith(const std::string& text, const char* prefix) {
+    return text.rfind(prefix, 0) == 0;
+}
+
+// Helper to draw a rich representation of Markdown content
+void DrawMarkdownPreview(AppState& app, const std::string& content) {
+    auto label = [&app](const char* withEmoji, const char* plain) {
+        return app.emojiEnabled ? withEmoji : plain;
+    };
+
+    std::stringstream ss(content);
+    std::string line;
+
+    while (std::getline(ss, line)) {
+        if (line.empty()) {
+            ImGui::Spacing();
+            continue;
+        }
+
+        // 1. Headers
+        if (StartsWith(line, "# ")) {
+            ImGui::TextColored(ImVec4(0.4f, 0.7f, 1.0f, 1.0f), "%s", line.substr(2).c_str());
+            ImGui::Separator();
+        } else if (StartsWith(line, "## ")) {
+            ImGui::TextColored(ImVec4(0.3f, 0.6f, 0.9f, 1.0f), "%s", line.substr(3).c_str());
+        } else if (StartsWith(line, "### ")) {
+            ImGui::TextColored(ImVec4(0.2f, 0.5f, 0.8f, 1.0f), "%s", line.substr(4).c_str());
+        } 
+        // 2. Lists & Tasks
+        else if (StartsWith(line, "- [ ] ") || StartsWith(line, "* [ ] ")) {
+            ImGui::TextUnformatted(label("📋", "[ ]"));
+            ImGui::SameLine();
+            ImGui::TextWrapped("%s", line.substr(6).c_str());
+        } else if (StartsWith(line, "- [x] ") || StartsWith(line, "* [x] ")) {
+            ImGui::TextColored(ImVec4(0.5f, 1.0f, 0.5f, 1.0f), "%s", label("✅", "[x]"));
+            ImGui::SameLine();
+            ImGui::TextDisabled("%s", line.substr(6).c_str());
+        } else if (StartsWith(line, "- ") || StartsWith(line, "* ")) {
+            ImGui::TextUnformatted(" • ");
+            ImGui::SameLine();
+            ImGui::TextWrapped("%s", line.substr(2).c_str());
+        }
+        // 3. Quotes
+        else if (StartsWith(line, "> ")) {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.7f, 0.7f, 0.7f, 1.0f));
+            ImGui::TextWrapped(" | %s", line.substr(2).c_str());
+            ImGui::PopStyleColor();
+        }
+        // 4. Backlinks [[Link]] 
+        else {
+            size_t lastPos = 0;
+            size_t startPos = line.find("[[");
+            while (startPos != std::string::npos) {
+                // Print text before [[
+                if (startPos > lastPos) {
+                    ImGui::TextWrapped("%s", line.substr(lastPos, startPos - lastPos).c_str());
+                    ImGui::SameLine(0, 0);
+                }
+
+                size_t endPos = line.find("]]", startPos + 2);
+                if (endPos != std::string::npos) {
+                    std::string linkName = line.substr(startPos + 2, endPos - startPos - 2);
+                    
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.3f, 0.5f, 1.0f));
+                    if (ImGui::SmallButton(linkName.c_str())) {
+                        std::string targetMd = linkName + ".md";
+                        std::string targetTxt = linkName + ".txt";
+                        std::string finalTarget = "";
+
+                        // Resolve target
+                        for (const auto& insight : app.allInsights) {
+                            const std::string& id = insight.getMetadata().id;
+                            if (id == linkName || id == targetMd || id == targetTxt) {
+                                finalTarget = id;
+                                app.selectedNoteContent = insight.getContent();
+                                break;
+                            }
+                        }
+
+                        if (!finalTarget.empty()) {
+                            app.selectedFilename = finalTarget;
+                            std::snprintf(app.saveAsFilename, sizeof(app.saveAsFilename), "%s", finalTarget.c_str());
+                            
+                            domain::Insight::Metadata meta;
+                            meta.id = finalTarget;
+                            app.currentInsight = std::make_unique<domain::Insight>(meta, app.selectedNoteContent);
+                            app.currentInsight->parseActionablesFromContent();
+                            app.currentBacklinks = app.organizerService->getBacklinks(finalTarget);
+                        }
+                    }
+                    ImGui::PopStyleColor();
+                    ImGui::SameLine(0, 0);
+                    
+                    lastPos = endPos + 2;
+                    startPos = line.find("[[", lastPos);
+                } else {
+                    break;
+                }
+            }
+            // Print remaining text
+            if (lastPos < line.size()) {
+                ImGui::TextWrapped("%s", line.substr(lastPos).c_str());
+            }
+        }
+    }
+}
 
 std::tm ToLocalTime(std::time_t tt) {
     std::tm tm = {};
@@ -242,7 +350,7 @@ void DrawNodeGraph(AppState& app) {
     // 1. Draw Nodes
     for (auto& node : app.graphNodes) {
         // Set position for physics, but skip if currently selected (let user drag)
-        if (!ImNodes::IsNodeSelected(node.id)) {
+        if (app.physicsEnabled && !ImNodes::IsNodeSelected(node.id)) {
             ImNodes::SetNodeGridSpacePos(node.id, ImVec2(node.x, node.y));
         }
 
@@ -699,7 +807,9 @@ void DrawUI(AppState& app) {
                         if (ImGui::Button(label("📂 Save As", "Save As"), ImVec2(100, 30))) {
                             std::string newName = app.saveAsFilename;
                             if (!newName.empty()) {
-                                if (newName.find(".md") == std::string::npos) newName += ".md";
+                                if (newName.find(".md") == std::string::npos && newName.find(".txt") == std::string::npos) {
+                                    newName += ".md";
+                                }
                                 app.organizerService->updateNote(newName, app.selectedNoteContent);
                                 app.selectedFilename = newName;
                                 app.AppendLog("[SYSTEM] Saved as " + newName + "\n");
@@ -709,11 +819,30 @@ void DrawUI(AppState& app) {
 
                         ImGui::Separator();
                         
-                        // Editor de texto (InputTextMultiline com Resize)
-                        if (InputTextMultilineString("##editor", &app.selectedNoteContent, ImVec2(-FLT_MIN, -200))) {
-                            if (app.currentInsight) {
-                                app.currentInsight->setContent(app.selectedNoteContent);
-                                app.currentInsight->parseActionablesFromContent();
+                        // Editor / Visual Switcher
+                        if (ImGui::BeginTabBar("EditorTabs")) {
+                            if (ImGui::BeginTabItem(label("📝 Editor", "Editor"))) {
+                                app.previewMode = false;
+                                ImGui::EndTabItem();
+                            }
+                            if (ImGui::BeginTabItem(label("👁️ Visual", "Visual"))) {
+                                app.previewMode = true;
+                                ImGui::EndTabItem();
+                            }
+                            ImGui::EndTabBar();
+                        }
+
+                        if (app.previewMode) {
+                            ImGui::BeginChild("PreviewScroll", ImVec2(0, -200), true);
+                            DrawMarkdownPreview(app, app.selectedNoteContent);
+                            ImGui::EndChild();
+                        } else {
+                            // Editor de texto (InputTextMultiline com Resize)
+                            if (InputTextMultilineString("##editor", &app.selectedNoteContent, ImVec2(-FLT_MIN, -200))) {
+                                if (app.currentInsight) {
+                                    app.currentInsight->setContent(app.selectedNoteContent);
+                                    app.currentInsight->parseActionablesFromContent();
+                                }
                             }
                         }
                         
