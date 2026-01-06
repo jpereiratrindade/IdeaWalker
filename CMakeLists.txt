@@ -53,6 +53,7 @@ add_executable(${PROJECT_NAME}
     src/ui/UiRenderer.cpp
     src/infrastructure/OllamaAdapter.cpp
     src/infrastructure/FileRepository.cpp
+    src/infrastructure/WhisperScriptAdapter.cpp
     src/application/OrganizerService.cpp
     ${IMGUI_DIR}/imgui.cpp
     ${IMGUI_DIR}/imgui_demo.cpp

@@ -46,8 +46,9 @@ std::string FilterTaskLines(const std::string& text) {
 } // namespace
 
 OrganizerService::OrganizerService(std::unique_ptr<domain::ThoughtRepository> repo, 
-                                   std::unique_ptr<domain::AIService> ai)
-    : m_repo(std::move(repo)), m_ai(std::move(ai)) {}
+                                   std::unique_ptr<domain::AIService> ai,
+                                   std::unique_ptr<domain::TranscriptionService> transcriber)
+    : m_repo(std::move(repo)), m_ai(std::move(ai)), m_transcriber(std::move(transcriber)) {}
 
 void OrganizerService::processInbox(bool force) {
     auto rawThoughts = m_repo->fetchInbox();
@@ -178,6 +179,16 @@ std::map<std::string, int> OrganizerService::getActivityHistory() {
 
 std::vector<domain::RawThought> OrganizerService::getRawThoughts() {
     return m_repo->fetchInbox();
+}
+
+void OrganizerService::transcribeAudio(const std::string& audioPath, 
+                                      std::function<void(std::string)> onSuccess, 
+                                      std::function<void(std::string)> onError) {
+    if (m_transcriber) {
+        m_transcriber->transcribeAsync(audioPath, onSuccess, onError);
+    } else {
+        if (onError) onError("Transcription service not initialized.");
+    }
 }
 
 } // namespace ideawalker::application

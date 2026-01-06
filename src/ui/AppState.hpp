@@ -46,8 +46,9 @@ struct AppState {
     bool requestExit = false;
     char saveAsFilename[128];
     std::atomic<bool> isProcessing{false};
+    std::atomic<bool> isTranscribing{false}; // New flag
     std::atomic<bool> pendingRefresh{false};
-    int activeTab = 0; // 0: Dashboard, 1: Knowledge, 2: Execution
+    int activeTab = 0; // 0: Dashboard, 1: Knowledge, 2: Execution, 3: Neural Web
     int requestedTab = -1;
 
     std::unique_ptr<domain::Insight> currentInsight;
@@ -74,6 +75,7 @@ struct AppState {
     bool CloseProject();
     void RefreshInbox();
     void RefreshAllInsights();
+    void HandleFileDrop(const std::string& filePath);
     void RebuildGraph();
     void UpdateGraphPhysics();
     void AppendLog(const std::string& line);

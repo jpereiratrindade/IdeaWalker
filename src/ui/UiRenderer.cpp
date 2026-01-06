@@ -509,6 +509,10 @@ void DrawUI(AppState& app) {
                     ImGui::SameLine();
                     ImGui::TextColored(ImVec4(1, 1, 0, 1), "⏳ Thinking...");
                 }
+                if (app.isTranscribing.load()) {
+                    ImGui::SameLine();
+                    ImGui::TextColored(ImVec4(0, 1, 1, 1), "🎙️ Transcribing Audio...");
+                }
 
                 ImGui::Separator();
                 ImGui::Text("System Log:");

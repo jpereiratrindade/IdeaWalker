@@ -2,7 +2,9 @@
 
 #include "application/OrganizerService.hpp"
 #include "infrastructure/FileRepository.hpp"
+#include "infrastructure/FileRepository.hpp"
 #include "infrastructure/OllamaAdapter.hpp"
+#include "infrastructure/WhisperScriptAdapter.hpp"
 
 #include <algorithm>
 #include <cstdio>
@@ -65,7 +67,17 @@ bool AppState::OpenProject(const std::string& rootPath) {
 
     auto repo = std::make_unique<infrastructure::FileRepository>((root / "inbox").string(), (root / "notas").string());
     auto ai = std::make_unique<infrastructure::OllamaAdapter>();
-    organizerService = std::make_unique<application::OrganizerService>(std::move(repo), std::move(ai));
+    
+    // Configurable paths? For now assume defaults or simple resolution
+    // Use "python3" from PATH and "transcritor_simples.py" from project root or executable dir
+    // IMPORTANT: In production, these paths should be robust.
+    std::string pythonPath = "python3"; 
+    std::string scriptPath = (root / "transcritor_simples.py").string();
+    std::string inboxPath = (root / "inbox").string();
+
+    auto transcriber = std::make_unique<infrastructure::WhisperScriptAdapter>(pythonPath, scriptPath, inboxPath);
+
+    organizerService = std::make_unique<application::OrganizerService>(std::move(repo), std::move(ai), std::move(transcriber));
     projectRoot = root.string();
     std::snprintf(projectPathBuffer, sizeof(projectPathBuffer), "%s", projectRoot.c_str());
 
@@ -311,6 +323,46 @@ void AppState::UpdateGraphPhysics() {
         node.y += node.vy * dt;
 
         // Clamp generic bounds if needed, but not strictly required
+    }
+}
+
+void AppState::HandleFileDrop(const std::string& filePath) {
+    if (!organizerService) {
+        AppendLog("[SYSTEM] Drop ignored: No project open.\n");
+        return;
+    }
+
+    std::string pathObj = filePath;
+    // Check extension
+    std::string ext = "";
+    size_t dot = pathObj.find_last_of('.');
+    if (dot != std::string::npos) {
+        ext = pathObj.substr(dot);
+        std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+    }
+
+    if (ext == ".wav" || ext == ".mp3" || ext == ".m4a") {
+        if (isTranscribing.load()) {
+            AppendLog("[SYSTEM] Busy: Transcription already in progress.\n");
+            return;
+        }
+
+        isTranscribing.store(true);
+        AppendLog("[Transcription] Started for: " + filePath + "\n");
+        
+        organizerService->transcribeAudio(filePath,
+            [this](std::string textPath) {
+                AppendLog("[Transcription] Success! Text saved to: " + textPath + "\n");
+                isTranscribing.store(false);
+                pendingRefresh.store(true);
+            },
+            [this](std::string error) {
+                AppendLog("[Transcription] Error: " + error + "\n");
+                isTranscribing.store(false);
+            }
+        );
+    } else {
+        AppendLog("[SYSTEM] Drop ignored: Unsupported file type (" + ext + ")\n");
     }
 }
 

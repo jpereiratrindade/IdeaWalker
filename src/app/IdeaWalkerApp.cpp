@@ -189,6 +189,11 @@ int IdeaWalkerApp::Run() {
         while (SDL_PollEvent(&event)) {
             ImGui_ImplSDL2_ProcessEvent(&event);
             if (event.type == SDL_QUIT) done = true;
+            if (event.type == SDL_DROPFILE) {
+                char* dropped_file = event.drop.file;
+                m_state.HandleFileDrop(dropped_file);
+                SDL_free(dropped_file);
+            }
         }
 
         ImGui_ImplOpenGL3_NewFrame();
