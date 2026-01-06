@@ -8,6 +8,7 @@ _deps/
 bin/
 lib/
 *.wav
+*.py
 *.pyc
 __pycache__/
 inbox/
