@@ -309,44 +309,53 @@ void DrawNodeGraph(AppState& app) {
         app.UpdateGraphPhysics();
     }
 
-    // Control Panel Overlay - Auto-adjust to content
-    ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowPos().x + 20, ImGui::GetWindowPos().y + ImGui::GetWindowSize().y - 20), ImGuiCond_Always, ImVec2(0, 1));
-    ImGui::SetNextWindowBgAlpha(0.9f);
-    
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 5.0f);
-    ImGui::Begin("GraphControlsOverlay", nullptr, 
-        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | 
-        ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings |
-        ImGuiWindowFlags_NoNav);
-    
-    ImGui::TextColored(ImVec4(0.7f, 0.7f, 1.0f, 1.0f), label("🛠️ Configurações do Grafo", "Graph Settings"));
-    ImGui::Separator();
+    // 4. Update Physics
+    if (!app.graphNodes.empty() && app.physicsEnabled) {
+        app.UpdateGraphPhysics();
+    }
 
-    if (ImGui::Checkbox(label("🕸️ Mostrar Tarefas", "Show Tasks"), &app.showTasksInGraph)) {
-        app.RebuildGraph();
+    // Control Panel Overlay - Restored stable BeginChild at bottom-left
+    float panelWidth = 350.0f;
+    float panelHeight = 115.0f;
+    
+    // Position at bottom-left of the current tab content
+    ImVec2 avail = ImGui::GetContentRegionMax();
+    ImGui::SetCursorPos(ImVec2(10, avail.y - panelHeight - 10));
+    
+    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(30, 30, 30, 230));
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
+    
+    if (ImGui::BeginChild("GraphControls", ImVec2(panelWidth, panelHeight), true, ImGuiWindowFlags_NoMove)) {
+        ImGui::TextColored(ImVec4(0.7f, 0.7f, 1.0f, 1.0f), label("🛠️ Configurações do Grafo", "Graph Settings"));
+        ImGui::Separator();
+
+        if (ImGui::Checkbox(label("🕸️ Mostrar Tarefas", "Show Tasks"), &app.showTasksInGraph)) {
+            app.RebuildGraph();
+        }
+        
+        ImGui::SameLine();
+        ImGui::Checkbox(label("🔄 Animação", "Animation"), &app.physicsEnabled);
+        
+        if (ImGui::Button(label("📤 Exportar Mermaid", "Export Mermaid"))) {
+            std::string mermaid = app.ExportToMermaid();
+            ImGui::SetClipboardText(mermaid.c_str());
+            app.outputLog += "[Info] Mapa mental exportado para o clipboard.\n";
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(label("📁 Exportar Full (.md)", "Export Full (.md)"))) {
+            std::string fullMd = app.ExportFullMarkdown();
+            ImGui::SetClipboardText(fullMd.c_str());
+            app.outputLog += "[Info] Conhecimento completo exportado para o clipboard.\n";
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(label("🎯 Centralizar Grafo", "Center Graph"))) {
+            app.CenterGraph();
+        }
+        ImGui::EndChild();
     }
     
-    ImGui::SameLine();
-    ImGui::Checkbox(label("🔄 Animação", "Animation"), &app.physicsEnabled);
-    
-    if (ImGui::Button(label("📤 Exportar Mermaid", "Export Mermaid"))) {
-        std::string mermaid = app.ExportToMermaid();
-        ImGui::SetClipboardText(mermaid.c_str());
-        app.outputLog += "[Info] Mapa mental exportado para o clipboard.\n";
-    }
-    ImGui::SameLine();
-    if (ImGui::Button(label("📁 Exportar Full (.md)", "Export Full (.md)"))) {
-        std::string fullMd = app.ExportFullMarkdown();
-        ImGui::SetClipboardText(fullMd.c_str());
-        app.outputLog += "[Info] Conhecimento completo exportado para o clipboard.\n";
-    }
-    ImGui::SameLine();
-    if (ImGui::Button(label("🎯 Centralizar Grafo", "Center Graph"))) {
-        app.CenterGraph();
-    }
-    
-    ImGui::End();
     ImGui::PopStyleVar();
+    ImGui::PopStyleColor();
 }
 
 } // namespace
