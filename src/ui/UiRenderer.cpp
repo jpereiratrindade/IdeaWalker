@@ -314,18 +314,20 @@ void DrawNodeGraph(AppState& app) {
         app.UpdateGraphPhysics();
     }
 
-    // Control Panel Overlay - Restored stable BeginChild at bottom-left
-    float panelWidth = 350.0f;
-    float panelHeight = 115.0f;
+    // Control Panel Overlay - Use a separate WINDOW but with "NoBringToFrontOnFocus" to prevent flickering
+    // and "AlwaysAutoResize" to fit content perfectly.
+    ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowPos().x + 20, ImGui::GetWindowPos().y + ImGui::GetWindowSize().y - 20), ImGuiCond_Always, ImVec2(0, 1));
+    ImGui::SetNextWindowBgAlpha(0.85f);
     
-    // Position at bottom-left of the current tab content
-    ImVec2 avail = ImGui::GetContentRegionMax();
-    ImGui::SetCursorPos(ImVec2(10, avail.y - panelHeight - 10));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 8.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
     
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, IM_COL32(30, 30, 30, 230));
-    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 5.0f);
-    
-    if (ImGui::BeginChild("GraphControls", ImVec2(panelWidth, panelHeight), true, ImGuiWindowFlags_NoMove)) {
+    ImGuiWindowFlags overlayFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | 
+                                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | 
+                                   ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
+                                   ImGuiWindowFlags_NoNav;
+
+    if (ImGui::Begin("##GraphControlsOverlay", nullptr, overlayFlags)) {
         ImGui::TextColored(ImVec4(0.7f, 0.7f, 1.0f, 1.0f), label("🛠️ Configurações do Grafo", "Graph Settings"));
         ImGui::Separator();
 
@@ -351,11 +353,10 @@ void DrawNodeGraph(AppState& app) {
         if (ImGui::Button(label("🎯 Centralizar Grafo", "Center Graph"))) {
             app.CenterGraph();
         }
-        ImGui::EndChild();
+        ImGui::End();
     }
     
-    ImGui::PopStyleVar();
-    ImGui::PopStyleColor();
+    ImGui::PopStyleVar(2);
 }
 
 } // namespace
