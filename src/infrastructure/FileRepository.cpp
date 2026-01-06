@@ -9,6 +9,20 @@ namespace fs = std::filesystem;
 
 namespace ideawalker::infrastructure {
 
+namespace {
+
+std::tm ToLocalTime(std::time_t tt) {
+    std::tm tm = {};
+#if defined(_WIN32)
+    localtime_s(&tm, &tt);
+#else
+    localtime_r(&tt, &tm);
+#endif
+    return tm;
+}
+
+} // namespace
+
 FileRepository::FileRepository(const std::string& inboxPath, const std::string& notesPath)
     : m_inboxPath(inboxPath), m_notesPath(notesPath) {
     if (!fs::exists(m_inboxPath)) fs::create_directories(m_inboxPath);
@@ -26,6 +40,21 @@ std::vector<domain::RawThought> FileRepository::fetchInbox() {
         }
     }
     return thoughts;
+}
+
+bool FileRepository::shouldProcess(const domain::RawThought& thought, const std::string& insightId) {
+    fs::path inboxFile = fs::path(m_inboxPath) / thought.filename;
+    fs::path noteFile = fs::path(m_notesPath) / ("Nota_" + insightId + ".md");
+    if (!fs::exists(noteFile)) return true;
+    if (!fs::exists(inboxFile)) return true;
+
+    try {
+        auto inboxTime = fs::last_write_time(inboxFile);
+        auto noteTime = fs::last_write_time(noteFile);
+        return inboxTime > noteTime;
+    } catch (...) {
+        return true;
+    }
 }
 
 void FileRepository::saveInsight(const domain::Insight& insight) {
@@ -48,9 +77,13 @@ std::vector<domain::Insight> FileRepository::fetchHistory() {
 
     for (const auto& entry : fs::directory_iterator(m_notesPath)) {
         if (entry.is_regular_file() && entry.path().extension() == ".md") {
+            std::ifstream file(entry.path());
+            std::stringstream buffer;
+            buffer << file.rdbuf();
+            
             domain::Insight::Metadata meta;
             meta.id = entry.path().filename().string();
-            history.emplace_back(meta, ""); 
+            history.emplace_back(meta, buffer.str()); 
         }
     }
     return history;
@@ -94,9 +127,9 @@ std::map<std::string, int> FileRepository::getActivityHistory() {
                 auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(ftime - fs::file_time_type::clock::now() + std::chrono::system_clock::now());
 #endif
                 std::time_t tt = std::chrono::system_clock::to_time_t(sctp);
-                std::tm* gmt = std::localtime(&tt);
+                std::tm gmt = ToLocalTime(tt);
                 char buffer[11];
-                std::strftime(buffer, sizeof(buffer), "%Y-%m-%d", gmt);
+                std::strftime(buffer, sizeof(buffer), "%Y-%m-%d", &gmt);
                 history[std::string(buffer)]++;
             } catch (...) {}
         }

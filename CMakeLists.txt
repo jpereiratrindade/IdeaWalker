@@ -39,6 +39,9 @@ set(IMGUI_DIR ${imgui_SOURCE_DIR})
 
 add_executable(${PROJECT_NAME}
     main.cpp
+    src/app/IdeaWalkerApp.cpp
+    src/ui/AppState.cpp
+    src/ui/UiRenderer.cpp
     src/infrastructure/OllamaAdapter.cpp
     src/infrastructure/FileRepository.cpp
     src/application/OrganizerService.cpp
@@ -68,6 +71,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     OpenGL::GL
     dl
 )
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE IMGUI_USE_WCHAR32)
 
 # Copy backends headers if fetched
 if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui.h")

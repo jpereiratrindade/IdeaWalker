@@ -9,6 +9,7 @@ public:
     OllamaAdapter(const std::string& host = "localhost", int port = 11434);
 
     std::optional<domain::Insight> processRawThought(const std::string& rawContent) override;
+    std::optional<std::string> consolidateTasks(const std::string& tasksMarkdown) override;
 
 private:
     std::string m_host;

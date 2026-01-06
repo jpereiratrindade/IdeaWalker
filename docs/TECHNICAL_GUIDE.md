@@ -1,28 +1,38 @@
-# Guia Técnico de Funcionamento - Idea Walker
+# Guia Tecnico de Funcionamento - Idea Walker
 
-Este documento descreve as entranhas técnicas e o fluxo de dados do sistema.
+Este documento descreve o fluxo de dados, os principais componentes e como o projeto e organizado.
 
-## 1. Fluxo de Execução
-O sistema utiliza o  para mediar as interações entre as camadas.
+## 1. Fluxo de Execucao
+1. **Entrada**: arquivos `.txt` sao colocados em `<projeto>/inbox/`.
+2. **Leitura**: `FileRepository` converte arquivos em `RawThought`.
+3. **Processamento**: `OrganizerService` chama o `AIService` (`OllamaAdapter`) para gerar Markdown estruturado.
+4. **Persistencia**: o resultado vira `Insight` e e salvo em `<projeto>/notas/`.
+5. **Consolidacao**: o servico atualiza `notas/_Consolidated_Tasks.md` com tarefas unificadas e sem duplicatas.
 
-1.  **Input**: Arquivos  são depositados na pasta .
-2.  **Mapeamento**: O  (Adapter) lê esses arquivos e os converte em objetos  (Domain).
-3.  **Processamento**: O  (Application) envia o conteúdo bruta para o  (Infrastructure).
-4.  **Enriquecimento**: O Ollama (via Qwen 2.5) retorna uma estrutura Markdown.
-5.  **Output**: O sistema gera um objeto  (Domain) e o  persiste no disco como um arquivo  na pasta .
+## 2. Camada de Dominio (DDD)
+- **Insight**: conteudo estruturado, metadados e actionables.
+- **Actionable**: tarefas extraidas dos insights.
+- **RawThought**: entrada bruta do inbox.
+- **Ports**: `ThoughtRepository` (persistencia) e `AIService` (IA).
 
-## 2. Camada de Domínio (DDD)
-- **Insight**: Representa uma ideia já refinada. Contém metadados (ID, Título, Tags) e o conteúdo final.
-- **Actionable**: Valor que representa uma tarefa concreta derivada do Insight.
-- **ThoughtRepository**: Porta de saída para persistência.
-- **AIService**: Porta de saída para inteligência artificial.
+## 3. Camada de Aplicacao
+- **OrganizerService**: orquestra processamento, atualizacao de tarefas consolidadas e mudanca de status das tarefas.
 
-## 3. Infraestrutura
-- **OllamaAdapter**: Realiza chamadas POST HTTP para a API  do Ollama.
-- **FileRepository**: Gerencia o sistema de arquivos local usando .
+## 4. Infraestrutura
+- **FileRepository**: leitura e escrita de arquivos, backlinks e historico de atividade.
+- **OllamaAdapter**: integracao com a API do Ollama usando o modelo `qwen2.5:14b`.
 
-## 4. UI (ImGui)
-A interface é baseada em estados imediatos. O botão "Run AI Orchestrator" dispara uma **worker thread** para não bloquear o loop principal de renderização.
+## 5. UI (ImGui)
+- **AppState**: estado da UI, selecoes, logs, visao unificada e projeto ativo.
+- **UiRenderer**: renderiza Dashboard & Inbox, Organized Knowledge e Execucao (Kanban).
+- **Processamento assincrono**: threads de IA atualizam `pendingRefresh` para recarregar a UI.
+
+## 6. Projetos (File Menu)
+- **New/Open**: define o diretorio do projeto e cria `inbox/` e `notas/` se necessario.
+- **Save/Save As**: garante pastas e copia os dados ao salvar como.
+- **Close**: limpa o estado e desativa o projeto atual.
+- **Exit**: encerra o loop principal da aplicacao.
+- **Navegacao**: os modais trazem um browser de pastas com atalhos para raizes do SO.
 
 ---
-*Versão do Documento: 0.1.0-alpha*
+*Versao do Documento: 0.1.0-alpha*

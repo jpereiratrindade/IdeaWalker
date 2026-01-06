@@ -21,11 +21,16 @@ This project follows a Domain-Driven Design approach to ensure the core logic (o
     - `OrganizerService`: Orchestrates the flow between Domain and Infrastructure.
 
 ### 4. Presentation Layer (`src/ui`)
-- **ImGui Dashboard**: The user interface for interacting with the service.
+- **UiRenderer**: ImGui screens (Dashboard & Inbox, Organized Knowledge, Execucao).
+- **AppState**: UI state, selections, project root and background refresh flags.
+
+### 5. App Layer (`src/app`)
+- **IdeaWalkerApp**: App lifecycle, font loading and main loop.
 
 ## Data Flow
-1. User places a `.txt` in `/inbox`.
+1. User places a `.txt` in `<project>/inbox`.
 2. `OrganizerService` fetches `RawThought` via `FileRepository`.
 3. `OrganizerService` sends content to `OllamaAdapter`.
-4. `OllamaAdapter` receives structured JSON/Markdown from LLM.
-5. `OrganizerService` saves the resulting `Insight` via `FileRepository` into `/notas`.
+4. `OllamaAdapter` receives structured Markdown from LLM.
+5. `OrganizerService` saves the resulting `Insight` into `<project>/notas`.
+6. `OrganizerService` updates `_Consolidated_Tasks.md` with unified tasks.

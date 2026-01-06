@@ -9,6 +9,7 @@ public:
     FileRepository(const std::string& inboxPath, const std::string& notesPath);
 
     std::vector<domain::RawThought> fetchInbox() override;
+    bool shouldProcess(const domain::RawThought& thought, const std::string& insightId) override;
     void saveInsight(const domain::Insight& insight) override;
     void updateNote(const std::string& filename, const std::string& content) override;
     std::vector<domain::Insight> fetchHistory() override;

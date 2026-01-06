@@ -10,4 +10,11 @@ lib/
 *.wav
 *.pyc
 __pycache__/
-
+inbox/
+notas/
+imgui.ini
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.fleet/
