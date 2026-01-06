@@ -11,10 +11,14 @@
             "id": "507a34ee1a0c410a",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Visualização em gráfico"
+              "type": "markdown",
+              "state": {
+                "file": "notas/_Consolidated_Tasks.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "_Consolidated_Tasks"
             }
           }
         ]
@@ -90,6 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "notas/_Consolidated_Tasks.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -99,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks"
+              "title": "Links inversos para _Consolidated_Tasks"
             }
           },
           {
@@ -108,11 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "notas/_Consolidated_Tasks.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Links de saída"
+              "title": "Links de saída para _Consolidated_Tasks"
             }
           },
           {
@@ -150,12 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "notas/_Consolidated_Tasks.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Sumário"
+              "title": "Sumário de _Consolidated_Tasks"
             }
           }
         ]
@@ -178,14 +185,21 @@
   },
   "active": "507a34ee1a0c410a",
   "lastOpenFiles": [
-    "build/CMakeFiles/IdeaWalker.dir/compiler_depend.internal.tmpd4c1c",
-    "build/CMakeFiles/IdeaWalker.dir/compiler_depend.make.tmp3551b",
-    "build/CMakeFiles/IdeaWalker.dir/compiler_depend.internal.tmp6e9ca",
-    "build/CMakeFiles/IdeaWalker.dir/compiler_depend.make.tmpb82c7",
-    "IdeaWalker Knowledge Base.md",
-    "build/CMakeFiles/IdeaWalker.dir/compiler_depend.internal.tmp3a713",
-    "build/CMakeFiles/IdeaWalker.dir/compiler_depend.make.tmpf5f81",
-    "build/CMakeFiles/IdeaWalker.dir/compiler_depend.internal.tmp7ad10",
-    "build/CMakeFiles/IdeaWalker.dir/compiler_depend.make.tmp033da"
+    "notas/Nota_1767646148.md",
+    "notas/Nota_1767645289.md",
+    "notas/Nota_260106_2029_transcricao.md",
+    "notas/Nota_260106_0419_transcricao.md",
+    "notas/_Consolidated_Tasks.md",
+    "build/CMakeFiles/Progress/43",
+    "build/CMakeFiles/Progress/42",
+    "build/CMakeFiles/Progress/41",
+    "build/CMakeFiles/Progress/40",
+    "build/CMakeFiles/Progress/39",
+    "build/CMakeFiles/Progress/38",
+    "build/CMakeFiles/Progress/37",
+    "build/CMakeFiles/Progress/36",
+    "build/CMakeFiles/Progress/35",
+    "build/CMakeFiles/Progress/34",
+    "IdeaWalker Knowledge Base.md"
   ]
 }

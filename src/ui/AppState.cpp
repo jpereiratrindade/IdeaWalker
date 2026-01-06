@@ -479,9 +479,9 @@ std::string AppState::ExportToMermaid() const {
                 if (link.startNode == node.id) {
                     const auto& targetNode = graphNodes[link.endNode];
                     if (targetNode.type == NodeType::TASK) {
-                        const char* emoji = "⏳ ";
-                        if (targetNode.isCompleted) emoji = "✅ ";
-                        else if (targetNode.isInProgress) emoji = "🚀 ";
+                        const char* emoji = "📋 "; // TODO
+                        if (targetNode.isCompleted) emoji = "✅ "; // DONE
+                        else if (targetNode.isInProgress) emoji = "⏳ "; // DOING
 
                         ss << "      " << (targetNode.isCompleted ? " ((" : " (")
                            << emoji << targetNode.title << (targetNode.isCompleted ? ")) " : ") ") << "\n";
