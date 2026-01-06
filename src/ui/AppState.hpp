@@ -5,6 +5,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #include "domain/Insight.hpp"
@@ -63,6 +64,7 @@ struct AppState {
 
     std::string ExportToMermaid() const;
     std::string ExportFullMarkdown() const;
+    void UpdateGraphPhysics(const std::unordered_set<int>& selectedNodes = {});
     void CenterGraph();
 
     std::unique_ptr<domain::Insight> currentInsight;

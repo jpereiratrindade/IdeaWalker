@@ -12,6 +12,7 @@
 #include <filesystem>
 #include <string>
 #include <thread>
+#include <unordered_set>
 #include <vector>
 
 namespace ideawalker::ui {
@@ -294,69 +295,22 @@ void DrawNodeGraph(AppState& app) {
     ImNodes::EndNodeEditor();
 
     // 3. Sync User Dragging back to AppState
+    std::unordered_set<int> selectedNodes;
     for (auto& node : app.graphNodes) {
         if (ImNodes::IsNodeSelected(node.id)) {
+            selectedNodes.insert(node.id);
             ImVec2 pos = ImNodes::GetNodeGridSpacePos(node.id);
             node.x = pos.x;
             node.y = pos.y;
-            node.vx = 0; // Stop movement when holding
+            node.vx = 0;
             node.vy = 0;
         }
     }
 
     // 4. Update Physics
     if (!app.graphNodes.empty() && app.physicsEnabled) {
-        app.UpdateGraphPhysics();
+        app.UpdateGraphPhysics(selectedNodes);
     }
-
-    // 4. Update Physics
-    if (!app.graphNodes.empty() && app.physicsEnabled) {
-        app.UpdateGraphPhysics();
-    }
-
-    // Control Panel Overlay - Use a separate WINDOW but with "NoBringToFrontOnFocus" to prevent flickering
-    // and "AlwaysAutoResize" to fit content perfectly.
-    ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowPos().x + 20, ImGui::GetWindowPos().y + ImGui::GetWindowSize().y - 20), ImGuiCond_Always, ImVec2(0, 1));
-    ImGui::SetNextWindowBgAlpha(0.85f);
-    
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 8.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
-    
-    ImGuiWindowFlags overlayFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | 
-                                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | 
-                                   ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
-                                   ImGuiWindowFlags_NoNav;
-
-    if (ImGui::Begin("##GraphControlsOverlay", nullptr, overlayFlags)) {
-        ImGui::TextColored(ImVec4(0.7f, 0.7f, 1.0f, 1.0f), label("🛠️ Configurações do Grafo", "Graph Settings"));
-        ImGui::Separator();
-
-        if (ImGui::Checkbox(label("🕸️ Mostrar Tarefas", "Show Tasks"), &app.showTasksInGraph)) {
-            app.RebuildGraph();
-        }
-        
-        ImGui::SameLine();
-        ImGui::Checkbox(label("🔄 Animação", "Animation"), &app.physicsEnabled);
-        
-        if (ImGui::Button(label("📤 Exportar Mermaid", "Export Mermaid"))) {
-            std::string mermaid = app.ExportToMermaid();
-            ImGui::SetClipboardText(mermaid.c_str());
-            app.outputLog += "[Info] Mapa mental exportado para o clipboard.\n";
-        }
-        ImGui::SameLine();
-        if (ImGui::Button(label("📁 Exportar Full (.md)", "Export Full (.md)"))) {
-            std::string fullMd = app.ExportFullMarkdown();
-            ImGui::SetClipboardText(fullMd.c_str());
-            app.outputLog += "[Info] Conhecimento completo exportado para o clipboard.\n";
-        }
-        ImGui::SameLine();
-        if (ImGui::Button(label("🎯 Centralizar Grafo", "Center Graph"))) {
-            app.CenterGraph();
-        }
-        ImGui::End();
-    }
-    
-    ImGui::PopStyleVar(2);
 }
 
 } // namespace
@@ -913,6 +867,48 @@ void DrawUI(AppState& app) {
                 ImGui::TextDisabled("Nenhum projeto aberto.");
             } else {
                 DrawNodeGraph(app);
+
+                // --- Graph Settings Overlay ---
+                ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowPos().x + 20, ImGui::GetWindowPos().y + ImGui::GetWindowSize().y - 20), ImGuiCond_Always, ImVec2(0, 1));
+                ImGui::SetNextWindowBgAlpha(0.9f);
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 8.0f);
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 1.0f);
+                
+                ImGuiWindowFlags overlayFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | 
+                                               ImGuiWindowFlags_NoMove | ImGuiWindowFlags_AlwaysAutoResize | 
+                                               ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
+                                               ImGuiWindowFlags_NoNav;
+
+                if (ImGui::Begin("##GraphControlsOverlay", nullptr, overlayFlags)) {
+                    ImGui::TextColored(ImVec4(0.7f, 0.7f, 1.0f, 1.0f), label("🛠️ Configurações do Grafo", "Graph Settings"));
+                    ImGui::Separator();
+
+                    if (ImGui::Checkbox(label("🕸️ Mostrar Tarefas", "Show Tasks"), &app.showTasksInGraph)) {
+                        app.RebuildGraph();
+                    }
+                    
+                    ImGui::SameLine();
+                    ImGui::Checkbox(label("🔄 Animação", "Animation"), &app.physicsEnabled);
+                    
+                    if (ImGui::Button(label("📤 Exportar Mermaid", "Export Mermaid"))) {
+                        std::string mermaid = app.ExportToMermaid();
+                        ImGui::SetClipboardText(mermaid.c_str());
+                        app.outputLog += "[Info] Mapa mental exportado para o clipboard.\n";
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button(label("📁 Exportar Full (.md)", "Export Full (.md)"))) {
+                        std::string fullMd = app.ExportFullMarkdown();
+                        ImGui::SetClipboardText(fullMd.c_str());
+                        app.outputLog += "[Info] Conhecimento completo exportado para o clipboard.\n";
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button(label("🎯 Centralizar Grafo", "Center Graph"))) {
+                        app.CenterGraph();
+                    }
+                    ImGui::End();
+                }
+                ImGui::PopStyleVar(2);
+                // ------------------------------
             }
             ImGui::EndTabItem();
         }

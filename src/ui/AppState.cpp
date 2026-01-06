@@ -301,7 +301,7 @@ void AppState::RebuildGraph() {
     }
 }
 
-void AppState::UpdateGraphPhysics() {
+void AppState::UpdateGraphPhysics(const std::unordered_set<int>& selectedNodes) {
     const float repulsionInsight = 1000.0f; 
     const float repulsionTask = 200.0f;
     const float springLengthInsight = 300.0f; // Distance between linked notes
@@ -396,15 +396,20 @@ void AppState::UpdateGraphPhysics() {
             node.vy = (node.vy / v) * maxV;
         }
 
+        if (selectedNodes.find(node.id) != selectedNodes.end()) {
+            node.vx = 0;
+            node.vy = 0;
+            continue; 
+        }
+
         node.x += node.vx;
         node.y += node.vy;
 
-        // 5. Bounds Clamping (Keep nodes within a reasonable area)
-        const float margin = 2000.0f;
-        if (node.x < 800.0f - margin) node.x = 800.0f - margin;
-        if (node.x > 800.0f + margin) node.x = 800.0f + margin;
-        if (node.y < 450.0f - margin) node.y = 450.0f - margin;
-        if (node.y > 450.0f + margin) node.y = 450.0f + margin;
+        // 5. Bounds Clamping (Keep nodes within a reasonable visible area)
+        if (node.x < 50.0f) { node.x = 50.0f; node.vx *= -0.5f; }
+        if (node.x > 1550.0f) { node.x = 1550.0f; node.vx *= -0.5f; }
+        if (node.y < 50.0f) { node.y = 50.0f; node.vy *= -0.5f; }
+        if (node.y > 850.0f) { node.y = 850.0f; node.vy *= -0.5f; }
     }
 }
 
