@@ -35,6 +35,15 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(imgui)
 set(IMGUI_DIR ${imgui_SOURCE_DIR})
 
+# 4. ImNodes
+FetchContent_Declare(
+    imnodes
+    GIT_REPOSITORY https://github.com/nelarius/imnodes.git
+    GIT_TAG v0.5
+)
+FetchContent_MakeAvailable(imnodes)
+set(IMNODES_DIR ${imnodes_SOURCE_DIR})
+
 # --- Executable ---
 
 add_executable(${PROJECT_NAME}
@@ -52,12 +61,14 @@ add_executable(${PROJECT_NAME}
     ${IMGUI_DIR}/imgui_widgets.cpp
     ${IMGUI_DIR}/backends/imgui_impl_sdl2.cpp
     ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
+    ${IMNODES_DIR}/imnodes.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${IMGUI_DIR}
     ${IMGUI_DIR}/backends
+    ${IMNODES_DIR}
 )
 
 # --- Libraries ---

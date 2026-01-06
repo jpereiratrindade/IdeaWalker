@@ -2,6 +2,7 @@
 
 #include "application/OrganizerService.hpp"
 #include "imgui.h"
+#include "imnodes.h"
 
 #include <algorithm>
 #include <chrono>
@@ -228,6 +229,46 @@ void DrawFolderBrowser(const char* id,
     }
 
     ImGui::PopID();
+}
+
+
+void DrawNodeGraph(AppState& app) {
+    ImNodes::BeginNodeEditor();
+
+    // 1. Draw Nodes
+    for (auto& node : app.graphNodes) {
+        ImNodes::SetNodeGridSpacePos(node.id, ImVec2(node.x, node.y));
+
+        ImNodes::BeginNode(node.id);
+        
+        ImNodes::BeginNodeTitleBar();
+        ImGui::TextUnformatted(node.title.c_str());
+        ImNodes::EndNodeTitleBar();
+
+        ImNodes::BeginOutputAttribute(node.id << 8); 
+        ImGui::Dummy(ImVec2(10, 0));
+        ImNodes::EndOutputAttribute();
+
+        ImNodes::BeginInputAttribute((node.id << 8) + 1);
+        ImGui::Dummy(ImVec2(10, 0));
+        ImNodes::EndInputAttribute();
+
+        ImNodes::EndNode();
+    }
+
+    // 2. Draw Links
+    for (const auto& link : app.graphLinks) {
+        int startAttr = (link.startNode << 8);
+        int endAttr = (link.endNode << 8) + 1;
+        ImNodes::Link(link.id, startAttr, endAttr);
+    }
+
+    ImNodes::EndNodeEditor();
+    
+    // 3. Update Physics
+    if (!app.graphNodes.empty()) {
+        app.UpdateGraphPhysics();
+    }
 }
 
 } // namespace
@@ -762,6 +803,24 @@ void DrawUI(AppState& app) {
                 }
 
                 ImGui::PopStyleVar(2);
+            }
+            ImGui::EndTabItem();
+        }
+        
+        ImGuiTabItemFlags flags3 = (app.requestedTab == 3) ? ImGuiTabItemFlags_SetSelected : 0;
+        if (ImGui::BeginTabItem(label("🕸️ Neural Web", "Neural Web"), NULL, flags3)) {
+            if (app.requestedTab == 3) app.requestedTab = -1;
+            bool enteringGraph = (app.activeTab != 3);
+            app.activeTab = 3;
+
+            if (enteringGraph && hasProject) {
+                app.RebuildGraph();
+            }
+
+            if (!hasProject) {
+                ImGui::TextDisabled("Nenhum projeto aberto.");
+            } else {
+                DrawNodeGraph(app);
             }
             ImGui::EndTabItem();
         }

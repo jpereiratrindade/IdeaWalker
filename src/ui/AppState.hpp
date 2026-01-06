@@ -16,6 +16,19 @@ class OrganizerService;
 
 namespace ideawalker::ui {
 
+struct GraphNode {
+    int id;
+    std::string title;
+    float x, y;
+    float vx, vy;
+};
+
+struct GraphLink {
+    int id;
+    int startNode;
+    int endNode;
+};
+
 struct AppState {
     std::string outputLog;
     std::string selectedNoteContent;
@@ -43,6 +56,12 @@ struct AppState {
     std::vector<domain::Insight> allInsights;
     std::map<std::string, int> activityHistory;
     std::vector<std::string> currentBacklinks;
+    
+    // Graph State
+    std::vector<GraphNode> graphNodes;
+    std::vector<GraphLink> graphLinks;
+    bool graphInitialized = false;
+
     std::mutex logMutex;
 
     AppState();
@@ -55,6 +74,8 @@ struct AppState {
     bool CloseProject();
     void RefreshInbox();
     void RefreshAllInsights();
+    void RebuildGraph();
+    void UpdateGraphPhysics();
     void AppendLog(const std::string& line);
     std::string GetLogSnapshot();
 };

@@ -2,6 +2,7 @@
 
 #include "ui/UiRenderer.hpp"
 
+#include "imnodes.h"
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl2.h"
@@ -137,6 +138,9 @@ bool IdeaWalkerApp::Init() {
     m_state.emojiEnabled = LoadFonts(io);
     ImGui::StyleColorsDark();
 
+    ImNodes::CreateContext();
+    ImNodes::StyleColorsDark();
+
     if (!ImGui_ImplSDL2_InitForOpenGL(m_window, m_glContext)) {
         std::fprintf(stderr, "ImGui_ImplSDL2_InitForOpenGL failed.\n");
         return false;
@@ -154,6 +158,7 @@ void IdeaWalkerApp::Shutdown() {
     if (m_imguiInitialized) {
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplSDL2_Shutdown();
+        ImNodes::DestroyContext();
         ImGui::DestroyContext();
         m_imguiInitialized = false;
     }
