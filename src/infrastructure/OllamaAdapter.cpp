@@ -63,7 +63,7 @@ std::string OllamaAdapter::getSystemPrompt(domain::AIPersona persona) {
             "Você é um Secretário Executivo altamente eficiente. Sua função é converter pensamentos desorganizados em uma lista de tarefas e resumo claros, sem filosofar.\n\n"
             "REGRAS RÍGIDAS DE SAÍDA:\n"
             "1. NÃO use blocos de código (```markdown). Retorne apenas o texto cru.\n"
-            "2. Seja direto e conciso.\n"
+            "2. Seja direto, conciso e operacional. Evite abstrações e interpretações conceituais.\n"
             "3. As Ações DEVEM usar estritamente o formato de checkbox: \"- [ ] Descrição da tarefa\".\n"
             "4. Mantenha os headers exatos como abaixo.\n\n"
             "ESTRUTURA OBRIGATÓRIA:\n"
@@ -105,12 +105,19 @@ std::string OllamaAdapter::getSystemPrompt(domain::AIPersona persona) {
             "Sua função é:\n"
             "1. Diagnosticar o estado cognitivo do texto (Caótico? Estruturado? Divergente?).\n"
             "2. Definir qual sequência de perfis deve ser aplicada para transformar esse texto.\n"
-            "Perfis Disponíveis: Brainstormer (para expandir/destravar), AnalistaCognitivo (para estruturar/mapear tensão), SecretarioExecutivo (para fechar/resumir).\n"
-            "REGRAS:\n"
-            "- Retorne APENAS a sequência.\n"
+            "3. Definir uma TAG cognitiva dominante.\n\n"
+            "HEURÍSTICAS DE DECISÃO:\n"
+            "- Se o texto contiver REPETIÇÕES, FRASES METACOGNITIVAS ('isso me trava', 'não consigo') ou CAOS -> Comece com BRAINSTORMER.\n"
+            "- Se o texto tiver OBJETOS CONCEITUAIS CLAROS, Modelos ou Matrizes -> Pule Brainstormer, comece com ANALISTA.\n"
+            "- Se for apenas uma lista de pendências -> Apenas SECRETÁRIO.\n\n"
+            "Perfis Disponíveis: Brainstormer (expandir/destravar), AnalistaCognitivo (estruturar/mapear tensão), SecretarioExecutivo (fechar/resumir).\n"
+            "Tags Sugeridas: #Divergent, #Integrative, #Closing, #Chaotic, #Structured.\n\n"
+            "REGRAS DE SAÍDA:\n"
+            "- Retorne APENAS a sequência e a tag.\n"
             "- Use o formato estrito abaixo.\n\n"
             "FORMATO DE SAÍDA:\n"
-            "SEQUENCE: Perfil1, Perfil2, ...";
+            "SEQUENCE: Perfil1, Perfil2, ...\n"
+            "TAG: #SuaTag";
     }
     return "";
 }
@@ -153,9 +160,24 @@ std::optional<domain::Insight> OllamaAdapter::processRawThought(const std::strin
         std::string plan = *planOpt;
         std::vector<domain::AIPersona> sequence;
         
+        // Parse "TAG: #Tag"
+        if (plan.find("TAG:") != std::string::npos) {
+            std::string tagLine = plan.substr(plan.find("TAG:") + 4);
+            size_t end = tagLine.find('\n');
+            if (end != std::string::npos) tagLine = tagLine.substr(0, end);
+            // Trim
+            tagLine.erase(0, tagLine.find_first_not_of(" \t\n\r"));
+            tagLine.erase(tagLine.find_last_not_of(" \t\n\r") + 1);
+            if (!tagLine.empty()) tags.push_back(tagLine);
+        }
+
         // Parse "SEQUENCE: Brainstormer, AnalistaCognitivo"
         if (plan.find("SEQUENCE:") != std::string::npos) {
             std::string seq = plan.substr(plan.find("SEQUENCE:") + 9);
+            // Stop at newline if present (to avoid reading TAG as part of sequence if lines are swapped)
+            size_t endOfSeq = seq.find('\n');
+            if (endOfSeq != std::string::npos) seq = seq.substr(0, endOfSeq);
+            
             std::stringstream ss(seq);
             std::string segment;
             while (std::getline(ss, segment, ',')) {
@@ -194,7 +216,7 @@ std::optional<domain::Insight> OllamaAdapter::processRawThought(const std::strin
         std::string pName = (m_currentPersona == domain::AIPersona::Brainstormer) ? "Brainstormer" :
                             (m_currentPersona == domain::AIPersona::AnalistaCognitivo) ? "Analista Cognitivo" : 
                             (m_currentPersona == domain::AIPersona::SecretarioExecutivo) ? "Secretário Executivo" : "IA";
-        if (statusCallback) statusCallback("Rodando: " + pName + "...");
+        if (statusCallback) statusCallback("Executando: " + pName + "...");
 
         // Direct Execution
         std::string prompt = getSystemPrompt(m_currentPersona);
