@@ -20,7 +20,7 @@ Este documento descreve o fluxo de dados, os principais componentes e como o pro
 
 ## 4. Infraestrutura
 - **FileRepository**: leitura e escrita de arquivos, backlinks e historico de atividade.
-- **OllamaAdapter**: integracao com a API do Ollama usando o modelo `qwen2.5:14b`.
+- **OllamaAdapter**: integracao com a API do Ollama usando o modelo `qwen2.5:14b`. Veja as [Diretrizes de Prompt](LLM_PROMPT_GUIDELINES.md) para detalhes da interpretacao.
 
 ## 5. UI (ImGui)
 - **AppState**: estado da UI, selecoes, logs, visao unificada e projeto ativo.
