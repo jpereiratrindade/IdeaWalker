@@ -111,7 +111,11 @@ bool AppState::OpenProject(const std::string& rootPath) {
         return false;
     }
 
-    auto repo = std::make_unique<infrastructure::FileRepository>((root / "inbox").string(), (root / "notas").string());
+    auto repo = std::make_unique<infrastructure::FileRepository>(
+        (root / "inbox").string(), 
+        (root / "notas").string(),
+        (root / ".history").string()
+    );
     auto ai = std::make_unique<infrastructure::OllamaAdapter>();
     
     // Pure C++ Implementation using Whisper.cpp
