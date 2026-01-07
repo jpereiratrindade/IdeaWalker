@@ -688,9 +688,7 @@ void DrawStaticMermaidPreview(const AppState::PreviewGraphState& graph) {
             case NodeShape::HEXAGON:
                 {
                     ImVec2 p[6];
-                    float h_local = (max.y - min.y) * 0.5f; ///< Exact dimensions (width, height) calculated for rendering.
-                    float w_local; ///< Exact dimensions (width, height) calculated for rendering.
-                    float wrapW_local = 200.0f; ///< The text wrap width used during size calculation (logical space).
+                    float indent = 10.0f;
                     p[0] = ImVec2(min.x + indent, min.y);
                     p[1] = ImVec2(max.x - indent, min.y);
                     p[2] = ImVec2(max.x + indent, center.y); // Point out
