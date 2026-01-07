@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['funcionalidades_0',['✨ Funcionalidades',['../md_README.html#autotoc_md7',1,'']]]
+  ['funcionalidades_0',['✨ Funcionalidades',['../index.html#autotoc_md7',1,'']]]
 ];

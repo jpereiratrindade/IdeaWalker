@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['walker_20🚀_0',['Idea Walker 🚀',['../md_README.html',1,'']]]
+  ['walker_20🚀_0',['Idea Walker 🚀',['../index.html',1,'']]]
 ];

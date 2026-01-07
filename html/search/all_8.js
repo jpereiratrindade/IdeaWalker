@@ -1,7 +1,7 @@
 var searchData=
 [
   ['id_0',['id',['../structideawalker_1_1domain_1_1Insight_1_1Metadata.html#a3cd7f5ee7717ad311c702a03b79225bb',1,'ideawalker::domain::Insight::Metadata::id'],['../structideawalker_1_1ui_1_1GraphNode.html#a70a7e52287a9f1464b073f2846be9318',1,'ideawalker::ui::GraphNode::id'],['../structideawalker_1_1ui_1_1GraphLink.html#a33682980f89c581a795ee299d009457e',1,'ideawalker::ui::GraphLink::id']]],
-  ['idea_20walker_20🚀_1',['Idea Walker 🚀',['../md_README.html',1,'']]],
+  ['idea_20walker_20🚀_1',['Idea Walker 🚀',['../index.html',1,'']]],
   ['ideawalker_2',['ideawalker',['../namespaceideawalker.html',1,'']]],
   ['ideawalker_3a_3aapp_3',['app',['../namespaceideawalker_1_1app.html',1,'ideawalker']]],
   ['ideawalker_3a_3aapplication_4',['application',['../namespaceideawalker_1_1application.html',1,'ideawalker']]],

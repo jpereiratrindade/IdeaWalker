@@ -25,17 +25,7 @@
 var NAVTREE =
 [
   [ "IdeaWalker", "index.html", [
-    [ "Idea Walker 🚀", "md_README.html", [
-      [ "🛠️ Tecnologias", "md_README.html#autotoc_md3", null ],
-      [ "🏗️ Estrutura do Projeto", "md_README.html#autotoc_md5", null ],
-      [ "✨ Funcionalidades", "md_README.html#autotoc_md7", null ],
-      [ "🚀 Como Rodar", "md_README.html#autotoc_md9", [
-        [ "\"Transformando o caos do TDAH em concretude técnica.\"", "md_README.html#autotoc_md1", null ],
-        [ "Pré-requisitos", "md_README.html#autotoc_md10", null ],
-        [ "Build", "md_README.html#autotoc_md11", null ]
-      ] ],
-      [ "🛡️ Governança", "md_README.html#autotoc_md13", null ]
-    ] ],
+    [ "Idea Walker 🚀", "index.html", "index" ],
     [ "Namespaces", "namespaces.html", [
       [ "Namespace List", "namespaces.html", "namespaces_dup" ],
       [ "Namespace Members", "namespacemembers.html", [

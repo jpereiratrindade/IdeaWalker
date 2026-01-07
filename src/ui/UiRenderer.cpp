@@ -938,7 +938,7 @@ void DrawMarkdownPreview(AppState& app, const std::string& content, bool staticM
             ImGui::SameLine();
             ImGui::TextDisabled("%s", line.substr(6).c_str());
         } else if (StartsWith(line, "- ") || StartsWith(line, "* ")) {
-            ImGui::TextUnformatted(" • ");
+            ImGui::TextUnformatted(label(" • ", " - "));
             ImGui::SameLine();
             ImGui::TextWrapped("%s", line.substr(2).c_str());
         } else if (StartsWith(line, "> ")) {
