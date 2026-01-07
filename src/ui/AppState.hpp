@@ -34,7 +34,8 @@ namespace ideawalker::ui {
         TASK_DONE,  ///< A completed task.
         NOTE_LINK,  ///< A wiki-style link to another note.
         TASK,       ///< General task node.
-        CONCEPT     ///< A referenced concept that doesn't exist as a file yet.
+        CONCEPT,    ///< A referenced concept that doesn't exist as a file yet.
+        HYPOTHESIS  ///< A temporary anchor for integration hypotheses (Cyan).
     };
 
     /**

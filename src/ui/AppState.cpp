@@ -264,6 +264,16 @@ void AppState::RebuildGraph() {
         node.type = NodeType::INSIGHT;
         node.title = insight.getMetadata().title.empty() ? insight.getMetadata().id : insight.getMetadata().title;
         
+        // Detect Hypothesis Nodes
+        for (const auto& tag : insight.getMetadata().tags) {
+            std::string t = tag;
+            std::transform(t.begin(), t.end(), t.begin(), ::tolower);
+            if (t.find("hypothe") != std::string::npos || t.find("hipote") != std::string::npos) {
+                node.type = NodeType::HYPOTHESIS;
+                break;
+            }
+        }
+        
         float angle = (float(node.id) / allInsights.size()) * 2.0f * 3.14159f;
         float radius = 100.0f + (rand() % 200); 
         node.x = 800.0f + std::cos(angle) * radius;

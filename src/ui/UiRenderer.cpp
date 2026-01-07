@@ -1309,6 +1309,7 @@ void DrawNodeGraph(AppState& app) {
 
         bool isTask = (node.type == NodeType::TASK);
         bool isConcept = (node.type == NodeType::CONCEPT);
+        bool isHypothesis = (node.type == NodeType::HYPOTHESIS);
 
         if (isTask) {
             ImNodes::PushColorStyle(ImNodesCol_NodeBackground, IM_COL32(50, 50, 50, 255));
@@ -1318,6 +1319,10 @@ void DrawNodeGraph(AppState& app) {
              // Dark Purple for Concepts
              ImNodes::PushColorStyle(ImNodesCol_NodeBackground, IM_COL32(40, 30, 60, 255));
              ImNodes::PushColorStyle(ImNodesCol_TitleBar, IM_COL32(100, 60, 150, 200));
+        } else if (isHypothesis) {
+             // Cyan/Teal for Hypotheses
+             ImNodes::PushColorStyle(ImNodesCol_NodeBackground, IM_COL32(0, 50, 50, 255));
+             ImNodes::PushColorStyle(ImNodesCol_TitleBar, IM_COL32(0, 150, 150, 200));
         }
 
         ImNodes::BeginNode(node.id);
@@ -1330,6 +1335,9 @@ void DrawNodeGraph(AppState& app) {
              else if (node.isInProgress) emoji = "⏳ ";
              
              ImGui::TextUnformatted(emoji);
+             ImGui::SameLine();
+        } else if (isHypothesis) {
+             ImGui::TextUnformatted("🧪 "); // Science/Experiment emoji
              ImGui::SameLine();
         }
         ImGui::TextUnformatted(node.title.c_str());
@@ -1346,7 +1354,7 @@ void DrawNodeGraph(AppState& app) {
 
         ImNodes::EndNode();
 
-        if (isTask || isConcept) {
+        if (isTask || isConcept || isHypothesis) {
             ImNodes::PopColorStyle();
             ImNodes::PopColorStyle();
         }
