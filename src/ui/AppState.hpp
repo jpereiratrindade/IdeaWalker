@@ -10,6 +10,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
@@ -155,7 +156,7 @@ struct AppState {
     struct PreviewGraphState {
         std::vector<GraphNode> nodes;
         std::vector<GraphLink> links;
-        std::map<int, int> nodeById; // Mapping ID to index in the nodes vector
+        std::unordered_map<int, int> nodeById; // Mapping ID to index in the nodes vector
         bool initialized = false;
         std::string lastContent;
     };
