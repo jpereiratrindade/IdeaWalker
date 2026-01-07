@@ -45,7 +45,7 @@ Tecnologia Base: Dear ImGui (Immediate Mode GUI) + ImPlot / ImNodes.
      - Ao abrir `Nota_A.md`, o sistema varre o diretório buscando strings `[[Nota_A]]`.
    * Valor: Transforma arquivos mortos em um sistema vivo de referências.
 
-[2.4] MAPA DE CALOR TEMPORAL (GITHUB STYLE)
+[2.4] MAPA DE CALOR TEMPORAL (ESTILO GITHUB)
    * Função Cognitiva: Combate à Cegueira Temporal e Gamificação.
    * Visualização: Grade de quadrados coloridos (Heatmap) no rodapé do Dashboard.
      - Eixo X: Dias do Ano.
@@ -61,7 +61,7 @@ Tecnologia Base: Dear ImGui (Immediate Mode GUI) + ImPlot / ImNodes.
 - Backlinks: IMPLEMENTADO.
 - Heatmap de atividade: IMPLEMENTADO.
 - Visão unificada de conhecimento: IMPLEMENTADO.
-- Grafo visual (ImNodes/ImDrawList): NÃO IMPLEMENTADO.
+- Grafo visual (ImNodes/ImDrawList): IMPLEMENTADO.
 
 ================================================================================
 3. ROADMAP DE IMPLEMENTAÇÃO (PRIORIDADE MVP)
@@ -88,3 +88,9 @@ Fase 4: VISÃO SISTÊMICA (Futuro)
 - No C++, mantenha o "Estado da UI" separado do "Estado do Domínio".
 - Use `ImGui::DockSpace` para permitir que o usuário organize onde quer ver o Kanban 
   e onde quer ver o Texto ao mesmo tempo.
+
+================================================================================
+5. LICENÇA
+================================================================================
+Este projeto é licenciado sob a GNU General Public License v3.0 (GPLv3).
+Consulte o arquivo LICENSE para mais detalhes.

@@ -24,7 +24,7 @@ bool LoadAudioSDL(const std::string& fname, std::vector<float>& pcmf32, std::str
     Uint8 *wavBuffer;
 
     if (SDL_LoadWAV(fname.c_str(), &wavSpec, &wavBuffer, &wavLength) == NULL) {
-        error = "SDL_LoadWAV failed: " + std::string(SDL_GetError());
+        error = "Falha em SDL_LoadWAV: " + std::string(SDL_GetError());
         return false;
     }
 
@@ -38,7 +38,7 @@ bool LoadAudioSDL(const std::string& fname, std::vector<float>& pcmf32, std::str
     SDL_AudioCVT cvt;
     if (SDL_BuildAudioCVT(&cvt, wavSpec.format, wavSpec.channels, wavSpec.freq,
                           targetSpec.format, targetSpec.channels, targetSpec.freq) < 0) {
-        error = "SDL_BuildAudioCVT failed: " + std::string(SDL_GetError());
+        error = "Falha em SDL_BuildAudioCVT: " + std::string(SDL_GetError());
         SDL_FreeWAV(wavBuffer);
         return false;
     }
@@ -52,7 +52,7 @@ bool LoadAudioSDL(const std::string& fname, std::vector<float>& pcmf32, std::str
     SDL_memcpy(cvt.buf, wavBuffer, wavLength);
     
     if (SDL_ConvertAudio(&cvt) < 0) {
-        error = "SDL_ConvertAudio failed: " + std::string(SDL_GetError());
+        error = "Falha em SDL_ConvertAudio: " + std::string(SDL_GetError());
         SDL_free(cvt.buf);
         SDL_FreeWAV(wavBuffer);
         return false;
@@ -89,7 +89,7 @@ bool WhisperCppAdapter::loadModel(std::string& errorMsg) {
     if (m_modelLoaded) return true;
     
     if (!std::filesystem::exists(m_modelPath)) {
-        errorMsg = "Model file not found at: " + m_modelPath + ". Please download a ggml model (e.g. ggml-base.bin).";
+        errorMsg = "Arquivo de modelo não encontrado em: " + m_modelPath + ". Por favor baixe um modelo ggml (ex: ggml-base.bin).";
         return false;
     }
 
@@ -97,7 +97,7 @@ bool WhisperCppAdapter::loadModel(std::string& errorMsg) {
     m_ctx = whisper_init_from_file_with_params(m_modelPath.c_str(), cparams);
 
     if (!m_ctx) {
-        errorMsg = "Failed to initialize whisper context from file.";
+        errorMsg = "Falha ao inicializar contexto whisper do arquivo.";
         return false;
     }
 
@@ -107,7 +107,7 @@ bool WhisperCppAdapter::loadModel(std::string& errorMsg) {
 
 void WhisperCppAdapter::transcribeAsync(const std::string& audioPath, OnSuccess onSuccess, OnError onError) {
     if (!std::filesystem::exists(audioPath)) {
-        if (onError) onError("Audio file not found.");
+        if (onError) onError("Arquivo de áudio não encontrado.");
         return;
     }
 
@@ -125,7 +125,7 @@ void WhisperCppAdapter::transcribeAsync(const std::string& audioPath, OnSuccess 
         // Load Audio
         std::vector<float> pcmf32;
         if (!LoadAudioSDL(audioPath, pcmf32, error)) {
-            if (onError) onError("Audio Load Error: " + error);
+            if (onError) onError("Erro ao Carregar Áudio: " + error);
             return;
         }
 
@@ -139,7 +139,7 @@ void WhisperCppAdapter::transcribeAsync(const std::string& audioPath, OnSuccess 
         wparams.n_threads = std::thread::hardware_concurrency(); // Use all available cores
 
         if (whisper_full(m_ctx, wparams, pcmf32.data(), pcmf32.size()) != 0) {
-            if (onError) onError("Whisper inference failed.");
+            if (onError) onError("Inferência Whisper falhou.");
             return;
         }
 
@@ -163,7 +163,7 @@ void WhisperCppAdapter::transcribeAsync(const std::string& audioPath, OnSuccess 
             out.close();
             if (onSuccess) onSuccess(destTxt.string());
         } else {
-            if (onError) onError("Failed to save transcript to: " + destTxt.string());
+            if (onError) onError("Falha ao salvar transcrição em: " + destTxt.string());
         }
 
     }).detach();

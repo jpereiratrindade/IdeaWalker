@@ -1,36 +1,41 @@
-# Idea Walker Architecture (DDD + Ports & Adapters)
+# Arquitetura do Idea Walker (DDD + Ports & Adapters)
 
-This project follows a Domain-Driven Design approach to ensure the core logic (organizing thoughts for ADHD) is decoupled from external technologies (LLMs, File System, UI).
+Este projeto segue uma abordagem de Design Orientado a Domínio (DDD) para garantir que a lógica central (organização de pensamentos para TDAH) esteja desacoplada de tecnologias externas (LLMs, Sistema de Arquivos, UI).
 
-## Layers
+## Camadas
 
-### 1. Domain Layer (`src/domain`)
-- **Entities**: `Insight` (structured thought), `RawThought` (unprocessed input).
-- **Value Objects**: `Actionable` (task items).
+### 1. Camada de Domínio (`src/domain`)
+- **Entidades**: `Insight` (pensamento estruturado), `RawThought` (entrada não processada).
+- **Objetos de Valor**: `Actionable` (itens de tarefa).
 - **Ports (Interfaces)**: 
-    - `ThoughtRepository`: For persistence.
-    - `AIService`: For LLM processing.
+    - `ThoughtRepository`: Para persistência.
+    - `AIService`: Para processamento por IA.
 
-### 2. Infrastructure Layer (`src/infrastructure`)
+### 2. Camada de Infraestrutura (`src/infrastructure`)
 - **Adapters**:
-    - `FileRepository`: Implements `ThoughtRepository` using the local filesystem (`/inbox` and `/notas`).
-    - `OllamaAdapter`: Implements `AIService` using the local Ollama API (Qwen 2.5).
+    - `FileRepository`: Implementa `ThoughtRepository` usando o sistema de arquivos local (`/inbox` e `/notas`).
+    - `OllamaAdapter`: Implementa `AIService` usando a API local do Ollama (Qwen 2.5).
 
-### 3. Application Layer (`src/application`)
-- **Services**:
-    - `OrganizerService`: Orchestrates the flow between Domain and Infrastructure.
+### 3. Camada de Aplicação (`src/application`)
+- **Serviços**:
+    - `OrganizerService`: Orquestra o fluxo entre o Domínio e a Infraestrutura.
 
-### 4. Presentation Layer (`src/ui`)
-- **UiRenderer**: ImGui screens (Dashboard & Inbox, Organized Knowledge, Execucao).
-- **AppState**: UI state, selections, project root and background refresh flags.
+### 4. Camada de Apresentação (`src/ui`)
+- **UiRenderer**: Telas ImGui (Dashboard & Inbox, Organized Knowledge, Execução).
+- **AppState**: Estado da UI, seleções, raiz do projeto e flags de atualização em segundo plano.
 
-### 5. App Layer (`src/app`)
-- **IdeaWalkerApp**: App lifecycle, font loading and main loop.
+### 5. Camada de App (`src/app`)
+- **IdeaWalkerApp**: Ciclo de vida do app, carregamento de fontes e loop principal.
 
-## Data Flow
-1. User places a `.txt` in `<project>/inbox`.
-2. `OrganizerService` fetches `RawThought` via `FileRepository`.
-3. `OrganizerService` sends content to `OllamaAdapter`.
-4. `OllamaAdapter` receives structured Markdown from LLM.
-5. `OrganizerService` saves the resulting `Insight` into `<project>/notas`.
-6. `OrganizerService` updates `_Consolidated_Tasks.md` with unified tasks.
+## Fluxo de Dados
+1. O usuário coloca um arquivo `.txt` em `<projeto>/inbox`.
+2. O `OrganizerService` busca o `RawThought` via `FileRepository`.
+3. O `OrganizerService` envia o conteúdo para o `OllamaAdapter`.
+4. O `OllamaAdapter` recebe o Markdown estruturado da IA.
+5. O `OrganizerService` salva o `Insight` resultante em `<projeto>/notas`.
+6. O `OrganizerService` atualiza o `_Consolidated_Tasks.md` com as tarefas unificadas.
+
+## Licença
+
+Este projeto é licenciado sob a **GNU General Public License v3.0 (GPLv3)**.
+Consulte o arquivo `LICENSE` para mais detalhes.

@@ -1,23 +1,23 @@
-# Changelog
+# Registro de Alterações (Changelog)
 
-All notable changes to this project will be documented in this file.
+Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
 ## [v0.1.1-beta] - 2026-01-06
 
-### Added
-- **Static Preview for External Files**: Replaced continuous physics visualization with a pre-calculated, static rendering for Markdown/Mermaid previews. This ensures graphs are strictly organized and instantly stable upon loading.
-- **Enhanced Mermaid Parser**:
-    - Added support for `mindmap` syntax with indentation-based hierarchy.
-    - Added support for isolated node definitions (e.g., `A[Label]`) without requiring explicit links.
-    - Improved support for node shape syntax like `((circle))`.
-- **Text-Aware Layout**: Graph physics now accounts for node text length to effectively prevent overlap.
-- **Radial Coloring**: Static preview nodes are colored based on their angular position relative to the graph center.
+### Adicionado
+- **Preview Estático para Arquivos Externos**: Substituição da visualização contínua por física por uma renderização estática e pré-calculada para previews de Markdown/Mermaid. Isso garante que os gráficos fiquem estritamente organizados e instantaneamente estáveis ao carregar.
+- **Parser Mermaid Aprimorado**:
+    - Adicionado suporte para sintaxe `mindmap` com hierarquia baseada em indentação.
+    - Adicionado suporte para definições de nós isolados (ex: `A[Label]`) sem exigir links explícitos.
+    - Suporte aprimorado para sintaxe de formas de nós como `((círculo))`.
+- **Layout Ciente de Texto**: A física do grafo agora leva em conta o comprimento do texto do nó para prevenir sobreposições de forma eficaz.
+- **Coloração Radial**: Nós no preview estático são coloridos com base em sua posição angular em relação ao centro do gráfico.
 
-### Fixed
-- **Neural Web Disappearance**: Resolved a conflict where the main neural graph and the preview graph shared the same `ImNodes` context. Implemented strict context isolation.
-- **Segmentation Fault on Startup**: Fixed an initialization order issue where graph contexts were accessed before creation.
-- **Node Overlap**: Nodes with long text no longer overlap in the preview.
+### Corrigido
+- **Desaparecimento da Neural Web**: Resolvido um conflito onde o gráfico neural principal e o gráfico de preview compartilhavam o mesmo contexto `ImNodes`. Implementada isolação estrita de contextos.
+- **Falha de Segmentação (Segfault) no Início**: Corrigido um problema na ordem de inicialização onde os contextos de gráfico eram acessados antes da criação.
+- **Sobreposição de Nós**: Nós com textos longos não se sobrepõem mais no preview.
 
-### Changed
-- Refactored `UiRenderer` to include `ParseMermaidToGraph` improvements and `DrawStaticMermaidPreview`.
-- Updated `AppState` to manage independent `ImNodesEditorContext` pointers.
+### Alterado
+- Refatorado `UiRenderer` para incluir melhorias no `ParseMermaidToGraph` e na função `DrawStaticMermaidPreview`.
+- Atualizado `AppState` para gerenciar ponteiros independentes de `ImNodesEditorContext`.

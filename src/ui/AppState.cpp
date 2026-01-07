@@ -56,7 +56,7 @@ bool CopyProjectData(const std::filesystem::path& fromRoot, const std::filesyste
 } // namespace
 
 AppState::AppState()
-    : outputLog("Idea Walker v0.1.0-alpha - DDD Core initialized.\n") {
+    : outputLog("Idea Walker v0.1.0-alpha - Núcleo DDD inicializado.\n") {
     saveAsFilename[0] = '\0';
     projectPathBuffer[0] = '\0';
 
@@ -126,7 +126,8 @@ bool AppState::OpenProject(const std::string& rootPath) {
 
     RefreshInbox();
     RefreshAllInsights();
-    AppendLog("[SYSTEM] Project opened: " + projectRoot + "\n");
+    RefreshAllInsights();
+    AppendLog("[SISTEMA] Projeto aberto: " + projectRoot + "\n");
     return true;
 }
 
@@ -137,7 +138,7 @@ bool AppState::SaveProject() {
     if (!EnsureProjectFolders(std::filesystem::path(projectRoot))) {
         return false;
     }
-    AppendLog("[SYSTEM] Project saved: " + projectRoot + "\n");
+    AppendLog("[SISTEMA] Projeto salvo: " + projectRoot + "\n");
     return true;
 }
 
@@ -173,7 +174,7 @@ bool AppState::CloseProject() {
     allInsights.clear();
     activityHistory.clear();
     currentInsight.reset();
-    AppendLog("[SYSTEM] Project closed.\n");
+    AppendLog("[SISTEMA] Projeto fechado.\n");
     return true;
 }
 
@@ -459,7 +460,7 @@ void AppState::CenterGraph() {
 
 void AppState::HandleFileDrop(const std::string& filePath) {
     if (!organizerService) {
-        AppendLog("[SYSTEM] Drop ignored: No project open.\n");
+        AppendLog("[SISTEMA] Drop ignorado: Nenhum projeto aberto.\n");
         return;
     }
 
@@ -474,32 +475,32 @@ void AppState::HandleFileDrop(const std::string& filePath) {
 
     if (ext == ".wav" || ext == ".mp3" || ext == ".m4a") {
         if (isTranscribing.load()) {
-            AppendLog("[SYSTEM] Busy: Transcription already in progress.\n");
+            AppendLog("[SISTEMA] Ocupado: Transcrição já em andamento.\n");
             return;
         }
 
         isTranscribing.store(true);
-        AppendLog("[Transcription] Started for: " + filePath + "\n");
+        AppendLog("[Transcrição] Iniciada para: " + filePath + "\n");
         
         organizerService->transcribeAudio(filePath,
             [this](std::string textPath) {
-                AppendLog("[Transcription] Success! Text saved to: " + textPath + "\n");
+                AppendLog("[Transcrição] Sucesso! Texto salvo em: " + textPath + "\n");
                 isTranscribing.store(false);
                 pendingRefresh.store(true);
             },
             [this](std::string error) {
-                AppendLog("[Transcription] Error: " + error + "\n");
+                AppendLog("[Transcrição] Erro: " + error + "\n");
                 isTranscribing.store(false);
             }
         );
     } else {
-        AppendLog("[SYSTEM] Drop ignored: Unsupported file type (" + ext + ")\n");
+        AppendLog("[SISTEMA] Drop ignorado: Tipo de arquivo não suportado (" + ext + ")\n");
     }
 }
 
 std::string AppState::ExportToMermaid() const {
     std::stringstream ss;
-    ss << "# IdeaWalker Neural Web - Export\n\n";
+    ss << "# IdeaWalker Neural Web - Exportação\n\n";
     ss << "```mermaid\n";
     ss << "mindmap\n";
     ss << "  root((IdeaWalker Neural Web))\n";
@@ -532,10 +533,10 @@ std::string AppState::ExportToMermaid() const {
 
 std::string AppState::ExportFullMarkdown() const {
     std::stringstream ss;
-    ss << "# IdeaWalker - Knowledge Base Export\n";
+    ss << "# IdeaWalker - Exportação da Base de Conhecimento\n";
     ss << "Data: " << __DATE__ << "\n\n";
 
-    ss << "## 🕸️ Neural Web (Mermaid Flowchart)\n\n";
+    ss << "## 🕸️ Neural Web (Fluxograma Mermaid)\n\n";
     ss << "```mermaid\n";
     ss << "graph TD\n";
     // Add all nodes
@@ -554,10 +555,10 @@ std::string AppState::ExportFullMarkdown() const {
     }
     ss << "```\n\n";
 
-    ss << "## 🧠 Mind Map (Tasks & Ideas)\n\n";
+    ss << "## 🧠 Mapa Mental (Tarefas e Ideias)\n\n";
     ss << ExportToMermaid() << "\n\n";
 
-    ss << "## 📝 Document Contents\n\n";
+    ss << "## 📝 Conteúdo dos Documentos\n\n";
     for (const auto& insight : allInsights) {
         ss << "### " << (insight.getMetadata().title.empty() ? insight.getMetadata().id : insight.getMetadata().title) << "\n";
         ss << "ID: `" << insight.getMetadata().id << "`\n\n";
@@ -571,7 +572,7 @@ std::string AppState::ExportFullMarkdown() const {
 void AppState::OpenExternalFile(const std::string& path) {
     std::ifstream file(path);
     if (!file.is_open()) {
-        AppendLog("[Error] Could not open file: " + path + "\n");
+        AppendLog("[Erro] Não foi possível abrir o arquivo: " + path + "\n");
         return;
     }
     std::stringstream buffer;
@@ -595,7 +596,7 @@ void AppState::OpenExternalFile(const std::string& path) {
 
     externalFiles.push_back(extFile);
     selectedExternalFileIndex = externalFiles.size() - 1;
-    AppendLog("[System] Opened external file: " + path + "\n");
+    AppendLog("[Sistema] Arquivo externo aberto: " + path + "\n");
     
     // Switch to External tab (index 4)
     requestedTab = 4; 
@@ -609,9 +610,9 @@ void AppState::SaveExternalFile(int index) {
     if (file.is_open()) {
         file << extFile.content;
         extFile.modified = false;
-        AppendLog("[System] Saved external file: " + extFile.path + "\n");
+        AppendLog("[Sistema] Arquivo externo salvo: " + extFile.path + "\n");
     } else {
-        AppendLog("[Error] Could not save file: " + extFile.path + "\n");
+        AppendLog("[Erro] Não foi possível salvar o arquivo: " + extFile.path + "\n");
     }
 }
 

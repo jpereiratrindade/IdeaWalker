@@ -1129,23 +1129,23 @@ bool DrawFolderBrowser(const char* id,
     fs::path current = ResolveBrowsePath(pathBuffer, fallbackRoot);
     bool updated = false;
 
-    ImGui::Text("Browse:");
+    ImGui::Text("Localizar:");
     ImGui::SameLine();
     ImGui::TextUnformatted(current.string().c_str());
 
-    if (ImGui::Button("Up")) {
+    if (ImGui::Button("Subir")) {
         if (current.has_parent_path()) {
             current = current.parent_path();
             updated = true;
         }
     }
     ImGui::SameLine();
-    if (ImGui::Button("Use Current")) {
+    if (ImGui::Button("Usar Atual")) {
         updated = true;
     }
 
     ImGui::Separator();
-    ImGui::Text("Roots:");
+    ImGui::Text("Raízes:");
     if (ImGui::BeginChild("Roots", ImVec2(0, 70), true)) {
         auto roots = GetRootShortcuts();
         for (const auto& root : roots) {
@@ -1158,11 +1158,11 @@ bool DrawFolderBrowser(const char* id,
     }
     ImGui::EndChild();
 
-    ImGui::Text("Folders:");
+    ImGui::Text("Pastas:");
     if (ImGui::BeginChild("FolderList", ImVec2(0, 200), true)) {
         std::error_code ec;
         if (!fs::exists(current, ec) || !fs::is_directory(current, ec)) {
-            ImGui::TextDisabled("Folder not available.");
+            ImGui::TextDisabled("Pasta não disponível.");
         } else {
             std::vector<fs::directory_entry> entries;
             for (const auto& entry : fs::directory_iterator(current, ec)) {
@@ -1171,7 +1171,7 @@ bool DrawFolderBrowser(const char* id,
                 }
             }
             if (ec) {
-                ImGui::TextDisabled("Cannot read folder.");
+                ImGui::TextDisabled("Não foi possível ler a pasta.");
             } else {
                 std::sort(entries.begin(), entries.end(),
                           [](const fs::directory_entry& a, const fs::directory_entry& b) {
@@ -1216,11 +1216,11 @@ bool DrawFileBrowser(const char* id,
     bool updated = false;
     bool confirmed = false;
 
-    ImGui::Text("Browse:");
+    ImGui::Text("Localizar:");
     ImGui::SameLine();
     ImGui::TextUnformatted(current.string().c_str());
 
-    if (ImGui::Button("Up")) {
+    if (ImGui::Button("Subir")) {
         if (current.has_parent_path()) {
             current = current.parent_path();
             updated = true;
@@ -1231,7 +1231,7 @@ bool DrawFileBrowser(const char* id,
     
     // Removed redundant InputText "Path" as the caller (DrawUI) usually renders one.
 
-    ImGui::Text("Files:");
+    ImGui::Text("Arquivos:");
     if (ImGui::BeginChild("FileList", ImVec2(0, 300), true)) {
         std::error_code ec;
         if (!fs::exists(current, ec) || !fs::is_directory(current, ec)) {
@@ -1394,26 +1394,26 @@ void DrawUI(AppState& app) {
 
     if (ImGui::BeginMenuBar()) {
         if (ImGui::BeginMenu("File")) {
-            if (ImGui::MenuItem("New Project...", nullptr, false, canChangeProject)) {
+            if (ImGui::MenuItem("Novo Projeto...", nullptr, false, canChangeProject)) {
                 app.showNewProjectModal = true;
             }
-            if (ImGui::MenuItem("Open Project...", nullptr, false, canChangeProject)) {
+            if (ImGui::MenuItem("Abrir Projeto...", nullptr, false, canChangeProject)) {
                 app.showOpenProjectModal = true;
             }
-            if (ImGui::MenuItem("Open File...", nullptr, false, !app.isProcessing.load())) {
+            if (ImGui::MenuItem("Abrir Arquivo...", nullptr, false, !app.isProcessing.load())) {
                 app.showOpenFileModal = true;
                 // Reset buffer or set default?
                 app.openFilePathBuffer[0] = '\0';
             }
-            if (ImGui::MenuItem("Save Project", nullptr, false, hasProject && canChangeProject)) {
+            if (ImGui::MenuItem("Salvar Projeto", nullptr, false, hasProject && canChangeProject)) {
                 if (!app.SaveProject()) {
-                    app.AppendLog("[SYSTEM] Failed to save project.\n");
+                    app.AppendLog("[SYSTEM] Falha ao salvar projeto.\n");
                 }
             }
-            if (ImGui::MenuItem("Save Project As...", nullptr, false, canChangeProject)) {
+            if (ImGui::MenuItem("Salvar Projeto Como...", nullptr, false, canChangeProject)) {
                 app.showSaveAsProjectModal = true;
             }
-            if (ImGui::MenuItem("Close File", nullptr, false, app.selectedExternalFileIndex != -1)) {
+            if (ImGui::MenuItem("Fechar Arquivo", nullptr, false, app.selectedExternalFileIndex != -1)) {
                 if (app.selectedExternalFileIndex >= 0 && app.selectedExternalFileIndex < (int)app.externalFiles.size()) {
                     app.externalFiles.erase(app.externalFiles.begin() + app.selectedExternalFileIndex);
                     if (app.selectedExternalFileIndex >= (int)app.externalFiles.size()) {
@@ -1422,33 +1422,33 @@ void DrawUI(AppState& app) {
                 }
             }
             ImGui::Separator();
-            if (ImGui::MenuItem("Exit", nullptr, false, canChangeProject)) {
+            if (ImGui::MenuItem("Sair", nullptr, false, canChangeProject)) {
                 app.requestExit = true;
             }
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu(label("🛠️ Tools", "Tools"))) {
-            if (ImGui::BeginMenu(label("🕸️ Configurações do Grafo", "Neural Web Settings"))) {
-                if (ImGui::MenuItem(label("🕸️ Mostrar Tarefas", "Show Tasks"), nullptr, app.showTasksInGraph)) {
+        if (ImGui::BeginMenu(label("🛠️ Ferramentas", "Ferramentas"))) {
+            if (ImGui::BeginMenu(label("🕸️ Configurações do Grafo", "Configurações do Grafo"))) {
+                if (ImGui::MenuItem(label("🕸️ Mostrar Tarefas", "Mostrar Tarefas"), nullptr, app.showTasksInGraph)) {
                     app.showTasksInGraph = !app.showTasksInGraph;
                     app.RebuildGraph();
                 }
-                if (ImGui::MenuItem(label("🔄 Animação", "Animation"), nullptr, app.physicsEnabled)) {
+                if (ImGui::MenuItem(label("🔄 Animação", "Animação"), nullptr, app.physicsEnabled)) {
                     app.physicsEnabled = !app.physicsEnabled;
                 }
                 ImGui::Separator();
-                if (ImGui::MenuItem(label("📤 Exportar Mermaid", "Export Mermaid"))) {
+                if (ImGui::MenuItem(label("📤 Exportar Mermaid", "Exportar Mermaid"))) {
                     std::string mermaid = app.ExportToMermaid();
                     ImGui::SetClipboardText(mermaid.c_str());
                     app.outputLog += "[Info] Mapa mental exportado para o clipboard.\n";
                 }
-                if (ImGui::MenuItem(label("📁 Exportar Full (.md)", "Export Full (.md)"))) {
+                if (ImGui::MenuItem(label("📁 Exportar Full (.md)", "Exportar Completo (.md)"))) {
                     std::string fullMd = app.ExportFullMarkdown();
                     ImGui::SetClipboardText(fullMd.c_str());
                     app.outputLog += "[Info] Conhecimento completo exportado para o clipboard.\n";
                 }
-                if (ImGui::MenuItem(label("🎯 Centralizar Grafo", "Center Graph"))) {
+                if (ImGui::MenuItem(label("🎯 Centralizar Grafo", "Centralizar Grafo"))) {
                     app.CenterGraph();
                 }
                 ImGui::EndMenu();
@@ -1466,20 +1466,20 @@ void DrawUI(AppState& app) {
         app.showNewProjectModal = false;
     }
     if (ImGui::BeginPopupModal("New Project", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::Text("Project folder:");
+        ImGui::Text("Pasta do projeto:");
         ImGui::InputText("##newproject", app.projectPathBuffer, sizeof(app.projectPathBuffer));
         DrawFolderBrowser("new_project_browser",
                           app.projectPathBuffer,
                           sizeof(app.projectPathBuffer),
                           app.projectRoot);
-        if (ImGui::Button("Create", ImVec2(120, 0))) {
+        if (ImGui::Button("Criar", ImVec2(120, 0))) {
             if (!app.NewProject(app.projectPathBuffer)) {
-                app.AppendLog("[SYSTEM] Failed to create project.\n");
+                app.AppendLog("[SYSTEM] Falha ao criar projeto.\n");
             }
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
-        if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+        if (ImGui::Button("Cancelar", ImVec2(120, 0))) {
             ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();
@@ -1492,20 +1492,20 @@ void DrawUI(AppState& app) {
         app.showOpenProjectModal = false;
     }
     if (ImGui::BeginPopupModal("Open Project", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::Text("Project folder:");
+        ImGui::Text("Pasta do projeto:");
         ImGui::InputText("##openproject", app.projectPathBuffer, sizeof(app.projectPathBuffer));
         DrawFolderBrowser("open_project_browser",
                           app.projectPathBuffer,
                           sizeof(app.projectPathBuffer),
                           app.projectRoot);
-        if (ImGui::Button("Open", ImVec2(120, 0))) {
+        if (ImGui::Button("Abrir", ImVec2(120, 0))) {
             if (!app.OpenProject(app.projectPathBuffer)) {
-                app.AppendLog("[SYSTEM] Failed to open project.\n");
+                app.AppendLog("[SYSTEM] Falha ao abrir projeto.\n");
             }
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
-        if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+        if (ImGui::Button("Cancelar", ImVec2(120, 0))) {
             ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();
@@ -1518,20 +1518,20 @@ void DrawUI(AppState& app) {
         app.showSaveAsProjectModal = false;
     }
     if (ImGui::BeginPopupModal("Save Project As", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::Text("Project folder:");
+        ImGui::Text("Pasta do projeto:");
         ImGui::InputText("##saveprojectas", app.projectPathBuffer, sizeof(app.projectPathBuffer));
         DrawFolderBrowser("save_project_browser",
                           app.projectPathBuffer,
                           sizeof(app.projectPathBuffer),
                           app.projectRoot);
-        if (ImGui::Button("Save", ImVec2(120, 0))) {
+        if (ImGui::Button("Salvar", ImVec2(120, 0))) {
             if (!app.SaveProjectAs(app.projectPathBuffer)) {
-                app.AppendLog("[SYSTEM] Failed to save project as.\n");
+                app.AppendLog("[SYSTEM] Falha ao salvar projeto como.\n");
             }
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
-        if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+        if (ImGui::Button("Cancelar", ImVec2(120, 0))) {
             ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();
@@ -1542,7 +1542,7 @@ void DrawUI(AppState& app) {
         app.showOpenFileModal = false;
     }
     if (ImGui::BeginPopupModal("Open File", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::Text("File path:");
+        ImGui::Text("Caminho do arquivo:");
         ImGui::InputText("##openfilepath", app.openFilePathBuffer, sizeof(app.openFilePathBuffer));
         if (DrawFileBrowser("open_file_browser", 
                         app.openFilePathBuffer, 
@@ -1552,12 +1552,12 @@ void DrawUI(AppState& app) {
             ImGui::CloseCurrentPopup();
         }
         
-        if (ImGui::Button("Open", ImVec2(120,0))) {
+        if (ImGui::Button("Abrir", ImVec2(120,0))) {
             app.OpenExternalFile(app.openFilePathBuffer);
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
-        if (ImGui::Button("Cancel", ImVec2(120,0))) {
+        if (ImGui::Button("Cancelar", ImVec2(120,0))) {
             ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();
@@ -1588,7 +1588,7 @@ void DrawUI(AppState& app) {
                 
                 ImGui::Separator();
                 
-                ImGui::Text("Inbox (%zu ideas):", app.inboxThoughts.size());
+                ImGui::Text("Entrada (%zu ideias):", app.inboxThoughts.size());
                 ImGui::BeginChild("InboxList", ImVec2(0, 200), true);
                 for (const auto& thought : app.inboxThoughts) {
                     bool isSelected = (app.selectedInboxFilename == thought.filename);

@@ -12,7 +12,7 @@ no processo da aplicação.
 Fluxo:
 1. Usuário arrasta arquivo .WAV (suporte inicial a WAV 16kHz via SDL2).
 2. Sistema carrega o modelo GGML (ex: `ggml-base.bin`).
-3. Audio é reamostrado para 16kHz float32.
+3. Áudio é reamostrado para 16kHz float32.
 4. `whisper_cpp` processa o áudio.
 5. Texto é salvo na /inbox.
 
@@ -24,13 +24,13 @@ Fluxo:
 - **Modelos**: O sistema deve alertar se o modelo não existir ou baixá-lo automaticamente.
 
 ================================================================================
-3. INFRASTRUCTURE LAYER (O Adaptador)
+3. CAMADA DE INFRAESTRUTURA (O Adaptador)
 ================================================================================
-Arquivo: src/infrastructure/WhisperCppAdapter.hpp (Substitui WhisperScriptAdapter)
+Arquivo: `src/infrastructure/WhisperCppAdapter.hpp` (Substitui `WhisperScriptAdapter`)
 
 [Responsabilidades]
 - Gerenciar `whisper_context`.
-- Carregar audio WAV usando SDL_LoadWAV e SDL_AudioCVT.
+- Carregar áudio WAV usando `SDL_LoadWAV` e `SDL_AudioCVT`.
 - Executar `whisper_full`.
 
 [Gerenciamento de Modelo]
@@ -38,7 +38,7 @@ Arquivo: src/infrastructure/WhisperCppAdapter.hpp (Substitui WhisperScriptAdapte
 - Se não existir, `transcribeAsync` deve falhar com mensagem clara ou iniciar download.
 
 ================================================================================
-4. UI LAYER
+4. CAMADA DE UI
 ================================================================================
 - Manter a lógica de Drag & Drop existente.
 - Apenas substituir a injeção de dependência no `AppState`.
@@ -46,7 +46,12 @@ Arquivo: src/infrastructure/WhisperCppAdapter.hpp (Substitui WhisperScriptAdapte
 ================================================================================
 5. ESTRATÉGIA DE IMPLEMENTAÇÃO
 ================================================================================
-1. Atualizar CMakeLists.txt para incluir `whisper.cpp`.
+1. Atualizar `CMakeLists.txt` para incluir `whisper.cpp`.
 2. Criar `WhisperCppAdapter` implementando `TranscriptionService`.
 3. Implementar lógica de carregamento de áudio (SDL2).
 4. Atualizar `AppState` para usar o novo adaptador.
+
+## Licença
+
+Este projeto é licenciado sob a **GNU General Public License v3.0 (GPLv3)**.
+Consulte o arquivo `LICENSE` para mais detalhes.

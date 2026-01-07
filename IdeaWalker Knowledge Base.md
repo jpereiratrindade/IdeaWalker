@@ -1,7 +1,7 @@
-# IdeaWalker - Knowledge Base Export
-Data: Jan  6 2026
+# IdeaWalker - Exportação da Base de Conhecimento
+Data: 6 de Jan de 2026
 
-## 🕸️ Neural Web (Mermaid Flowchart)
+## 🕸️ Neural Web (Fluxograma Mermaid)
 
 ```mermaid
 graph TD
@@ -13,9 +13,9 @@ graph TD
   N1 --> N5
 ```
 
-## 🧠 Mind Map (Tasks & Ideas)
+## 🧠 Mapa Mental (Tarefas e Ideias)
 
-# IdeaWalker Neural Web - Export
+# IdeaWalker Neural Web - Exportação
 
 ```mermaid
 mindmap
@@ -31,13 +31,13 @@ mindmap
        (⏳ Explorar a resiliência como ferramenta de estruturação das ideias.) 
     node_9[Estruturação da Documentação e Publicações]
        (⏳ Revisar e documentar o modelo de terreno inicialmente definido.) 
-       (⏳ Incluir processos sócioecológicos no desenvolvimento do software.) 
+       (⏳ Incluir processos socioecológicos no desenvolvimento do software.) 
        (⏳ Estudar a aplicação de modelos de recomendação técnica usando SisterSTRATA.) 
        (⏳ Elaborar relatórios de impacto baseados em diferentes cenários.) 
 ```
 
 
-## 📝 Document Contents
+## 📝 Conteúdo dos Documentos
 
 ### Desafios de Integração e Organização de Ideias
 ID: `Nota_1767645289.md`
@@ -55,17 +55,17 @@ A dificuldade em conectar e integrar diversas ideias em um sistema organizado es
 4. **Resiliência e Abstração:** O conceito de resiliência como uma quarta dimensão ajuda na abordagem das dificuldades, mas a transformação concreta dessas ideias ainda é um desafio.
 
 ## Ações
-1. **Documentação Sistemaática:** Buscar formas de documentar e organizar as ideias sistematicamente.
-2. **Implementação do Modelos:** Avançar com o modelo de terreno, vegetação e solo, considerando a resiliência como um elemento essencial na concepção.
-3. **Utilização da IA:** Continuar a interação com a IA para extravasar ideias e organizar-as.
+1. **Documentação Sistemática:** Buscar formas de documentar e organizar as ideias sistematicamente.
+2. **Implementação dos Modelos:** Avançar com o modelo de terreno, vegetação e solo, considerando a resiliência como um elemento essencial na concepção.
+3. **Utilização da IA:** Continuar a interação com a IA para extravasar ideias e organizá-las.
 
 ## Conexões
 1. **Interdisciplinaridade:** A integração de diferentes áreas (terreno, vegetação, solo) requer uma abordagem holística que considera o impacto de cada elemento no outro.
 2. **Produtividade:** O uso da IA como um auxiliar na organização e documentação pode ser crucial para manter a produtividade e evitar a perda das ideias.
-3. **Concretização:** A resiliência é vista como uma chave para dar concreto às ideias, permitindo avanços sustentáveis sem crises de inspiração ou perda de tempo.
+3. **Concretização:** A resiliência é vista como uma chave para dar concretude às ideias, permitindo avanços sustentáveis sem crises de inspiração ou perda de tempo.
 ```
 
-Este estruturação em Markdown facilita a leitura e compreensão do pensamento original, organizando-o em seções claras que refletem os principais pontos discutidos.
+Esta estruturação em Markdown facilita a leitura e compreensão do pensamento original, organizando-o em seções claras que refletem os principais pontos discutidos.
 
 ---
 
@@ -128,23 +128,28 @@ ID: `Nota_260106_2029_transcricao.md`
 # Título: Estruturação da Documentação e Publicações
 
 ## Insight Central
-A documentação e publicação dos modelos, lógicas e conceitos desenvolvidos para o SisterSTRATA e outros componentes do projeto de ecologia computacional estão em andamento. É importante definir claramente os passos subsequentes para a implementação dessas ideias, como a matriz inicial e as transformações que ela pode sofrer com base em diferentes cenários sócioecológicos.
+A documentação e publicação dos modelos, lógicas e conceitos desenvolvidos para o SisterSTRATA e outros componentes do projeto de ecologia computacional estão em andamento. É importante definir claramente os passos subsequentes para a implementação dessas ideias, como a matriz inicial e as transformações que ela pode sofrer com base em diferentes cenários socioecológicos.
 
 ## Pontos Principais
 - Publicar documentação científica sobre modelos e lógicas utilizadas.
 - Definir o ponto de partida do modelo de terreno e sua evolução.
-- Incorporar aspectos sócioecológicos e mudanças climáticas na análise.
+- Incorporar aspectos socioecológicos e mudanças climáticas na análise.
 - Considerar a resiliência como um parâmetro adicional na tomada de decisão.
 
 ## Ações
 - [ ] Revisar e documentar o modelo de terreno inicialmente definido.
-- [ ] Incluir processos sócioecológicos no desenvolvimento do software.
+- [ ] Incluir processos socioecológicos no desenvolvimento do software.
 - [ ] Estudar a aplicação de modelos de recomendação técnica usando SisterSTRATA.
 - [ ] Elaborar relatórios de impacto baseados em diferentes cenários.
 
 ## Conexões
-- [[Modelagem Sócioecológica]]
+- [[Modelagem Socioecológica]]
 - [[Resiliência Climática]]
+
+## Licença
+
+Este projeto é licenciado sob a **GNU General Public License v3.0 (GPLv3)**.
+Consulte o arquivo `LICENSE` para mais detalhes.
 
 ---
 

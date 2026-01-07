@@ -49,3 +49,8 @@ Para alimentar o **Neural Web**, o LLM deve sugerir conexões usando double brac
 
 ---
 *Versão do Documento: 1.0.0*
+
+## Licença
+
+Este projeto é licenciado sob a **GNU General Public License v3.0 (GPLv3)**.
+Consulte o arquivo `LICENSE` para mais detalhes.
