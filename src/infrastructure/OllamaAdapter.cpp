@@ -194,7 +194,18 @@ std::optional<domain::Insight> OllamaAdapter::processRawThought(const std::strin
         
         // Fallback if empty or parsing failed
         if (sequence.empty()) {
+            if (statusCallback) statusCallback("Orquestrador: Falha ao planejar. Usando fallback (Analista).");
             sequence.push_back(domain::AIPersona::AnalistaCognitivo);
+        } else {
+            if (statusCallback) {
+                std::string seqStr;
+                for (size_t i = 0; i < sequence.size(); ++i) {
+                    seqStr += (sequence[i] == domain::AIPersona::Brainstormer) ? "Brainstormer" :
+                              (sequence[i] == domain::AIPersona::AnalistaCognitivo) ? "Analista" : "Secretário";
+                    if (i < sequence.size() - 1) seqStr += " -> ";
+                }
+                statusCallback("Orquestrador: Sequência definida [" + seqStr + "]");
+            }
         }
         
         // 2. Execution Pipeline
