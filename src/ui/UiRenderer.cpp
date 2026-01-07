@@ -1374,6 +1374,40 @@ void DrawNodeGraph(AppState& app) {
     }
 }
 
+
+void DrawTaskDetailsModal(AppState& app) {
+    if (app.showTaskDetailsModal) {
+        ImGui::OpenPopup("Detalhes da Tarefa");
+    }
+
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowSize(ImVec2(600, 400), ImGuiCond_Appearing);
+
+    if (ImGui::BeginPopupModal("Detalhes da Tarefa", &app.showTaskDetailsModal, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::TextColored(ImVec4(0.4f, 0.8f, 1.0f, 1.0f), "Título:");
+        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]); // Bold if available?
+        ImGui::TextWrapped("%s", app.selectedTaskTitle.c_str());
+        ImGui::PopFont();
+        
+        ImGui::Spacing();
+        ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.5f, 1.0f), "Origem: %s", app.selectedTaskOrigin.c_str());
+        ImGui::Separator();
+
+        ImGui::BeginChild("TaskContent", ImVec2(0, 200), true);
+        // Uses markdown preview for rich content
+        DrawMarkdownPreview(app, app.selectedTaskContent, false);
+        ImGui::EndChild();
+
+        ImGui::Spacing();
+        if (ImGui::Button("Fechar", ImVec2(120, 0))) {
+            app.showTaskDetailsModal = false;
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+}
+
 } // namespace
 
 void DrawUI(AppState& app) {
@@ -1977,6 +2011,15 @@ void DrawUI(AppState& app) {
                                 app.currentInsight = std::make_unique<domain::Insight>(meta, app.selectedNoteContent);
                                 app.currentInsight->parseActionablesFromContent();
                             }
+                            
+                            // Check for Double Click to open details
+                            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+                                app.showTaskDetailsModal = true;
+                                app.selectedTaskTitle = "Detalhes da Tarefa";
+                                app.selectedTaskContent = actionables[i].description;
+                                app.selectedTaskOrigin = insight->getMetadata().id;
+                            }
+
                             if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
                                 ImGui::BeginTooltip();
                                 if (useConsolidatedTasks) {
@@ -2131,6 +2174,8 @@ void DrawUI(AppState& app) {
         
         ImGui::EndTabBar();
     }
+
+    DrawTaskDetailsModal(app);
 
     ImGui::End();
 

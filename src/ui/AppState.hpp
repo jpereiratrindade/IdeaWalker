@@ -129,13 +129,19 @@ struct AppState {
     bool showTasksInGraph = true; ///< Neural Web setting.
     bool physicsEnabled = true;   ///< Neural Web setting.
     bool previewMode = false;     ///< Toggle for Markdown Preview in Knowledge tab.
+    bool unifiedPreviewMode = false; ///< Toggle for unified knowledge markdown preview.
     domain::AIPersona currentPersona = domain::AIPersona::AnalistaCognitivo; ///< The currently selected AI persona.
+    std::string processingStatus = "Thinking..."; ///< Status text while processing.
     
     std::vector<ExternalFile> externalFiles; ///< List of open external files.
     int selectedExternalFileIndex = -1; ///< Index of the currently edited external file.
     bool showOpenFileModal = false;  ///< UI visibility flag.
     char openFilePathBuffer[512] = ""; ///< Buffer for file path input.
-    bool showSettingsModal = false;  ///< Settings UI visibility flag.
+    bool showSettingsModal = false; ///< Show the settings modal.
+    bool showTaskDetailsModal = false; ///< Show the task details modal.
+    std::string selectedTaskTitle; ///< Title of the selected task for the detailed modal.
+    std::string selectedTaskOrigin; ///< Origin file of the selected task.
+    std::string selectedTaskContent; ///< Full content or details of the selected task.UI visibility flag.
 
     /** @brief Serializes the current Neural Web state to a Mermaid mindmap. */
     std::string ExportToMermaid() const;
@@ -182,6 +188,7 @@ struct AppState {
     void* previewGraphContext = nullptr; ///< Pointer to the ImNodes editor context for Mermaid Preview.
 
     std::mutex logMutex; ///< Mutex for thread-safe logging.
+    std::mutex processingStatusMutex; ///< Mutex for thread-safe status updates.
 
     AppState();
     ~AppState();
@@ -213,6 +220,10 @@ struct AppState {
     void AppendLog(const std::string& line);
     /** @brief Thread-safe log retrieval. */
     std::string GetLogSnapshot();
+    /** @brief Thread-safe processing status update. */
+    void SetProcessingStatus(const std::string& status);
+    /** @brief Thread-safe processing status retrieval. */
+    std::string GetProcessingStatus();
 };
 
 } // namespace ideawalker::ui
