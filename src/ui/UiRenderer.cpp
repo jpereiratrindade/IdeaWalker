@@ -279,8 +279,12 @@ bool ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, int g
                  if (!id.empty()) {
                      GetOrCreateNode(id, label, shape);
                  }
-            }
-        }
+    }
+    
+    // Finalize node lookup map
+    graph.nodeById.clear();
+    for (size_t i = 0; i < graph.nodes.size(); ++i) {
+        graph.nodeById[graph.nodes[i].id] = static_cast<int>(i);
     }
 
     // Wrap Text & Calculate Sizes
@@ -323,7 +327,10 @@ bool ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, int g
         int childCount = 0;
         
         float myH = 0;
-        for(const auto& n : graph.nodes) if(n.id == u) { myH = n.h; break; }
+        {
+            auto it = graph.nodeById.find(u);
+            if (it != graph.nodeById.end()) myH = graph.nodes[it->second].h;
+        }
 
         for (int v : adj[u]) {
             if (visited.find(v) == visited.end()) {
@@ -349,7 +356,10 @@ bool ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, int g
         visited.insert(u);
         
         GraphNode* uNode = nullptr;
-        for(auto& n : graph.nodes) if(n.id == u) { uNode = &n; break; }
+        {
+            auto it = graph.nodeById.find(u);
+            if (it != graph.nodeById.end()) uNode = &graph.nodes[it->second];
+        }
         if(!uNode) return;
 
         float totalH = subtreeHeight[u];
@@ -358,7 +368,10 @@ bool ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, int g
         // Anchor Correction: Center based on node height to align links properly
         uNode->y = (yStart + totalH * 0.5f) - (uNode->h * 0.5f);
 
-        float childX = x + uNode->w + 150.0f; // Increased gap for connectors
+
+        float hGap = std::clamp(uNode->w * 0.6f, 80.0f, 200.0f);
+        float childX = x + uNode->w + hGap;
+
         
         float childrenTotalH = 0;
         int childCount = 0;
@@ -465,10 +478,12 @@ void DrawStaticMermaidPreview(const AppState::PreviewGraphState& graph) {
     for (const auto& link : graph.links) {
         const GraphNode* start = nullptr;
         const GraphNode* end = nullptr;
-        for (const auto& node : graph.nodes) {
-            if (node.id == link.startNode) start = &node;
-            if (node.id == link.endNode) end = &node;
-        }
+        
+        auto itA = graph.nodeById.find(link.startNode);
+        auto itB = graph.nodeById.find(link.endNode);
+        
+        if (itA != graph.nodeById.end()) start = &graph.nodes[itA->second];
+        if (itB != graph.nodeById.end()) end = &graph.nodes[itB->second];
         if (!start || !end) continue;
         
         ImVec2 p1(offset.x + start->x * scale, offset.y + start->y * scale);

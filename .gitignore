@@ -1,21 +1,36 @@
+# Build artifacts
 build/
-imgui/
-.vscode/
-*.o
-IdeaWalker
-.cache/
-_deps/
 bin/
 lib/
+_deps/
+*.o
+IdeaWalker
+
+# Doxygen output
+html/
+latex/
+
+# Models and Large Data
+*.bin
 *.wav
+
+# User Data / Project Specific
+inbox/
+notas/
+Teste/
+.obsidian/
+imgui.ini
+
+# IDEs and Tools
+.vscode/
+.idea/
+.fleet/
+.cache/
+.DS_Store
+Thumbs.db
+
+# Logs and Python
+*.log
 *.py
 *.pyc
 __pycache__/
-inbox/
-notas/
-imgui.ini
-.DS_Store
-Thumbs.db
-*.log
-.idea/
-.fleet/
