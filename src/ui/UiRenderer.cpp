@@ -318,43 +318,68 @@ bool ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, int g
     }
     if (roots.empty() && !graph.nodes.empty()) roots.push_back(graph.nodes[0].id);
 
-    // Subtree Height Helper
-    std::unordered_map<int, float> subtreeHeight;
-    const float SIBLING_GAP = 60.0f; // Increased for mindmap breathing room
+    // 1. Decide orientation via heuristic (Depth vs Breadth)
+    std::unordered_map<int, int> nodeDepth;
+    std::unordered_map<int, int> countPerDepth;
+    int maxDepth = 0;
+    int maxBreadth = 0;
 
-    std::function<float(int, std::unordered_set<int>&)> CalcHeight = 
+    std::function<void(int, int, std::unordered_set<int>&)> WalkTopology = 
+        [&](int u, int d, std::unordered_set<int>& visited) {
+        visited.insert(u);
+        nodeDepth[u] = d;
+        countPerDepth[d]++;
+        maxDepth = std::max(maxDepth, d);
+        maxBreadth = std::max(maxBreadth, countPerDepth[d]);
+        for (int v : adj[u]) {
+            if (visited.find(v) == visited.end()) {
+                WalkTopology(v, d + 1, visited);
+            }
+        }
+    };
+
+    std::unordered_set<int> visitedTopology;
+    for (int r : roots) WalkTopology(r, 0, visitedTopology);
+
+    enum class LayoutOrientation { LeftRight, TopDown };
+    LayoutOrientation orientation = (maxDepth > maxBreadth) ? LayoutOrientation::TopDown : LayoutOrientation::LeftRight;
+
+    // Subtree Breadth Helper (Dimension perpendicular to growth)
+    std::unordered_map<int, float> subtreeBreadth;
+    const float SIBLING_GAP = 60.0f; 
+
+    std::function<float(int, std::unordered_set<int>&)> CalcBreadth = 
         [&](int u, std::unordered_set<int>& visited) -> float {
         visited.insert(u);
-        float childrenH = 0;
+        float childrenB = 0;
         int childCount = 0;
         
-        float myH = 0;
+        float myB = 0;
         {
             auto it = graph.nodeById.find(u);
-            if (it != graph.nodeById.end()) myH = graph.nodes[it->second].h;
+            if (it != graph.nodeById.end()) {
+                // In TB, breadth is W. In LR, breadth is H.
+                myB = (orientation == LayoutOrientation::TopDown) ? graph.nodes[it->second].w : graph.nodes[it->second].h;
+            }
         }
 
         for (int v : adj[u]) {
             if (visited.find(v) == visited.end()) {
-                if (childCount > 0) childrenH += SIBLING_GAP;
-                childrenH += CalcHeight(v, visited);
+                if (childCount > 0) childrenB += SIBLING_GAP;
+                childrenB += CalcBreadth(v, visited);
                 childCount++;
             }
         }
         
-        subtreeHeight[u] = std::max(myH, childrenH);
-        return subtreeHeight[u];
+        subtreeBreadth[u] = std::max(myB, childrenB);
+        return subtreeBreadth[u];
     };
 
-    std::unordered_set<int> visitedHeight;
-    for(int root : roots) CalcHeight(root, visitedHeight);
-
-    // Layout Helper
-    float startX = 50.0f;
-    float currentY = 50.0f;
+    std::unordered_set<int> visitedBreadth;
+    for(int root : roots) CalcBreadth(root, visitedBreadth);
 
     std::function<void(int, float, float, std::unordered_set<int>&)> LayoutRecursive = 
-        [&](int u, float x, float yStart, std::unordered_set<int>& visited) {
+        [&](int u, float posPrimary, float posSecondaryStart, std::unordered_set<int>& visited) {
         visited.insert(u);
         
         GraphNode* uNode = nullptr;
@@ -364,43 +389,63 @@ bool ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, int g
         }
         if(!uNode) return;
 
-        float totalH = subtreeHeight[u];
-        
-        uNode->x = x;
-        // Anchor Correction: Center based on node height to align links properly
-        uNode->y = (yStart + totalH * 0.5f) - (uNode->h * 0.5f);
+        float totalB = subtreeBreadth[u];
 
+        if (orientation == LayoutOrientation::LeftRight) {
+            uNode->x = posPrimary;
+            uNode->y = (posSecondaryStart + totalB * 0.5f) - (uNode->h * 0.5f);
 
-        float hGap = std::clamp(uNode->w * 0.6f, 80.0f, 200.0f);
-        float childX = x + uNode->w + hGap;
+            float hGap = std::clamp(uNode->w * 0.6f, 80.0f, 200.0f);
+            float childX = posPrimary + uNode->w + hGap;
 
-        
-        float childrenTotalH = 0;
-        int childCount = 0;
-        for(int v : adj[u]) {
-            if(visited.find(v) == visited.end()) {
-                if(childCount > 0) childrenTotalH += SIBLING_GAP;
-                childrenTotalH += subtreeHeight[v];
-                childCount++;
+            float childrenTotalB = 0;
+            int childCount = 0;
+            for(int v : adj[u]) {
+                if(visited.find(v) == visited.end()) {
+                    if(childCount > 0) childrenTotalB += SIBLING_GAP;
+                    childrenTotalB += subtreeBreadth[v];
+                    childCount++;
+                }
             }
-        }
+            float childY = posSecondaryStart + (totalB - childrenTotalB) * 0.5f;
+            for (int v : adj[u]) {
+                if (visited.find(v) == visited.end()) {
+                    LayoutRecursive(v, childX, childY, visited);
+                    childY += subtreeBreadth[v] + SIBLING_GAP;
+                }
+            }
+        } else { // TopDown
+            uNode->y = posPrimary;
+            uNode->x = (posSecondaryStart + totalB * 0.5f) - (uNode->w * 0.5f);
 
-        float childY = yStart + (totalH - childrenTotalH) * 0.5f;
-        
-        for (int v : adj[u]) {
-            if (visited.find(v) == visited.end()) {
-                float childH = subtreeHeight[v];
-                LayoutRecursive(v, childX, childY, visited);
-                childY += childH + SIBLING_GAP;
+            float vGap = std::clamp(uNode->h * 0.6f, 60.0f, 160.0f);
+            float childY = posPrimary + uNode->h + vGap;
+
+            float childrenTotalB = 0;
+            int childCount = 0;
+            for(int v : adj[u]) {
+                if(visited.find(v) == visited.end()) {
+                    if(childCount > 0) childrenTotalB += SIBLING_GAP;
+                    childrenTotalB += subtreeBreadth[v];
+                    childCount++;
+                }
+            }
+            float childX = posSecondaryStart + (totalB - childrenTotalB) * 0.5f;
+            for (int v : adj[u]) {
+                if (visited.find(v) == visited.end()) {
+                    LayoutRecursive(v, childY, childX, visited);
+                    childX += subtreeBreadth[v] + SIBLING_GAP;
+                }
             }
         }
     };
 
     std::unordered_set<int> visitedLayout;
+    float currentGlobalPos = 50.0f;
     for (int root : roots) {
-         float h = subtreeHeight[root];
-         LayoutRecursive(root, startX, currentY, visitedLayout);
-         currentY += h + 100.0f; // More gap between separate trees
+         float b = subtreeBreadth[root];
+         LayoutRecursive(root, 50.0f, currentGlobalPos, visitedLayout);
+         currentGlobalPos += b + 100.0f; 
     }
 
     if (updateImNodes) {
