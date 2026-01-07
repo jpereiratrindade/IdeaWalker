@@ -459,8 +459,6 @@ void DrawStaticMermaidPreview(const AppState::PreviewGraphState& graph) {
                        
     // Use Dummy to reserve space for scrolling in the parent window
     ImGui::Dummy(canvasSize);
-    
-    ImGui::PushClipRect(startPos, ImVec2(startPos.x + avail.x, startPos.y + avail.y), true);
 
     // Draw Links (Bezier for Tree look)
     ImU32 linkColor = ImGui::GetColorU32(ImVec4(0.45f, 0.65f, 0.95f, 0.65f));
@@ -629,8 +627,6 @@ void DrawStaticMermaidPreview(const AppState::PreviewGraphState& graph) {
             NODE_MAX_WIDTH
         );
     }
-    
-    ImGui::PopClipRect();
 }
 
 void DrawMarkdownPreview(AppState& app, const std::string& content, bool staticMermaidPreview) {
