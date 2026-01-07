@@ -119,6 +119,12 @@ public:
     void transcribeAudio(const std::string& audioPath, 
                         std::function<void(std::string)> onSuccess, 
                         std::function<void(std::string)> onError);
+
+    /**
+     * @brief Sets the persona for the AI service.
+     * @param persona The desired persona.
+     */
+    void setAIPersona(domain::AIPersona persona);
     
 private:
     std::unique_ptr<domain::ThoughtRepository> m_repo; ///< Repository for project data.

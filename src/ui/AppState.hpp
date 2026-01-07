@@ -16,6 +16,7 @@
 
 #include "domain/Insight.hpp"
 #include "domain/ThoughtRepository.hpp"
+#include "domain/AIService.hpp"
 
 namespace ideawalker::application {
 class OrganizerService;
@@ -128,11 +129,13 @@ struct AppState {
     bool showTasksInGraph = true; ///< Neural Web setting.
     bool physicsEnabled = true;   ///< Neural Web setting.
     bool previewMode = false;     ///< Toggle for Markdown Preview in Knowledge tab.
+    domain::AIPersona currentPersona = domain::AIPersona::AnalistaCognitivo; ///< The currently selected AI persona.
     
     std::vector<ExternalFile> externalFiles; ///< List of open external files.
     int selectedExternalFileIndex = -1; ///< Index of the currently edited external file.
     bool showOpenFileModal = false;  ///< UI visibility flag.
     char openFilePathBuffer[512] = ""; ///< Buffer for file path input.
+    bool showSettingsModal = false;  ///< Settings UI visibility flag.
 
     /** @brief Serializes the current Neural Web state to a Mermaid mindmap. */
     std::string ExportToMermaid() const;

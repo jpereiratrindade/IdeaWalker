@@ -195,4 +195,12 @@ void OrganizerService::transcribeAudio(const std::string& audioPath,
     }
 }
 
+
+
+void OrganizerService::setAIPersona(domain::AIPersona persona) {
+    if (m_ai) {
+        m_ai->setPersona(persona);
+    }
+}
+
 } // namespace ideawalker::application

@@ -11,12 +11,28 @@
 namespace ideawalker::domain {
 
 /**
+ * @enum AIPersona
+ * @brief Defines the personality/role of the AI.
+ */
+enum class AIPersona {
+    AnalistaCognitivo,  ///< Deep, strategic, tension-focused.
+    SecretarioExecutivo, ///< Concise, task-focused, summary.
+    Brainstormer        ///< Expansive, creative, divergent.
+};
+
+/**
  * @class AIService
  * @brief Abstract interface for services that process raw text into structured insights using AI.
  */
 class AIService {
 public:
     virtual ~AIService() = default;
+
+    /**
+     * @brief Sets the persona for the AI service.
+     * @param persona The desired persona.
+     */
+    virtual void setPersona(AIPersona persona) = 0;
 
     /**
      * @brief Transforms a raw thought into a structured Insight.

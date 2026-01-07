@@ -2,7 +2,7 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
-## [v0.1.1-beta] - 2026-01-07
+## [v0.1.2-beta] - 2026-01-07
 
 ### Adicionado
 - **Localização Completa (pt-BR)**: Toda a interface do usuário (menus, logs, diálogos) e documentação foram traduzidas para o Português do Brasil.
@@ -18,6 +18,9 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 - **Suporte a Áudio MP3/M4A**: Conversão automática de formatos de áudio (via `ffmpeg`) para WAV compatível (16kHz Mono) antes da transcrição.
 - **Padrão XDG para Modelos**: Modelos de IA agora são buscados no diretório padrão de dados do usuário (`~/.local/share/IdeaWalker/models/`) em sistemas Linux.
 - **Persona "Analista Cognitivo"**: Atualização do prompt do sistema para uma análise mais profunda, focada em mapear tensões cognitivas e decisões estratégicas (o que não fazer), em vez de apenas resumir.
+- **Configuração de Persona de IA**: Nova interface em "Configurações > Preferências" para alternar entre personas ("Analista Cognitivo", "Secretário Executivo", "Brainstormer").
+- **Parsing de Metadados**: Implementada extração automática de títulos gerados pela IA (# Título: ...) para melhor organização de notas.
+
 
 ### Corrigido
 - **Desaparecimento da Neural Web**: Resolvido um conflito onde o gráfico neural principal e o gráfico de preview compartilhavam o mesmo contexto `ImNodes`. Implementada isolação estrita de contextos.

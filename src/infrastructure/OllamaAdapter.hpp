@@ -21,6 +21,9 @@ public:
      * @param port Server port.
      */
     OllamaAdapter(const std::string& host = "localhost", int port = 11434);
+    
+    /** @brief Sets the persona for the AI service. */
+    void setPersona(domain::AIPersona persona) override;
 
     /** @brief Processes text using a structured prompt. @see domain::AIService::processRawThought */
     std::optional<domain::Insight> processRawThought(const std::string& rawContent) override;
@@ -32,6 +35,7 @@ private:
     std::string m_host; ///< Ollama host.
     int m_port; ///< Ollama port.
     std::string m_model = "qwen2.5:14b"; ///< Target model name.
+    domain::AIPersona m_currentPersona = domain::AIPersona::AnalistaCognitivo; ///< Current persona.
 };
 
 } // namespace ideawalker::infrastructure
