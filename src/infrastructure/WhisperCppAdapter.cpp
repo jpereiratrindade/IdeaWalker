@@ -12,10 +12,45 @@
 #include <thread>
 #include <fstream>
 #include <cmath>
+#include <algorithm>
 
 namespace ideawalker::infrastructure {
 
 namespace {
+
+// Helper to execute system command
+int ExecCmd(const std::string& cmd) {
+    return std::system(cmd.c_str());
+}
+
+// Convert audio to 16kHz mono WAV using ffmpeg
+bool ConvertAudioToWav(const std::string& inputPath, std::string& outputPath, std::string& error) {
+    namespace fs = std::filesystem;
+    fs::path tempPath = fs::temp_directory_path() / (fs::path(inputPath).stem().string() + "_temp.wav");
+    outputPath = tempPath.string();
+
+    // Remove if exists
+    if (fs::exists(tempPath)) {
+        fs::remove(tempPath);
+    }
+
+    // ffmpeg -i input -ar 16000 -ac 1 -c:a pcm_s16le output
+    // -y to overwrite, -loglevel error to reduce noise
+    std::string cmd = "ffmpeg -y -loglevel error -i \"" + inputPath + "\" -ar 16000 -ac 1 -c:a pcm_s16le \"" + outputPath + "\"";
+    
+    int ret = ExecCmd(cmd);
+    if (ret != 0) {
+        error = "Falha ao converter áudio com ffmpeg. Verifique se o ffmpeg está instalado.";
+        return false;
+    }
+    
+    if (!fs::exists(outputPath)) {
+        error = "Arquivo convertido não encontrado: " + outputPath;
+        return false;
+    }
+
+    return true;
+}
 
 // Helper to load WAV using SDL2 and convert to 16kHz float32 mono
 bool LoadAudioSDL(const std::string& fname, std::vector<float>& pcmf32, std::string& error) {
@@ -122,11 +157,35 @@ void WhisperCppAdapter::transcribeAsync(const std::string& audioPath, OnSuccess 
 
         namespace fs = std::filesystem;
         
+        // Pre-process if needed
+        std::string processedPath = audioPath;
+        bool usingTempFile = false;
+        
+        fs::path p(audioPath);
+        std::string ext = p.extension().string();
+        // Simple lowercasing
+        std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+
+        if (ext != ".wav") {
+             std::string convError;
+             if (!ConvertAudioToWav(audioPath, processedPath, convError)) {
+                 if (onError) onError(convError);
+                 return;
+             }
+             usingTempFile = true;
+        }
+
         // Load Audio
         std::vector<float> pcmf32;
-        if (!LoadAudioSDL(audioPath, pcmf32, error)) {
+        if (!LoadAudioSDL(processedPath, pcmf32, error)) {
+            if (usingTempFile) fs::remove(processedPath);
             if (onError) onError("Erro ao Carregar Áudio: " + error);
             return;
+        }
+
+        // Cleanup temp file immediately after loading
+        if (usingTempFile) {
+            fs::remove(processedPath);
         }
 
         // Run Inference

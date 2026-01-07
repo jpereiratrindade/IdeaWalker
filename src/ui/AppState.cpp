@@ -11,6 +11,7 @@
 #include "infrastructure/FileRepository.hpp"
 #include "infrastructure/OllamaAdapter.hpp"
 #include "infrastructure/WhisperCppAdapter.hpp"
+#include "infrastructure/PathUtils.hpp"
 
 #include <algorithm>
 #include <cstdio>
@@ -107,8 +108,17 @@ bool AppState::OpenProject(const std::string& rootPath) {
     auto ai = std::make_unique<infrastructure::OllamaAdapter>();
     
     // Pure C++ Implementation using Whisper.cpp
-    // Model expected at project root: ggml-medium.bin
-    std::string modelPath = (root / "ggml-medium.bin").string();
+    // Model expected at standard XDG location: ~/.local/share/IdeaWalker/models/ggml-medium.bin
+    // Fallback to project root if needed (optional, but XDG is preferred now)
+    auto modelsDir = infrastructure::PathUtils::GetModelsDir();
+    std::string modelPath = (modelsDir / "ggml-medium.bin").string();
+    
+    // Check if model exists in XDG, if not check local project for backward compatibility checking
+    if (!std::filesystem::exists(modelPath)) {
+         if (std::filesystem::exists(root / "ggml-medium.bin")) {
+             modelPath = (root / "ggml-medium.bin").string();
+         }
+    }
     std::string inboxPath = (root / "inbox").string();
 
     auto transcriber = std::make_unique<infrastructure::WhisperCppAdapter>(modelPath, inboxPath);

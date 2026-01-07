@@ -45,6 +45,7 @@ O **Idea Walker** é um suporte cognitivo projetado para transformar pensamentos
 - **Ollama** rodando localmente (`ollama serve`).
 - Modelo **qwen2.5:14b** baixado (`ollama run qwen2.5:14b`).
 - **SDL2** instalado no sistema.
+- **FFmpeg** instalado (para conversão de áudio MP3/M4A).
 
 ### Build
 ```bash

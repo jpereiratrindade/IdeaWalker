@@ -15,6 +15,9 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
     - Suporte aprimorado para sintaxe de formas de nós como `((círculo))`.
 - **Layout Ciente de Texto**: A física do grafo agora leva em conta o comprimento do texto do nó para prevenir sobreposições de forma eficaz.
 - **Coloração Radial**: Nós no preview estático são coloridos com base em sua posição angular em relação ao centro do gráfico.
+- **Suporte a Áudio MP3/M4A**: Conversão automática de formatos de áudio (via `ffmpeg`) para WAV compatível (16kHz Mono) antes da transcrição.
+- **Padrão XDG para Modelos**: Modelos de IA agora são buscados no diretório padrão de dados do usuário (`~/.local/share/IdeaWalker/models/`) em sistemas Linux.
+- **Persona "Analista Cognitivo"**: Atualização do prompt do sistema para uma análise mais profunda, focada em mapear tensões cognitivas e decisões estratégicas (o que não fazer), em vez de apenas resumir.
 
 ### Corrigido
 - **Desaparecimento da Neural Web**: Resolvido um conflito onde o gráfico neural principal e o gráfico de preview compartilhavam o mesmo contexto `ImNodes`. Implementada isolação estrita de contextos.
