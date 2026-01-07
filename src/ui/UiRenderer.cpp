@@ -1842,8 +1842,8 @@ void DrawUI(AppState& app) {
                         if (app.unifiedPreviewMode) {
                              DrawMarkdownPreview(app, app.unifiedKnowledge, false);
                         } else {
-                             // Use TextWrapped for automatic wrapping to window width
-                             ImGui::TextWrapped("%s", app.unifiedKnowledge.c_str());
+                             // Use InputTextMultiline with ReadOnly flag to enable selection
+                             InputTextMultilineString("##unifiedRaw", &app.unifiedKnowledge, ImVec2(-FLT_MIN, -FLT_MIN), ImGuiInputTextFlags_ReadOnly);
                         }
                     }
                     ImGui::EndChild();
