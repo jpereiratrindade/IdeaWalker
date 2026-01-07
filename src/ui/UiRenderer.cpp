@@ -1308,10 +1308,16 @@ void DrawNodeGraph(AppState& app) {
         }
 
         bool isTask = (node.type == NodeType::TASK);
+        bool isConcept = (node.type == NodeType::CONCEPT);
+
         if (isTask) {
             ImNodes::PushColorStyle(ImNodesCol_NodeBackground, IM_COL32(50, 50, 50, 255));
             ImNodes::PushColorStyle(ImNodesCol_TitleBar, 
                 node.isCompleted ? IM_COL32(46, 125, 50, 200) : IM_COL32(230, 81, 0, 200));
+        } else if (isConcept) {
+             // Dark Purple for Concepts
+             ImNodes::PushColorStyle(ImNodesCol_NodeBackground, IM_COL32(40, 30, 60, 255));
+             ImNodes::PushColorStyle(ImNodesCol_TitleBar, IM_COL32(100, 60, 150, 200));
         }
 
         ImNodes::BeginNode(node.id);
@@ -1340,7 +1346,7 @@ void DrawNodeGraph(AppState& app) {
 
         ImNodes::EndNode();
 
-        if (isTask) {
+        if (isTask || isConcept) {
             ImNodes::PopColorStyle();
             ImNodes::PopColorStyle();
         }

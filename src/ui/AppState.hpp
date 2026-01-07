@@ -33,7 +33,8 @@ namespace ideawalker::ui {
         TASK_TODO,  ///< A task that hasn't been started.
         TASK_DONE,  ///< A completed task.
         NOTE_LINK,  ///< A wiki-style link to another note.
-        TASK        ///< General task node.
+        TASK,       ///< General task node.
+        CONCEPT     ///< A referenced concept that doesn't exist as a file yet.
     };
 
     /**

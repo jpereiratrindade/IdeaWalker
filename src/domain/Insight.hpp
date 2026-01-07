@@ -177,10 +177,34 @@ public:
         m_content = out.str();
     }
 
+    /**
+     * @brief Parses wikilinks [[Target]] from the content.
+     */
+    void parseReferencesFromContent() {
+        m_references.clear();
+        std::string::size_type pos = 0;
+        while ((pos = m_content.find("[[", pos)) != std::string::npos) {
+            std::string::size_type end = m_content.find("]]", pos + 2);
+            if (end != std::string::npos) {
+                std::string ref = m_content.substr(pos + 2, end - (pos + 2));
+                if (!ref.empty()) {
+                    m_references.push_back(ref);
+                }
+                pos = end + 2;
+            } else {
+                break;
+            }
+        }
+    }
+
+    /** @brief Returns list of parsed wikilinks. */
+    const std::vector<std::string>& getReferences() const { return m_references; }
+
 private:
     Metadata m_metadata; ///< Insight metadata.
     std::string m_content; ///< Full text content.
     std::vector<Actionable> m_actionables; ///< List of tasks extracted from content.
+    std::vector<std::string> m_references; ///< List of referenced concepts/files.
 };
 
 } // namespace ideawalker::domain

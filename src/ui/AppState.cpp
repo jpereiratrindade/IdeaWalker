@@ -236,6 +236,16 @@ std::string AppState::GetLogSnapshot() {
     return outputLog;
 }
 
+void AppState::SetProcessingStatus(const std::string& status) {
+    std::lock_guard<std::mutex> lock(processingStatusMutex);
+    processingStatus = status;
+}
+
+std::string AppState::GetProcessingStatus() {
+    std::lock_guard<std::mutex> lock(processingStatusMutex);
+    return processingStatus;
+}
+
 void AppState::RebuildGraph() {
     graphNodes.clear();
     graphLinks.clear();
@@ -293,7 +303,7 @@ void AppState::RebuildGraph() {
     }
 
     // 2. Create Cross-Note Links
-    std::regex linkRegex(R"(\[\[([^\]\|]+)(?:\|[^\]]*)?\]\])");
+    // 2. Create Cross-Note Links
     
     // Pre-calculate which titles are worth searching (at least 4 chars to avoid tiny common words)
     std::vector<std::pair<std::string, int>> searchableTitles;
@@ -310,24 +320,49 @@ void AppState::RebuildGraph() {
         int sourceId = nameToId[sourceName];
 
         // 2a. Explicit [[Wikilinks]] (High Priority)
+        // Parse references from content (newly added method)
+        // Note: const_cast is ugly but we need to parse. Ideally Insight does this on load, but we do it here for now.
+        const_cast<domain::Insight&>(insight).parseReferencesFromContent();
+        
         std::unordered_set<int> linkedNodes;
-        auto words_begin = std::sregex_iterator(content.begin(), content.end(), linkRegex);
-        auto words_end = std::sregex_iterator();
-
-        for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
-            std::smatch match = *i;
-            std::string targetName = match[1].str();
+        for (const auto& ref : insight.getReferences()) {
+            std::string targetName = ref;
+            // Trim
             targetName.erase(0, targetName.find_first_not_of(" \t\n\r"));
-            targetName.erase(targetName.find_last_not_of(" \t\n\r") + 1);
+            size_t end = targetName.find_last_not_of(" \t\n\r");
+            if (end != std::string::npos) targetName.erase(end + 1);
             
+            if (targetName.empty()) continue;
+
+            int targetId = -1;
             auto it = nameToId.find(targetName);
             if (it == nameToId.end()) it = nameToId.find(targetName + ".md");
-            
-            if (it != nameToId.end() && it->second != sourceId) {
-                if (linkedNodes.find(it->second) == linkedNodes.end()) {
-                    GraphLink link{linkIdCounter++, sourceId, it->second};
+
+            if (it != nameToId.end()) {
+                targetId = it->second;
+            } else {
+                // CONCEPT NODE CREATION (Ghost Node)
+                GraphNode conceptNode;
+                conceptNode.id = nextId++;
+                conceptNode.type = NodeType::CONCEPT; // New type
+                conceptNode.title = targetName;
+                
+                // Position near the source node but with some chaos
+                float angle = (float(rand()) / RAND_MAX) * 2.0f * 3.14159f;
+                conceptNode.x = graphNodes[nameToId[sourceName]].x + std::cos(angle) * 150.0f;
+                conceptNode.y = graphNodes[nameToId[sourceName]].y + std::sin(angle) * 150.0f;
+                conceptNode.vx = conceptNode.vy = 0.0f;
+
+                graphNodes.push_back(conceptNode);
+                targetId = conceptNode.id;
+                nameToId[targetName] = targetId; // Register so others link to same concept
+            }
+
+            if (targetId != sourceId && targetId != -1) {
+                if (linkedNodes.find(targetId) == linkedNodes.end()) {
+                    GraphLink link{linkIdCounter++, sourceId, targetId};
                     graphLinks.push_back(link);
-                    linkedNodes.insert(it->second);
+                    linkedNodes.insert(targetId);
                 }
             }
         }
