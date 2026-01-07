@@ -203,4 +203,18 @@ void OrganizerService::setAIPersona(domain::AIPersona persona) {
     }
 }
 
+std::vector<std::string> OrganizerService::getNoteHistory(const std::string& noteId) {
+    if (m_repo) {
+        return m_repo->getVersions(noteId);
+    }
+    return {};
+}
+
+std::string OrganizerService::getVersionContent(const std::string& versionFilename) {
+    if (m_repo) {
+        return m_repo->getVersionContent(versionFilename);
+    }
+    return "";
+}
+
 } // namespace ideawalker::application

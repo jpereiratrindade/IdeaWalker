@@ -65,6 +65,20 @@ public:
      * @return Map of date string to activity count.
      */
     virtual std::map<std::string, int> getActivityHistory() = 0;
+
+    /**
+     * @brief Retrieves a list of available versions for a specific note.
+     * @param noteId The ID of the note (filename without extension usually).
+     * @return List of version filenames (e.g., "Nota_ID_Timestamp.md").
+     */
+    virtual std::vector<std::string> getVersions(const std::string& noteId) = 0;
+
+    /**
+     * @brief Retrieves the content of a specific version.
+     * @param versionFilename The filename of the version to load.
+     * @return The raw content of the file.
+     */
+    virtual std::string getVersionContent(const std::string& versionFilename) = 0;
 };
 
 } // namespace ideawalker::domain

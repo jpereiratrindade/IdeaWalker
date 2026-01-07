@@ -1834,6 +1834,71 @@ void DrawUI(AppState& app) {
             ImGui::EndTabItem();
         }
 
+        // History Modal Logic
+        auto DrawHistoryModal = [](AppState& app) {
+            if (app.showHistoryModal) {
+                ImGui::OpenPopup("Trajetória da Ideia");
+            }
+
+            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+            ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
+
+            if (ImGui::BeginPopupModal("Trajetória da Ideia", &app.showHistoryModal, ImGuiWindowFlags_MenuBar)) {
+                if (ImGui::BeginMenuBar()) {
+                    ImGui::TextDisabled("Evolução Temporal: %s", app.selectedNoteIdForHistory.c_str());
+                    ImGui::EndMenuBar();
+                }
+
+                if (app.historyVersions.empty()) {
+                    ImGui::Text("Nenhuma versão anterior encontrada para esta nota.");
+                } else {
+                    // Split view: List vs Content
+                    static float w = 200.0f;
+                    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0,0));
+                    ImGui::BeginChild("HistoryList", ImVec2(w, 0), true);
+                    
+                    for (int i = 0; i < (int)app.historyVersions.size(); ++i) {
+                        bool selected = (app.selectedHistoryIndex == i);
+                        // Extract Display Date from Filename: Nota_ID_YYYYMMDD_HHMMSS.md
+                        std::string display = app.historyVersions[i];
+                        size_t us = display.find_last_of('_'); 
+                        if (us != std::string::npos) {
+                             // Try to format nicely if possible, or just show filename
+                             // Format: YYYYMMDD_HHMMSS
+                             // A nicer parsing could be done, but distinct filenames work for now.
+                        }
+                        
+                        if (ImGui::Selectable(display.c_str(), selected)) {
+                            app.selectedHistoryIndex = i;
+                            // Fetch Content
+                            // Fetch Content
+                             if (app.organizerService) {
+                                app.selectedHistoryContent = app.organizerService->getVersionContent(app.historyVersions[i]);
+                            }
+                        }
+                    }
+                    ImGui::EndChild();
+                    ImGui::SameLine();
+                    
+                    ImGui::BeginChild("HistoryContent", ImVec2(0, 0), true);
+                    if (app.selectedHistoryIndex >= 0 && !app.selectedHistoryContent.empty()) {
+                        InputTextMultilineString("##histcontent", &app.selectedHistoryContent, ImVec2(-FLT_MIN, -FLT_MIN), ImGuiInputTextFlags_ReadOnly);
+                    } else {
+                        ImGui::TextDisabled("Selecione uma versão para visualizar.");
+                    }
+                    ImGui::EndChild();
+                    ImGui::PopStyleVar();
+                }
+
+                if (ImGui::Button("Fechar")) {
+                    app.showHistoryModal = false;
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+        };
+
         ImGuiTabItemFlags flags1 = (app.requestedTab == 1) ? ImGuiTabItemFlags_SetSelected : 0;
         if (ImGui::BeginTabItem(label("📚 Organized Knowledge", "Organized Knowledge"), NULL, flags1)) {
             if (app.requestedTab == 1) app.requestedTab = -1;
@@ -1868,7 +1933,33 @@ void DrawUI(AppState& app) {
                 } else {
                     // Coluna da Esquerda: Lista de Arquivos
                     ImGui::BeginChild("NotesList", ImVec2(250, 0), true);
-                    for (const auto& insight : app.allInsights) {
+                    for (auto& insight : app.allInsights) {
+                    ImGui::PushID(insight.getMetadata().id.c_str());
+                    
+                    // Header with History Button
+                    ImGui::BeginGroup();
+                    bool open = ImGui::CollapsingHeader(insight.getMetadata().title.empty() ? insight.getMetadata().id.c_str() : insight.getMetadata().title.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+                    ImGui::SameLine();
+                    if (ImGui::SmallButton("🕰️")) {
+                        // Trigger History
+                        app.showHistoryModal = true;
+                        app.selectedNoteIdForHistory = insight.getMetadata().id;
+                        app.selectedHistoryIndex = -1;
+                        app.selectedHistoryContent.clear();
+                        
+                        // Load versions
+                        // We need a way to call repository from here.
+                        // Since we are in UI, let's use app.organizerService if possible, or add a helper in AppState.
+                        // I will add a helper 'LoadHistory' in AppState to keep UI clean.
+                        // For now, I'll assume AppState::LoadHistory exists or add it.
+                        if (app.organizerService) {
+                            app.historyVersions = app.organizerService->getNoteHistory(app.selectedNoteIdForHistory);
+                        }
+                    }
+                    if (ImGui::IsItemHovered()) ImGui::SetTooltip("Ver Trajetória (Histórico)");
+                    ImGui::EndGroup();
+
+                    if (open) {
                         const std::string& filename = insight.getMetadata().id;
                         bool isSelected = (app.selectedFilename == filename);
                         if (ImGui::Selectable(filename.c_str(), isSelected)) {
@@ -2200,6 +2291,7 @@ void DrawUI(AppState& app) {
     }
 
     DrawTaskDetailsModal(app);
+    DrawHistoryModal(app);
 
     ImGui::End();
 

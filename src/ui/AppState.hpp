@@ -145,6 +145,13 @@ struct AppState {
     std::string selectedTaskOrigin; ///< Origin file of the selected task.
     std::string selectedTaskContent; ///< Full content or details of the selected task.UI visibility flag.
 
+    // History Modal State
+    bool showHistoryModal = false; ///< Show the history/timeline modal.
+    std::string selectedNoteIdForHistory; ///< ID of the note being inspected.
+    std::vector<std::string> historyVersions; ///< List of available versions.
+    std::string selectedHistoryContent; ///< Content of the selected version.
+    int selectedHistoryIndex = -1; ///< Index of the currently selected version.
+
     /** @brief Serializes the current Neural Web state to a Mermaid mindmap. */
     std::string ExportToMermaid() const;
     /** @brief Exports the entire knowledge base to a single Markdown file with Mermaid diagrams. */

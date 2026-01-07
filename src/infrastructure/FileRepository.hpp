@@ -43,6 +43,12 @@ public:
     /** @brief Generates activity data based on file modification times. @see domain::ThoughtRepository::getActivityHistory */
     std::map<std::string, int> getActivityHistory() override;
 
+    /** @brief Scans .history for versions of a note. @see domain::ThoughtRepository::getVersions */
+    std::vector<std::string> getVersions(const std::string& noteId) override;
+
+    /** @brief Reads content of a version file. @see domain::ThoughtRepository::getVersionContent */
+    std::string getVersionContent(const std::string& versionFilename) override;
+
 private:
     std::string m_inboxPath; ///< Path to inbox directory.
     std::string m_notesPath; ///< Path to notes directory.

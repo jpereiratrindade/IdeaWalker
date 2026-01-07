@@ -187,4 +187,39 @@ std::map<std::string, int> FileRepository::getActivityHistory() {
     return history;
 }
 
+}
+
+std::vector<std::string> FileRepository::getVersions(const std::string& noteId) {
+    std::vector<std::string> versions;
+    if (!fs::exists(m_historyPath)) return versions;
+
+    std::string prefix = "Nota_" + noteId + "_";
+    // Check if noteId already has prefix (e.g. passed full filename by mistake)
+    if (noteId.rfind("Nota_", 0) == 0) {
+        prefix = noteId + "_";
+    }
+
+    for (const auto& entry : fs::directory_iterator(m_historyPath)) {
+        if (entry.is_regular_file()) {
+            std::string fname = entry.path().filename().string();
+            if (fname.rfind(prefix, 0) == 0) { // Starts with prefix
+                versions.push_back(fname);
+            }
+        }
+    }
+    // Sort descending (newest first)
+    std::sort(versions.rbegin(), versions.rend());
+    return versions;
+}
+
+std::string FileRepository::getVersionContent(const std::string& versionFilename) {
+    fs::path p = fs::path(m_historyPath) / versionFilename;
+    if (!fs::exists(p)) return "";
+    
+    std::ifstream file(p);
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
+
 } // namespace ideawalker::infrastructure

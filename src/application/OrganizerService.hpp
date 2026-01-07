@@ -128,6 +128,20 @@ public:
      * @param persona The desired persona.
      */
     void setAIPersona(domain::AIPersona persona);
+
+    /**
+     * @brief Retrieves the list of available history versions for a note.
+     * @param noteId The ID/Filename of the note.
+     * @return List of version filenames.
+     */
+    std::vector<std::string> getNoteHistory(const std::string& noteId);
+
+    /**
+     * @brief Retrieves the content of a specific history version.
+     * @param versionFilename The filename of the version.
+     * @return The content string.
+     */
+    std::string getVersionContent(const std::string& versionFilename);
     
 private:
     std::unique_ptr<domain::ThoughtRepository> m_repo; ///< Repository for project data.
