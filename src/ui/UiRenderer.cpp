@@ -1792,13 +1792,19 @@ void DrawUI(AppState& app) {
                 ImGui::Separator();
 
                 if (app.unifiedKnowledgeView) {
+                    ImGui::SameLine();
+                    ImGui::Checkbox("Modo Preview", &app.unifiedPreviewMode);
+
                     ImGui::BeginChild("UnifiedKnowledge", ImVec2(0, 0), true);
                     if (app.unifiedKnowledge.empty()) {
                         ImGui::TextDisabled("Nenhum insight disponivel.");
                     } else {
-                        ImGui::PushTextWrapPos(0.0f);
-                        ImGui::TextUnformatted(app.unifiedKnowledge.c_str());
-                        ImGui::PopTextWrapPos();
+                        if (app.unifiedPreviewMode) {
+                             DrawMarkdownPreview(app, app.unifiedKnowledge, false);
+                        } else {
+                             // Use TextWrapped for automatic wrapping to window width
+                             ImGui::TextWrapped("%s", app.unifiedKnowledge.c_str());
+                        }
                     }
                     ImGui::EndChild();
                 } else {

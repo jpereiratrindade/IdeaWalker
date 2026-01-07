@@ -26,7 +26,7 @@ public:
     void setPersona(domain::AIPersona persona) override;
 
     /** @brief Processes text using a structured prompt. @see domain::AIService::processRawThought */
-    std::optional<domain::Insight> processRawThought(const std::string& rawContent) override;
+    std::optional<domain::Insight> processRawThought(const std::string& rawContent, std::function<void(std::string)> statusCallback = nullptr) override;
 
     /** @brief Unifies and rewrites tasks. @see domain::AIService::consolidateTasks */
     std::optional<std::string> consolidateTasks(const std::string& tasksMarkdown) override;
