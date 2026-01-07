@@ -82,7 +82,8 @@ bool LoadFonts(ImGuiIO& io) {
         config.PixelSnapH = true;
 
         static const ImWchar emojiRanges[] = {
-            0x2000, 0x206F, // General Punctuation (includes bullet points)
+            0x00A0, 0x00FF,   // Latin-1 Supplement (Accents)
+            0x2000, 0x206F,   // General Punctuation (Bullets, etc.)
             0x1F300, 0x1FAFF, // Emoji ranges
             0
         };
