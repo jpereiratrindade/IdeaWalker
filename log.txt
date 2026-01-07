@@ -1,5 +1,0 @@
-a526a5c docs: update Doxyfile version to v0.1.1-beta
-1183636 chore: bump version to v0.1.1-beta
-e90d086 docs: localize project to pt-BR and update license to GPLv3
-dba9f9e fix: robust indented list rendering and font glyphs
-a6e0906 fix: expand font glyph ranges for bullet points and symbols
