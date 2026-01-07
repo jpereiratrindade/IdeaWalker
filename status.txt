@@ -1,0 +1,21 @@
+On branch main
+Your branch is ahead of 'origin/main' by 28 commits.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   .gitignore
+	deleted:    .obsidian/app.json
+	deleted:    .obsidian/appearance.json
+	deleted:    .obsidian/core-plugins.json
+	deleted:    .obsidian/graph.json
+	deleted:    .obsidian/workspace.json
+	modified:   html/index.html
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	last_commit.txt
+	status.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")

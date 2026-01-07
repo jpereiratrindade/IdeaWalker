@@ -13,6 +13,11 @@ latex/
 # Models and Large Data
 *.bin
 *.wav
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
 
 # User Data / Project Specific
 inbox/
