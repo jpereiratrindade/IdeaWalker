@@ -82,6 +82,7 @@ namespace ideawalker::ui {
         std::string title; ///< Text label.
         float x, y; ///< Normalized or screen coordinates.
         float w, h; ///< Exact dimensions (width, height) calculated for rendering.
+        float wrapW = 200.0f; ///< The text wrap width used during size calculation.
         float vx, vy; ///< Velocity vectors for physics simulation.
         NodeType type; ///< Categorical type.
         bool isCompleted = false; ///< Task status (if applicable).

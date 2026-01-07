@@ -33,6 +33,49 @@ bool StartsWith(const std::string& text, const char* prefix) {
     return text.rfind(prefix, 0) == 0;
 }
 
+/**
+ * @brief Heuristic to find a balanced node size (width vs height).
+ * Iterates through wrap widths to avoid extremely tall "post" nodes.
+ */
+/**
+ * @struct NodeSizeResult
+ * @brief Simple container for adaptive node dimensions and wrap width.
+ */
+struct NodeSizeResult { float w, h, wrap; };
+
+/**
+ * @brief Heuristic to find a balanced node size (width vs height).
+ * Iterates through wrap widths to avoid extremely tall "post" nodes.
+ * @param text The node title.
+ * @param minWrap Minimum allowed wrap width.
+ * @param maxWrap Maximum allowed wrap width.
+ * @param step Step size for iteration.
+ * @param padX Horizontal padding.
+ * @param padY Vertical padding.
+ * @return Best fit dimensions and the corresponding wrap width.
+ */
+NodeSizeResult EstimateNodeSizeAdaptive(const std::string& text, float minWrap, float maxWrap, float step, float padX, float padY) {
+    float bestWrap = minWrap;
+    float bestCost = FLT_MAX;
+    ImVec2 bestSize = ImVec2(0, 0);
+
+    for (float wrap = minWrap; wrap <= maxWrap; wrap += step) {
+        ImVec2 sz = ImGui::CalcTextSize(text.c_str(), nullptr, false, wrap);
+        
+        // Cost: Area + penalty for extremely tall nodes
+        float area = (sz.x + padX) * (sz.y + padY);
+        float tallPenalty = (sz.y > 150.0f) ? (sz.y - 150.0f) * 60.0f : 0.0f;
+        float cost = area + tallPenalty;
+
+        if (cost < bestCost) {
+            bestCost = cost;
+            bestWrap = wrap;
+            bestSize = sz;
+        }
+    }
+    return { bestSize.x + padX, bestSize.y + padY, bestWrap };
+}
+
 // Helper to draw a rich representation of Markdown content
 /**
  * @brief Parses Mermaid syntax into a GraphNode/GraphLink structure.
@@ -302,11 +345,10 @@ bool ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, int g
     // Wrap Text & Calculate Sizes
 
     for (auto& node : graph.nodes) {
-        // Use ImGui to calculate exact size with wrapping
-        ImVec2 size = ImGui::CalcTextSize(node.title.c_str(), nullptr, false, NODE_MAX_WIDTH);
-        
-        node.w = size.x + 30.0f; // Padding
-        node.h = size.y + 20.0f; // Padding
+        NodeSizeResult res = EstimateNodeSizeAdaptive(node.title, 160.0f, 420.0f, 40.0f, 30.0f, 20.0f);
+        node.w = res.w;
+        node.h = res.h;
+        node.wrapW = res.wrap;
     }
 
     // Populate Structural Cache
@@ -517,11 +559,7 @@ void DrawStaticMermaidPreview(const AppState::PreviewGraphState& graph) {
     if (graphH < 1.0f) graphH = 1.0f;
 
     float padding = 40.0f;
-    
-    // Adaptive Scaling (Fit to View up to 100%)
-    float scaleX = avail.x / (graphW + padding * 2.0f);
-    float scaleY = avail.y / (graphH + padding * 2.0f);
-    float scale = std::min({1.0f, scaleX, scaleY});
+    const float scale = 1.0f; // Force 1:1 for legibility and consistency
 
     // Define the Content Area for the parent scrollable child
     ImVec2 canvasSize(std::floor(graphW * scale + padding * 2), std::floor(graphH * scale + padding * 2));
@@ -650,10 +688,9 @@ void DrawStaticMermaidPreview(const AppState::PreviewGraphState& graph) {
             case NodeShape::HEXAGON:
                 {
                     ImVec2 p[6];
-                    float h = (max.y - min.y) * 0.5f;
-                    float w = (max.x - min.x) * 0.5f;
-                    float indent = 10.0f; 
-                    // Hexagon
+                    float h_local = (max.y - min.y) * 0.5f; ///< Exact dimensions (width, height) calculated for rendering.
+                    float w_local; ///< Exact dimensions (width, height) calculated for rendering.
+                    float wrapW_local = 200.0f; ///< The text wrap width used during size calculation (logical space).
                     p[0] = ImVec2(min.x + indent, min.y);
                     p[1] = ImVec2(max.x - indent, min.y);
                     p[2] = ImVec2(max.x + indent, center.y); // Point out
@@ -700,17 +737,17 @@ void DrawStaticMermaidPreview(const AppState::PreviewGraphState& graph) {
                  break;
         }
         
-        ImVec2 textSize = ImGui::CalcTextSize(node.title.c_str(), nullptr, false, NODE_MAX_WIDTH);
+        ImVec2 textSize = ImGui::CalcTextSize(node.title.c_str(), nullptr, false, node.wrapW);
         ImVec2 textPos(std::floor(center.x - textSize.x * 0.5f), std::floor(center.y - textSize.y * 0.5f));
         
         drawList->AddText(
-            ImGui::GetFont(),                 // Normal font
-            ImGui::GetFontSize(),             // Normal size
+            ImGui::GetFont(),                 
+            ImGui::GetFontSize(),             
             textPos,
             textColor,
             node.title.c_str(),
             nullptr,
-            NODE_MAX_WIDTH
+            node.wrapW
         );
     }
 }
@@ -1275,7 +1312,7 @@ void DrawNodeGraph(AppState& app) {
         ImNodes::BeginNode(node.id);
         
         ImNodes::BeginNodeTitleBar();
-        ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + 200.0f); // Limit width to 200px
+        ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + (node.wrapW - 30.0f)); // Reserve space for padding
         if (isTask) {
              const char* emoji = "📋 "; // To-Do
              if (node.isCompleted) emoji = "✅ ";
