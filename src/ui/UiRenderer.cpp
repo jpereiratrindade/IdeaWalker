@@ -278,7 +278,9 @@ bool ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, int g
                  ParseNodeStr(trimmed, id, label, shape);
                  if (!id.empty()) {
                      GetOrCreateNode(id, label, shape);
-                 }
+                }
+            }
+        }
     }
     
     // Finalize node lookup map
