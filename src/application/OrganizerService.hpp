@@ -7,6 +7,7 @@
 #include "domain/ThoughtRepository.hpp"
 #include "domain/AIService.hpp"
 #include "domain/TranscriptionService.hpp"
+#include <functional>
 #include <memory>
 #include <functional>
 
@@ -45,16 +46,18 @@ public:
     /**
      * @brief Processes all items in the inbox.
      * @param force If true, re-processes items even if they haven't changed.
+     * @param statusCallback Optional callback for status.
      */
-    void processInbox(bool force = false);
+    void processInbox(bool force = false, std::function<void(std::string)> statusCallback = nullptr);
 
     /**
      * @brief Processes a specific item in the inbox.
      * @param filename Name of the file to process.
      * @param force If true, re-processes the item even if it hasn't changed.
+     * @param statusCallback Optional callback for status.
      * @return Result of the processing attempt.
      */
-    ProcessResult processInboxItem(const std::string& filename, bool force = false);
+    ProcessResult processInboxItem(const std::string& filename, bool force = false, std::function<void(std::string)> statusCallback = nullptr);
 
     /**
      * @brief Scans all insights and updates the consolidated task file.

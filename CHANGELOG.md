@@ -2,6 +2,12 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [v0.1.3-beta] - 2026-01-07
+### Adicionado
+- **Orquestrador Cognitivo (Perfil TDAH)**: Uma nova meta-persona que diagnostica a transcrição e decide dinamicamente a sequência de perfis (Brainstormer, Analista, Secretário) a serem executados.
+- **Feedback de Status em Tempo Real**: O systema agora exibe explicitamente qual persona está operando ("Diagnosing...", "Running Brainstormer...") ao lado do indicador de progresso.
+- **Brainstormer Refinado**: Prompt atualizado para gerar bifurcações explícitas, sementes de ideia e nós de grafo (`[[WikiLink]]`).
+
 ## [v0.1.2-beta] - 2026-01-07
 
 ### Adicionado

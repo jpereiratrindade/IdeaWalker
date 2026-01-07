@@ -1,0 +1,28 @@
+[ 19%] Built target ggml-base
+[ 52%] Built target ggml-cpu
+[ 56%] Built target ggml
+[ 60%] Built target whisper
+[ 63%] Building CXX object CMakeFiles/IdeaWalker.dir/src/application/OrganizerService.cpp.o
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/application/OrganizerService.cpp: In member function ‘void ideawalker::application::OrganizerService::processInbox(bool, std::function<void(std::__cxx11::basic_string<char>)>)’:
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/application/OrganizerService.cpp:64:47: error: no matching function for call to ‘ideawalker::domain::AIService::processRawThought(const std::string&, std::function<void(std::__cxx11::basic_string<char>)>&)’
+   64 |         auto insight = m_ai->processRawThought(thought.content, statusCallback);
+      |                        ~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/application/OrganizerService.cpp:64:47: note: there is 1 candidate
+In file included from /run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/application/OrganizerService.hpp:8,
+                 from /run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/application/OrganizerService.cpp:5:
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/domain/AIService.hpp:43:36: note: candidate 1: ‘virtual std::optional<ideawalker::domain::Insight> ideawalker::domain::AIService::processRawThought(const std::string&)’
+   43 |     virtual std::optional<Insight> processRawThought(const std::string& rawContent) = 0;
+      |                                    ^~~~~~~~~~~~~~~~~
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/domain/AIService.hpp:43:36: note: candidate expects 1 argument, 2 provided
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/application/OrganizerService.cpp: In member function ‘ideawalker::application::OrganizerService::ProcessResult ideawalker::application::OrganizerService::processInboxItem(const std::string&, bool, std::function<void(std::__cxx11::basic_string<char>)>)’:
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/application/OrganizerService.cpp:86:47: error: no matching function for call to ‘ideawalker::domain::AIService::processRawThought(const std::string&, std::function<void(std::__cxx11::basic_string<char>)>&)’
+   86 |         auto insight = m_ai->processRawThought(thought.content, statusCallback);
+      |                        ~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/application/OrganizerService.cpp:86:47: note: there is 1 candidate
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/domain/AIService.hpp:43:36: note: candidate 1: ‘virtual std::optional<ideawalker::domain::Insight> ideawalker::domain::AIService::processRawThought(const std::string&)’
+   43 |     virtual std::optional<Insight> processRawThought(const std::string& rawContent) = 0;
+      |                                    ^~~~~~~~~~~~~~~~~
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/domain/AIService.hpp:43:36: note: candidate expects 1 argument, 2 provided
+gmake[2]: *** [CMakeFiles/IdeaWalker.dir/build.make:191: CMakeFiles/IdeaWalker.dir/src/application/OrganizerService.cpp.o] Error 1
+gmake[1]: *** [CMakeFiles/Makefile2:247: CMakeFiles/IdeaWalker.dir/all] Error 2
+gmake: *** [Makefile:136: all] Error 2

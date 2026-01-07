@@ -35,15 +35,10 @@ void OllamaAdapter::setPersona(domain::AIPersona persona) {
     m_currentPersona = persona;
 }
 
-std::optional<domain::Insight> OllamaAdapter::processRawThought(const std::string& rawContent) {
-    httplib::Client cli(m_host, m_port);
-    cli.set_read_timeout(60); // LLMs take time
-
-    std::string prompt;
-
-    switch (m_currentPersona) {
+std::string OllamaAdapter::getSystemPrompt(domain::AIPersona persona) {
+    switch (persona) {
     case domain::AIPersona::AnalistaCognitivo:
-        prompt = 
+        return 
             "Você é um Analista Cognitivo e Estrategista de Sistemas Complexos. Sua função não é apenas resumir, mas mapear a tensão cognitiva e estruturar o pensamento em movimento.\n\n"
             "REGRAS RÍGIDAS DE SAÍDA:\n"
             "1. NÃO use blocos de código (```markdown). Retorne apenas o texto cru.\n"
@@ -61,12 +56,10 @@ std::optional<domain::Insight> OllamaAdapter::processRawThought(const std::strin
             "## Próximo Gesto (Ações)\n"
             "- [ ] (Ação concreta e mínima para destravar o fluxo)\n\n"
             "## Conexões\n"
-            "- [[Conceito Relacionado]]\n\n"
-            "Texto a processar:\n\n" + rawContent;
-        break;
+            "- [[Conceito Relacionado]]";
 
     case domain::AIPersona::SecretarioExecutivo:
-        prompt = 
+        return 
             "Você é um Secretário Executivo altamente eficiente. Sua função é converter pensamentos desorganizados em uma lista de tarefas e resumo claros, sem filosofar.\n\n"
             "REGRAS RÍGIDAS DE SAÍDA:\n"
             "1. NÃO use blocos de código (```markdown). Retorne apenas o texto cru.\n"
@@ -81,83 +74,175 @@ std::optional<domain::Insight> OllamaAdapter::processRawThought(const std::strin
             "- (Lista de bullets)\n\n"
             "## Ações Imediatas\n"
             "- [ ] (Ação concreta 1)\n"
-            "- [ ] (Ação concreta 2)\n\n"
-            "Texto a processar:\n\n" + rawContent;
-        break;
+            "- [ ] (Ação concreta 2)";
 
     case domain::AIPersona::Brainstormer:
-        prompt = 
-            "Você é um Facilitador Criativo e Brainstormer. Sua função é expandir as ideias, sugerir conexões inusitadas e explorar possibilidades.\n\n"
-            "REGRAS RÍGIDAS DE SAÍDA:\n"
-            "1. NÃO use blocos de código (```markdown). Retorne apenas o texto cru.\n"
-            "2. Seja encorajador e expansivo.\n"
-            "3. Sugira caminhos alternativos.\n"
-            "4. Mantenha os headers exatos como abaixo.\n\n"
-            "ESTRUTURA OBRIGATÓRIA:\n"
-            "# Título: [Título Criativo]\n\n"
-            "## A Ideia Central\n"
-            "(Qual é a semente dessa ideia?)\n\n"
-            "## Possibilidades e Expansões\n"
-            "- (Onde isso pode chegar?)\n\n"
-            "## Conexões Laterais\n"
-            "- [[Conceito Inusitado]]\n\n"
-            "## Próximos Passos (Exploração)\n"
-            "- [ ] (Experimento sugerido)\n\n"
-            "Texto a processar:\n\n" + rawContent;
-        break;
+        return 
+            "Você é um Motor de Divergência Criativa. Sua função NÃO é organizar, mas expandir.\n"
+            "O usuário está com 'Excesso de Ordem' ou 'Bloqueio'. Quebre a linearidade.\n"
+            "Use metáforas operacionais, pensamentos laterais e cenários 'E se...'.\n"
+            "Sua saída deve alimentar um Grafo de Conhecimento, então sugira nós explicitamente.\n\n"
+            "Estrutura da Resposta:\n"
+            "# Título: [Um conceito provocativo]\n\n"
+            "## Sementes de Ideia\n"
+            "- [Frases curtas que encapsulam o potencial da ideia]\n"
+            "- ...\n\n"
+            "## Tensões Não Resolvidas\n"
+            "- [Onde está o conflito? O que não encaixa?]\n\n"
+            "## Caminhos Possíveis (Bifurcação)\n"
+            "- **Caminho A**: [Uma abordagem]\n"
+            "- **Caminho B**: [Uma abordagem oposta ou ortogonal]\n\n"
+            "## Ideias que Merecem Virar Nó\n"
+            "- [[Conceito Chave]]\n"
+            "- [[Metáfora Nova]]\n\n"
+            "## Experimentos Leves\n"
+            "- [ ] [Ação de baixo risco para testar a hipótese]";
+            
+    case domain::AIPersona::Orquestrador:
+        return
+            "Você é um ORQUESTRADOR COGNITIVO especializado em TDAH.\n"
+            "Você NÃO deve produzir conteúdo final para o usuário.\n"
+            "Sua função é:\n"
+            "1. Diagnosticar o estado cognitivo do texto (Caótico? Estruturado? Divergente?).\n"
+            "2. Definir qual sequência de perfis deve ser aplicada para transformar esse texto.\n"
+            "Perfis Disponíveis: Brainstormer (para expandir/destravar), AnalistaCognitivo (para estruturar/mapear tensão), SecretarioExecutivo (para fechar/resumir).\n"
+            "REGRAS:\n"
+            "- Retorne APENAS a sequência.\n"
+            "- Use o formato estrito abaixo.\n\n"
+            "FORMATO DE SAÍDA:\n"
+            "SEQUENCE: Perfil1, Perfil2, ...";
     }
+    return "";
+}
+
+std::optional<std::string> OllamaAdapter::generateRawResponse(const std::string& systemPrompt, const std::string& userContent) {
+    httplib::Client cli(m_host, m_port);
+    cli.set_read_timeout(120); // Longer timeout because orchestration chains might timeout otherwise, though here it's per call.
 
     json requestData = {
         {"model", m_model},
-        {"prompt", prompt},
+        {"prompt", systemPrompt + "\n\nTexto:\n" + userContent},
         {"stream", false}
     };
 
     auto res = cli.Post("/api/generate", requestData.dump(), "application/json");
-
     if (res && res->status == 200) {
         try {
             auto body = json::parse(res->body);
-            std::string responseText = body.value("response", "");
+            return body.value("response", "");
+        } catch (...) {}
+    }
+    return std::nullopt;
+}
 
-            // Timestamp generation
-            auto now = std::chrono::system_clock::now();
-            auto in_time_t = std::chrono::system_clock::to_time_t(now);
-            std::stringstream ss;
-            std::tm localTime = ToLocalTime(in_time_t);
-            ss << std::put_time(&localTime, "%Y-%m-%d %X");
+std::optional<domain::Insight> OllamaAdapter::processRawThought(const std::string& rawContent, std::function<void(std::string)> statusCallback) {
+    if (statusCallback) statusCallback("Iniciando processamento...");
+    
+    std::string finalContent;
+    std::vector<std::string> tags = {"#AutoGenerated"};
 
-            domain::Insight::Metadata meta;
-            meta.id = std::to_string(in_time_t);
-            meta.date = ss.str();
-            meta.tags = {"#AutoGenerated"};
-
-            // Extract Title from response
-            std::string titlePrefix = "# Título: ";
-            size_t titlePos = responseText.find(titlePrefix);
-            if (titlePos != std::string::npos) {
-                size_t startInfo = titlePos + titlePrefix.length();
-                size_t endOfLine = responseText.find('\n', startInfo);
-                if (endOfLine != std::string::npos) {
-                    meta.title = responseText.substr(startInfo, endOfLine - startInfo);
-                } else {
-                     meta.title = responseText.substr(startInfo);
-                }
-                // Trim trailing CR if present
-                if (!meta.title.empty() && meta.title.back() == '\r') {
-                    meta.title.pop_back();
-                }
-            } else {
-                 meta.title = "Structured Thought";
+    if (m_currentPersona == domain::AIPersona::Orquestrador) {
+        if (statusCallback) statusCallback("Orquestrador: Diagnosticando...");
+        tags.push_back("#Orchestrated");
+        // 1. Orchestration Step
+        std::string orquestradorPrompt = getSystemPrompt(domain::AIPersona::Orquestrador);
+        auto planOpt = generateRawResponse(orquestradorPrompt, rawContent);
+        
+        if (!planOpt) return std::nullopt; // Failed to plan
+        
+        std::string plan = *planOpt;
+        std::vector<domain::AIPersona> sequence;
+        
+        // Parse "SEQUENCE: Brainstormer, AnalistaCognitivo"
+        if (plan.find("SEQUENCE:") != std::string::npos) {
+            std::string seq = plan.substr(plan.find("SEQUENCE:") + 9);
+            std::stringstream ss(seq);
+            std::string segment;
+            while (std::getline(ss, segment, ',')) {
+                 // Trim
+                 segment.erase(0, segment.find_first_not_of(" \t\n\r"));
+                 size_t end = segment.find_last_not_of(" \t\n\r");
+                 if (end != std::string::npos) segment.erase(end + 1);
+                 
+                 if (segment == "Brainstormer") sequence.push_back(domain::AIPersona::Brainstormer);
+                 else if (segment == "AnalistaCognitivo") sequence.push_back(domain::AIPersona::AnalistaCognitivo);
+                 else if (segment == "SecretarioExecutivo") sequence.push_back(domain::AIPersona::SecretarioExecutivo);
             }
-
-            return domain::Insight(meta, responseText);
-        } catch (...) {
-            return std::nullopt;
         }
+        
+        // Fallback if empty or parsing failed
+        if (sequence.empty()) {
+            sequence.push_back(domain::AIPersona::AnalistaCognitivo);
+        }
+        
+        // 2. Execution Pipeline
+        std::string currentText = rawContent;
+        for (auto persona : sequence) {
+            std::string pName = (persona == domain::AIPersona::Brainstormer) ? "Brainstormer" :
+                                (persona == domain::AIPersona::AnalistaCognitivo) ? "Analista Cognitivo" : "Secretário";
+            if (statusCallback) statusCallback("Executando: " + pName + "...");
+            
+            std::string pPrompt = getSystemPrompt(persona);
+            auto res = generateRawResponse(pPrompt, currentText);
+            if (res) {
+                currentText = *res;
+            }
+        }
+        finalContent = currentText;
+
+    } else {
+        std::string pName = (m_currentPersona == domain::AIPersona::Brainstormer) ? "Brainstormer" :
+                            (m_currentPersona == domain::AIPersona::AnalistaCognitivo) ? "Analista Cognitivo" : 
+                            (m_currentPersona == domain::AIPersona::SecretarioExecutivo) ? "Secretário Executivo" : "IA";
+        if (statusCallback) statusCallback("Rodando: " + pName + "...");
+
+        // Direct Execution
+        std::string prompt = getSystemPrompt(m_currentPersona);
+        auto res = generateRawResponse(prompt, rawContent);
+        if (!res) return std::nullopt;
+        finalContent = *res;
     }
 
-    return std::nullopt;
+    if (statusCallback) statusCallback("Finalizando...");
+
+    // Metadata & Return
+    try {
+        // Timestamp generation
+        auto now = std::chrono::system_clock::now();
+        auto in_time_t = std::chrono::system_clock::to_time_t(now);
+        std::stringstream ss;
+        std::tm localTime = ToLocalTime(in_time_t);
+        ss << std::put_time(&localTime, "%Y-%m-%d %X");
+
+        domain::Insight::Metadata meta;
+        meta.id = std::to_string(in_time_t);
+        meta.date = ss.str();
+        meta.tags = tags;
+
+        // Extract Title from response
+        std::string titlePrefix = "# Título: ";
+        size_t titlePos = finalContent.find(titlePrefix);
+        if (titlePos != std::string::npos) {
+            size_t startInfo = titlePos + titlePrefix.length();
+            size_t endOfLine = finalContent.find('\n', startInfo);
+            if (endOfLine != std::string::npos) {
+                meta.title = finalContent.substr(startInfo, endOfLine - startInfo);
+            } else {
+                 meta.title = finalContent.substr(startInfo);
+            }
+            // Trim trailing CR if present
+            if (!meta.title.empty() && meta.title.back() == '\r') {
+                meta.title.pop_back();
+            }
+        } else {
+             meta.title = "Structured Thought";
+             if (m_currentPersona == domain::AIPersona::Orquestrador) meta.title += " (Orch)";
+        }
+
+        return domain::Insight(meta, finalContent);
+    } catch (...) {
+        return std::nullopt;
+    }
 }
 
 std::optional<std::string> OllamaAdapter::consolidateTasks(const std::string& tasksMarkdown) {

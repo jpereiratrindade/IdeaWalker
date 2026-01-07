@@ -6,6 +6,7 @@
 #pragma once
 #include <string>
 #include <optional>
+#include <functional>
 #include "Insight.hpp"
 
 namespace ideawalker::domain {
@@ -15,9 +16,10 @@ namespace ideawalker::domain {
  * @brief Defines the personality/role of the AI.
  */
 enum class AIPersona {
-    AnalistaCognitivo,  ///< Deep, strategic, tension-focused.
+    AnalistaCognitivo,   ///< Deep, strategic, tension-focused.
     SecretarioExecutivo, ///< Concise, task-focused, summary.
-    Brainstormer        ///< Expansive, creative, divergent.
+    Brainstormer,        ///< Expansive, creative, divergent.
+    Orquestrador         ///< Meta-persona: diagnoses and sequences other personas.
 };
 
 /**
@@ -37,9 +39,10 @@ public:
     /**
      * @brief Transforms a raw thought into a structured Insight.
      * @param rawContent Content from a note or transcription.
+     * @param statusCallback Optional callback for status.
      * @return Optional Insight object if processing succeeded.
      */
-    virtual std::optional<Insight> processRawThought(const std::string& rawContent) = 0;
+    virtual std::optional<Insight> processRawThought(const std::string& rawContent, std::function<void(std::string)> statusCallback = nullptr) = 0;
 
     /**
      * @brief Consolidates multiple tasks from different sources into a single markdown list.

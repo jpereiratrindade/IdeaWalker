@@ -32,9 +32,6 @@ public:
     std::optional<std::string> consolidateTasks(const std::string& tasksMarkdown) override;
 
 private:
-    std::string getSystemPrompt(domain::AIPersona persona);
-    std::optional<std::string> generateRawResponse(const std::string& systemPrompt,
-                                                   const std::string& userContent);
     std::string m_host; ///< Ollama host.
     int m_port; ///< Ollama port.
     std::string m_model = "qwen2.5:14b"; ///< Target model name.

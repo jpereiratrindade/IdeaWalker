@@ -1477,7 +1477,7 @@ void DrawUI(AppState& app) {
         // AI Persona Selection
         ImGui::Text("🧠 Personalidade da IA");
         
-        const char* personas[] = { "Analista Cognitivo", "Secretário Executivo", "Brainstormer" };
+        const char* personas[] = { "Analista Cognitivo", "Secretário Executivo", "Brainstormer", "Orquestrador Cognitivo (TDAH)" };
         int currentItem = static_cast<int>(app.currentPersona);
         
         if (ImGui::Combo("##persona", &currentItem, personas, IM_ARRAYSIZE(personas))) {
@@ -1489,7 +1489,8 @@ void DrawUI(AppState& app) {
         
         ImGui::TextDisabled((currentItem == 0) ? "Focado em tensão, conflito e estratégia." : 
                             (currentItem == 1) ? "Focado em tarefas, resumo e eficiência." : 
-                            "Focado em expansão, criatividade e divergência.");
+                            (currentItem == 2) ? "Focado em expansão, criatividade e divergência." :
+                            "Meta-Persona que diagnostica e orquestra os outros perfis.");
 
         ImGui::Separator();
         ImGui::Dummy(ImVec2(0, 10));
@@ -1648,9 +1649,10 @@ void DrawUI(AppState& app) {
                     app.isProcessing.store(true);
                     app.AppendLog(force ? "[SYSTEM] Starting AI reprocess (batch)...\n" : "[SYSTEM] Starting AI batch processing...\n");
                     std::thread([&app, force]() {
-                        app.organizerService->processInbox(force);
+                        app.organizerService->processInbox(force, [&app](std::string s){ app.SetProcessingStatus(s); });
                         bool consolidated = app.organizerService->updateConsolidatedTasks();
                         app.isProcessing.store(false);
+                        app.SetProcessingStatus("Thinking..."); // Reset
                         app.AppendLog("[SYSTEM] Processing finished.\n");
                         app.AppendLog(consolidated ? "[SYSTEM] Consolidated tasks updated.\n" : "[SYSTEM] Consolidated tasks failed.\n");
                         app.pendingRefresh.store(true);
@@ -1659,10 +1661,11 @@ void DrawUI(AppState& app) {
 
                 auto startSingle = [&app](const std::string& filename, bool force) {
                     app.isProcessing.store(true);
+                    app.SetProcessingStatus("Thinking...");
                     app.AppendLog(force ? "[SYSTEM] Starting AI reprocess for " + filename + "...\n"
                                         : "[SYSTEM] Starting AI processing for " + filename + "...\n");
                     std::thread([&app, filename, force]() {
-                        auto result = app.organizerService->processInboxItem(filename, force);
+                        auto result = app.organizerService->processInboxItem(filename, force, [&app](std::string s){ app.SetProcessingStatus(s); });
                         switch (result) {
                         case application::OrganizerService::ProcessResult::Processed:
                             app.AppendLog("[SYSTEM] Processing finished for " + filename + ".\n");
@@ -1683,6 +1686,7 @@ void DrawUI(AppState& app) {
                             app.AppendLog(consolidated ? "[SYSTEM] Consolidated tasks updated.\n" : "[SYSTEM] Consolidated tasks failed.\n");
                         }
                         app.isProcessing.store(false);
+                        app.SetProcessingStatus("Thinking..."); // Reset
                         app.pendingRefresh.store(true);
                     }).detach();
                 };
@@ -1717,7 +1721,7 @@ void DrawUI(AppState& app) {
 
                 if (app.isProcessing.load()) {
                     ImGui::SameLine();
-                    ImGui::TextColored(ImVec4(1, 1, 0, 1), "⏳ Thinking...");
+                    ImGui::TextColored(ImVec4(1, 1, 0, 1), "⏳ %s", app.GetProcessingStatus().c_str());
                 }
                 if (app.isTranscribing.load()) {
                     ImGui::SameLine();
