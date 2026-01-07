@@ -1,0 +1,118 @@
+\chapter{ARQUITETURA DE INTERFACE E VISUALIZAÇÃ\+O\+: IDEA WALKER }
+\hypertarget{md_VISUAL__ARCHITECTURE__PLAN}{}\label{md_VISUAL__ARCHITECTURE__PLAN}\index{ARQUITETURA DE INTERFACE E VISUALIZAÇÃO: IDEA WALKER@{ARQUITETURA DE INTERFACE E VISUALIZAÇÃO: IDEA WALKER}}
+\label{md_VISUAL__ARCHITECTURE__PLAN_autotoc_md69}%
+\Hypertarget{md_VISUAL__ARCHITECTURE__PLAN_autotoc_md69}%
+\hypertarget{md_VISUAL__ARCHITECTURE__PLAN_autotoc_md70}{}\doxysection{\texorpdfstring{Contexto\+: Ferramentas Cognitivas Visuais para TDAH em C++ (Im\+Gui)}{Contexto\+: Ferramentas Cognitivas Visuais para TDAH em C++ (Im\+Gui)}}\label{md_VISUAL__ARCHITECTURE__PLAN_autotoc_md70}
+\hypertarget{md_VISUAL__ARCHITECTURE__PLAN_autotoc_md71}{}\doxysection{\texorpdfstring{Objetivo\+: Combater Cegueira Temporal e Falta de Permanência de Objeto}{Objetivo\+: Combater Cegueira Temporal e Falta de Permanência de Objeto}}\label{md_VISUAL__ARCHITECTURE__PLAN_autotoc_md71}
+\DoxyHorRuler{0}
+ \hypertarget{md_VISUAL__ARCHITECTURE__PLAN_autotoc_md73}{}\doxysection{\texorpdfstring{1. ESTRATÉ\+GIA COGNITIVA}{1. ESTRATÉ\+GIA COGNITIVA}}\label{md_VISUAL__ARCHITECTURE__PLAN_autotoc_md73}
+O TDAH sofre com "{}o que não é visto, não existe"{}. O Idea Walker não deve ser apenas um repositório de texto, mas um "{}\+Painel de Controle"{} que torna tangível o volume, a conexão e a pendência das ideias.
+
+Tecnologia Base\+: Dear Im\+Gui (Immediate Mode GUI) + Im\+Plot / Im\+Nodes.
+
+\DoxyHorRuler{0}
+ \hypertarget{md_VISUAL__ARCHITECTURE__PLAN_autotoc_md75}{}\doxysection{\texorpdfstring{2. OS 4 MOTORES VISUAIS (ESPECIFICAÇÃO TÉ\+CNICA)}{2. OS 4 MOTORES VISUAIS (ESPECIFICAÇÃO TÉ\+CNICA)}}\label{md_VISUAL__ARCHITECTURE__PLAN_autotoc_md75}
+\mbox{[}2.\+1\mbox{]} O GRAFO DE CONHECIMENTO (THE NEURAL WEB)
+\begin{DoxyItemize}
+\item Função Cognitiva\+: Associatividade. Ver que "{}\+A"{} liga em "{}\+B"{} sem linearidade.
+\item Visualização\+: Nódulos (Círculos) conectados por arestas (Linhas).
+\item Implementação C++\+:
+\begin{DoxyItemize}
+\item Lib Sugerida\+: \textquotesingle{}Im\+Nodes\textquotesingle{} (extensão do Im\+Gui) ou desenho direto via \textquotesingle{}Im\+Draw\+List\textquotesingle{}.
+\item Algoritmo\+: Force-\/\+Directed Graph (Nós se repelem, Links atraem).
+\item Cores\+:
+\begin{DoxyItemize}
+\item Roxo (\#\+Epic) para projetos grandes.
+\item Verde (\#\+Insight) para ideias soltas.
+\item Cinza (\#\+Spark) para rascunhos não processados.
+\end{DoxyItemize}
+\end{DoxyItemize}
+\end{DoxyItemize}
+
+\mbox{[}2.\+2\mbox{]} QUADRO KANBAN DE AÇÃO (THE FACTORY)
+\begin{DoxyItemize}
+\item Função Cognitiva\+: Concretude e Função Executiva.
+\item Visualização\+: Colunas verticais onde tarefas são "{}cards"{} arrastáveis.
+\item Estrutura\+:
+\begin{DoxyItemize}
+\item \mbox{[}A FAZER\mbox{]} -\/\texorpdfstring{$>$}{>} Extraído automaticamente dos checkboxes "{}-\/ \mbox{[} \mbox{]}"{}.
+\item \mbox{[}EM ANDAMENTO\mbox{]} -\/\texorpdfstring{$>$}{>} Onde o foco atual deve estar.
+\item \mbox{[}FEITO\mbox{]} -\/\texorpdfstring{$>$}{>} Dopamina visual.
+\end{DoxyItemize}
+\item Implementação C++\+:
+\begin{DoxyItemize}
+\item Uso de {\ttfamily Im\+Gui\+::\+Begin\+Drag\+Drop\+Source()} e {\ttfamily Im\+Gui\+::\+Accept\+Drag\+Drop\+Payload()}.
+\item Ao soltar na coluna "{}\+Feito"{}, o código edita o Markdown\+: "{}-\/ \mbox{[} \mbox{]}"{} vira "{}-\/ \mbox{[}x\mbox{]}"{}.
+\end{DoxyItemize}
+\end{DoxyItemize}
+
+\mbox{[}2.\+3\mbox{]} PAINEL DE BACKLINKS (CONTEXTO REVERSO)
+\begin{DoxyItemize}
+\item Função Cognitiva\+: Redescoberta (evitar reinventar a roda).
+\item Visualização\+: Painel lateral ou rodapé da nota.
+\item Lógica\+:
+\begin{DoxyItemize}
+\item "{}\+Quem cita este arquivo?"{}
+\item Ao abrir {\ttfamily Nota\+\_\+\+A.\+md}, o sistema varre o diretório buscando strings {\ttfamily \mbox{[}\mbox{[}Nota\+\_\+A\mbox{]}\mbox{]}}.
+\end{DoxyItemize}
+\item Valor\+: Transforma arquivos mortos em um sistema vivo de referências.
+\end{DoxyItemize}
+
+\mbox{[}2.\+4\mbox{]} MAPA DE CALOR TEMPORAL (GITHUB STYLE)
+\begin{DoxyItemize}
+\item Função Cognitiva\+: Combate à Cegueira Temporal e Gamificação.
+\item Visualização\+: Grade de quadrados coloridos (Heatmap) no rodapé do Dashboard.
+\begin{DoxyItemize}
+\item Eixo X\+: Dias do Ano.
+\item Cor\+: Intensidade de criação de notas no dia.
+\end{DoxyItemize}
+\item Implementação C++\+:
+\begin{DoxyItemize}
+\item Loop simples desenhando {\ttfamily Im\+Draw\+List-\/\texorpdfstring{$>$}{>}Add\+Rect\+Filled()}.
+\item Dados extraídos dos metadados de data do arquivo ({\ttfamily std\+::filesystem\+::last\+\_\+write\+\_\+time}).
+\end{DoxyItemize}
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+ \hypertarget{md_VISUAL__ARCHITECTURE__PLAN_autotoc_md77}{}\doxysection{\texorpdfstring{2.\+5 STATUS ATUAL (IMPLEMENTAÇÃO)}{2.\+5 STATUS ATUAL (IMPLEMENTAÇÃO)}}\label{md_VISUAL__ARCHITECTURE__PLAN_autotoc_md77}
+
+\begin{DoxyItemize}
+\item Kanban com drag \& drop\+: IMPLEMENTADO.
+\item Backlinks\+: IMPLEMENTADO.
+\item Heatmap de atividade\+: IMPLEMENTADO.
+\item Visão unificada de conhecimento\+: IMPLEMENTADO.
+\item Grafo visual (Im\+Nodes/\+Im\+Draw\+List)\+: NÃO IMPLEMENTADO.
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+ \hypertarget{md_VISUAL__ARCHITECTURE__PLAN_autotoc_md79}{}\doxysection{\texorpdfstring{3. ROADMAP DE IMPLEMENTAÇÃO (PRIORIDADE MVP)}{3. ROADMAP DE IMPLEMENTAÇÃO (PRIORIDADE MVP)}}\label{md_VISUAL__ARCHITECTURE__PLAN_autotoc_md79}
+Fase 1\+: CONCRETUDE (Essencial)
+\begin{DoxyItemize}
+\item Implementar a ABA "{}\+EXECUÇÃ\+O"{} (Lista simples de tarefas).
+\item Extrair todos os {\ttfamily -\/ \mbox{[} \mbox{]}} do Insight atual e mostrar com {\ttfamily Im\+Gui\+::\+Checkbox}.
+\end{DoxyItemize}
+
+Fase 2\+: FLUXO (Intermediário)
+\begin{DoxyItemize}
+\item Transformar a lista simples em um KANBAN visual.
+\item Implementar Drag \& Drop básico.
+\end{DoxyItemize}
+
+Fase 3\+: CONTEXTO (Avançado)
+\begin{DoxyItemize}
+\item Implementar lista de texto de BACKLINKS.
+\end{DoxyItemize}
+
+Fase 4\+: VISÃO SISTÊ\+MICA (Futuro)
+\begin{DoxyItemize}
+\item Implementar o GRAFO visual com Im\+Nodes.
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+ \hypertarget{md_VISUAL__ARCHITECTURE__PLAN_autotoc_md81}{}\doxysection{\texorpdfstring{4. NOTAS TÉ\+CNICAS PARA O DESENVOLVEDOR (VOCÊ)}{4. NOTAS TÉ\+CNICAS PARA O DESENVOLVEDOR (VOCÊ)}}\label{md_VISUAL__ARCHITECTURE__PLAN_autotoc_md81}
+
+\begin{DoxyItemize}
+\item Não use plugins web (Electron/\+Obsidian) para isso. O custo de RAM é alto.
+\item No C++, mantenha o "{}\+Estado da UI"{} separado do "{}\+Estado do Domínio"{}.
+\item Use {\ttfamily Im\+Gui\+::\+Dock\+Space} para permitir que o usuário organize onde quer ver o Kanban e onde quer ver o Texto ao mesmo tempo. 
+\end{DoxyItemize}

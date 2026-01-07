@@ -1,3 +1,7 @@
+/**
+ * @file WhisperCppAdapter.cpp
+ * @brief Implementation of the WhisperCppAdapter class.
+ */
 #include "infrastructure/WhisperCppAdapter.hpp"
 #include "whisper.h" 
 

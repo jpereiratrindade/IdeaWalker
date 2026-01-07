@@ -1,0 +1,62 @@
+\chapter{ESPECIFICAÇÃO DE INCREMENTO TÉ\+CNICO\+: INGESTÃO DE Á\+UDIO (PURE C++ / WHISPER.\+CPP) }
+\hypertarget{md_IMPLEMENTATION__PLAN__AUDIO__INGESTION}{}\label{md_IMPLEMENTATION__PLAN__AUDIO__INGESTION}\index{ESPECIFICAÇÃO DE INCREMENTO TÉCNICO: INGESTÃO DE ÁUDIO (PURE C++ / WHISPER.CPP)@{ESPECIFICAÇÃO DE INCREMENTO TÉCNICO: INGESTÃO DE ÁUDIO (PURE C++ / WHISPER.CPP)}}
+\label{md_IMPLEMENTATION__PLAN__AUDIO__INGESTION_autotoc_md41}%
+\Hypertarget{md_IMPLEMENTATION__PLAN__AUDIO__INGESTION_autotoc_md41}%
+\hypertarget{md_IMPLEMENTATION__PLAN__AUDIO__INGESTION_autotoc_md42}{}\doxysection{\texorpdfstring{Projeto\+: Idea Walker (C++ / Im\+Gui / DDD)}{Projeto\+: Idea Walker (C++ / Im\+Gui / DDD)}}\label{md_IMPLEMENTATION__PLAN__AUDIO__INGESTION_autotoc_md42}
+\hypertarget{md_IMPLEMENTATION__PLAN__AUDIO__INGESTION_autotoc_md43}{}\doxysection{\texorpdfstring{Objetivo\+: Integrar {\ttfamily whisper.\+cpp} para transcrição local de alta performance sem dependência de Python.}{Objetivo\+: Integrar {\ttfamily whisper.\+cpp} para transcrição local de alta performance sem dependência de Python.}}\label{md_IMPLEMENTATION__PLAN__AUDIO__INGESTION_autotoc_md43}
+\DoxyHorRuler{0}
+ \hypertarget{md_IMPLEMENTATION__PLAN__AUDIO__INGESTION_autotoc_md45}{}\doxysection{\texorpdfstring{1. VISÃO GERAL DA MUDANÇA}{1. VISÃO GERAL DA MUDANÇA}}\label{md_IMPLEMENTATION__PLAN__AUDIO__INGESTION_autotoc_md45}
+Foi decidido substituir a integração Python instável por uma solução nativa em C++. Usaremos a biblioteca {\ttfamily whisper.\+cpp} (ggerganov) para rodar a inferência diretamente no processo da aplicação.
+
+Fluxo\+:
+\begin{DoxyEnumerate}
+\item Usuário arrasta arquivo .WAV (suporte inicial a WAV 16k\+Hz via SDL2).
+\item Sistema carrega o modelo GGML (ex\+: {\ttfamily ggml-\/base.\+bin}).
+\item Audio é reamostrado para 16k\+Hz float32.
+\item {\ttfamily whisper\+\_\+cpp} processa o áudio.
+\item Texto é salvo na /inbox.
+\end{DoxyEnumerate}
+
+\DoxyHorRuler{0}
+ \hypertarget{md_IMPLEMENTATION__PLAN__AUDIO__INGESTION_autotoc_md47}{}\doxysection{\texorpdfstring{2. DEPENDÊ\+NCIAS}{2. DEPENDÊ\+NCIAS}}\label{md_IMPLEMENTATION__PLAN__AUDIO__INGESTION_autotoc_md47}
+
+\begin{DoxyItemize}
+\item {\bfseries{whisper.\+cpp}}\+: Adicionar via Fetch\+Content no CMake.
+\item {\bfseries{SDL2}}\+: Já existente (usar para carregar e converter áudio).
+\item {\bfseries{Modelos}}\+: O sistema deve alertar se o modelo não existir ou baixá-\/lo automaticamente.
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+ \hypertarget{md_IMPLEMENTATION__PLAN__AUDIO__INGESTION_autotoc_md49}{}\doxysection{\texorpdfstring{3. INFRASTRUCTURE LAYER (O Adaptador)}{3. INFRASTRUCTURE LAYER (O Adaptador)}}\label{md_IMPLEMENTATION__PLAN__AUDIO__INGESTION_autotoc_md49}
+Arquivo\+: src/infrastructure/\+Whisper\+Cpp\+Adapter.\+hpp (Substitui Whisper\+Script\+Adapter)
+
+\mbox{[}Responsabilidades\mbox{]}
+\begin{DoxyItemize}
+\item Gerenciar {\ttfamily whisper\+\_\+context}.
+\item Carregar audio WAV usando SDL\+\_\+\+Load\+WAV e SDL\+\_\+\+Audio\+CVT.
+\item Executar {\ttfamily whisper\+\_\+full}.
+\end{DoxyItemize}
+
+\mbox{[}Gerenciamento de Modelo\mbox{]}
+\begin{DoxyItemize}
+\item Caminho padrão\+: {\ttfamily models/ggml-\/base.\+bin}
+\item Se não existir, {\ttfamily transcribe\+Async} deve falhar com mensagem clara ou iniciar download.
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+ \hypertarget{md_IMPLEMENTATION__PLAN__AUDIO__INGESTION_autotoc_md51}{}\doxysection{\texorpdfstring{4. UI LAYER}{4. UI LAYER}}\label{md_IMPLEMENTATION__PLAN__AUDIO__INGESTION_autotoc_md51}
+
+\begin{DoxyItemize}
+\item Manter a lógica de Drag \& Drop existente.
+\item Apenas substituir a injeção de dependência no {\ttfamily App\+State}.
+\end{DoxyItemize}
+
+\DoxyHorRuler{0}
+ \hypertarget{md_IMPLEMENTATION__PLAN__AUDIO__INGESTION_autotoc_md53}{}\doxysection{\texorpdfstring{5. ESTRATÉ\+GIA DE IMPLEMENTAÇÃO}{5. ESTRATÉ\+GIA DE IMPLEMENTAÇÃO}}\label{md_IMPLEMENTATION__PLAN__AUDIO__INGESTION_autotoc_md53}
+
+\begin{DoxyEnumerate}
+\item Atualizar CMake\+Lists.\+txt para incluir {\ttfamily whisper.\+cpp}.
+\item Criar {\ttfamily Whisper\+Cpp\+Adapter} implementando {\ttfamily Transcription\+Service}.
+\item Implementar lógica de carregamento de áudio (SDL2).
+\item Atualizar {\ttfamily App\+State} para usar o novo adaptador. 
+\end{DoxyEnumerate}

@@ -14,7 +14,7 @@
               "type": "markdown",
               "state": {
                 "file": "IdeaWalker Knowledge Base.md",
-                "mode": "source",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
@@ -185,7 +185,6 @@
   },
   "active": "507a34ee1a0c410a",
   "lastOpenFiles": [
-    "notas/_Consolidated_Tasks.md",
     "build/CMakeFiles/Progress/3",
     "build/CMakeFiles/Progress/2",
     "build/CMakeFiles/Progress/1",
@@ -196,6 +195,8 @@
     "build/CMakeFiles/Progress/19",
     "build/CMakeFiles/Progress/18",
     "build/CMakeFiles/Progress/43",
+    "build/CMakeFiles/Progress/42",
+    "notas/_Consolidated_Tasks.md",
     "notas/Nota_1767646148.md",
     "notas/Nota_1767645289.md",
     "notas/Nota_260106_2029_transcricao.md",

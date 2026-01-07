@@ -1,3 +1,7 @@
+/**
+ * @file OrganizerService.cpp
+ * @brief Implementation of the OrganizerService class.
+ */
 #include "application/OrganizerService.hpp"
 #include <cctype>
 #include <sstream>

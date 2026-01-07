@@ -1,3 +1,7 @@
+/**
+ * @file IdeaWalkerApp.cpp
+ * @brief Implementation of the IdeaWalkerApp class.
+ */
 #include "app/IdeaWalkerApp.hpp"
 
 #include "ui/UiRenderer.hpp"

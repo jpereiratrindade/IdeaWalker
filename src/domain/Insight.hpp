@@ -1,3 +1,8 @@
+/**
+ * @file Insight.hpp
+ * @brief Domain entity representing a processed note with metadata and actionables.
+ */
+
 #pragma once
 #include <string>
 #include <vector>
@@ -7,22 +12,45 @@
 
 namespace ideawalker::domain {
 
+/**
+ * @class Insight
+ * @brief Represents a structured thought, containing metadata, full content, and extracted tasks.
+ */
 class Insight {
 public:
+    /**
+     * @struct Metadata
+     * @brief Essential metadata for an insight.
+     */
     struct Metadata {
-        std::string id;
-        std::string title;
-        std::string date;
-        std::vector<std::string> tags;
+        std::string id; ///< Unique identifier (usually filename).
+        std::string title; ///< Human-readable title.
+        std::string date; ///< Creation/modification date.
+        std::vector<std::string> tags; ///< Categorization tags.
     };
 
+    /**
+     * @brief Constructor for Insight.
+     * @param meta Initial metadata.
+     * @param content Full text content.
+     */
     Insight(const Metadata& meta, const std::string& content)
         : m_metadata(meta), m_content(content) {}
 
+    /** @brief Returns insight metadata. */
     const Metadata& getMetadata() const { return m_metadata; }
+    
+    /** @brief Returns full text content. */
     const std::string& getContent() const { return m_content; }
+    
+    /** @brief Returns list of parsed actionables. */
     const std::vector<Actionable>& getActionables() const { return m_actionables; }
 
+    /**
+     * @brief Filters tasks by their completion status.
+     * @param completed Status to filter by.
+     * @return List of matching tasks.
+     */
     std::vector<Actionable> getTasksByStatus(bool completed) const {
         std::vector<Actionable> filtered;
         for (const auto& task : m_actionables) {
@@ -33,10 +61,14 @@ public:
         return filtered;
     }
 
+    /** @brief Manually adds an actionable to the insight. */
     void addActionable(const Actionable& actionable) {
         m_actionables.push_back(actionable);
     }
 
+    /**
+     * @brief Parses markdown task lines (- [ ], - [x], - [/]) from the content.
+     */
     void parseActionablesFromContent() {
         m_actionables.clear();
         std::stringstream ss(m_content);
@@ -63,8 +95,13 @@ public:
         }
     }
 
+    /** @brief Updates the full text content. */
     void setContent(const std::string& content) { m_content = content; }
 
+    /**
+     * @brief Toggles the status of a task at a given index (cycle: Todo -> InProgress -> Done -> Todo).
+     * @param index 0-based index of the task.
+     */
     void toggleActionable(size_t index) {
         if (index >= m_actionables.size()) return;
 
@@ -101,6 +138,12 @@ public:
         m_content = out.str();
     }
 
+    /**
+     * @brief Explicitly sets the status of a task at a given index.
+     * @param index 0-based index.
+     * @param completed Final completed status.
+     * @param inProgress Final in-progress status.
+     */
     void setActionableStatus(size_t index, bool completed, bool inProgress) {
         if (index >= m_actionables.size()) return;
 
@@ -135,9 +178,9 @@ public:
     }
 
 private:
-    Metadata m_metadata;
-    std::string m_content;
-    std::vector<Actionable> m_actionables;
+    Metadata m_metadata; ///< Insight metadata.
+    std::string m_content; ///< Full text content.
+    std::vector<Actionable> m_actionables; ///< List of tasks extracted from content.
 };
 
 } // namespace ideawalker::domain

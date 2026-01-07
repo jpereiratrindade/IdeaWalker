@@ -1,3 +1,7 @@
+/**
+ * @file UiRenderer.cpp
+ * @brief Implementation of the UI rendering system using Dear ImGui and ImNodes.
+ */
 #include "ui/UiRenderer.hpp"
 
 #include "application/OrganizerService.hpp"
@@ -9,7 +13,6 @@
 #include <cfloat>
 #include <cmath>
 #include <cstdio>
-#include <cstdlib>
 #include <cstring>
 #include <ctime>
 #include <filesystem>
@@ -24,54 +27,43 @@
 namespace ideawalker::ui {
 
 namespace {
+    constexpr float NODE_MAX_WIDTH = 250.0f;
 
 bool StartsWith(const std::string& text, const char* prefix) {
     return text.rfind(prefix, 0) == 0;
 }
 
 // Helper to draw a rich representation of Markdown content
-float NextDeterministicJitter(unsigned int& state) {
-    state = state * 1664525u + 1013904223u;
-    return static_cast<float>(static_cast<int>(state % 200u) - 100);
-}
-
-void ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, bool deterministicLayout) {
-    if (app.lastParsedMermaidContent == mermaidContent && app.previewGraphInitialized) {
-        return; 
+bool ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, int graphId, bool updateImNodes) {
+    auto& graph = app.previewGraphs[graphId];
+    if (graph.lastContent == mermaidContent && graph.initialized) {
+        return false; 
     }
 
-    app.previewNodes.clear();
-    app.previewLinks.clear();
-    app.lastParsedMermaidContent = mermaidContent;
-    app.previewGraphInitialized = true;
+    graph.nodes.clear();
+    graph.links.clear();
+    graph.lastContent = mermaidContent;
+    graph.initialized = true;
 
     std::stringstream ss(mermaidContent);
     std::string line;
-    int nextId = 10000; // Offset ID to avoid conflict with main graph if we ever merge (though here it's separate)
-    int linkId = 20000;
+    // Offset IDs by graphId
+    int baseId = 10000 + (graphId * 10000); 
+    int nextId = baseId; 
+    int linkId = baseId + 5000;
     
-    std::unordered_map<std::string, int> idMap; // Name/ID -> NodeID
-    unsigned int jitterState = 0;
-    if (deterministicLayout) {
-        jitterState = static_cast<unsigned int>(std::hash<std::string>{}(mermaidContent));
-    }
+    std::unordered_map<std::string, int> idMap; 
 
-    auto GetOrCreateNode = [&](const std::string& name, const std::string& label) {
+    auto GetOrCreateNode = [&](const std::string& name, const std::string& label, NodeShape shape) {
         if (idMap.find(name) == idMap.end()) {
             GraphNode node;
             node.id = nextId++;
             node.title = label.empty() ? name : label;
-            float jitterX = deterministicLayout
-                ? NextDeterministicJitter(jitterState)
-                : static_cast<float>((rand() % 200) - 100);
-            float jitterY = deterministicLayout
-                ? NextDeterministicJitter(jitterState)
-                : static_cast<float>((rand() % 200) - 100);
-            node.x = 400.0f + jitterX;
-            node.y = 300.0f + jitterY;
+            node.x = 0; node.y = 0; // Default
             node.vx = node.vy = 0;
-            node.type = NodeType::INSIGHT; // Usage reuse
-            app.previewNodes.push_back(node);
+            node.type = NodeType::INSIGHT; 
+            node.shape = shape; // Set shape
+            graph.nodes.push_back(node);
             idMap[name] = node.id;
         }
         return idMap[name];
@@ -80,34 +72,138 @@ void ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, bool 
     std::vector<std::pair<int, int>> indentStack; // <indent_level, node_id>
     bool isMindMap = false;
 
-    // Helper to clean ID/Label
-    auto ParseNodeStr = [](const std::string& raw, std::string& idOut, std::string& labelOut) {
-        // Handle (( )) for circles, [ ] for rects, ( ) for roundrects
+    // Helper to clean ID/Label and detect Shape
+    auto ParseNodeStr = [](const std::string& raw, std::string& idOut, std::string& labelOut, NodeShape& shapeOut) {
+        // Default
+        shapeOut = NodeShape::BOX; // Default for graph is usually box, mindmap usually rounded. We'll set defaults later if needed, but here we detect explicit syntax.
+        
         size_t start = std::string::npos;
         size_t end = std::string::npos;
         
-        // Find start delimiter
-        if ((start = raw.find("((")) != std::string::npos) start += 2;
-        else if ((start = raw.find("[")) != std::string::npos) start += 1;
-        else if ((start = raw.find("(")) != std::string::npos) start += 1;
+        // Priority: Check longer delimiters first to avoiding partial matches (e.g. check '((' before '(')
         
-        // Find end delimiter
-        if ((end = raw.rfind("))")) != std::string::npos);
-        else if ((end = raw.rfind("]")) != std::string::npos);
-        else if ((end = raw.rfind(")")) != std::string::npos);
+        // Circular ((...))
+        if ((start = raw.find("((")) != std::string::npos) { shapeOut = NodeShape::CIRCLE; start += 2; end = raw.rfind("))"); }
+        // Cloud )(...)  (Mermaid syntax is `id)Label(` ??? No, checking docs: `id)Label(` is Cloud? Actually docs say `id)Label(` is Cloud in *mindmap*? Wait. 
+        // Flowchart: `id(Label)` = Rounded. `id([Label])` = Stadium. `id[[Label]]` = Subroutine. `id[(Label)]` = Cylinder. `id((Label))` = Circle. `id>Label]` = Asymmetric. `id{Label}` = Rhombus. `id{{Label}}` = Hexagon. 
+        // Mindmap: `id[Label]`, `id(Label)`, `id((Label))`, `id))Label((` (Bang), `id)Label(` (Cloud), `id{{Label}}` (Hexagon).
+        // Let's implement checking based on Start AND End chars to be safe.
+
+        // Hexagon {{...}}
+        else if ((start = raw.find("{{")) != std::string::npos) { shapeOut = NodeShape::HEXAGON; start += 2; end = raw.rfind("}}"); }
+        // Subroutine [[...]]
+        else if ((start = raw.find("[[")) != std::string::npos) { shapeOut = NodeShape::SUBROUTINE; start += 2; end = raw.rfind("]]"); }
+        // Cylinder [(...)]
+        else if ((start = raw.find("[(")) != std::string::npos) { shapeOut = NodeShape::CYLINDER; start += 2; end = raw.rfind(")]"); }
+        // Stadium ([...])
+        else if ((start = raw.find("([")) != std::string::npos) { shapeOut = NodeShape::STADIUM; start += 2; end = raw.rfind("])"); }
+        // Bang ))...((
+        else if ((start = raw.find("))")) != std::string::npos) { shapeOut = NodeShape::BANG; start += 2; end = raw.rfind("(("); }
+        // Cloud )...( 
+        // Note: ')' is common, need to be careful. ')' at start? Mindmap syntax `id)Label(`.
+        // Let's look for `)` after ID.
+        
+        // Let's refine parsing. We usually have `ID<DELIM_START>Label<DELIM_END>`.
+        // Or just `Label` (Mindmap default).
+        
+        // We really should find the first non-ID char. 
+        // But the current `raw` might be "A[Label]" or just "MindmapNode"
+        
+        if (start == std::string::npos) {
+            // Check single char delimiters
+             if ((start = raw.find("[")) != std::string::npos) { 
+                 // Check if it's really [ and not [[ or [( or ([
+                 // We already checked [[, [(, ([ above? Yes, if we put them before. 
+                 // Wait, `find` finds the *first* occurrence. 
+                 // If we have `[` at pos 1. `[[` would also have `[` at pos 1.
+                 // So we must check specific multi-char delimiters FIRST.
+                 
+                 // Re-doing checks carefully.
+            }
+        }
+        
+        // RESET and do it properly with finding first delimiter
+        start = std::string::npos;
+        end = std::string::npos; 
+        
+        // Find FIRST occurrence of any starter
+        size_t firstBracket = raw.find_first_of("[({)>");
+        // Also ')' for Cloud/Bang in mindmap?
+        // Note: "Bang" is `))Label((`. Start is `))`.
+        // "Cloud" is `)Label(`. Start is `)`.
+        size_t firstParenClose = raw.find(")"); 
+        
+        size_t bestStart = std::string::npos;
+        
+        if (firstBracket != std::string::npos) bestStart = firstBracket;
+        if (firstParenClose != std::string::npos && (bestStart == std::string::npos || firstParenClose < bestStart)) bestStart = firstParenClose;
+
+        if (bestStart != std::string::npos) {
+            // Check what it is
+            // Bang: ))
+            if (raw.substr(bestStart, 2) == "))") {
+                 shapeOut = NodeShape::BANG; start = bestStart + 2; end = raw.rfind("((");
+            }
+            // Cloud: )
+            else if (raw.substr(bestStart, 1) == ")") {
+                 shapeOut = NodeShape::CLOUD; start = bestStart + 1; end = raw.rfind("(");
+            }
+            // Hexagon: {{
+            else if (raw.substr(bestStart, 2) == "{{") {
+                 shapeOut = NodeShape::HEXAGON; start = bestStart + 2; end = raw.rfind("}}");
+            }
+            // Circle: ((
+            else if (raw.substr(bestStart, 2) == "((") {
+                 shapeOut = NodeShape::CIRCLE; start = bestStart + 2; end = raw.rfind("))");
+            }
+            // Subroutine: [[
+            else if (raw.substr(bestStart, 2) == "[[") {
+                 shapeOut = NodeShape::SUBROUTINE; start = bestStart + 2; end = raw.rfind("]]");
+            }
+            // Cylinder: [(
+            else if (raw.substr(bestStart, 2) == "[(") {
+                 shapeOut = NodeShape::CYLINDER; start = bestStart + 2; end = raw.rfind(")]");
+            }
+            // Stadium: ([
+            else if (raw.substr(bestStart, 2) == "([") {
+                 shapeOut = NodeShape::STADIUM; start = bestStart + 2; end = raw.rfind("])");
+            }
+            // Parallelogram Alt: [\ ... /] ?? (Not in plan but standard). skipping for now to stick to plan + requested.
+            
+            // Single char checks
+            else if (raw.substr(bestStart, 1) == "[") {
+                 shapeOut = NodeShape::BOX; start = bestStart + 1; end = raw.rfind("]");
+            }
+            else if (raw.substr(bestStart, 1) == "(") {
+                 shapeOut = NodeShape::ROUNDED_BOX; start = bestStart + 1; end = raw.rfind(")");
+            }
+            else if (raw.substr(bestStart, 1) == "{") {
+                 shapeOut = NodeShape::RHOMBUS; start = bestStart + 1; end = raw.rfind("}");
+            }
+            else if (raw.substr(bestStart, 1) == ">") {
+                 shapeOut = NodeShape::ASYMMETRIC; start = bestStart + 1; end = raw.rfind("]");
+            }
+        }
 
         if (start != std::string::npos && end != std::string::npos && end > start) {
-            idOut = raw.substr(0, raw.find_first_of("(["));
+            // Extract ID and Label
+            // ID is everything before bestStart
+            idOut = raw.substr(0, bestStart);
             labelOut = raw.substr(start, end - start);
         } else {
+            // No shape syntax, just text
             idOut = raw;
             labelOut = raw;
+            // Default shape if none specified?
+            // For Mindmap, default is usually Rounded or just Text. Current code used Rounded for everything.
+            shapeOut = NodeShape::ROUNDED_BOX; 
         }
         
         // Trim
         auto Trim = [](std::string& s) {
+            if (s.empty()) return;
             s.erase(0, s.find_first_not_of(" \t"));
-            s.erase(s.find_last_not_of(" \t") + 1);
+            if (!s.empty()) s.erase(s.find_last_not_of(" \t") + 1);
         };
         Trim(idOut);
         Trim(labelOut);
@@ -131,12 +227,13 @@ void ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, bool 
         if (isMindMap) {
             // Mindmap Indentation Logic
             std::string id, label;
-            ParseNodeStr(trimmed, id, label);
+            NodeShape shape;
+            ParseNodeStr(trimmed, id, label, shape);
             
             // If ID is empty (e.g. valid syntax but parser failed), use label
             if (id.empty()) id = label;
 
-            int nodeId = GetOrCreateNode(id, label);
+            int nodeId = GetOrCreateNode(id, label, shape);
 
             // Find parent
             while (!indentStack.empty() && indentStack.back().first >= indent) {
@@ -149,7 +246,7 @@ void ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, bool 
                 link.id = linkId++;
                 link.startNode = indentStack.back().second;
                 link.endNode = nodeId;
-                app.previewLinks.push_back(link);
+                graph.links.push_back(link);
             }
             
             indentStack.push_back({indent, nodeId});
@@ -162,105 +259,146 @@ void ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, bool 
                 std::string right = line.substr(arrowPos + 3);
 
                 std::string idA, labelA, idB, labelB;
-                ParseNodeStr(left, idA, labelA);
-                ParseNodeStr(right, idB, labelB);
+                NodeShape shapeA, shapeB;
+                ParseNodeStr(left, idA, labelA, shapeA);
+                ParseNodeStr(right, idB, labelB, shapeB);
 
                 if (!idA.empty() && !idB.empty()) {
                     GraphLink link;
                     link.id = linkId++;
-                    link.startNode = GetOrCreateNode(idA, labelA);
-                    link.endNode = GetOrCreateNode(idB, labelB);
-                    app.previewLinks.push_back(link);
+                    link.startNode = GetOrCreateNode(idA, labelA, shapeA);
+                    link.endNode = GetOrCreateNode(idB, labelB, shapeB);
+                    graph.links.push_back(link);
                 }
             } else {
                  // Single Node Definition: A[Label]
                  // Or just A
                  std::string id, label;
-                 ParseNodeStr(trimmed, id, label);
+                 NodeShape shape;
+                 ParseNodeStr(trimmed, id, label, shape);
                  if (!id.empty()) {
-                     GetOrCreateNode(id, label);
+                     GetOrCreateNode(id, label, shape);
                  }
             }
         }
     }
 
-    // Pre-calculate Layout (Static, instant)
-    float center_x = 400.0f;
-    float center_y = 300.0f;
+    // Wrap Text & Calculate Sizes
+    // Wrap Text & Calculate Sizes
 
-    for (int k = 0; k < 500; ++k) {
-        for (size_t i = 0; i < app.previewNodes.size(); ++i) {
-            auto& n1 = app.previewNodes[i];
-            float fx = 0, fy = 0;
+    for (auto& node : graph.nodes) {
+        // Use ImGui to calculate exact size with wrapping
+        ImVec2 size = ImGui::CalcTextSize(node.title.c_str(), nullptr, false, NODE_MAX_WIDTH);
+        
+        node.w = size.x + 30.0f; // Padding
+        node.h = size.y + 20.0f; // Padding
+    }
 
-            // Repulsion
-            float radius1 = n1.title.length() * 4.0f + 20.0f; // Approx half-width
+    // structured Horizontal Tree Layout (MindMap Style)
+    std::unordered_map<int, std::vector<int>> adj;
+    std::unordered_map<int, int> inDegree;
+    for (const auto& node : graph.nodes) inDegree[node.id] = 0;
+    for (const auto& link : graph.links) {
+        adj[link.startNode].push_back(link.endNode);
+        inDegree[link.endNode]++;
+    }
 
-            for (size_t j = i + 1; j < app.previewNodes.size(); ++j) {
-                auto& n2 = app.previewNodes[j];
-                float radius2 = n2.title.length() * 4.0f + 20.0f;
-                float minDist = radius1 + radius2 + 20.0f; // 20px extra gap
-
-                float dx = n1.x - n2.x;
-                float dy = n1.y - n2.y;
-                float distSq = dx*dx + dy*dy;
-                if (distSq < 1.0f) distSq = 1.0f;
-                float dist = std::sqrt(distSq);
-
-                // Standard Repulsion
-                float f = 2000.0f / dist;
-
-                // Anti-Overlap Boost
-                if (dist < minDist) {
-                     f += 5000.0f * (minDist - dist) / minDist; // Strong push if overlapping
-                }
-
-                float f_x = (dx/dist)*f;
-                float f_y = (dy/dist)*f;
-
-                fx += f_x; fy += f_y;
-                app.previewNodes[j].vx -= f_x * 0.1f;
-                app.previewNodes[j].vy -= f_y * 0.1f;
-            }
-            n1.vx += fx * 0.1f; n1.vy += fy * 0.1f;
-
-            // Center Attraction
-            float cdx = center_x - n1.x; float cdy = center_y - n1.y;
-            n1.vx += cdx * 0.05f; n1.vy += cdy * 0.05f;
-
-            // Damping check
-            n1.vx *= 0.6f; n1.vy *= 0.6f;
-        }
-
-        // Link Attraction
-        for(auto& link : app.previewLinks) {
-            GraphNode* s = nullptr; GraphNode* e = nullptr;
-            for(auto& n : app.previewNodes) { 
-                if(n.id == link.startNode) s = &n; 
-                if(n.id == link.endNode) e = &n; 
-            }
-            if(s && e) {
-                float dx = e->x - s->x; float dy = e->y - s->y;
-                float dist = std::sqrt(dx*dx + dy*dy);
-                if (dist > 100.0f) {
-                    float force = (dist - 100.0f) * 0.05f;
-                    float fx = (dx/dist)*force; float fy = (dy/dist)*force;
-                    s->vx += fx; s->vy += fy;
-                    e->vx -= fx; e->vy -= fy;
-                }
-            }
-        }
-
-        // Update Pos
-        for (auto& n : app.previewNodes) {
-            n.x += n.vx;
-            n.y += n.vy;
+    // Find Roots
+    std::vector<int> roots;
+    for (const auto& node : graph.nodes) {
+        if (inDegree[node.id] == 0) {
+            roots.push_back(node.id);
         }
     }
-}
+    if (roots.empty() && !graph.nodes.empty()) roots.push_back(graph.nodes[0].id);
 
-void DrawStaticMermaidPreview(const AppState& app) {
-    if (app.previewNodes.empty()) {
+    // Subtree Height Helper
+    std::unordered_map<int, float> subtreeHeight;
+    const float SIBLING_GAP = 60.0f; // Increased for mindmap breathing room
+
+    std::function<float(int, std::unordered_set<int>&)> CalcHeight = 
+        [&](int u, std::unordered_set<int>& visited) -> float {
+        visited.insert(u);
+        float childrenH = 0;
+        int childCount = 0;
+        
+        float myH = 0;
+        for(const auto& n : graph.nodes) if(n.id == u) { myH = n.h; break; }
+
+        for (int v : adj[u]) {
+            if (visited.find(v) == visited.end()) {
+                if (childCount > 0) childrenH += SIBLING_GAP;
+                childrenH += CalcHeight(v, visited);
+                childCount++;
+            }
+        }
+        
+        subtreeHeight[u] = std::max(myH, childrenH);
+        return subtreeHeight[u];
+    };
+
+    std::unordered_set<int> visitedHeight;
+    for(int root : roots) CalcHeight(root, visitedHeight);
+
+    // Layout Helper
+    float startX = 50.0f;
+    float currentY = 50.0f;
+
+    std::function<void(int, float, float, std::unordered_set<int>&)> LayoutRecursive = 
+        [&](int u, float x, float yStart, std::unordered_set<int>& visited) {
+        visited.insert(u);
+        
+        GraphNode* uNode = nullptr;
+        for(auto& n : graph.nodes) if(n.id == u) { uNode = &n; break; }
+        if(!uNode) return;
+
+        float totalH = subtreeHeight[u];
+        
+        uNode->x = x;
+        // Anchor Correction: Center based on node height to align links properly
+        uNode->y = (yStart + totalH * 0.5f) - (uNode->h * 0.5f);
+
+        float childX = x + uNode->w + 150.0f; // Increased gap for connectors
+        
+        float childrenTotalH = 0;
+        int childCount = 0;
+        for(int v : adj[u]) {
+            if(visited.find(v) == visited.end()) {
+                if(childCount > 0) childrenTotalH += SIBLING_GAP;
+                childrenTotalH += subtreeHeight[v];
+                childCount++;
+            }
+        }
+
+        float childY = yStart + (totalH - childrenTotalH) * 0.5f;
+        
+        for (int v : adj[u]) {
+            if (visited.find(v) == visited.end()) {
+                float childH = subtreeHeight[v];
+                LayoutRecursive(v, childX, childY, visited);
+                childY += childH + SIBLING_GAP;
+            }
+        }
+    };
+
+    std::unordered_set<int> visitedLayout;
+    for (int root : roots) {
+         float h = subtreeHeight[root];
+         LayoutRecursive(root, startX, currentY, visitedLayout);
+         currentY += h + 100.0f; // More gap between separate trees
+    }
+
+    if (updateImNodes) {
+        ImNodes::EditorContextSet((ImNodesEditorContext*)app.previewGraphContext);
+        // Apply positions to ImNodes (One-time layout)
+        for (const auto& node : graph.nodes) {
+            ImNodes::SetNodeGridSpacePos(node.id, ImVec2(node.x, node.y));
+        }
+    }
+    return true;
+}
+void DrawStaticMermaidPreview(const AppState::PreviewGraphState& graph) {
+    if (graph.nodes.empty()) {
         ImGui::TextDisabled("No diagram to display.");
         return;
     }
@@ -268,20 +406,28 @@ void DrawStaticMermaidPreview(const AppState& app) {
     ImDrawList* drawList = ImGui::GetWindowDrawList();
     ImVec2 origin = ImGui::GetCursorScreenPos();
     ImVec2 avail = ImGui::GetContentRegionAvail();
-    if (avail.x < 1.0f || avail.y < 1.0f) {
-        return;
-    }
+    if (avail.x < 1.0f || avail.y < 1.0f) return;
 
-    float minX = FLT_MAX;
-    float minY = FLT_MAX;
-    float maxX = -FLT_MAX;
-    float maxY = -FLT_MAX;
-    for (const auto& node : app.previewNodes) {
-        minX = std::min(minX, node.x);
-        minY = std::min(minY, node.y);
-        maxX = std::max(maxX, node.x);
-        maxY = std::max(maxY, node.y);
+    // Bounds Calculation with sizes
+    float minX = FLT_MAX, minY = FLT_MAX, maxX = -FLT_MAX, maxY = -FLT_MAX;
+    
+    // We need to re-estimate sizes for drawing bounds properly?
+    // Nodes have x,y center positions. 
+    // We can just rely on point clouds for bounds, or add the text size.
+    // Let's do simple point bounds + padding.
+    
+    for (const auto& node : graph.nodes) {
+        float halfW = node.w * 0.5f;
+        float halfH = node.h * 0.5f;
+
+        if (node.x - halfW < minX) minX = node.x - halfW;
+        if (node.y - halfH < minY) minY = node.y - halfH;
+        if (node.x + halfW > maxX) maxX = node.x + halfW;
+        if (node.y + halfH > maxY) maxY = node.y + halfH;
     }
+    // Add extra margin
+    minX -= 20.0f; minY -= 20.0f;
+    maxX += 20.0f; maxY += 20.0f;
 
     float graphW = maxX - minX;
     float graphH = maxY - minY;
@@ -297,67 +443,194 @@ void DrawStaticMermaidPreview(const AppState& app) {
     if (maxW < 1.0f) maxW = 1.0f;
     if (maxH < 1.0f) maxH = 1.0f;
 
-    float scale = std::min(maxW / graphW, maxH / graphH);
-    if (scale <= 0.0f) {
-        scale = 1.0f;
-    }
+    // Enforce "Real Pixel + Scroll" - No scaling for the static preview to ensure deterministic text layout.
+    const float scale = 1.0f;
 
-    ImVec2 offset(origin.x + padding + (maxW - graphW * scale) * 0.5f - minX * scale,
-                  origin.y + padding + (maxH - graphH * scale) * 0.5f - minY * scale);
+    // Define the Content Area for the parent scrollable child
+    ImVec2 canvasSize(std::floor(graphW * scale + padding * 2), std::floor(graphH * scale + padding * 2));
+    ImVec2 startPos = ImGui::GetCursorScreenPos();
+    
+    // Aligment: Center if smaller than available area, otherwise align top-left for scroll
+    float offX = std::floor(std::max(0.0f, (avail.x - canvasSize.x) * 0.5f));
+    float offY = std::floor(std::max(0.0f, (avail.y - canvasSize.y) * 0.5f));
+    
+    ImVec2 offset(std::floor(startPos.x + padding + offX - minX),
+                  std::floor(startPos.y + padding + offY - minY));
+                       
+    // Use Dummy to reserve space for scrolling in the parent window
+    ImGui::Dummy(canvasSize);
+    
+    ImGui::PushClipRect(startPos, ImVec2(startPos.x + avail.x, startPos.y + avail.y), true);
 
-    ImGui::PushClipRect(origin, ImVec2(origin.x + avail.x, origin.y + avail.y), true);
-
+    // Draw Links (Bezier for Tree look)
     ImU32 linkColor = ImGui::GetColorU32(ImVec4(0.45f, 0.65f, 0.95f, 0.65f));
-    for (const auto& link : app.previewLinks) {
+    for (const auto& link : graph.links) {
         const GraphNode* start = nullptr;
         const GraphNode* end = nullptr;
-        for (const auto& node : app.previewNodes) {
+        for (const auto& node : graph.nodes) {
             if (node.id == link.startNode) start = &node;
             if (node.id == link.endNode) end = &node;
         }
-        if (!start || !end) {
-            continue;
-        }
+        if (!start || !end) continue;
+        
         ImVec2 p1(offset.x + start->x * scale, offset.y + start->y * scale);
         ImVec2 p2(offset.x + end->x * scale, offset.y + end->y * scale);
-        drawList->AddLine(p1, p2, linkColor, 2.0f);
+        
+        // Curved links for Mind Map feel
+        float cpDist = (p2.x - p1.x) * 0.5f;
+        ImVec2 cp1(p1.x + cpDist, p1.y);
+        ImVec2 cp2(p2.x - cpDist, p2.y);
+        
+        drawList->AddBezierCubic(p1, cp1, cp2, p2, linkColor, 2.0f);
     }
 
-    // Default Colors
+    // Draw Nodes
     ImU32 textColor = ImGui::GetColorU32(ImGuiCol_Text);
 
-    for (const auto& node : app.previewNodes) {
+    for (const auto& node : graph.nodes) {
         ImVec2 center(offset.x + node.x * scale, offset.y + node.y * scale);
-        ImVec2 textSize = ImGui::CalcTextSize(node.title.c_str());
+        float w = node.w * scale;
+        float h = node.h * scale;
         
-        // Increased horizontal padding for wider look
-        float padX = 20.0f; 
-        float padY = 6.0f;
-        ImVec2 min(center.x - textSize.x * 0.5f - padX, center.y - textSize.y * 0.5f - padY);
-        ImVec2 max(center.x + textSize.x * 0.5f + padX, center.y + textSize.y * 0.5f + padY);
+        ImVec2 min(center.x - w * 0.5f, center.y - h * 0.5f);
+        ImVec2 max(center.x + w * 0.5f, center.y + h * 0.5f);
 
-        // Calculate Angle for Color
+        // Color Logic
         float dx = node.x - centerX;
         float dy = node.y - centerY;
         float angle = std::atan2(dy, dx); 
-        // Normalize angle to 0..1
         float hue = (angle + 3.14159f) / (2.0f * 3.14159f);
-        
         float r, g, b;
-        ImGui::ColorConvertHSVtoRGB(hue, 0.6f, 0.8f, r, g, b);
+        ImGui::ColorConvertHSVtoRGB(hue, 0.6f, 0.5f, r, g, b); // Darker bg
         ImU32 nodeBg = ImGui::GetColorU32(ImVec4(r, g, b, 1.0f));
-        
-        ImGui::ColorConvertHSVtoRGB(hue, 0.7f, 0.9f, r, g, b);
+        ImGui::ColorConvertHSVtoRGB(hue, 0.6f, 0.8f, r, g, b); // Brighter border
         ImU32 nodeBorder = ImGui::GetColorU32(ImVec4(r, g, b, 1.0f));
 
-        drawList->AddRectFilled(min, max, nodeBg, 8.0f); // More rounds
-        drawList->AddRect(min, max, nodeBorder, 8.0f);
-        ImVec2 textPos(center.x - textSize.x * 0.5f, center.y - textSize.y * 0.5f);
-        drawList->AddText(textPos, textColor, node.title.c_str());
+        switch (node.shape) {
+            case NodeShape::ROUNDED_BOX:
+                drawList->AddRectFilled(min, max, nodeBg, 8.0f);
+                drawList->AddRect(min, max, nodeBorder, 8.0f);
+                break;
+            case NodeShape::BOX:
+                drawList->AddRectFilled(min, max, nodeBg, 0.0f);
+                drawList->AddRect(min, max, nodeBorder, 0.0f);
+                break;
+            case NodeShape::CIRCLE:
+                {
+                    float radius = std::max((max.x - min.x), (max.y - min.y)) * 0.5f;
+                    drawList->AddCircleFilled(center, radius, nodeBg);
+                    drawList->AddCircle(center, radius, nodeBorder);
+                }
+                break;
+            case NodeShape::STADIUM:
+                {
+                    float radius = (max.y - min.y) * 0.5f;
+                    drawList->AddRectFilled(min, max, nodeBg, radius);
+                    drawList->AddRect(min, max, nodeBorder, radius);
+                }
+                break;
+            case NodeShape::SUBROUTINE:
+                {
+                    drawList->AddRectFilled(min, max, nodeBg, 0.0f);
+                    drawList->AddRect(min, max, nodeBorder, 0.0f);
+                    // Add vertical lines
+                    float indent = 10.0f;
+                    drawList->AddLine(ImVec2(min.x + indent, min.y), ImVec2(min.x + indent, max.y), nodeBorder);
+                    drawList->AddLine(ImVec2(max.x - indent, min.y), ImVec2(max.x - indent, max.y), nodeBorder);
+                }
+                break;
+            case NodeShape::CYLINDER:
+                {
+                    // Approximate cylinder
+                    float rx = (max.x - min.x) * 0.5f;
+                    float ry = 5.0f; // Ellipse height
+                    ImVec2 topCenter(center.x, min.y + ry);
+                    ImVec2 bottomCenter(center.x, max.y - ry);
+                    
+                    // Body
+                    drawList->AddRectFilled(ImVec2(min.x, min.y + ry), ImVec2(max.x, max.y - ry), nodeBg);
+                    
+                    // Top Ellipse
+                    drawList->AddEllipseFilled(topCenter, ImVec2(rx, ry), nodeBg);
+                    drawList->AddEllipse(topCenter, ImVec2(rx, ry), nodeBorder);
+                    
+                    // Bottom Ellipse (Half only really needed for outline, but full filled is fine)
+                    drawList->AddEllipseFilled(bottomCenter, ImVec2(rx, ry), nodeBg);
+                    drawList->AddEllipse(bottomCenter, ImVec2(rx, ry), nodeBorder);
+                    
+                    // Sides
+                    drawList->AddLine(ImVec2(min.x, min.y + ry), ImVec2(min.x, max.y - ry), nodeBorder);
+                    drawList->AddLine(ImVec2(max.x, min.y + ry), ImVec2(max.x, max.y - ry), nodeBorder);
+                }
+                break;
+            case NodeShape::HEXAGON:
+                {
+                    ImVec2 p[6];
+                    float h = (max.y - min.y) * 0.5f;
+                    float w = (max.x - min.x) * 0.5f;
+                    float indent = 10.0f; 
+                    // Hexagon
+                    p[0] = ImVec2(min.x + indent, min.y);
+                    p[1] = ImVec2(max.x - indent, min.y);
+                    p[2] = ImVec2(max.x + indent, center.y); // Point out
+                    p[3] = ImVec2(max.x - indent, max.y);
+                    p[4] = ImVec2(min.x + indent, max.y);
+                    p[5] = ImVec2(min.x - indent, center.y); // Point out
+                    
+                    drawList->AddConvexPolyFilled(p, 6, nodeBg);
+                    drawList->AddPolyline(p, 6, nodeBorder, ImDrawFlags_Closed, 1.0f);
+                }
+                break;
+            case NodeShape::RHOMBUS:
+                {
+                    ImVec2 p[4];
+                    p[0] = ImVec2(center.x, min.y - 5.0f); // Top
+                    p[1] = ImVec2(max.x + 10.0f, center.y); // Right
+                    p[2] = ImVec2(center.x, max.y + 5.0f); // Bottom
+                    p[3] = ImVec2(min.x - 10.0f, center.y); // Left
+                    
+                    drawList->AddConvexPolyFilled(p, 4, nodeBg);
+                    drawList->AddPolyline(p, 4, nodeBorder, ImDrawFlags_Closed, 1.0f);
+                }
+                break;
+             case NodeShape::ASYMMETRIC:
+                {
+                    ImVec2 p[5];
+                    float indent = 15.0f;
+                    p[0] = min; 
+                    p[1] = ImVec2(max.x - indent, min.y);
+                    p[2] = ImVec2(max.x, center.y); // Point
+                    p[3] = ImVec2(max.x - indent, max.y);
+                    p[4] = ImVec2(min.x, max.y);
+                    
+                    drawList->AddConvexPolyFilled(p, 5, nodeBg);
+                    drawList->AddPolyline(p, 5, nodeBorder, ImDrawFlags_Closed, 1.0f);
+                }
+                break;
+            // Fallback / Approximations
+            case NodeShape::BANG:
+            case NodeShape::CLOUD:
+            default:
+                 drawList->AddRectFilled(min, max, nodeBg, 8.0f); // Default rounded
+                 drawList->AddRect(min, max, nodeBorder, 8.0f);
+                 break;
+        }
+        
+        ImVec2 textSize = ImGui::CalcTextSize(node.title.c_str(), nullptr, false, NODE_MAX_WIDTH);
+        ImVec2 textPos(std::floor(center.x - textSize.x * 0.5f), std::floor(center.y - textSize.y * 0.5f));
+        
+        drawList->AddText(
+            ImGui::GetFont(),                 // Normal font
+            ImGui::GetFontSize(),             // Normal size
+            textPos,
+            textColor,
+            node.title.c_str(),
+            nullptr,
+            NODE_MAX_WIDTH
+        );
     }
-
+    
     ImGui::PopClipRect();
-    ImGui::Dummy(avail);
 }
 
 void DrawMarkdownPreview(AppState& app, const std::string& content, bool staticMermaidPreview) {
@@ -387,63 +660,109 @@ void DrawMarkdownPreview(AppState& app, const std::string& content, bool staticM
         if (StartsWith(line, "```")) {
             if (inCodeBlock) {
                 // End block
-                ImGui::PushID(codeBlockIdCounter++);
+                int blockId = codeBlockIdCounter++;
+                ImGui::PushID(blockId);
                 if (codeBlockLanguage == "mermaid") {
                     
-                    // Parse and Render Graph
-                    ParseMermaidToGraph(app, codeBlockContent, staticMermaidPreview); // Will update if content changed
+                    // Parse (Calculates Layout Once)
+                    bool newLayout = ParseMermaidToGraph(app, codeBlockContent, blockId, !staticMermaidPreview); 
+                    auto& graph = app.previewGraphs[blockId];
 
                     ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.12f, 0.14f, 0.18f, 1.0f));
-                    ImGui::BeginChild("##mermaid_graph", ImVec2(0, 400), true); // Fixed height for graph
-                    
-                    // Update physics for preview nodes
-                    // We need a local verify of selected nodes for the preview context, but ImNodes IsNodeSelected works globally based on ID.
-                    // Since we shifted IDs (10000+), it shouldn't clash with main graph (0+).
-                    
-                    std::unordered_set<int> selectedNodes; // We won't support dragging in preview for now to keep it simple, OR we do:
-                    
+
                     if (staticMermaidPreview) {
-                        DrawStaticMermaidPreview(app);
+                        ImGui::BeginChild("##mermaid_graph", ImVec2(0, 700), true);
+                        DrawStaticMermaidPreview(graph);
+                        ImGui::EndChild();
+                        ImGui::PopStyleColor();
                     } else {
+                        if (ImGui::Button("Fit to Screen") || newLayout) {
+                            ImNodes::EditorContextSet((ImNodesEditorContext*)app.previewGraphContext);
+                            
+                            // Calculate Bounds
+                            ImVec2 min(FLT_MAX, FLT_MAX);
+                            ImVec2 max(-FLT_MAX, -FLT_MAX);
+                            if (graph.nodes.empty()) {
+                                min = max = ImVec2(0,0);
+                            } else {
+                                for(auto& n : graph.nodes) {
+                                    if(n.x < min.x) min.x = n.x;
+                                    if(n.y < min.y) min.y = n.y;
+                                    if(n.x > max.x) max.x = n.x;
+                                    if(n.y > max.y) max.y = n.y;
+                                }
+                            }
+                            ImVec2 center = ImVec2((min.x + max.x)*0.5f, (min.y + max.y)*0.5f);
+                            ImVec2 canvasSize(ImGui::GetContentRegionAvail().x, 400.0f);
+                            ImVec2 pan = ImVec2(canvasSize.x * 0.5f - center.x, canvasSize.y * 0.5f - center.y);
+
+                            ImNodes::EditorContextResetPanning(pan);
+                        }
+                        
+                        ImGui::BeginChild("##mermaid_graph", ImVec2(0, 700), true);
+                        
+                        // Switch Context & Interactive Editor
                         ImNodes::EditorContextSet((ImNodesEditorContext*)app.previewGraphContext);
-                        ImNodes::BeginNodeEditor(); 
+                        
+                        // Styling
+                        ImNodes::PushColorStyle(ImNodesCol_GridBackground, ImGui::GetColorU32(ImVec4(0.12f, 0.14f, 0.18f, 1.0f)));
+                        ImNodes::PushColorStyle(ImNodesCol_GridLine, ImGui::GetColorU32(ImVec4(0.2f, 0.2f, 0.2f, 0.5f)));
+                        
+                        ImNodes::BeginNodeEditor();
 
                         // Draw Nodes
-                        for (auto& node : app.previewNodes) {
-                            // Always enforce static position (calculated in parsing)
-                            // Allow drag if we wanted (check !IsNodeSelected), but for static we force it.
-                            // Let's allow drag for manual adjustment:
-                            if (!ImNodes::IsNodeSelected(node.id)) {
-                                 ImNodes::SetNodeGridSpacePos(node.id, ImVec2(node.x, node.y));
-                            }
+                        for (auto& node : graph.nodes) {
+                            // Use Hash for consistent color
+                            std::hash<std::string> hasher;
+                            size_t h = hasher(node.title);
+                            float hue = (h % 100) / 100.0f;
                             
+                            ImVec4 bgCol, titleCol, titleSelCol;
+                            ImGui::ColorConvertHSVtoRGB(hue, 0.6f, 0.3f, bgCol.x, bgCol.y, bgCol.z); bgCol.w = 1.0f;
+                            ImGui::ColorConvertHSVtoRGB(hue, 0.6f, 0.5f, titleCol.x, titleCol.y, titleCol.z); titleCol.w = 1.0f;
+                            ImGui::ColorConvertHSVtoRGB(hue, 0.6f, 0.6f, titleSelCol.x, titleSelCol.y, titleSelCol.z); titleSelCol.w = 1.0f;
+
+                            ImNodes::PushColorStyle(ImNodesCol_NodeBackground, ImGui::GetColorU32(bgCol));
+                            ImNodes::PushColorStyle(ImNodesCol_TitleBar, ImGui::GetColorU32(titleCol));
+                            ImNodes::PushColorStyle(ImNodesCol_TitleBarSelected, ImGui::GetColorU32(titleSelCol));
+
+                            // No forced SetNodeGridSpacePos here - handled in Parse
                             ImNodes::BeginNode(node.id);
-                            ImNodes::BeginNodeTitleBar();
-                            ImGui::TextUnformatted(node.title.c_str());
-                            ImNodes::EndNodeTitleBar();
                             
-                            // Attributes
+                            // Fake Title Bar
+                            ImNodes::BeginNodeTitleBar();
+                            ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + NODE_MAX_WIDTH);
+                            ImGui::TextUnformatted(node.title.c_str());
+                            ImGui::PopTextWrapPos();
+                            ImNodes::EndNodeTitleBar();
+
+                            // Attributes to allow links
+                            // We use dummy attributes hidden relative to node
                             ImNodes::BeginOutputAttribute(node.id << 8);
-                            ImGui::Dummy(ImVec2(1,1)); 
                             ImNodes::EndOutputAttribute();
                             
                             ImNodes::BeginInputAttribute((node.id << 8) + 1);
-                            ImGui::Dummy(ImVec2(1,1));
                             ImNodes::EndInputAttribute();
 
                             ImNodes::EndNode();
+                            
+                            ImNodes::PopColorStyle();
+                            ImNodes::PopColorStyle();
+                            ImNodes::PopColorStyle();
                         }
                         
-                        for (const auto& link : app.previewLinks) {
+                        // Draw Links
+                        for (const auto& link : graph.links) {
                             ImNodes::Link(link.id, link.startNode << 8, (link.endNode << 8) + 1);
                         }
 
                         ImNodes::EndNodeEditor();
+                        ImNodes::PopColorStyle();
+                        ImNodes::PopColorStyle();
+
+                        ImGui::EndChild();
+                        ImGui::PopStyleColor();
                     }
-
-                    ImGui::EndChild();
-                    ImGui::PopStyleColor();
-
                 } else {
                     ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
                     ImGui::BeginChild("##code", ImVec2(0, 0), true, ImGuiWindowFlags_AlwaysAutoResize);
@@ -970,8 +1289,13 @@ void DrawUI(AppState& app) {
             if (ImGui::MenuItem("Save Project As...", nullptr, false, canChangeProject)) {
                 app.showSaveAsProjectModal = true;
             }
-            if (ImGui::MenuItem("Close Project", nullptr, false, hasProject && canChangeProject)) {
-                app.CloseProject();
+            if (ImGui::MenuItem("Close File", nullptr, false, app.selectedExternalFileIndex != -1)) {
+                if (app.selectedExternalFileIndex >= 0 && app.selectedExternalFileIndex < (int)app.externalFiles.size()) {
+                    app.externalFiles.erase(app.externalFiles.begin() + app.selectedExternalFileIndex);
+                    if (app.selectedExternalFileIndex >= (int)app.externalFiles.size()) {
+                        app.selectedExternalFileIndex = (int)app.externalFiles.size() - 1;
+                    }
+                }
             }
             ImGui::Separator();
             if (ImGui::MenuItem("Exit", nullptr, false, canChangeProject)) {
@@ -1302,7 +1626,9 @@ void DrawUI(AppState& app) {
                     if (app.unifiedKnowledge.empty()) {
                         ImGui::TextDisabled("Nenhum insight disponivel.");
                     } else {
-                        InputTextMultilineString("##unified", &app.unifiedKnowledge, ImVec2(-FLT_MIN, -FLT_MIN), ImGuiInputTextFlags_ReadOnly);
+                        ImGui::PushTextWrapPos(0.0f);
+                        ImGui::TextUnformatted(app.unifiedKnowledge.c_str());
+                        ImGui::PopTextWrapPos();
                     }
                     ImGui::EndChild();
                 } else {
@@ -1589,6 +1915,10 @@ void DrawUI(AppState& app) {
                             
                             if (ImGui::Button(label("💾 Save", "Save"))) {
                                 app.SaveExternalFile(i);
+                            }
+                            ImGui::SameLine();
+                            if (ImGui::Button(label("❌ Close", "Close"))) {
+                                open = false;
                             }
                             ImGui::SameLine();
                             if (ImGui::Checkbox(label("👁️ Preview", "Preview"), &app.previewMode)) {

@@ -1,3 +1,7 @@
+/**
+ * @file AppState.cpp
+ * @brief Implementation of the AppState class and state management logic.
+ */
 #include "ui/AppState.hpp"
 
 #include "application/OrganizerService.hpp"

@@ -1,0 +1,51 @@
+\chapter{Idea Walker Architecture (DDD + Ports \& Adapters) }
+\hypertarget{md_DDD__IdeaWalker__Architecture}{}\label{md_DDD__IdeaWalker__Architecture}\index{Idea Walker Architecture (DDD + Ports \& Adapters)@{Idea Walker Architecture (DDD + Ports \& Adapters)}}
+\label{md_DDD__IdeaWalker__Architecture_autotoc_md5}%
+\Hypertarget{md_DDD__IdeaWalker__Architecture_autotoc_md5}%
+
+
+This project follows a Domain-\/\+Driven Design approach to ensure the core logic (organizing thoughts for ADHD) is decoupled from external technologies (LLMs, File System, UI).\hypertarget{md_DDD__IdeaWalker__Architecture_autotoc_md6}{}\doxysection{\texorpdfstring{Layers}{Layers}}\label{md_DDD__IdeaWalker__Architecture_autotoc_md6}
+\hypertarget{md_DDD__IdeaWalker__Architecture_autotoc_md7}{}\doxysubsection{\texorpdfstring{1. Domain Layer ({\ttfamily src/domain})}{1. Domain Layer ({\ttfamily src/domain})}}\label{md_DDD__IdeaWalker__Architecture_autotoc_md7}
+
+\begin{DoxyItemize}
+\item {\bfseries{Entities}}\+: {\ttfamily Insight} (structured thought), {\ttfamily Raw\+Thought} (unprocessed input).
+\item {\bfseries{Value Objects}}\+: {\ttfamily Actionable} (task items).
+\item {\bfseries{Ports (Interfaces)}}\+:
+\begin{DoxyItemize}
+\item {\ttfamily Thought\+Repository}\+: For persistence.
+\item {\ttfamily AIService}\+: For LLM processing.
+\end{DoxyItemize}
+\end{DoxyItemize}\hypertarget{md_DDD__IdeaWalker__Architecture_autotoc_md8}{}\doxysubsection{\texorpdfstring{2. Infrastructure Layer ({\ttfamily src/infrastructure})}{2. Infrastructure Layer ({\ttfamily src/infrastructure})}}\label{md_DDD__IdeaWalker__Architecture_autotoc_md8}
+
+\begin{DoxyItemize}
+\item {\bfseries{Adapters}}\+:
+\begin{DoxyItemize}
+\item {\ttfamily File\+Repository}\+: Implements {\ttfamily Thought\+Repository} using the local filesystem ({\ttfamily /inbox} and {\ttfamily /notas}).
+\item {\ttfamily Ollama\+Adapter}\+: Implements {\ttfamily AIService} using the local Ollama API (Qwen 2.\+5).
+\end{DoxyItemize}
+\end{DoxyItemize}\hypertarget{md_DDD__IdeaWalker__Architecture_autotoc_md9}{}\doxysubsection{\texorpdfstring{3. Application Layer ({\ttfamily src/application})}{3. Application Layer ({\ttfamily src/application})}}\label{md_DDD__IdeaWalker__Architecture_autotoc_md9}
+
+\begin{DoxyItemize}
+\item {\bfseries{Services}}\+:
+\begin{DoxyItemize}
+\item {\ttfamily Organizer\+Service}\+: Orchestrates the flow between Domain and Infrastructure.
+\end{DoxyItemize}
+\end{DoxyItemize}\hypertarget{md_DDD__IdeaWalker__Architecture_autotoc_md10}{}\doxysubsection{\texorpdfstring{4. Presentation Layer ({\ttfamily src/ui})}{4. Presentation Layer ({\ttfamily src/ui})}}\label{md_DDD__IdeaWalker__Architecture_autotoc_md10}
+
+\begin{DoxyItemize}
+\item {\bfseries{Ui\+Renderer}}\+: Im\+Gui screens (Dashboard \& Inbox, Organized Knowledge, Execucao).
+\item {\bfseries{App\+State}}\+: UI state, selections, project root and background refresh flags.
+\end{DoxyItemize}\hypertarget{md_DDD__IdeaWalker__Architecture_autotoc_md11}{}\doxysubsection{\texorpdfstring{5. App Layer ({\ttfamily src/app})}{5. App Layer ({\ttfamily src/app})}}\label{md_DDD__IdeaWalker__Architecture_autotoc_md11}
+
+\begin{DoxyItemize}
+\item {\bfseries{Idea\+Walker\+App}}\+: App lifecycle, font loading and main loop.
+\end{DoxyItemize}\hypertarget{md_DDD__IdeaWalker__Architecture_autotoc_md12}{}\doxysection{\texorpdfstring{Data Flow}{Data Flow}}\label{md_DDD__IdeaWalker__Architecture_autotoc_md12}
+
+\begin{DoxyEnumerate}
+\item User places a {\ttfamily .txt} in {\ttfamily \texorpdfstring{$<$}{<}project\texorpdfstring{$>$}{>}/inbox}.
+\item {\ttfamily Organizer\+Service} fetches {\ttfamily Raw\+Thought} via {\ttfamily File\+Repository}.
+\item {\ttfamily Organizer\+Service} sends content to {\ttfamily Ollama\+Adapter}.
+\item {\ttfamily Ollama\+Adapter} receives structured Markdown from LLM.
+\item {\ttfamily Organizer\+Service} saves the resulting {\ttfamily Insight} into {\ttfamily \texorpdfstring{$<$}{<}project\texorpdfstring{$>$}{>}/notas}.
+\item {\ttfamily Organizer\+Service} updates {\ttfamily \+\_\+\+Consolidated\+\_\+\+Tasks.\+md} with unified tasks. 
+\end{DoxyEnumerate}

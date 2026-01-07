@@ -1,3 +1,7 @@
+/**
+ * @file FileRepository.cpp
+ * @brief Implementation of the FileRepository class.
+ */
 #include "infrastructure/FileRepository.hpp"
 #include <filesystem>
 #include <fstream>

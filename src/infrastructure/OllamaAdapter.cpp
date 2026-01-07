@@ -1,3 +1,7 @@
+/**
+ * @file OllamaAdapter.cpp
+ * @brief Implementation of the OllamaAdapter class.
+ */
 #include "infrastructure/OllamaAdapter.hpp"
 #include <httplib.h>
 #include <nlohmann/json.hpp>

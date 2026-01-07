@@ -1,34 +1,51 @@
+/**
+ * @file WhisperCppAdapter.hpp
+ * @brief Adapter for on-device transcription using whisper.cpp.
+ */
+
 #pragma once
 
 #include "domain/TranscriptionService.hpp"
 #include <string>
 #include <mutex>
 
-// Forward declaration to avoid including whisper.h in header if possible, 
-// but whisper_context* is needed.
 struct whisper_context;
 
 namespace ideawalker::infrastructure {
 
+/**
+ * @class WhisperCppAdapter
+ * @brief Implements TranscriptionService using the whisper.cpp library for local inference.
+ */
 class WhisperCppAdapter : public domain::TranscriptionService {
 public:
+    /**
+     * @brief Constructor for WhisperCppAdapter.
+     * @param modelPath Path to the GGML model file.
+     * @param inboxPath Directory where transcriptions will be saved.
+     */
     WhisperCppAdapter(const std::string& modelPath, const std::string& inboxPath);
+    
+    /** @brief Destructor. Frees the whisper context. */
     ~WhisperCppAdapter() override;
 
+    /** @brief Performs transcription in a background thread. @see domain::TranscriptionService::transcribeAsync */
     void transcribeAsync(const std::string& audioPath, OnSuccess onSuccess, OnError onError) override;
 
 private:
-    std::string m_modelPath;
-    std::string m_inboxPath;
-    
-    // Whisper context is not thread-safe for parallel inference, 
-    // but we will create/destroy or lock it. For simplicity, let's keep one context per app for now.
-    // Or better: Load model once, run inference guarded by mutex.
-    whisper_context* m_ctx = nullptr;
-    std::mutex m_mutex;
-    bool m_modelLoaded = false;
-
+    /**
+     * @brief Internal helper to load the model file.
+     * @param errorMsg Populated on failure.
+     * @return True if model is ready.
+     */
     bool loadModel(std::string& errorMsg);
+
+    std::string m_modelPath; ///< Path to .bin model.
+    std::string m_inboxPath; ///< Target directory for results.
+    
+    whisper_context* m_ctx = nullptr; ///< Whisper.cpp execution context.
+    std::mutex m_mutex; ///< Protects the shared context during inference.
+    bool m_modelLoaded = false; ///< Loading status flag.
 };
 
 } // namespace ideawalker::infrastructure
