@@ -8,6 +8,7 @@
 #include <sstream>
 #include <chrono>
 #include <ctime>
+#include <algorithm>
 
 namespace fs = std::filesystem;
 
@@ -187,7 +188,7 @@ std::map<std::string, int> FileRepository::getActivityHistory() {
     return history;
 }
 
-}
+
 
 std::vector<std::string> FileRepository::getVersions(const std::string& noteId) {
     std::vector<std::string> versions;
