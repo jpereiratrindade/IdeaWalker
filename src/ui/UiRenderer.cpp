@@ -1693,11 +1693,21 @@ void DrawUI(AppState& app) {
                 
                 bool processing = app.isProcessing.load();
                 if (processing) ImGui::BeginDisabled();
-                auto startBatch = [&app](bool force) {
+                auto statusHandler = [&app](const std::string& s) {
+                    app.SetProcessingStatus(s);
+                    // Log relevant AI stages to the system log
+                    if (s.find("Executando:") != std::string::npos || 
+                        s.find("Orquestrador:") != std::string::npos ||
+                        s.find("Persona:") != std::string::npos) {
+                        app.AppendLog("[AI] " + s + "\n");
+                    }
+                };
+
+                auto startBatch = [&app, statusHandler](bool force) {
                     app.isProcessing.store(true);
                     app.AppendLog(force ? "[SYSTEM] Starting AI reprocess (batch)...\n" : "[SYSTEM] Starting AI batch processing...\n");
-                    std::thread([&app, force]() {
-                        app.organizerService->processInbox(force, [&app](std::string s){ app.SetProcessingStatus(s); });
+                    std::thread([&app, force, statusHandler]() {
+                        app.organizerService->processInbox(force, statusHandler);
                         bool consolidated = app.organizerService->updateConsolidatedTasks();
                         app.isProcessing.store(false);
                         app.SetProcessingStatus("Thinking..."); // Reset
@@ -1707,13 +1717,13 @@ void DrawUI(AppState& app) {
                     }).detach();
                 };
 
-                auto startSingle = [&app](const std::string& filename, bool force) {
+                auto startSingle = [&app, statusHandler](const std::string& filename, bool force) {
                     app.isProcessing.store(true);
                     app.SetProcessingStatus("Thinking...");
                     app.AppendLog(force ? "[SYSTEM] Starting AI reprocess for " + filename + "...\n"
                                         : "[SYSTEM] Starting AI processing for " + filename + "...\n");
-                    std::thread([&app, filename, force]() {
-                        auto result = app.organizerService->processInboxItem(filename, force, [&app](std::string s){ app.SetProcessingStatus(s); });
+                    std::thread([&app, filename, force, statusHandler]() {
+                        auto result = app.organizerService->processInboxItem(filename, force, statusHandler);
                         switch (result) {
                         case application::OrganizerService::ProcessResult::Processed:
                             app.AppendLog("[SYSTEM] Processing finished for " + filename + ".\n");
