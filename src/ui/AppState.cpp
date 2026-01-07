@@ -34,6 +34,7 @@ bool EnsureProjectFolders(const std::filesystem::path& root) {
     try {
         std::filesystem::create_directories(root / "inbox");
         std::filesystem::create_directories(root / "notas");
+        std::filesystem::create_directories(root / ".history");
         return true;
     } catch (...) {
         return false;
@@ -44,10 +45,16 @@ bool CopyProjectData(const std::filesystem::path& fromRoot, const std::filesyste
     try {
         std::filesystem::create_directories(toRoot / "inbox");
         std::filesystem::create_directories(toRoot / "notas");
+        std::filesystem::create_directories(toRoot / ".history");
         std::filesystem::copy(fromRoot / "inbox", toRoot / "inbox",
                               std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
         std::filesystem::copy(fromRoot / "notas", toRoot / "notas",
                               std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
+        // Optional: Copy history if exists (hidden folder might need explicit check)
+        if (std::filesystem::exists(fromRoot / ".history")) {
+             std::filesystem::copy(fromRoot / ".history", toRoot / ".history",
+                                  std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
+        }
         return true;
     } catch (...) {
         return false;

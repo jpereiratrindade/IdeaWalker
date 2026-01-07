@@ -20,7 +20,7 @@ public:
      * @param inboxPath Directory for incoming raw thoughts (.txt).
      * @param notesPath Directory for structured insights (.md).
      */
-    FileRepository(const std::string& inboxPath, const std::string& notesPath);
+    FileRepository(const std::string& inboxPath, const std::string& notesPath, const std::string& historyPath);
 
     /** @brief Fetches .txt files from the inbox. @see domain::ThoughtRepository::fetchInbox */
     std::vector<domain::RawThought> fetchInbox() override;
@@ -46,6 +46,7 @@ public:
 private:
     std::string m_inboxPath; ///< Path to inbox directory.
     std::string m_notesPath; ///< Path to notes directory.
+    std::string m_historyPath; ///< Path to history/versioning directory.
 };
 
 } // namespace ideawalker::infrastructure

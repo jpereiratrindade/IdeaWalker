@@ -27,10 +27,11 @@ std::tm ToLocalTime(std::time_t tt) {
 
 } // namespace
 
-FileRepository::FileRepository(const std::string& inboxPath, const std::string& notesPath)
-    : m_inboxPath(inboxPath), m_notesPath(notesPath) {
+FileRepository::FileRepository(const std::string& inboxPath, const std::string& notesPath, const std::string& historyPath)
+    : m_inboxPath(inboxPath), m_notesPath(notesPath), m_historyPath(historyPath) {
     if (!fs::exists(m_inboxPath)) fs::create_directories(m_inboxPath);
     if (!fs::exists(m_notesPath)) fs::create_directories(m_notesPath);
+    if (!fs::exists(m_historyPath)) fs::create_directories(m_historyPath);
 }
 
 std::vector<domain::RawThought> FileRepository::fetchInbox() {
@@ -65,6 +66,28 @@ void FileRepository::saveInsight(const domain::Insight& insight) {
     std::string filename = "Nota_" + insight.getMetadata().id + ".md";
     fs::path outPath = fs::path(m_notesPath) / filename;
     
+    // BACKUP LOGIC (Line of Life)
+    if (fs::exists(outPath)) {
+        try {
+            auto now = std::chrono::system_clock::now();
+            std::time_t tt = std::chrono::system_clock::to_time_t(now);
+            std::tm tm = ToLocalTime(tt);
+            char dateBuf[32];
+            std::strftime(dateBuf, sizeof(dateBuf), "_%Y%m%d_%H%M%S.md", &tm);
+            
+            std::string baseName = filename;
+            size_t dotPos = baseName.find_last_of('.');
+            if (dotPos != std::string::npos) baseName = baseName.substr(0, dotPos);
+            
+            std::string backupName = baseName + std::string(dateBuf);
+            fs::path backupPath = fs::path(m_historyPath) / backupName;
+            
+            fs::copy_file(outPath, backupPath, fs::copy_options::overwrite_existing);
+        } catch (...) {
+            // Ignore backup failures for now, don't block saving
+        }
+    }
+
     std::ofstream file(outPath);
     file << insight.getContent();
 }
