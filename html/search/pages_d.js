@@ -1,26 +1,4 @@
 var searchData=
 [
-  ['idea_20walker_0',['ARQUITETURA DE INTERFACE E VISUALIZAÇÃO: IDEA WALKER',['../md_VISUAL__ARCHITECTURE__PLAN.html',1,'']]],
-  ['idea_20walker_20🚀_1',['Idea Walker 🚀',['../md_README.html',1,'']]],
-  ['idea_20walker_20architecture_20ddd_20ports_20adapters_2',['Idea Walker Architecture (DDD + Ports &amp;amp; Adapters)',['../md_DDD__IdeaWalker__Architecture.html',1,'']]],
-  ['idea_20walker_20c_20imgui_20ddd_3',['Projeto: Idea Walker (C++ / ImGui / DDD)',['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md42',1,'']]],
-  ['ideas_4',['🧠 Mind Map (Tasks &amp;amp; Ideas)',['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md15',1,'']]],
-  ['ideawalker_20knowledge_20base_20export_5',['IdeaWalker - Knowledge Base Export',['../md_IdeaWalker_01Knowledge_01Base.html',1,'']]],
-  ['ideawalker_20neural_20web_20export_6',['IdeaWalker Neural Web - Export',['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md16',1,'']]],
-  ['ideias_7',['Ideias',['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md18',1,'Desafios de Integração e Organização de Ideias'],['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md27',1,'Organização de Ideias'],['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md28',1,'Título: Organização de Ideias']]],
-  ['ideias_20e_20implementação_20de_20sistemas_8',['Ideias e Implementação de Sistemas',['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md20',1,'Organização de Ideias e Implementação de Sistemas'],['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md21',1,'Título: Organização de Ideias e Implementação de Sistemas']]],
-  ['imgui_9',['Contexto: Ferramentas Cognitivas Visuais para TDAH em C++ (ImGui)',['../md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md70',1,'']]],
-  ['imgui_20ddd_10',['Projeto: Idea Walker (C++ / ImGui / DDD)',['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md42',1,'']]],
-  ['implementação_11',['IMPLEMENTAÇÃO',['../md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md77',1,'2.5 STATUS ATUAL (IMPLEMENTAÇÃO)'],['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md53',1,'5. ESTRATÉGIA DE IMPLEMENTAÇÃO']]],
-  ['implementação_20prioridade_20mvp_12',['3. ROADMAP DE IMPLEMENTAÇÃO (PRIORIDADE MVP)',['../md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md79',1,'']]],
-  ['implementação_20de_20sistemas_13',['Implementação de Sistemas',['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md20',1,'Organização de Ideias e Implementação de Sistemas'],['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md21',1,'Título: Organização de Ideias e Implementação de Sistemas']]],
-  ['incremento_20técnico_3a_20ingestão_20de_20áudio_20pure_20c_20whisper_20cpp_14',['ESPECIFICAÇÃO DE INCREMENTO TÉCNICO: INGESTÃO DE ÁUDIO (PURE C++ / WHISPER.CPP)',['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html',1,'']]],
-  ['infrastructure_15',['2. Infrastructure Layer (&lt;span class=&quot;tt&quot;&gt;src/infrastructure&lt;/span&gt;)',['../md_DDD__IdeaWalker__Architecture.html#autotoc_md8',1,'']]],
-  ['infrastructure_20layer_20o_20adaptador_16',['3. INFRASTRUCTURE LAYER (O Adaptador)',['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md49',1,'']]],
-  ['infrastructure_20layer_20src_20infrastructure_17',['2. Infrastructure Layer (&lt;span class=&quot;tt&quot;&gt;src/infrastructure&lt;/span&gt;)',['../md_DDD__IdeaWalker__Architecture.html#autotoc_md8',1,'']]],
-  ['ingestão_20de_20áudio_20pure_20c_20whisper_20cpp_18',['ESPECIFICAÇÃO DE INCREMENTO TÉCNICO: INGESTÃO DE ÁUDIO (PURE C++ / WHISPER.CPP)',['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html',1,'']]],
-  ['insight_20central_19',['Insight Central',['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md22',1,'Insight Central'],['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md29',1,'Insight Central'],['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md36',1,'Insight Central']]],
-  ['integração_20e_20organização_20de_20ideias_20',['Desafios de Integração e Organização de Ideias',['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md18',1,'']]],
-  ['integrar_20whisper_20cpp_20para_20transcrição_20local_20de_20alta_20performance_20sem_20dependência_20de_20python_21',['Objetivo: Integrar &lt;span class=&quot;tt&quot;&gt;whisper.cpp&lt;/span&gt; para transcrição local de alta performance sem dependência de Python.',['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md43',1,'']]],
-  ['interface_20e_20visualização_3a_20idea_20walker_22',['ARQUITETURA DE INTERFACE E VISUALIZAÇÃO: IDEA WALKER',['../md_VISUAL__ARCHITECTURE__PLAN.html',1,'']]]
+  ['🏗️_20estrutura_20do_20projeto_0',['🏗️ Estrutura do Projeto',['../md_README.html#autotoc_md5',1,'']]]
 ];

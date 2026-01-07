@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['ui_0',['4. Presentation Layer (&lt;span class=&quot;tt&quot;&gt;src/ui&lt;/span&gt;)',['../md_DDD__IdeaWalker__Architecture.html#autotoc_md10',1,'']]],
-  ['ui_20layer_1',['4. UI LAYER',['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md51',1,'']]]
+  ['y_0',['y',['../structideawalker_1_1ui_1_1GraphNode.html#a7e9e430cffcb0a233990f03411f3c137',1,'ideawalker::ui::GraphNode']]]
 ];

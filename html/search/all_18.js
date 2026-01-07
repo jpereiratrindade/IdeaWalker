@@ -1,9 +1,8 @@
 var searchData=
 [
-  ['v0_201_201_20beta_202026_2001_2006_0',['[v0.1.1-beta] - 2026-01-06',['../md_CHANGELOG.html#autotoc_md1',1,'']]],
-  ['visão_20geral_20da_20mudança_1',['1. VISÃO GERAL DA MUDANÇA',['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md45',1,'']]],
-  ['visuais_20especificação_20técnica_2',['2. OS 4 MOTORES VISUAIS (ESPECIFICAÇÃO TÉCNICA)',['../md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md75',1,'']]],
-  ['visuais_20para_20tdah_20em_20c_20imgui_3',['Contexto: Ferramentas Cognitivas Visuais para TDAH em C++ (ImGui)',['../md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md70',1,'']]],
-  ['visualização_3a_20idea_20walker_4',['ARQUITETURA DE INTERFACE E VISUALIZAÇÃO: IDEA WALKER',['../md_VISUAL__ARCHITECTURE__PLAN.html',1,'']]],
-  ['você_5',['4. NOTAS TÉCNICAS PARA O DESENVOLVEDOR (VOCÊ)',['../md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md81',1,'']]]
+  ['_7eaiservice_0',['~AIService',['../classideawalker_1_1domain_1_1AIService.html#afed6632b38e58375888398d19c2b2efe',1,'ideawalker::domain::AIService']]],
+  ['_7eappstate_1',['~AppState',['../structideawalker_1_1ui_1_1AppState.html#a042c3342ee922fdcbeb806ad011e8776',1,'ideawalker::ui::AppState']]],
+  ['_7ethoughtrepository_2',['~ThoughtRepository',['../classideawalker_1_1domain_1_1ThoughtRepository.html#a1e6c7f325476e0d59d8c68a66d884139',1,'ideawalker::domain::ThoughtRepository']]],
+  ['_7etranscriptionservice_3',['~TranscriptionService',['../classideawalker_1_1domain_1_1TranscriptionService.html#a57c5c6d061e341247749d9acf5ecf024',1,'ideawalker::domain::TranscriptionService']]],
+  ['_7ewhispercppadapter_4',['~WhisperCppAdapter',['../classideawalker_1_1infrastructure_1_1WhisperCppAdapter.html#a5bc44cc75e1fe9fd81a9a8f3d62f97bf',1,'ideawalker::infrastructure::WhisperCppAdapter']]]
 ];

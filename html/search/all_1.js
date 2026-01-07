@@ -1,8 +1,6 @@
 var searchData=
 [
-  ['1_201_20beta_202026_2001_2006_0',['[v0.1.1-beta] - 2026-01-06',['../md_CHANGELOG.html#autotoc_md1',1,'']]],
-  ['1_20beta_202026_2001_2006_1',['[v0.1.1-beta] - 2026-01-06',['../md_CHANGELOG.html#autotoc_md1',1,'']]],
-  ['1_20domain_20layer_20src_20domain_2',['1. Domain Layer (&lt;span class=&quot;tt&quot;&gt;src/domain&lt;/span&gt;)',['../md_DDD__IdeaWalker__Architecture.html#autotoc_md7',1,'']]],
-  ['1_20estratégia_20cognitiva_3',['1. ESTRATÉGIA COGNITIVA',['../md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md73',1,'']]],
-  ['1_20visão_20geral_20da_20mudança_4',['1. VISÃO GERAL DA MUDANÇA',['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md45',1,'']]]
+  ['bang_0',['BANG',['../namespaceideawalker_1_1ui.html#ad7051e0866f7a6598aa39d694fde581ca489b3c14da5e92c8b256b195e92ae93a',1,'ideawalker::ui']]],
+  ['box_1',['BOX',['../namespaceideawalker_1_1ui.html#ad7051e0866f7a6598aa39d694fde581cae657cce1913c857166b0475f18668ef5',1,'ideawalker::ui']]],
+  ['build_2',['Build',['../md_README.html#autotoc_md11',1,'']]]
 ];

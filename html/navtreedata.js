@@ -24,91 +24,52 @@
 */
 var NAVTREE =
 [
-  [ "My Project", "index.html", [
-    [ "Changelog", "md_CHANGELOG.html", [
-      [ "[v0.1.1-beta] - 2026-01-06", "md_CHANGELOG.html#autotoc_md1", [
-        [ "Added", "md_CHANGELOG.html#autotoc_md2", null ],
-        [ "Fixed", "md_CHANGELOG.html#autotoc_md3", null ],
-        [ "Changed", "md_CHANGELOG.html#autotoc_md4", null ]
-      ] ]
-    ] ],
-    [ "Idea Walker Architecture (DDD + Ports &amp; Adapters)", "md_DDD__IdeaWalker__Architecture.html", [
-      [ "Layers", "md_DDD__IdeaWalker__Architecture.html#autotoc_md6", [
-        [ "1. Domain Layer (<span class=\"tt\">src/domain</span>)", "md_DDD__IdeaWalker__Architecture.html#autotoc_md7", null ],
-        [ "2. Infrastructure Layer (<span class=\"tt\">src/infrastructure</span>)", "md_DDD__IdeaWalker__Architecture.html#autotoc_md8", null ],
-        [ "3. Application Layer (<span class=\"tt\">src/application</span>)", "md_DDD__IdeaWalker__Architecture.html#autotoc_md9", null ],
-        [ "4. Presentation Layer (<span class=\"tt\">src/ui</span>)", "md_DDD__IdeaWalker__Architecture.html#autotoc_md10", null ],
-        [ "5. App Layer (<span class=\"tt\">src/app</span>)", "md_DDD__IdeaWalker__Architecture.html#autotoc_md11", null ]
-      ] ],
-      [ "Data Flow", "md_DDD__IdeaWalker__Architecture.html#autotoc_md12", null ]
-    ] ],
-    [ "IdeaWalker - Knowledge Base Export", "md_IdeaWalker_01Knowledge_01Base.html", [
-      [ "🕸️ Neural Web (Mermaid Flowchart)", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md14", null ],
-      [ "🧠 Mind Map (Tasks &amp; Ideas)", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md15", null ],
-      [ "IdeaWalker Neural Web - Export", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md16", [
-        [ "📝 Document Contents", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md17", [
-          [ "Desafios de Integração e Organização de Ideias", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md18", null ],
-          [ "Organização de Ideias e Implementação de Sistemas", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md20", null ]
-        ] ]
-      ] ],
-      [ "Título: Organização de Ideias e Implementação de Sistemas", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md21", [
-        [ "Insight Central", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md22", null ],
-        [ "Pontos Principais", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md23", null ],
-        [ "Ações", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md24", null ],
-        [ "Conexões", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md25", [
-          [ "Organização de Ideias", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md27", null ]
-        ] ]
-      ] ],
-      [ "Título: Organização de Ideias", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md28", [
-        [ "Insight Central", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md29", null ],
-        [ "Pontos Principais", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md30", null ],
-        [ "Ações", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md31", null ],
-        [ "Conexões", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md32", [
-          [ "Estruturação da Documentação e Publicações", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md34", null ]
-        ] ]
-      ] ],
-      [ "Título: Estruturação da Documentação e Publicações", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md35", [
-        [ "Insight Central", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md36", null ],
-        [ "Pontos Principais", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md37", null ],
-        [ "Ações", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md38", null ],
-        [ "Conexões", "md_IdeaWalker_01Knowledge_01Base.html#autotoc_md39", null ]
-      ] ]
-    ] ],
-    [ "ESPECIFICAÇÃO DE INCREMENTO TÉCNICO: INGESTÃO DE ÁUDIO (PURE C++ / WHISPER.CPP)", "md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html", [
-      [ "Projeto: Idea Walker (C++ / ImGui / DDD)", "md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md42", null ],
-      [ "Objetivo: Integrar <span class=\"tt\">whisper.cpp</span> para transcrição local de alta performance sem dependência de Python.", "md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md43", null ],
-      [ "1. VISÃO GERAL DA MUDANÇA", "md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md45", null ],
-      [ "2. DEPENDÊNCIAS", "md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md47", null ],
-      [ "3. INFRASTRUCTURE LAYER (O Adaptador)", "md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md49", null ],
-      [ "4. UI LAYER", "md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md51", null ],
-      [ "5. ESTRATÉGIA DE IMPLEMENTAÇÃO", "md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md53", null ]
-    ] ],
+  [ "IdeaWalker", "index.html", [
     [ "Idea Walker 🚀", "md_README.html", [
-      [ "🛠️ Tecnologias", "md_README.html#autotoc_md57", null ],
-      [ "🏗️ Estrutura do Projeto", "md_README.html#autotoc_md59", null ],
-      [ "✨ Funcionalidades", "md_README.html#autotoc_md61", null ],
-      [ "🚀 Como Rodar", "md_README.html#autotoc_md63", [
-        [ "\"Transformando o caos do TDAH em concretude técnica.\"", "md_README.html#autotoc_md55", null ],
-        [ "Pré-requisitos", "md_README.html#autotoc_md64", null ],
-        [ "Build", "md_README.html#autotoc_md65", null ]
+      [ "🛠️ Tecnologias", "md_README.html#autotoc_md3", null ],
+      [ "🏗️ Estrutura do Projeto", "md_README.html#autotoc_md5", null ],
+      [ "✨ Funcionalidades", "md_README.html#autotoc_md7", null ],
+      [ "🚀 Como Rodar", "md_README.html#autotoc_md9", [
+        [ "\"Transformando o caos do TDAH em concretude técnica.\"", "md_README.html#autotoc_md1", null ],
+        [ "Pré-requisitos", "md_README.html#autotoc_md10", null ],
+        [ "Build", "md_README.html#autotoc_md11", null ]
       ] ],
-      [ "🛡️ Governança", "md_README.html#autotoc_md67", null ]
+      [ "🛡️ Governança", "md_README.html#autotoc_md13", null ]
     ] ],
-    [ "ARQUITETURA DE INTERFACE E VISUALIZAÇÃO: IDEA WALKER", "md_VISUAL__ARCHITECTURE__PLAN.html", [
-      [ "Contexto: Ferramentas Cognitivas Visuais para TDAH em C++ (ImGui)", "md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md70", null ],
-      [ "Objetivo: Combater Cegueira Temporal e Falta de Permanência de Objeto", "md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md71", null ],
-      [ "1. ESTRATÉGIA COGNITIVA", "md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md73", null ],
-      [ "2. OS 4 MOTORES VISUAIS (ESPECIFICAÇÃO TÉCNICA)", "md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md75", null ],
-      [ "2.5 STATUS ATUAL (IMPLEMENTAÇÃO)", "md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md77", null ],
-      [ "3. ROADMAP DE IMPLEMENTAÇÃO (PRIORIDADE MVP)", "md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md79", null ],
-      [ "4. NOTAS TÉCNICAS PARA O DESENVOLVEDOR (VOCÊ)", "md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md81", null ]
+    [ "Namespaces", "namespaces.html", [
+      [ "Namespace List", "namespaces.html", "namespaces_dup" ],
+      [ "Namespace Members", "namespacemembers.html", [
+        [ "All", "namespacemembers.html", null ],
+        [ "Functions", "namespacemembers_func.html", null ],
+        [ "Enumerations", "namespacemembers_enum.html", null ]
+      ] ]
+    ] ],
+    [ "Classes", "annotated.html", [
+      [ "Class List", "annotated.html", "annotated_dup" ],
+      [ "Class Index", "classes.html", null ],
+      [ "Class Hierarchy", "hierarchy.html", "hierarchy" ],
+      [ "Class Members", "functions.html", [
+        [ "All", "functions.html", null ],
+        [ "Functions", "functions_func.html", null ],
+        [ "Variables", "functions_vars.html", null ],
+        [ "Typedefs", "functions_type.html", null ],
+        [ "Enumerations", "functions_enum.html", null ]
+      ] ]
+    ] ],
+    [ "Files", "files.html", [
+      [ "File List", "files.html", "files_dup" ],
+      [ "File Members", "globals.html", [
+        [ "All", "globals.html", null ],
+        [ "Typedefs", "globals_type.html", null ]
+      ] ]
     ] ]
   ] ]
 ];
 
 var NAVTREEINDEX =
 [
-"index.html"
+"AIService_8hpp.html",
+"namespaceideawalker_1_1ui.html#a533669d43ff60a337fbceaaf597b3e8aa0ed9b001ca1cd2667302a9be876ede9d"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronization';

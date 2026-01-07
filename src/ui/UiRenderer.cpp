@@ -34,6 +34,15 @@ bool StartsWith(const std::string& text, const char* prefix) {
 }
 
 // Helper to draw a rich representation of Markdown content
+/**
+ * @brief Parses Mermaid syntax into a GraphNode/GraphLink structure.
+ * Supports Mindmap and Flowchart/Graph syntax.
+ * @param app The application state.
+ * @param mermaidContent The raw Mermaid string.
+ * @param graphId Unique ID for the diagram context.
+ * @param updateImNodes Whether to push positions to ImNodes context.
+ * @return True if successful.
+ */
 bool ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, int graphId, bool updateImNodes) {
     auto& graph = app.previewGraphs[graphId];
     if (graph.lastContent == mermaidContent && graph.initialized) {
@@ -462,6 +471,11 @@ bool ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, int g
     }
     return true;
 }
+/**
+ * @brief Draws a static, pixel-perfect preview of a Mermaid graph.
+ * Implements adaptive scaling (fit-to-view) and forest centering.
+ * @param graph The cached graph state to render.
+ */
 void DrawStaticMermaidPreview(const AppState::PreviewGraphState& graph) {
     if (graph.nodes.empty()) {
         ImGui::TextDisabled("No diagram to display.");

@@ -1,31 +1,5 @@
 var searchData=
 [
-  ['da_20documentação_20e_20publicações_0',['da Documentação e Publicações',['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md34',1,'Estruturação da Documentação e Publicações'],['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md35',1,'Título: Estruturação da Documentação e Publicações']]],
-  ['da_20mudança_1',['1. VISÃO GERAL DA MUDANÇA',['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md45',1,'']]],
-  ['data_20flow_2',['Data Flow',['../md_DDD__IdeaWalker__Architecture.html#autotoc_md12',1,'']]],
-  ['ddd_3',['Projeto: Idea Walker (C++ / ImGui / DDD)',['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md42',1,'']]],
-  ['ddd_20ports_20adapters_4',['Idea Walker Architecture (DDD + Ports &amp;amp; Adapters)',['../md_DDD__IdeaWalker__Architecture.html',1,'']]],
-  ['de_20áudio_20pure_20c_20whisper_20cpp_5',['ESPECIFICAÇÃO DE INCREMENTO TÉCNICO: INGESTÃO DE ÁUDIO (PURE C++ / WHISPER.CPP)',['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html',1,'']]],
-  ['de_20alta_20performance_20sem_20dependência_20de_20python_6',['Objetivo: Integrar &lt;span class=&quot;tt&quot;&gt;whisper.cpp&lt;/span&gt; para transcrição local de alta performance sem dependência de Python.',['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md43',1,'']]],
-  ['de_20ideias_7',['de Ideias',['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md18',1,'Desafios de Integração e Organização de Ideias'],['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md27',1,'Organização de Ideias'],['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md28',1,'Título: Organização de Ideias']]],
-  ['de_20ideias_20e_20implementação_20de_20sistemas_8',['de Ideias e Implementação de Sistemas',['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md20',1,'Organização de Ideias e Implementação de Sistemas'],['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md21',1,'Título: Organização de Ideias e Implementação de Sistemas']]],
-  ['de_20implementação_9',['5. ESTRATÉGIA DE IMPLEMENTAÇÃO',['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md53',1,'']]],
-  ['de_20implementação_20prioridade_20mvp_10',['3. ROADMAP DE IMPLEMENTAÇÃO (PRIORIDADE MVP)',['../md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md79',1,'']]],
-  ['de_20incremento_20técnico_3a_20ingestão_20de_20áudio_20pure_20c_20whisper_20cpp_11',['ESPECIFICAÇÃO DE INCREMENTO TÉCNICO: INGESTÃO DE ÁUDIO (PURE C++ / WHISPER.CPP)',['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html',1,'']]],
-  ['de_20integração_20e_20organização_20de_20ideias_12',['Desafios de Integração e Organização de Ideias',['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md18',1,'']]],
-  ['de_20interface_20e_20visualização_3a_20idea_20walker_13',['ARQUITETURA DE INTERFACE E VISUALIZAÇÃO: IDEA WALKER',['../md_VISUAL__ARCHITECTURE__PLAN.html',1,'']]],
-  ['de_20objeto_14',['Objetivo: Combater Cegueira Temporal e Falta de Permanência de Objeto',['../md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md71',1,'']]],
-  ['de_20permanência_20de_20objeto_15',['Objetivo: Combater Cegueira Temporal e Falta de Permanência de Objeto',['../md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md71',1,'']]],
-  ['de_20python_16',['Objetivo: Integrar &lt;span class=&quot;tt&quot;&gt;whisper.cpp&lt;/span&gt; para transcrição local de alta performance sem dependência de Python.',['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md43',1,'']]],
-  ['de_20sistemas_17',['de Sistemas',['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md20',1,'Organização de Ideias e Implementação de Sistemas'],['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md21',1,'Título: Organização de Ideias e Implementação de Sistemas']]],
-  ['dependências_18',['2. DEPENDÊNCIAS',['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md47',1,'']]],
-  ['dependência_20de_20python_19',['Objetivo: Integrar &lt;span class=&quot;tt&quot;&gt;whisper.cpp&lt;/span&gt; para transcrição local de alta performance sem dependência de Python.',['../md_IMPLEMENTATION__PLAN__AUDIO__INGESTION.html#autotoc_md43',1,'']]],
-  ['desafios_20de_20integração_20e_20organização_20de_20ideias_20',['Desafios de Integração e Organização de Ideias',['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md18',1,'']]],
-  ['desenvolvedor_20você_21',['4. NOTAS TÉCNICAS PARA O DESENVOLVEDOR (VOCÊ)',['../md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md81',1,'']]],
-  ['do_20projeto_22',['🏗️ Estrutura do Projeto',['../md_README.html#autotoc_md59',1,'']]],
-  ['do_20tdah_20em_20concretude_20técnica_23',['&quot;Transformando o caos do TDAH em concretude técnica.&quot;',['../md_README.html#autotoc_md55',1,'']]],
-  ['document_20contents_24',['📝 Document Contents',['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md17',1,'']]],
-  ['documentação_20e_20publicações_25',['Documentação e Publicações',['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md34',1,'Estruturação da Documentação e Publicações'],['../md_IdeaWalker_01Knowledge_01Base.html#autotoc_md35',1,'Título: Estruturação da Documentação e Publicações']]],
-  ['domain_26',['1. Domain Layer (&lt;span class=&quot;tt&quot;&gt;src/domain&lt;/span&gt;)',['../md_DDD__IdeaWalker__Architecture.html#autotoc_md7',1,'']]],
-  ['domain_20layer_20src_20domain_27',['1. Domain Layer (&lt;span class=&quot;tt&quot;&gt;src/domain&lt;/span&gt;)',['../md_DDD__IdeaWalker__Architecture.html#autotoc_md7',1,'']]]
+  ['requisitos_0',['Pré-requisitos',['../md_README.html#autotoc_md10',1,'']]],
+  ['rodar_1',['🚀 Como Rodar',['../md_README.html#autotoc_md9',1,'']]]
 ];

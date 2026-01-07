@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['base_20export_0',['IdeaWalker - Knowledge Base Export',['../md_IdeaWalker_01Knowledge_01Base.html',1,'']]],
-  ['beta_202026_2001_2006_1',['[v0.1.1-beta] - 2026-01-06',['../md_CHANGELOG.html#autotoc_md1',1,'']]],
-  ['build_2',['Build',['../md_README.html#autotoc_md65',1,'']]]
+  ['o_20caos_20do_20tdah_20em_20concretude_20técnica_0',['&quot;Transformando o caos do TDAH em concretude técnica.&quot;',['../md_README.html#autotoc_md1',1,'']]]
 ];

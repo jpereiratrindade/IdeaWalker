@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['requisitos_0',['Pré-requisitos',['../md_README.html#autotoc_md64',1,'']]],
-  ['roadmap_20de_20implementação_20prioridade_20mvp_1',['3. ROADMAP DE IMPLEMENTAÇÃO (PRIORIDADE MVP)',['../md_VISUAL__ARCHITECTURE__PLAN.html#autotoc_md79',1,'']]],
-  ['rodar_2',['🚀 Como Rodar',['../md_README.html#autotoc_md63',1,'']]]
+  ['vx_0',['vx',['../structideawalker_1_1ui_1_1GraphNode.html#af35a54351802dd013a39ac7de818ebd7',1,'ideawalker::ui::GraphNode']]],
+  ['vy_1',['vy',['../structideawalker_1_1ui_1_1GraphNode.html#a23c07137159b456fa04b2cd2c9fae9ae',1,'ideawalker::ui::GraphNode']]]
 ];

@@ -163,14 +163,14 @@ struct AppState {
      * @brief Cached layout and nodes for a specific Mermaid block in Markdown.
      */
     struct PreviewGraphState {
-        std::vector<GraphNode> nodes;
-        std::vector<GraphLink> links;
-        std::unordered_map<int, int> nodeById; // Mapping ID to index in the nodes vector
-        std::vector<int> roots; // Root node IDs for the forest
-        std::unordered_map<int, std::vector<int>> childrenNodes; // Adjacency list for the tree structure
-        bool initialized = false;
-        LayoutOrientation orientation = LayoutOrientation::LeftRight;
-        std::string lastContent;
+        std::vector<GraphNode> nodes; ///< List of nodes in the diagram.
+        std::vector<GraphLink> links; ///< List of links between nodes.
+        std::unordered_map<int, int> nodeById; ///< Mapping of node IDs to their indices in the nodes vector (O(1) lookup).
+        std::vector<int> roots; ///< List of root node IDs for the hierarchical layout.
+        std::unordered_map<int, std::vector<int>> childrenNodes; ///< Adjacency list for fast tree traversal.
+        bool initialized = false; ///< Flag indicating if the graph layout has been initialized.
+        LayoutOrientation orientation = LayoutOrientation::LeftRight; ///< Target orientation (LR or TB).
+        std::string lastContent; ///< Cached content to prevent redundant layout updates.
     };
     std::map<int, PreviewGraphState> previewGraphs; ///< Multi-diagram cache.
 
