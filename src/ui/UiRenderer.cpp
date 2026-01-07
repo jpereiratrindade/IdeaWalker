@@ -300,23 +300,21 @@ bool ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, int g
         node.h = size.y + 20.0f; // Padding
     }
 
-    // structured Horizontal Tree Layout (MindMap Style)
-    std::unordered_map<int, std::vector<int>> adj;
+    // Populate Structural Cache
+    graph.childrenNodes.clear();
+    graph.roots.clear();
     std::unordered_map<int, int> inDegree;
     for (const auto& node : graph.nodes) inDegree[node.id] = 0;
     for (const auto& link : graph.links) {
-        adj[link.startNode].push_back(link.endNode);
+        graph.childrenNodes[link.startNode].push_back(link.endNode);
         inDegree[link.endNode]++;
     }
-
-    // Find Roots
-    std::vector<int> roots;
     for (const auto& node : graph.nodes) {
         if (inDegree[node.id] == 0) {
-            roots.push_back(node.id);
+            graph.roots.push_back(node.id);
         }
     }
-    if (roots.empty() && !graph.nodes.empty()) roots.push_back(graph.nodes[0].id);
+    if (graph.roots.empty() && !graph.nodes.empty()) graph.roots.push_back(graph.nodes[0].id);
 
     // 1. Decide orientation via heuristic (Depth vs Breadth)
     std::unordered_map<int, int> nodeDepth;
@@ -331,7 +329,7 @@ bool ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, int g
         countPerDepth[d]++;
         maxDepth = std::max(maxDepth, d);
         maxBreadth = std::max(maxBreadth, countPerDepth[d]);
-        for (int v : adj[u]) {
+        for (int v : graph.childrenNodes[u]) {
             if (visited.find(v) == visited.end()) {
                 WalkTopology(v, d + 1, visited);
             }
@@ -339,10 +337,9 @@ bool ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, int g
     };
 
     std::unordered_set<int> visitedTopology;
-    for (int r : roots) WalkTopology(r, 0, visitedTopology);
+    for (int r : graph.roots) WalkTopology(r, 0, visitedTopology);
 
-    enum class LayoutOrientation { LeftRight, TopDown };
-    LayoutOrientation orientation = (maxDepth > maxBreadth) ? LayoutOrientation::TopDown : LayoutOrientation::LeftRight;
+    graph.orientation = (maxDepth > maxBreadth) ? LayoutOrientation::TopDown : LayoutOrientation::LeftRight;
 
     // Subtree Breadth Helper (Dimension perpendicular to growth)
     std::unordered_map<int, float> subtreeBreadth;
@@ -359,11 +356,11 @@ bool ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, int g
             auto it = graph.nodeById.find(u);
             if (it != graph.nodeById.end()) {
                 // In TB, breadth is W. In LR, breadth is H.
-                myB = (orientation == LayoutOrientation::TopDown) ? graph.nodes[it->second].w : graph.nodes[it->second].h;
+                myB = (graph.orientation == LayoutOrientation::TopDown) ? graph.nodes[it->second].w : graph.nodes[it->second].h;
             }
         }
 
-        for (int v : adj[u]) {
+        for (int v : graph.childrenNodes[u]) {
             if (visited.find(v) == visited.end()) {
                 if (childCount > 0) childrenB += SIBLING_GAP;
                 childrenB += CalcBreadth(v, visited);
@@ -376,10 +373,10 @@ bool ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, int g
     };
 
     std::unordered_set<int> visitedBreadth;
-    for(int root : roots) CalcBreadth(root, visitedBreadth);
+    for(int root : graph.roots) CalcBreadth(root, visitedBreadth);
 
     std::function<void(int, float, float, std::unordered_set<int>&)> LayoutRecursive = 
-        [&](int u, float posPrimary, float posSecondaryStart, std::unordered_set<int>& visited) {
+        [&](int u, float primary, float secondaryStart, std::unordered_set<int>& visited) {
         visited.insert(u);
         
         GraphNode* uNode = nullptr;
@@ -391,47 +388,47 @@ bool ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, int g
 
         float totalB = subtreeBreadth[u];
 
-        if (orientation == LayoutOrientation::LeftRight) {
-            uNode->x = posPrimary;
-            uNode->y = (posSecondaryStart + totalB * 0.5f) - (uNode->h * 0.5f);
+        if (graph.orientation == LayoutOrientation::LeftRight) {
+            uNode->x = primary;
+            uNode->y = (secondaryStart + totalB * 0.5f) - (uNode->h * 0.5f);
 
             float hGap = std::clamp(uNode->w * 0.6f, 80.0f, 200.0f);
-            float childX = posPrimary + uNode->w + hGap;
+            float childX = primary + uNode->w + hGap;
 
             float childrenTotalB = 0;
             int childCount = 0;
-            for(int v : adj[u]) {
+            for(int v : graph.childrenNodes[u]) {
                 if(visited.find(v) == visited.end()) {
                     if(childCount > 0) childrenTotalB += SIBLING_GAP;
                     childrenTotalB += subtreeBreadth[v];
                     childCount++;
                 }
             }
-            float childY = posSecondaryStart + (totalB - childrenTotalB) * 0.5f;
-            for (int v : adj[u]) {
+            float childY = secondaryStart + (totalB - childrenTotalB) * 0.5f;
+            for (int v : graph.childrenNodes[u]) {
                 if (visited.find(v) == visited.end()) {
                     LayoutRecursive(v, childX, childY, visited);
                     childY += subtreeBreadth[v] + SIBLING_GAP;
                 }
             }
         } else { // TopDown
-            uNode->y = posPrimary;
-            uNode->x = (posSecondaryStart + totalB * 0.5f) - (uNode->w * 0.5f);
+            uNode->y = primary;
+            uNode->x = (secondaryStart + totalB * 0.5f) - (uNode->w * 0.5f);
 
             float vGap = std::clamp(uNode->h * 0.6f, 60.0f, 160.0f);
-            float childY = posPrimary + uNode->h + vGap;
+            float childY = primary + uNode->h + vGap;
 
             float childrenTotalB = 0;
             int childCount = 0;
-            for(int v : adj[u]) {
+            for(int v : graph.childrenNodes[u]) {
                 if(visited.find(v) == visited.end()) {
                     if(childCount > 0) childrenTotalB += SIBLING_GAP;
                     childrenTotalB += subtreeBreadth[v];
                     childCount++;
                 }
             }
-            float childX = posSecondaryStart + (totalB - childrenTotalB) * 0.5f;
-            for (int v : adj[u]) {
+            float childX = secondaryStart + (totalB - childrenTotalB) * 0.5f;
+            for (int v : graph.childrenNodes[u]) {
                 if (visited.find(v) == visited.end()) {
                     LayoutRecursive(v, childY, childX, visited);
                     childX += subtreeBreadth[v] + SIBLING_GAP;
@@ -441,11 +438,19 @@ bool ParseMermaidToGraph(AppState& app, const std::string& mermaidContent, int g
     };
 
     std::unordered_set<int> visitedLayout;
-    float currentGlobalPos = 50.0f;
-    for (int root : roots) {
-         float b = subtreeBreadth[root];
-         LayoutRecursive(root, 50.0f, currentGlobalPos, visitedLayout);
-         currentGlobalPos += b + 100.0f; 
+    
+    // Forest Layout: Center all roots globally
+    float FOREST_GAP = 120.0f;
+    float totalForestBreadth = 0;
+    for (size_t i = 0; i < graph.roots.size(); ++i) {
+        if (i > 0) totalForestBreadth += FOREST_GAP;
+        totalForestBreadth += subtreeBreadth[graph.roots[i]];
+    }
+
+    float secondaryCursor = 50.0f; // Start with padding
+    for (int root : graph.roots) {
+         LayoutRecursive(root, 50.0f, secondaryCursor, visitedLayout);
+         secondaryCursor += subtreeBreadth[root] + FOREST_GAP; 
     }
 
     if (updateImNodes) {
@@ -497,14 +502,12 @@ void DrawStaticMermaidPreview(const AppState::PreviewGraphState& graph) {
     if (graphW < 1.0f) graphW = 1.0f;
     if (graphH < 1.0f) graphH = 1.0f;
 
-    float padding = 24.0f;
-    float maxW = avail.x - padding * 2.0f;
-    float maxH = avail.y - padding * 2.0f;
-    if (maxW < 1.0f) maxW = 1.0f;
-    if (maxH < 1.0f) maxH = 1.0f;
-
-    // Enforce "Real Pixel + Scroll" - No scaling for the static preview to ensure deterministic text layout.
-    const float scale = 1.0f;
+    float padding = 40.0f;
+    
+    // Adaptive Scaling (Fit to View up to 100%)
+    float scaleX = avail.x / (graphW + padding * 2.0f);
+    float scaleY = avail.y / (graphH + padding * 2.0f);
+    float scale = std::min({1.0f, scaleX, scaleY});
 
     // Define the Content Area for the parent scrollable child
     ImVec2 canvasSize(std::floor(graphW * scale + padding * 2), std::floor(graphH * scale + padding * 2));
@@ -536,10 +539,17 @@ void DrawStaticMermaidPreview(const AppState::PreviewGraphState& graph) {
         ImVec2 p1(offset.x + start->x * scale, offset.y + start->y * scale);
         ImVec2 p2(offset.x + end->x * scale, offset.y + end->y * scale);
         
-        // Curved links for Mind Map feel
-        float cpDist = (p2.x - p1.x) * 0.5f;
-        ImVec2 cp1(p1.x + cpDist, p1.y);
-        ImVec2 cp2(p2.x - cpDist, p2.y);
+        // Adaptive curved links
+        ImVec2 cp1, cp2;
+        if (graph.orientation == LayoutOrientation::LeftRight) {
+            float cpDist = (p2.x - p1.x) * 0.5f;
+            cp1 = ImVec2(p1.x + cpDist, p1.y);
+            cp2 = ImVec2(p2.x - cpDist, p2.y);
+        } else { // TopDown
+            float cpDist = (p2.y - p1.y) * 0.5f;
+            cp1 = ImVec2(p1.x, p1.y + cpDist);
+            cp2 = ImVec2(p2.x, p2.y - cpDist);
+        }
         
         drawList->AddBezierCubic(p1, cp1, cp2, p2, linkColor, 2.0f);
     }

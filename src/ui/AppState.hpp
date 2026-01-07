@@ -65,6 +65,15 @@ namespace ideawalker::ui {
     };
 
     /**
+     * @enum LayoutOrientation
+     * @brief Orientation for tree-like diagrams.
+     */
+    enum class LayoutOrientation {
+        LeftRight,
+        TopDown
+    };
+
+    /**
      * @struct GraphNode
      * @brief Represents a visible node in the graph (Neural Web or Mermaid Preview).
      */
@@ -157,7 +166,10 @@ struct AppState {
         std::vector<GraphNode> nodes;
         std::vector<GraphLink> links;
         std::unordered_map<int, int> nodeById; // Mapping ID to index in the nodes vector
+        std::vector<int> roots; // Root node IDs for the forest
+        std::unordered_map<int, std::vector<int>> childrenNodes; // Adjacency list for the tree structure
         bool initialized = false;
+        LayoutOrientation orientation = LayoutOrientation::LeftRight;
         std::string lastContent;
     };
     std::map<int, PreviewGraphState> previewGraphs; ///< Multi-diagram cache.
