@@ -2027,6 +2027,10 @@ static void DrawKnowledgeTab(AppState& app) {
                                 app.selectedNoteContent += "\n\n[[ " + sug.targetId + " ]]";
                                 if (app.currentInsight) {
                                     app.currentInsight->setContent(app.selectedNoteContent);
+                                    // Auto-save to disk to ensure backlinks are detectable immediately
+                                    if (app.organizerService) {
+                                        app.organizerService->updateNote(app.selectedFilename, app.selectedNoteContent);
+                                    }
                                 }
                                 app.AppendLog("[UI] Conectado a: " + sug.targetId + "\n");
                             }
