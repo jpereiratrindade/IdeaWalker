@@ -47,7 +47,13 @@ std::vector<domain::Suggestion> SuggestionService::generateSemanticSuggestions(c
             domain::Suggestion sug;
             sug.id = activeNoteId + "_" + id;
             sug.sourceId = activeNoteId;
-            sug.targetId = id;
+            
+            std::string cleanId = id;
+            size_t lastDot = cleanId.find_last_of('.');
+            if (lastDot != std::string::npos) {
+                cleanId = cleanId.substr(0, lastDot);
+            }
+            sug.targetId = cleanId;
             sug.score = sim;
             sug.type = domain::SuggestionType::Semantic;
             
@@ -81,6 +87,11 @@ void SuggestionService::indexProject(const std::vector<domain::Insight>& notes) 
     for (const auto& note : notes) {
         std::string content = note.getContent();
         std::string id = note.getMetadata().id;
+        // Strip extension if present so the key in cache is clean
+        size_t lastDot = id.find_last_of('.');
+        if (lastDot != std::string::npos) {
+            id = id.substr(0, lastDot);
+        }
         if (content.empty()) continue;
         
         std::string hash = computeHash(content);
