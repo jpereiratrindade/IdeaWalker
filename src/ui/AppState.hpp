@@ -135,7 +135,6 @@ struct AppState {
     bool physicsEnabled = true;   ///< Neural Web setting.
     bool previewMode = false;     ///< Toggle for Markdown Preview in Knowledge tab.
     bool unifiedPreviewMode = false; ///< Toggle for unified knowledge markdown preview.
-    bool unifiedPreviewMode = false; ///< Toggle for unified knowledge markdown preview.
     std::string processingStatus = "Thinking..."; ///< Status text while processing.
     
     std::vector<ExternalFile> externalFiles; ///< List of open external files.
