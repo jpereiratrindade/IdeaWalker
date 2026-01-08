@@ -7,6 +7,7 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 - **Extração de Texto de PDF**: Implementado fallback automático via `pdftotext` para processar documentos PDF na inbox.
 - **Log de Atividade Persistente**: Introduzido arquivo `.activity_log.json` para rastrear histórico de criação de notas, garantindo que o Heatmap de atividade seja preservado mesmo após reprocessamento total.
 - **Botão de Copiar no Chat**: Adicionado botão de conveniência ao lado de cada mensagem no painel de conversa para copiar o conteúdo para a área de transferência.
+- **Ressonância Semântica (Suggestion Engine)**: O sistema agora sugere conexões entre notas baseado em similaridade semântica (Embeddings), permitindo linkagem assistida.
 - **Seleção de Diálogos**: Agora é possível listar e carregar sessões de conversa anteriores na aba de chat.
 - **Quebra de Linha Automática (Word Wrap)**: O editor de notas e o chat agora ajustam o texto automaticamente ao tamanho da tela.
 - **Expanded Format Support**: O orquestrador agora suporta arquivos `.pdf`, `.md` e `.tex` na inbox via extração automática de texto.

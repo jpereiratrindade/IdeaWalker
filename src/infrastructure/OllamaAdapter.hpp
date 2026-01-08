@@ -31,6 +31,9 @@ public:
     /** @brief Unifies and rewrites tasks. @see domain::AIService::consolidateTasks */
     std::optional<std::string> consolidateTasks(const std::string& tasksMarkdown) override;
 
+    /** @brief Generates a semantic embedding vector. @see domain::AIService::getEmbedding */
+    std::vector<float> getEmbedding(const std::string& text) override;
+
 private:
     std::string getSystemPrompt(domain::AIPersona persona);
     std::optional<std::string> generateRawResponse(const std::string& systemPrompt,

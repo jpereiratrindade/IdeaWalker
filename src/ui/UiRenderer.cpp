@@ -19,6 +19,7 @@
 #include <ctime>
 #include <filesystem>
 #include <functional>
+#include <mutex>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -2004,11 +2005,40 @@ static void DrawKnowledgeTab(AppState& app) {
                                     app.currentInsight = std::make_unique<domain::Insight>(meta, app.selectedNoteContent);
                                     app.currentInsight->parseActionablesFromContent();
                                     app.currentBacklinks = app.organizerService->getBacklinks(link);
+                                    app.AnalyzeSuggestions();
                                 }
                             }
                             ImGui::SameLine();
                         }
                         ImGui::NewLine();
+                    }
+
+                    ImGui::Separator();
+                    ImGui::Text("%s", label("🧠 Ressonância Semântica (Sugestões):", "Semantic Resonance (Suggestions):"));
+                    if (app.isAnalyzingSuggestions) {
+                        ImGui::TextDisabled("Analisando conexões...");
+                    } else if (app.currentSuggestions.empty()) {
+                        ImGui::TextDisabled("Nenhuma conexão óbvia detectada.");
+                    } else {
+                        std::lock_guard<std::mutex> lock(app.suggestionsMutex);
+                        for (const auto& sug : app.currentSuggestions) {
+                            std::string sugLabel = sug.targetId + " (" + (sug.reasons.empty() ? "" : sug.reasons[0].evidence) + ")";
+                            if (ImGui::Button(sugLabel.c_str())) {
+                                app.selectedNoteContent += "\n\n[[ " + sug.targetId + " ]]";
+                                if (app.currentInsight) {
+                                    app.currentInsight->setContent(app.selectedNoteContent);
+                                }
+                                app.AppendLog("[UI] Conectado a: " + sug.targetId + "\n");
+                            }
+                            if (ImGui::IsItemHovered()) {
+                                ImGui::SetTooltip("Ponte: %s", sug.reasons[0].kind.c_str());
+                            }
+                            ImGui::SameLine();
+                        }
+                        ImGui::NewLine();
+                    }
+                    if (ImGui::SmallButton("Reanalisar Agora")) {
+                        app.AnalyzeSuggestions();
                     }
                 } else {
                     ImGui::Text("Select a note from the list to view or edit.");

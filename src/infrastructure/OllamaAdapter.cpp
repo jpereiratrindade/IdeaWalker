@@ -142,6 +142,19 @@ std::string OllamaAdapter::getSystemPrompt(domain::AIPersona persona) {
             "- Retorne APENAS um JSON válido, sem texto extra.\n\n"
             "FORMATO DE SAÍDA (JSON):\n"
             "{ \"sequence\": [\"Brainstormer\", \"AnalistaCognitivo\"], \"primary_tag\": \"#Divergent\" }";
+
+    case domain::AIPersona::Tecelao:
+        return
+            "Você é o TECELÃO (The Weaver). Sua função é encontrar pontes e conexões emergentes entre diferentes notas.\n"
+            "Você não deve resumir, mas sim mapear como uma nova ideia se ancora ou desafia o conhecimento existente.\n\n"
+            "REGRAS RÍGIDAS DE SAÍDA:\n"
+            "1. NÃO use blocos de código. Retorne apenas texto cru.\n"
+            "2. Seja breve e provocativo.\n"
+            "3. Foque em CONEXÕES não óbvias.\n\n"
+            "ESTRUTURA OBRIGATÓRIA:\n"
+            "🔗 Conexão Sugerida: [[Título da Nota]]\n"
+            "Raciocínio: (Uma frase curta explicando a ponte epistemológica)\n"
+            "Pergunta: (Uma pergunta de verificação para o usuário)";
     }
     return "";
 }
@@ -352,6 +365,27 @@ std::optional<std::string> OllamaAdapter::consolidateTasks(const std::string& ta
     }
 
     return std::nullopt;
+}
+
+std::vector<float> OllamaAdapter::getEmbedding(const std::string& text) {
+    httplib::Client cli(m_host, m_port);
+    cli.set_read_timeout(30);
+
+    json requestData = {
+        {"model", m_model},
+        {"prompt", text}
+    };
+
+    auto res = cli.Post("/api/embeddings", requestData.dump(), "application/json");
+    if (res && res->status == 200) {
+        try {
+            auto body = json::parse(res->body);
+            if (body.contains("embedding") && body["embedding"].is_array()) {
+                return body["embedding"].get<std::vector<float>>();
+            }
+        } catch (...) {}
+    }
+    return {};
 }
 
 } // namespace ideawalker::infrastructure

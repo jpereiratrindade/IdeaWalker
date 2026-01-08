@@ -63,6 +63,13 @@ public:
      * @return Optional consolidated markdown string.
      */
     virtual std::optional<std::string> consolidateTasks(const std::string& tasksMarkdown) = 0;
+
+    /**
+     * @brief Generates a semantic embedding vector for the given text.
+     * @param text The text to embed.
+     * @return A vector of floats representing the embedding.
+     */
+    virtual std::vector<float> getEmbedding(const std::string& text) = 0;
 };
 
 } // namespace ideawalker::domain

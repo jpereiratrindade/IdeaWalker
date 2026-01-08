@@ -26,6 +26,7 @@
 #include <sstream>
 #include <unordered_map>
 #include <unordered_set>
+#include <thread>
 
 #include "imnodes.h"
 
@@ -149,6 +150,7 @@ bool AppState::OpenProject(const std::string& rootPath) {
     ingestionService = std::make_unique<application::DocumentIngestionService>(std::move(scanner), conversationAi, obsPath);
 
     contextAssembler = std::make_unique<application::ContextAssembler>(*organizerService, *ingestionService);
+    suggestionService = std::make_unique<application::SuggestionService>(conversationAi, root.string());
 
     projectRoot = root.string();
     std::snprintf(projectPathBuffer, sizeof(projectPathBuffer), "%s", projectRoot.c_str());
@@ -163,6 +165,7 @@ bool AppState::OpenProject(const std::string& rootPath) {
     RefreshInbox();
     RefreshAllInsights();
     RefreshDialogueList();
+    AnalyzeSuggestions();
     AppendLog("[SISTEMA] Projeto aberto: " + projectRoot + "\n");
     return true;
 }
@@ -228,6 +231,24 @@ void AppState::RefreshDialogueList() {
     if (conversationService) {
         dialogueFiles = conversationService->listDialogues();
     }
+}
+
+void AppState::AnalyzeSuggestions() {
+    if (!suggestionService || !organizerService || isAnalyzingSuggestions) return;
+
+    isAnalyzingSuggestions = true;
+    std::thread([this]() {
+        suggestionService->indexProject(allInsights);
+        
+        if (!selectedFilename.empty() && !selectedNoteContent.empty()) {
+            auto suggestions = suggestionService->generateSemanticSuggestions(selectedFilename, selectedNoteContent);
+            std::lock_guard<std::mutex> lock(suggestionsMutex);
+            currentSuggestions = std::move(suggestions);
+        }
+        
+        isAnalyzingSuggestions = false;
+        pendingRefresh = true; 
+    }).detach();
 }
 
 void AppState::RefreshAllInsights() {

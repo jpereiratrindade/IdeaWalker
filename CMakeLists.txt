@@ -73,7 +73,9 @@ add_executable(${PROJECT_NAME}
     src/application/ConversationService.cpp
     src/application/DocumentIngestionService.cpp
     src/application/ContextAssembler.cpp
+    src/application/SuggestionService.cpp
     src/infrastructure/FileSystemArtifactScanner.cpp
+    src/infrastructure/EmbeddingCache.cpp
     ${IMGUI_DIR}/imgui.cpp
     ${IMGUI_DIR}/imgui_demo.cpp
     ${IMGUI_DIR}/imgui_draw.cpp

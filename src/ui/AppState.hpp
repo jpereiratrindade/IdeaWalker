@@ -17,6 +17,8 @@
 #include "domain/Insight.hpp"
 #include "domain/ThoughtRepository.hpp"
 #include "domain/AIService.hpp"
+#include "domain/Suggestion.hpp"
+#include "application/SuggestionService.hpp"
 
 namespace ideawalker::application {
 class OrganizerService;
@@ -246,6 +248,16 @@ struct AppState {
     // Conversational Context State
     std::unique_ptr<application::ConversationService> conversationService;
     std::unique_ptr<application::ContextAssembler> contextAssembler;
+    
+    // Suggestion Engine
+    std::unique_ptr<application::SuggestionService> suggestionService;
+    std::vector<domain::Suggestion> currentSuggestions;
+    std::atomic<bool> isAnalyzingSuggestions{false};
+    std::mutex suggestionsMutex;
+
+    /** @brief Triggers a background indexing and suggestion generation session. */
+    void AnalyzeSuggestions();
+
     std::unique_ptr<application::DocumentIngestionService> ingestionService;
     
     bool showConversationPanel = true; ///< Visibility for the Cognitive Dialogue Panel.
