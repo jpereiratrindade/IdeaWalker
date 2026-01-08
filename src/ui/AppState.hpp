@@ -20,6 +20,9 @@
 
 namespace ideawalker::application {
 class OrganizerService;
+class ConversationService;
+class ContextAssembler;
+class DocumentIngestionService;
 }
 
 namespace ideawalker::ui {
@@ -233,6 +236,15 @@ struct AppState {
     void SetProcessingStatus(const std::string& status);
     /** @brief Thread-safe processing status retrieval. */
     std::string GetProcessingStatus();
+    /** @brief Loads history versions and resets selection for a note. */
+    void LoadHistory(const std::string& noteId);
+
+    // Conversational Context State
+    std::unique_ptr<application::ConversationService> conversationService;
+    std::unique_ptr<application::ContextAssembler> contextAssembler;
+    std::unique_ptr<application::DocumentIngestionService> ingestionService;
+    
+    bool showConversationPanel = true; ///< Visibility for the Cognitive Dialogue Panel.
 };
 
 } // namespace ideawalker::ui

@@ -2,6 +2,16 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [v0.1.4-beta] - 2026-01-08
+### Adicionado
+- **Extração de Texto de PDF**: Implementado fallback automático via `pdftotext` para processar documentos PDF na inbox.
+- **Log de Atividade Persistente**: Introduzido arquivo `.activity_log.json` para rastrear histórico de criação de notas, garantindo que o Heatmap de atividade seja preservado mesmo após reprocessamento total.
+- **Botão de Copiar no Chat**: Adicionado botão de conveniência ao lado de cada mensagem no painel de conversa para copiar o conteúdo para a área de transferência.
+
+### Corrigido
+- **Ajuste de Texto (Word Wrap)**: Refatorada a exibição de mensagens no chat para usar quebra de linha automática (TextWrapped), garantindo legibilidade em qualquer largura de painel.
+- **Persistência do Heatmap**: Resolvido o problema onde o heatmap resetava para o dia atual ao usar a função "Reprocessar Tudo".
+
 ## [v0.1.3-beta] - 2026-01-07
 ### Adicionado
 - **Orquestrador Cognitivo (Perfil TDAH)**: Uma nova meta-persona que diagnostica a transcrição e decide dinamicamente a sequência de perfis (Brainstormer, Analista, Secretário) a serem executados.

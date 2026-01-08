@@ -5,13 +5,16 @@
 #include "ui/AppState.hpp"
 
 #include "application/OrganizerService.hpp"
+#include "application/ContextAssembler.hpp"
+#include "application/DocumentIngestionService.hpp"
 #include "infrastructure/FileRepository.hpp"
-#include "infrastructure/FileRepository.hpp"
+#include "infrastructure/FileSystemArtifactScanner.hpp"
 #include "infrastructure/OllamaAdapter.hpp"
 #include "infrastructure/FileRepository.hpp"
 #include "infrastructure/OllamaAdapter.hpp"
 #include "infrastructure/WhisperCppAdapter.hpp"
 #include "infrastructure/PathUtils.hpp"
+#include "application/ConversationService.hpp"
 
 #include <algorithm>
 #include <cstdio>
@@ -135,6 +138,18 @@ bool AppState::OpenProject(const std::string& rootPath) {
     auto transcriber = std::make_unique<infrastructure::WhisperCppAdapter>(modelPath, inboxPath);
 
     organizerService = std::make_unique<application::OrganizerService>(std::move(repo), std::move(ai), std::move(transcriber));
+    
+    // Initialize Conversation Service with its own AI instance (shared_ptr required)
+    auto conversationAi = std::make_shared<infrastructure::OllamaAdapter>();
+    conversationService = std::make_unique<application::ConversationService>(conversationAi, root.string());
+
+    auto scanPath = (root / "inbox").string();
+    auto obsPath = (root / "observations").string();
+    auto scanner = std::make_unique<infrastructure::FileSystemArtifactScanner>(scanPath);
+    ingestionService = std::make_unique<application::DocumentIngestionService>(std::move(scanner), conversationAi, obsPath);
+
+    contextAssembler = std::make_unique<application::ContextAssembler>(*organizerService, *ingestionService);
+
     projectRoot = root.string();
     std::snprintf(projectPathBuffer, sizeof(projectPathBuffer), "%s", projectRoot.c_str());
 
@@ -183,6 +198,9 @@ bool AppState::SaveProjectAs(const std::string& rootPath) {
 
 bool AppState::CloseProject() {
     organizerService.reset();
+    conversationService.reset();
+    contextAssembler.reset();
+    ingestionService.reset();
     projectRoot.clear();
     projectPathBuffer[0] = '\0';
     selectedInboxFilename.clear();
@@ -255,6 +273,16 @@ void AppState::SetProcessingStatus(const std::string& status) {
 std::string AppState::GetProcessingStatus() {
     std::lock_guard<std::mutex> lock(processingStatusMutex);
     return processingStatus;
+}
+
+void AppState::LoadHistory(const std::string& noteId) {
+    selectedNoteIdForHistory = noteId;
+    selectedHistoryIndex = -1;
+    selectedHistoryContent.clear();
+    historyVersions.clear();
+    if (organizerService) {
+        historyVersions = organizerService->getNoteHistory(noteId);
+    }
 }
 
 void AppState::RebuildGraph() {

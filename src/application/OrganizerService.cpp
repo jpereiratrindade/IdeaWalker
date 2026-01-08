@@ -217,4 +217,11 @@ std::string OrganizerService::getVersionContent(const std::string& versionFilena
     return "";
 }
 
+std::string OrganizerService::getNoteContent(const std::string& filename) {
+    if (m_repo) {
+        return m_repo->getNoteContent(filename);
+    }
+    return "";
+}
+
 } // namespace ideawalker::application

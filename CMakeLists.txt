@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.15)
-project(IdeaWalker VERSION 0.1.1 LANGUAGES CXX)
+project(IdeaWalker VERSION 0.1.4 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_definitions(-DIDEAWALKER_VERSION="v0.1.1-beta")
+add_definitions(-DIDEAWALKER_VERSION="v0.1.4-beta")
 
 include(FetchContent)
 
@@ -64,11 +64,16 @@ add_executable(${PROJECT_NAME}
     src/app/IdeaWalkerApp.cpp
     src/ui/AppState.cpp
     src/ui/UiRenderer.cpp
+    src/ui/ConversationPanel.cpp
     src/infrastructure/OllamaAdapter.cpp
     src/infrastructure/FileRepository.cpp
     src/infrastructure/PathUtils.cpp
     src/infrastructure/WhisperCppAdapter.cpp
     src/application/OrganizerService.cpp
+    src/application/ConversationService.cpp
+    src/application/DocumentIngestionService.cpp
+    src/application/ContextAssembler.cpp
+    src/infrastructure/FileSystemArtifactScanner.cpp
     ${IMGUI_DIR}/imgui.cpp
     ${IMGUI_DIR}/imgui_demo.cpp
     ${IMGUI_DIR}/imgui_draw.cpp

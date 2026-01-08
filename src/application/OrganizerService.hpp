@@ -143,6 +143,13 @@ public:
      */
     std::string getVersionContent(const std::string& versionFilename);
     
+    /**
+     * @brief Retrieves the content of a specific note.
+     * @param filename The note filename.
+     * @return Content string.
+     */
+    std::string getNoteContent(const std::string& filename);
+    
 private:
     std::unique_ptr<domain::ThoughtRepository> m_repo; ///< Repository for project data.
     std::unique_ptr<domain::AIService> m_ai; ///< AI processing service.

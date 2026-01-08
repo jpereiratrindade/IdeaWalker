@@ -28,13 +28,17 @@ public:
     /** @brief Processes text using a structured prompt. @see domain::AIService::processRawThought */
     std::optional<domain::Insight> processRawThought(const std::string& rawContent, std::function<void(std::string)> statusCallback = nullptr) override;
 
+    /** @brief Sends a chat history to the AI. @see domain::AIService::chat */
+    std::optional<std::string> chat(const std::vector<domain::AIService::ChatMessage>& history, bool stream = false) override;
+
     /** @brief Unifies and rewrites tasks. @see domain::AIService::consolidateTasks */
     std::optional<std::string> consolidateTasks(const std::string& tasksMarkdown) override;
 
 private:
     std::string getSystemPrompt(domain::AIPersona persona);
     std::optional<std::string> generateRawResponse(const std::string& systemPrompt,
-                                                   const std::string& userContent);
+                                                   const std::string& userContent,
+                                                   bool forceJson);
     std::string m_host; ///< Ollama host.
     int m_port; ///< Ollama port.
     std::string m_model = "qwen2.5:14b"; ///< Target model name.

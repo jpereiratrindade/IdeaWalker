@@ -79,6 +79,13 @@ public:
      * @return The raw content of the file.
      */
     virtual std::string getVersionContent(const std::string& versionFilename) = 0;
+
+    /**
+     * @brief Retrieves the content of a specific note file by filename.
+     * @param filename The filename (e.g., "Nota_ID.md").
+     * @return The raw content.
+     */
+    virtual std::string getNoteContent(const std::string& filename) = 0;
 };
 
 } // namespace ideawalker::domain

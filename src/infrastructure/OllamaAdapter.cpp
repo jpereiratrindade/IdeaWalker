@@ -26,6 +26,35 @@ std::tm ToLocalTime(std::time_t tt) {
     return tm;
 }
 
+std::string NormalizeToken(const std::string& value) {
+    std::string out;
+    out.reserve(value.size());
+    for (char ch : value) {
+        unsigned char c = static_cast<unsigned char>(ch);
+        if (std::isalnum(c)) {
+            out.push_back(static_cast<char>(std::tolower(c)));
+        }
+    }
+    return out;
+}
+
+bool PersonaFromToken(const std::string& value, domain::AIPersona& outPersona) {
+    std::string token = NormalizeToken(value);
+    if (token == "brainstormer") {
+        outPersona = domain::AIPersona::Brainstormer;
+        return true;
+    }
+    if (token == "analistacognitivo") {
+        outPersona = domain::AIPersona::AnalistaCognitivo;
+        return true;
+    }
+    if (token == "secretarioexecutivo") {
+        outPersona = domain::AIPersona::SecretarioExecutivo;
+        return true;
+    }
+    return false;
+}
+
 } // namespace
 
 OllamaAdapter::OllamaAdapter(const std::string& host, int port)
@@ -113,16 +142,16 @@ std::string OllamaAdapter::getSystemPrompt(domain::AIPersona persona) {
             "Perfis Disponíveis: Brainstormer (expandir/destravar), AnalistaCognitivo (estruturar/mapear tensão), SecretarioExecutivo (fechar/resumir).\n"
             "Tags Sugeridas: #Divergent, #Integrative, #Closing, #Chaotic, #Structured.\n\n"
             "REGRAS DE SAÍDA:\n"
-            "- Retorne APENAS a sequência e a tag.\n"
-            "- Use o formato estrito abaixo.\n\n"
-            "FORMATO DE SAÍDA:\n"
-            "SEQUENCE: Perfil1, Perfil2, ...\n"
-            "TAG: #SuaTag";
+            "- Retorne APENAS um JSON válido, sem texto extra.\n\n"
+            "FORMATO DE SAÍDA (JSON):\n"
+            "{ \"sequence\": [\"Brainstormer\", \"AnalistaCognitivo\"], \"primary_tag\": \"#Divergent\" }";
     }
     return "";
 }
 
-std::optional<std::string> OllamaAdapter::generateRawResponse(const std::string& systemPrompt, const std::string& userContent) {
+std::optional<std::string> OllamaAdapter::generateRawResponse(const std::string& systemPrompt,
+                                                              const std::string& userContent,
+                                                              bool forceJson) {
     httplib::Client cli(m_host, m_port);
     cli.set_read_timeout(120); // Longer timeout because orchestration chains might timeout otherwise, though here it's per call.
 
@@ -131,6 +160,9 @@ std::optional<std::string> OllamaAdapter::generateRawResponse(const std::string&
         {"prompt", systemPrompt + "\n\nTexto:\n" + userContent},
         {"stream", false}
     };
+    if (forceJson) {
+        requestData["format"] = "json";
+    }
 
     auto res = cli.Post("/api/generate", requestData.dump(), "application/json");
     if (res && res->status == 200) {
@@ -153,42 +185,65 @@ std::optional<domain::Insight> OllamaAdapter::processRawThought(const std::strin
         tags.push_back("#Orchestrated");
         // 1. Orchestration Step
         std::string orquestradorPrompt = getSystemPrompt(domain::AIPersona::Orquestrador);
-        auto planOpt = generateRawResponse(orquestradorPrompt, rawContent);
+        auto planOpt = generateRawResponse(orquestradorPrompt, rawContent, true);
         
         if (!planOpt) return std::nullopt; // Failed to plan
         
         std::string plan = *planOpt;
         std::vector<domain::AIPersona> sequence;
         
-        // Parse "TAG: #Tag"
-        if (plan.find("TAG:") != std::string::npos) {
-            std::string tagLine = plan.substr(plan.find("TAG:") + 4);
-            size_t end = tagLine.find('\n');
-            if (end != std::string::npos) tagLine = tagLine.substr(0, end);
-            // Trim
-            tagLine.erase(0, tagLine.find_first_not_of(" \t\n\r"));
-            tagLine.erase(tagLine.find_last_not_of(" \t\n\r") + 1);
-            if (!tagLine.empty()) tags.push_back(tagLine);
+        bool parsedJson = false;
+        try {
+            auto data = json::parse(plan);
+            if (data.contains("primary_tag") && data["primary_tag"].is_string()) {
+                std::string tagLine = data["primary_tag"].get<std::string>();
+                if (!tagLine.empty()) tags.push_back(tagLine);
+            } else if (data.contains("tag") && data["tag"].is_string()) {
+                std::string tagLine = data["tag"].get<std::string>();
+                if (!tagLine.empty()) tags.push_back(tagLine);
+            }
+
+            if (data.contains("sequence") && data["sequence"].is_array()) {
+                for (const auto& item : data["sequence"]) {
+                    if (!item.is_string()) continue;
+                    domain::AIPersona persona;
+                    if (PersonaFromToken(item.get<std::string>(), persona)) {
+                        sequence.push_back(persona);
+                    }
+                }
+            }
+            parsedJson = true;
+        } catch (...) {
+            parsedJson = false;
         }
 
-        // Parse "SEQUENCE: Brainstormer, AnalistaCognitivo"
-        if (plan.find("SEQUENCE:") != std::string::npos) {
-            std::string seq = plan.substr(plan.find("SEQUENCE:") + 9);
-            // Stop at newline if present (to avoid reading TAG as part of sequence if lines are swapped)
-            size_t endOfSeq = seq.find('\n');
-            if (endOfSeq != std::string::npos) seq = seq.substr(0, endOfSeq);
-            
-            std::stringstream ss(seq);
-            std::string segment;
-            while (std::getline(ss, segment, ',')) {
-                 // Trim
-                 segment.erase(0, segment.find_first_not_of(" \t\n\r"));
-                 size_t end = segment.find_last_not_of(" \t\n\r");
-                 if (end != std::string::npos) segment.erase(end + 1);
-                 
-                 if (segment == "Brainstormer") sequence.push_back(domain::AIPersona::Brainstormer);
-                 else if (segment == "AnalistaCognitivo") sequence.push_back(domain::AIPersona::AnalistaCognitivo);
-                 else if (segment == "SecretarioExecutivo") sequence.push_back(domain::AIPersona::SecretarioExecutivo);
+        if (!parsedJson) {
+            // Fallback: Parse "SEQUENCE: ..." / "TAG: ..." text if model ignored JSON output.
+            if (plan.find("TAG:") != std::string::npos) {
+                std::string tagLine = plan.substr(plan.find("TAG:") + 4);
+                size_t end = tagLine.find('\n');
+                if (end != std::string::npos) tagLine = tagLine.substr(0, end);
+                tagLine.erase(0, tagLine.find_first_not_of(" \t\n\r"));
+                tagLine.erase(tagLine.find_last_not_of(" \t\n\r") + 1);
+                if (!tagLine.empty()) tags.push_back(tagLine);
+            }
+
+            if (plan.find("SEQUENCE:") != std::string::npos) {
+                std::string seq = plan.substr(plan.find("SEQUENCE:") + 9);
+                size_t endOfSeq = seq.find('\n');
+                if (endOfSeq != std::string::npos) seq = seq.substr(0, endOfSeq);
+                
+                std::stringstream ss(seq);
+                std::string segment;
+                while (std::getline(ss, segment, ',')) {
+                    segment.erase(0, segment.find_first_not_of(" \t\n\r"));
+                    size_t end = segment.find_last_not_of(" \t\n\r");
+                    if (end != std::string::npos) segment.erase(end + 1);
+                    domain::AIPersona persona;
+                    if (PersonaFromToken(segment, persona)) {
+                        sequence.push_back(persona);
+                    }
+                }
             }
         }
         
@@ -216,7 +271,7 @@ std::optional<domain::Insight> OllamaAdapter::processRawThought(const std::strin
             if (statusCallback) statusCallback("Executando: " + pName + "...");
             
             std::string pPrompt = getSystemPrompt(persona);
-            auto res = generateRawResponse(pPrompt, currentText);
+            auto res = generateRawResponse(pPrompt, currentText, false);
             if (res) {
                 currentText = *res;
             }
@@ -231,7 +286,7 @@ std::optional<domain::Insight> OllamaAdapter::processRawThought(const std::strin
 
         // Direct Execution
         std::string prompt = getSystemPrompt(m_currentPersona);
-        auto res = generateRawResponse(prompt, rawContent);
+        auto res = generateRawResponse(prompt, rawContent, false);
         if (!res) return std::nullopt;
         finalContent = *res;
     }
@@ -276,6 +331,39 @@ std::optional<domain::Insight> OllamaAdapter::processRawThought(const std::strin
     } catch (...) {
         return std::nullopt;
     }
+}
+
+std::optional<std::string> OllamaAdapter::chat(const std::vector<domain::AIService::ChatMessage>& history, bool stream) {
+    httplib::Client cli(m_host, m_port);
+    cli.set_read_timeout(120);
+
+    json messagesJson = json::array();
+    for (const auto& msg : history) {
+        messagesJson.push_back({
+            {"role", domain::AIService::ChatMessage::RoleToString(msg.role)},
+            {"content", msg.content}
+        });
+    }
+
+    json requestData = {
+        {"model", m_model},
+        {"messages", messagesJson},
+        {"stream", stream}
+    };
+
+    auto res = cli.Post("/api/chat", requestData.dump(), "application/json");
+    if (res && res->status == 200) {
+        try {
+            auto body = json::parse(res->body);
+            // Ollama /api/chat response: { "message": { "role": "assistant", "content": "..." }, ... }
+            if (body.contains("message") && body["message"].contains("content")) {
+                return body["message"]["content"].get<std::string>();
+            }
+        } catch (...) {
+            return std::nullopt;
+        }
+    }
+    return std::nullopt;
 }
 
 std::optional<std::string> OllamaAdapter::consolidateTasks(const std::string& tasksMarkdown) {

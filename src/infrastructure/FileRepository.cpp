@@ -9,6 +9,7 @@
 #include <chrono>
 #include <ctime>
 #include <algorithm>
+#include <nlohmann/json.hpp>
 
 namespace fs = std::filesystem;
 
@@ -91,12 +92,33 @@ void FileRepository::saveInsight(const domain::Insight& insight) {
 
     std::ofstream file(outPath);
     file << insight.getContent();
+    logActivity();
 }
 
 void FileRepository::updateNote(const std::string& filename, const std::string& content) {
     fs::path outPath = fs::path(m_notesPath) / filename;
+    if (fs::exists(outPath)) {
+        try {
+            auto now = std::chrono::system_clock::now();
+            std::time_t tt = std::chrono::system_clock::to_time_t(now);
+            std::tm tm = ToLocalTime(tt);
+            char dateBuf[32];
+            std::strftime(dateBuf, sizeof(dateBuf), "_%Y%m%d_%H%M%S.md", &tm);
+
+            std::string baseName = filename;
+            size_t dotPos = baseName.find_last_of('.');
+            if (dotPos != std::string::npos) baseName = baseName.substr(0, dotPos);
+
+            std::string backupName = baseName + std::string(dateBuf);
+            fs::path backupPath = fs::path(m_historyPath) / backupName;
+            fs::copy_file(outPath, backupPath, fs::copy_options::overwrite_existing);
+        } catch (...) {
+            // Ignore backup failures for now, don't block saving
+        }
+    }
     std::ofstream file(outPath);
     file << content;
+    logActivity();
 }
 
 std::vector<domain::Insight> FileRepository::fetchHistory() {
@@ -164,28 +186,72 @@ std::vector<std::string> FileRepository::getBacklinks(const std::string& filenam
 
 std::map<std::string, int> FileRepository::getActivityHistory() {
     std::map<std::string, int> history;
-    if (!fs::exists(m_notesPath)) return history;
+    
+    // 1. Try to load from persistent log
+    fs::path logPath = fs::path(m_notesPath).parent_path() / ".activity_log.json";
+    if (fs::exists(logPath)) {
+        try {
+            std::ifstream file(logPath);
+            nlohmann::json j;
+            file >> j;
+            for (auto it = j.begin(); it != j.end(); ++it) {
+                history[it.key()] = it.value().get<int>();
+            }
+        } catch (...) {}
+    }
 
-    for (const auto& entry : fs::directory_iterator(m_notesPath)) {
-        std::string ext = entry.path().extension().string();
-        if (entry.is_regular_file() && (ext == ".md" || ext == ".txt")) {
-            try {
-                auto ftime = fs::last_write_time(entry);
+    // 2. Fallback/Augment with current file times (ensures legacy/manual notes are counted)
+    if (fs::exists(m_notesPath)) {
+        for (const auto& entry : fs::directory_iterator(m_notesPath)) {
+            std::string ext = entry.path().extension().string();
+            if (entry.is_regular_file() && (ext == ".md" || ext == ".txt")) {
+                try {
+                    auto ftime = fs::last_write_time(entry);
 #if defined(__cpp_lib_chrono) && __cpp_lib_chrono >= 201907L
-                auto sctp = std::chrono::clock_cast<std::chrono::system_clock>(ftime);
+                    auto sctp = std::chrono::clock_cast<std::chrono::system_clock>(ftime);
 #else
-                // Fallback for older C++ standards if needed
-                auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(ftime - fs::file_time_type::clock::now() + std::chrono::system_clock::now());
+                    auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(ftime - fs::file_time_type::clock::now() + std::chrono::system_clock::now());
 #endif
-                std::time_t tt = std::chrono::system_clock::to_time_t(sctp);
-                std::tm gmt = ToLocalTime(tt);
-                char buffer[11];
-                std::strftime(buffer, sizeof(buffer), "%Y-%m-%d", &gmt);
-                history[std::string(buffer)]++;
-            } catch (...) {}
+                    std::time_t tt = std::chrono::system_clock::to_time_t(sctp);
+                    std::tm gmt = ToLocalTime(tt);
+                    char buffer[11];
+                    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d", &gmt);
+                    std::string dateKey(buffer);
+                    if (history.find(dateKey) == history.end()) {
+                        history[dateKey] = 1; // Basic count if not in log
+                    }
+                } catch (...) {}
+            }
         }
     }
     return history;
+}
+
+void FileRepository::logActivity() {
+    try {
+        fs::path logPath = fs::path(m_notesPath).parent_path() / ".activity_log.json";
+        nlohmann::json j;
+        if (fs::exists(logPath)) {
+            std::ifstream inFile(logPath);
+            inFile >> j;
+        }
+
+        auto now = std::chrono::system_clock::now();
+        std::time_t tt = std::chrono::system_clock::to_time_t(now);
+        std::tm tm = ToLocalTime(tt);
+        char buffer[11];
+        std::strftime(buffer, sizeof(buffer), "%Y-%m-%d", &tm);
+        std::string dateKey(buffer);
+
+        if (j.contains(dateKey)) {
+            j[dateKey] = j[dateKey].get<int>() + 1;
+        } else {
+            j[dateKey] = 1;
+        }
+
+        std::ofstream outFile(logPath);
+        outFile << j.dump(4);
+    } catch (...) {}
 }
 
 
@@ -194,10 +260,13 @@ std::vector<std::string> FileRepository::getVersions(const std::string& noteId) 
     std::vector<std::string> versions;
     if (!fs::exists(m_historyPath)) return versions;
 
-    std::string prefix = "Nota_" + noteId + "_";
-    // Check if noteId already has prefix (e.g. passed full filename by mistake)
-    if (noteId.rfind("Nota_", 0) == 0) {
-        prefix = noteId + "_";
+    std::string baseName = noteId;
+    size_t dotPos = baseName.find_last_of('.');
+    if (dotPos != std::string::npos) baseName = baseName.substr(0, dotPos);
+
+    std::string prefix = "Nota_" + baseName + "_";
+    if (baseName.rfind("Nota_", 0) == 0) {
+        prefix = baseName + "_";
     }
 
     for (const auto& entry : fs::directory_iterator(m_historyPath)) {
@@ -215,6 +284,16 @@ std::vector<std::string> FileRepository::getVersions(const std::string& noteId) 
 
 std::string FileRepository::getVersionContent(const std::string& versionFilename) {
     fs::path p = fs::path(m_historyPath) / versionFilename;
+    if (!fs::exists(p)) return "";
+    
+    std::ifstream file(p);
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
+}
+
+std::string FileRepository::getNoteContent(const std::string& filename) {
+    fs::path p = fs::path(m_notesPath) / filename;
     if (!fs::exists(p)) return "";
     
     std::ifstream file(p);
