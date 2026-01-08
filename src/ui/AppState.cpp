@@ -68,7 +68,7 @@ bool CopyProjectData(const std::filesystem::path& fromRoot, const std::filesyste
 } // namespace
 
 AppState::AppState()
-    : outputLog("Idea Walker v0.1.0-alpha - Núcleo DDD inicializado.\n") {
+    : outputLog("Idea Walker v0.1.5-beta - Núcleo DDD inicializado.\n") {
     saveAsFilename[0] = '\0';
     projectPathBuffer[0] = '\0';
 
