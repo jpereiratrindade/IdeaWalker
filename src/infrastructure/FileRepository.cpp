@@ -202,6 +202,11 @@ std::vector<std::string> FileRepository::getBacklinks(const std::string& filenam
             std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
             
             bool found = (content.find(searchId) != std::string::npos);
+            if (!found) {
+                 // Try with spaces "[[ ID ]]"
+                 std::string searchIdSpaced = "[[ " + idTarget + " ]]";
+                 found = (content.find(searchIdSpaced) != std::string::npos);
+            }
             if (!found && !searchTitle.empty()) {
                 found = (content.find(searchTitle) != std::string::npos);
             }

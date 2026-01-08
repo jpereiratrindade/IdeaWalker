@@ -2024,7 +2024,7 @@ static void DrawKnowledgeTab(AppState& app) {
                         for (const auto& sug : app.currentSuggestions) {
                             std::string sugLabel = sug.targetId + " (" + (sug.reasons.empty() ? "" : sug.reasons[0].evidence) + ")";
                             if (ImGui::Button(sugLabel.c_str())) {
-                                app.selectedNoteContent += "\n\n[[ " + sug.targetId + " ]]";
+                                app.selectedNoteContent += "\n\n[[" + sug.targetId + "]]";
                                 if (app.currentInsight) {
                                     app.currentInsight->setContent(app.selectedNoteContent);
                                     // Auto-save to disk to ensure backlinks are detectable immediately
