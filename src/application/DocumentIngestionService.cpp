@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <chrono>
+#include "infrastructure/ContentExtractor.hpp"
 #include <iomanip>
 #include <algorithm>
 
@@ -36,39 +37,7 @@ DocumentIngestionService::IngestionResult DocumentIngestionService::ingestPendin
         
         if (statusCallback) statusCallback("Processando: " + artifact.filename);
 
-        std::string content;
-        std::string ext = fs::path(artifact.path).extension().string();
-        std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c){ return std::tolower(c); });
-
-        if (ext == ".pdf") {
-            // Basic fallback: Try to use pdftotext (Poppler) via shell
-            std::string cmd = "pdftotext \"" + artifact.path + "\" - 2>/dev/null";
-            FILE* pipe = popen(cmd.c_str(), "r");
-            if (pipe) {
-                char buffer[128];
-                std::stringstream ss;
-                while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
-                    ss << buffer;
-                }
-                int status = pclose(pipe);
-                if (status == 0) {
-                    content = ss.str();
-                }
-            }
-
-            if (content.empty()) {
-                content = "[CONTEÚDO BINÁRIO: Extração de texto para PDF falhou ou pdftotext não encontrado. Processe metadados do arquivo se possível.]";
-            }
-        } else {
-            std::ifstream file(artifact.path);
-            if (!file.is_open()) {
-                result.errors.push_back("Não foi possível abrir: " + artifact.filename);
-                continue;
-            }
-            std::stringstream buffer;
-            buffer << file.rdbuf();
-            content = buffer.str();
-        }
+        std::string content = infrastructure::ContentExtractor::Extract(artifact.path);
 
         std::vector<domain::AIService::ChatMessage> history;
         domain::AIService::ChatMessage systemMsg;

@@ -9,6 +9,7 @@
 #include <chrono>
 #include <ctime>
 #include <algorithm>
+#include "infrastructure/ContentExtractor.hpp"
 #include <nlohmann/json.hpp>
 
 namespace fs = std::filesystem;
@@ -39,11 +40,14 @@ FileRepository::FileRepository(const std::string& inboxPath, const std::string& 
 std::vector<domain::RawThought> FileRepository::fetchInbox() {
     std::vector<domain::RawThought> thoughts;
     for (const auto& entry : fs::directory_iterator(m_inboxPath)) {
-        if (entry.is_regular_file() && entry.path().extension() == ".txt") {
-            std::ifstream file(entry.path());
-            std::stringstream buffer;
-            buffer << file.rdbuf();
-            thoughts.push_back({entry.path().filename().string(), buffer.str()});
+        if (entry.is_regular_file()) {
+            std::string ext = entry.path().extension().string();
+            std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c){ return std::tolower(c); });
+            
+            if (ext == ".txt" || ext == ".md" || ext == ".pdf" || ext == ".tex") {
+                std::string content = ContentExtractor::Extract(entry.path().string());
+                thoughts.push_back({entry.path().filename().string(), content});
+            }
         }
     }
     return thoughts;

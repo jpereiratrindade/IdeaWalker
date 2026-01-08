@@ -1,24 +1,22 @@
-[ 19%] Built target ggml-base
-[ 52%] Built target ggml-cpu
-[ 56%] Built target ggml
-[ 60%] Built target whisper
-[ 63%] Building CXX object CMakeFiles/IdeaWalker.dir/src/application/OrganizerService.cpp.o
-/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/application/OrganizerService.cpp:198:7: error: expected unqualified-id before ‘else’
-  198 |     } else {
-      |       ^~~~
-/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/application/OrganizerService.cpp:201:1: error: expected declaration before ‘}’ token
-  201 | }
-      | ^
-/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/application/OrganizerService.cpp:203:6: error: ‘OrganizerService’ has not been declared
-  203 | void OrganizerService::setAIPersona(domain::AIPersona persona) {
-      |      ^~~~~~~~~~~~~~~~
-/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/application/OrganizerService.cpp:203:6: error: variable or field ‘setAIPersona’ declared void
-/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/application/OrganizerService.cpp:203:37: error: ‘domain’ has not been declared
-  203 | void OrganizerService::setAIPersona(domain::AIPersona persona) {
-      |                                     ^~~~~~
-/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/application/OrganizerService.cpp:209:1: error: expected declaration before ‘}’ token
-  209 | } // namespace ideawalker::application
-      | ^
-gmake[2]: *** [CMakeFiles/IdeaWalker.dir/build.make:191: CMakeFiles/IdeaWalker.dir/src/application/OrganizerService.cpp.o] Error 1
+[ 17%] Built target ggml-base
+[ 47%] Built target ggml-cpu
+[ 50%] Built target ggml
+[ 54%] Built target whisper
+[ 56%] Building CXX object CMakeFiles/IdeaWalker.dir/src/infrastructure/OllamaAdapter.cpp.o
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/infrastructure/OllamaAdapter.cpp: In member function ‘virtual std::optional<ideawalker::domain::Insight> ideawalker::infrastructure::OllamaAdapter::processRawThought(const std::string&, std::function<void(std::__cxx11::basic_string<char>)>)’:
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/infrastructure/OllamaAdapter.cpp:349:47: error: qualified-id in declaration before ‘(’ token
+  349 | std::optional<std::string> OllamaAdapter::chat(const std::vector<domain::AIService::ChatMessage>& history, bool stream) {
+      |                                               ^
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/infrastructure/OllamaAdapter.cpp:382:59: error: qualified-id in declaration before ‘(’ token
+  382 | std::optional<std::string> OllamaAdapter::consolidateTasks(const std::string& tasksMarkdown) {
+      |                                                           ^
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/infrastructure/OllamaAdapter.cpp: At global scope:
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/infrastructure/OllamaAdapter.cpp:417:2: error: expected ‘}’ at end of input
+  417 | } // namespace ideawalker::infrastructure
+      |  ^
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/infrastructure/OllamaAdapter.cpp:16:38: note: to match this ‘{’
+   16 | namespace ideawalker::infrastructure {
+      |                                      ^
+gmake[2]: *** [CMakeFiles/IdeaWalker.dir/build.make:149: CMakeFiles/IdeaWalker.dir/src/infrastructure/OllamaAdapter.cpp.o] Error 1
 gmake[1]: *** [CMakeFiles/Makefile2:247: CMakeFiles/IdeaWalker.dir/all] Error 2
 gmake: *** [Makefile:136: all] Error 2
