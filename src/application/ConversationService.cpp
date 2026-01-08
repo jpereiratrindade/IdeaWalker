@@ -170,4 +170,80 @@ void ConversationService::saveSession() {
     }
 }
 
+std::vector<std::string> ConversationService::listDialogues() const {
+    std::vector<std::string> files;
+    if (m_projectRoot.empty()) return files;
+
+    fs::path dialoguesDir = fs::path(m_projectRoot) / "dialogues";
+    if (fs::exists(dialoguesDir) && fs::is_directory(dialoguesDir)) {
+        for (const auto& entry : fs::directory_iterator(dialoguesDir)) {
+            if (entry.is_regular_file() && entry.path().extension() == ".md") {
+                files.push_back(entry.path().filename().string());
+            }
+        }
+    }
+    // Sort by name (which has timestamp) descending
+    std::sort(files.rbegin(), files.rend());
+    return files;
+}
+
+bool ConversationService::loadSession(const std::string& filename) {
+    if (m_projectRoot.empty()) return false;
+
+    fs::path filePath = fs::path(m_projectRoot) / "dialogues" / filename;
+    if (!fs::exists(filePath)) return false;
+
+    std::ifstream ifs(filePath);
+    if (!ifs.is_open()) return false;
+
+    std::lock_guard<std::mutex> lock(m_mutex);
+    m_history.clear();
+    m_currentNoteId = "";
+    m_sessionStartTime = "";
+
+    std::string line;
+    bool inDialogue = false;
+    
+    // Parse timestamp and note ID from headers
+    while (std::getline(ifs, line)) {
+        if (line.rfind("Data: ", 0) == 0) {
+            m_sessionStartTime = line.substr(6);
+        } else if (line.rfind("Nota ativa: ", 0) == 0) {
+            m_currentNoteId = line.substr(12);
+        } else if (line.find("## Diálogo") != std::string::npos) {
+            inDialogue = true;
+            break;
+        }
+    }
+
+    if (!inDialogue) return false;
+
+    // Simple parser for **Usuário** and **IA**
+    domain::AIService::ChatMessage currentMsg;
+    bool hasMsg = false;
+
+    while (std::getline(ifs, line)) {
+        if (line.empty()) continue;
+
+        if (line.rfind("**Usuário**: ", 0) == 0) {
+            if (hasMsg) m_history.push_back(currentMsg);
+            currentMsg.role = domain::AIService::ChatMessage::Role::User;
+            currentMsg.content = line.substr(13);
+            hasMsg = true;
+        } else if (line.rfind("**IA**: ", 0) == 0) {
+            if (hasMsg) m_history.push_back(currentMsg);
+            currentMsg.role = domain::AIService::ChatMessage::Role::Assistant;
+            currentMsg.content = line.substr(8);
+            hasMsg = true;
+        } else {
+            if (hasMsg) {
+                currentMsg.content += "\n" + line;
+            }
+        }
+    }
+    if (hasMsg) m_history.push_back(currentMsg);
+
+    return true;
+}
+
 } // namespace ideawalker::application

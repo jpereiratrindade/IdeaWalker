@@ -1009,6 +1009,7 @@ int TextEditCallback(ImGuiInputTextCallbackData* data) {
 
 bool InputTextMultilineString(const char* label, std::string* str, const ImVec2& size, ImGuiInputTextFlags flags = 0) {
     flags |= ImGuiInputTextFlags_CallbackResize;
+    flags |= ImGuiInputTextFlags_NoHorizontalScroll; // Enable Word Wrap
     if (str->capacity() == 0) {
         str->reserve(1024);
     }

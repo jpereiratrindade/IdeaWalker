@@ -22,6 +22,7 @@ int TextEditCallback(ImGuiInputTextCallbackData* data) {
 
 bool InputTextMultilineString(const char* label, std::string* str, const ImVec2& size, ImGuiInputTextFlags flags = 0) {
     flags |= ImGuiInputTextFlags_CallbackResize;
+    flags |= ImGuiInputTextFlags_NoHorizontalScroll; // Enable Word Wrap
     if (str->capacity() == 0) {
         str->reserve(1024);
     }
@@ -41,9 +42,31 @@ void ConversationPanel::DrawContent(AppState& app) {
     auto& service = *app.conversationService;
     std::string activeNoteId = app.selectedFilename;
     
+    // Dialogue Selection
+    if (!app.dialogueFiles.empty()) {
+        ImGui::SetNextItemWidth(250.0f);
+        if (ImGui::BeginCombo("##dialogue_select", app.selectedDialogueIndex >= 0 ? app.dialogueFiles[app.selectedDialogueIndex].c_str() : "Selecionar diálogo anterior...")) {
+            for (int i = 0; i < (int)app.dialogueFiles.size(); i++) {
+                bool isSelected = (app.selectedDialogueIndex == i);
+                if (ImGui::Selectable(app.dialogueFiles[i].c_str(), isSelected)) {
+                    app.selectedDialogueIndex = i;
+                    service.loadSession(app.dialogueFiles[i]);
+                }
+                if (isSelected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::SameLine();
+        if (ImGui::SmallButton("Atualizar Lista")) {
+            app.RefreshDialogueList();
+        }
+    }
+
+    ImGui::Separator();
+
     // Header Info
-    if (activeNoteId.empty()) {
-        ImGui::TextDisabled("Selecione uma nota para iniciar o contexto.");
+    if (activeNoteId.empty() && !service.isSessionActive()) {
+        ImGui::TextDisabled("Selecione uma nota para iniciar o contexto ou selecione um diálogo anterior.");
     } else {
         std::string currentContext = service.getCurrentNoteId();
         bool needsStart = (currentContext != activeNoteId);

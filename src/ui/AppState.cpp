@@ -162,7 +162,7 @@ bool AppState::OpenProject(const std::string& rootPath) {
 
     RefreshInbox();
     RefreshAllInsights();
-    RefreshAllInsights();
+    RefreshDialogueList();
     AppendLog("[SISTEMA] Projeto aberto: " + projectRoot + "\n");
     return true;
 }
@@ -220,6 +220,13 @@ bool AppState::CloseProject() {
 void AppState::RefreshInbox() {
     if (organizerService) {
         inboxThoughts = organizerService->getRawThoughts();
+    }
+    RefreshDialogueList();
+}
+
+void AppState::RefreshDialogueList() {
+    if (conversationService) {
+        dialogueFiles = conversationService->listDialogues();
     }
 }
 

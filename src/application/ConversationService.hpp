@@ -54,6 +54,18 @@ public:
      */
     std::string getCurrentNoteId() const;
     
+    /**
+     * @brief List all saved dialogue sessions in the project.
+     */
+    std::vector<std::string> listDialogues() const;
+
+    /**
+     * @brief Loads a saved dialogue session.
+     * @param filename The name of the file in the dialogues/ directory.
+     * @return True if loaded successfully.
+     */
+    bool loadSession(const std::string& filename);
+
 private:
     void saveSession();
     std::string generateSystemPrompt(const ContextBundle& bundle);

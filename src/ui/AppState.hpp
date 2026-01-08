@@ -154,6 +154,11 @@ struct AppState {
     std::string selectedHistoryContent; ///< Content of the selected version.
     int selectedHistoryIndex = -1; ///< Index of the currently selected version.
 
+    // Dialogue Selection State
+    std::vector<std::string> dialogueFiles; ///< List of saved dialogue files.
+    int selectedDialogueIndex = -1; ///< Currently selected dialogue index.
+    void RefreshDialogueList(); ///< Refresh the list of saved dialogues.
+
     /** @brief Serializes the current Neural Web state to a Mermaid mindmap. */
     std::string ExportToMermaid() const;
     /** @brief Exports the entire knowledge base to a single Markdown file with Mermaid diagrams. */
