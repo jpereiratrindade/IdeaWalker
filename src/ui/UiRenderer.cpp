@@ -1897,8 +1897,9 @@ static void DrawKnowledgeTab(AppState& app) {
                     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Ver Trajetória (Histórico)");
                     ImGui::SameLine(0.0f, 6.0f);
 
+                    std::string title = insight.getMetadata().title.empty() ? insight.getMetadata().id : insight.getMetadata().title;
                     bool open = ImGui::CollapsingHeader(
-                        insight.getMetadata().title.empty() ? insight.getMetadata().id.c_str() : insight.getMetadata().title.c_str(),
+                        (title + "###header").c_str(),
                         ImGuiTreeNodeFlags_DefaultOpen
                     );
                     ImGui::EndGroup();
@@ -1906,7 +1907,7 @@ static void DrawKnowledgeTab(AppState& app) {
                     if (open) {
                         const std::string& filename = insight.getMetadata().id;
                         bool isSelected = (app.selectedFilename == filename);
-                        if (ImGui::Selectable(filename.c_str(), isSelected)) {
+                        if (ImGui::Selectable((filename + "###selectable").c_str(), isSelected)) {
                             app.selectedFilename = filename;
                             app.selectedNoteContent = insight.getContent();
                             std::snprintf(app.saveAsFilename, sizeof(app.saveAsFilename), "%s", filename.c_str());
@@ -1992,6 +1993,17 @@ static void DrawKnowledgeTab(AppState& app) {
                         for (const auto& link : app.currentBacklinks) {
                             if (ImGui::Button(link.c_str())) {
                                 app.AppendLog("[UI] Jumping to " + link + "\n");
+                                app.selectedFilename = link;
+                                if (app.organizerService) {
+                                    app.selectedNoteContent = app.organizerService->getNoteContent(link);
+                                    std::snprintf(app.saveAsFilename, sizeof(app.saveAsFilename), "%s", link.c_str());
+                                    
+                                    domain::Insight::Metadata meta;
+                                    meta.id = link;
+                                    app.currentInsight = std::make_unique<domain::Insight>(meta, app.selectedNoteContent);
+                                    app.currentInsight->parseActionablesFromContent();
+                                    app.currentBacklinks = app.organizerService->getBacklinks(link);
+                                }
                             }
                             ImGui::SameLine();
                         }

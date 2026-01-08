@@ -168,11 +168,31 @@ std::vector<std::string> FileRepository::getBacklinks(const std::string& filenam
     std::vector<std::string> backlinks;
     if (!fs::exists(m_notesPath)) return backlinks;
 
-    std::string target = filename;
-    size_t lastDot = target.find_last_of(".");
-    if (lastDot != std::string::npos) target = target.substr(0, lastDot);
-    std::string searchStr = "[[" + target + "]]";
+    // 1. Get ID-based search string
+    std::string idTarget = filename;
+    size_t lastDot = idTarget.find_last_of(".");
+    if (lastDot != std::string::npos) idTarget = idTarget.substr(0, lastDot);
+    std::string searchId = "[[" + idTarget + "]]";
 
+    // 2. Try to get Title-based search string from the file itself
+    std::string searchTitle;
+    {
+        fs::path p = fs::path(m_notesPath) / filename;
+        if (fs::exists(p)) {
+            std::ifstream f(p);
+            std::string line;
+            while (std::getline(f, line)) {
+                if (line.rfind("# Título: ", 0) == 0) {
+                    searchTitle = "[[" + line.substr(10) + "]]";
+                    // Trim trailing CR
+                    if (!searchTitle.empty() && searchTitle.back() == '\r') searchTitle.pop_back();
+                    break;
+                }
+            }
+        }
+    }
+
+    // 3. Scan all notes
     for (const auto& entry : fs::directory_iterator(m_notesPath)) {
         std::string ext = entry.path().extension().string();
         if (entry.is_regular_file() && (ext == ".md" || ext == ".txt")) {
@@ -180,7 +200,13 @@ std::vector<std::string> FileRepository::getBacklinks(const std::string& filenam
 
             std::ifstream file(entry.path());
             std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-            if (content.find(searchStr) != std::string::npos) {
+            
+            bool found = (content.find(searchId) != std::string::npos);
+            if (!found && !searchTitle.empty()) {
+                found = (content.find(searchTitle) != std::string::npos);
+            }
+
+            if (found) {
                 backlinks.push_back(entry.path().filename().string());
             }
         }
