@@ -9,19 +9,9 @@
 #include <functional>
 #include <vector>
 #include "Insight.hpp"
+#include "CognitiveModel.hpp"
 
 namespace ideawalker::domain {
-
-/**
- * @enum AIPersona
- * @brief Defines the personality/role of the AI.
- */
-enum class AIPersona {
-    AnalistaCognitivo,   ///< Deep, strategic, tension-focused.
-    SecretarioExecutivo, ///< Concise, task-focused, summary.
-    Brainstormer,        ///< Expansive, creative, divergent.
-    Orquestrador         ///< Meta-persona: diagnoses and sequences other personas.
-};
 
 /**
  * @class AIService

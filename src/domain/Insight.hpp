@@ -9,6 +9,7 @@
 #include <chrono>
 #include <sstream>
 #include "Actionable.hpp"
+#include "CognitiveModel.hpp"
 
 namespace ideawalker::domain {
 
@@ -199,12 +200,21 @@ public:
 
     /** @brief Returns list of parsed wikilinks. */
     const std::vector<std::string>& getReferences() const { return m_references; }
+    
+    /** @brief Adds a cognitive snapshot to the insight history. */
+    void addSnapshot(const CognitiveSnapshot& snapshot) {
+        m_snapshots.push_back(snapshot);
+    }
+    
+    /** @brief Returns the cognitive history (snapshots). */
+    const std::vector<CognitiveSnapshot>& getSnapshots() const { return m_snapshots; }
 
 private:
     Metadata m_metadata; ///< Insight metadata.
     std::string m_content; ///< Full text content.
     std::vector<Actionable> m_actionables; ///< List of tasks extracted from content.
     std::vector<std::string> m_references; ///< List of referenced concepts/files.
+    std::vector<CognitiveSnapshot> m_snapshots; ///< History of cognitive transformations.
 };
 
 } // namespace ideawalker::domain

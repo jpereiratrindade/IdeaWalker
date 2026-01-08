@@ -27,6 +27,12 @@ O **Idea Walker** é um suporte cognitivo projetado para transformar pensamentos
 
 ---
 
+### Fluxo de Trabalho (Workflow)
+1.  **Ingestão**: Jogue arquivos de texto, áudio ou PDFs na pasta `inbox/`.
+2.  **Orquestração Autônoma**: O sistema detecta novos arquivos, diagnostica o estado cognitivo (Caótico, Divergente, etc.) e aplica automaticamente a sequência correta de personas (Brainstormer, Analista, Secretário).
+3.  **Refinamento**: O output é salvo como Markdown estruturado na pasta `knowledge/`.
+4.  **Ação**: Tarefas são extraídas e consolidadas em `_Consolidated_Tasks.md`.
+
 ## ✨ Funcionalidades
 - Ingestão de arquivos `.txt` do **inbox** e geração de notas em Markdown.
 - **🕸️ Neural Web & Mind Map**: Visualiza conexões entre notas e tarefas em um mapa mental interativo.

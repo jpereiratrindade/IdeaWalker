@@ -1,0 +1,148 @@
+====================================================================
+IDEAWALKER — INSTRUÇÕES PARA AJUSTE DO PIPELINE COGNITIVO
+VERSÃO: 1.0
+STATUS: PROPOSTA DE AJUSTE ARQUITETURAL
+PÚBLICO: EQUIPE DE DESENVOLVIMENTO (C++ / DDD)
+====================================================================
+
+OBJETIVO GERAL
+--------------
+Evoluir o pipeline atual de personas da IA para um modelo mais robusto,
+rastreável e semanticamente correto, sem alterar o funcionamento básico
+existente nem quebrar compatibilidade.
+
+O foco NÃO é adicionar novas features visuais, mas:
+- Tornar explícito o que já está implícito no código
+- Evitar perda de informação cognitiva
+- Preparar o sistema para backlinks, grafos e integração com SisterSTRATA
+
+--------------------------------------------------------------------
+1. PRINCÍPIO CONCEITUAL CENTRAL (OBRIGATÓRIO)
+--------------------------------------------------------------------
+
+AIPersona NÃO representa um "tipo de usuário" nem um "perfil psicológico".
+
+AIPersona representa um OPERADOR COGNITIVO,
+ou seja, uma função de transformação aplicada a um texto.
+
+Exemplos:
+- Brainstormer = operador de divergência
+- AnalistaCognitivo = operador de estruturação / mapeamento de tensão
+- SecretarioExecutivo = operador de fechamento operacional
+- Orquestrador = meta-operador de decisão de pipeline
+
+IMPORTANTE:
+- "TDAH" NÃO deve ser modelado como persona.
+- TDAH é um ESTADO COGNITIVO INICIAL do texto (ex: #Chaotic, #Divergent).
+
+--------------------------------------------------------------------
+2. PROBLEMA ATUAL IDENTIFICADO
+--------------------------------------------------------------------
+
+Atualmente, o pipeline sobrescreve o texto a cada etapa:
+
+    currentText = output_da_persona;
+
+Isso gera:
+- Perda de rastreabilidade
+- Apagamento de decisões intermediárias
+- Dificuldade de explicar como o resultado final foi produzido
+
+Esse comportamento FUNCIONA, mas não escala conceitualmente.
+
+--------------------------------------------------------------------
+3. AJUSTE ARQUITETURAL PROPOSTO (MÍNIMO)
+--------------------------------------------------------------------
+
+Introduzir o conceito de "Snapshot Cognitivo" (ou nome equivalente).
+
+Esse snapshot NÃO altera o fluxo atual,
+apenas registra cada transformação aplicada.
+
+--------------------------------------------------------------------
+4. NOVA ESTRUTURA CONCEITUAL (NÍVEL DE DOMÍNIO)
+--------------------------------------------------------------------
+
+Criar uma estrutura simples para registrar cada passo do pipeline.
+
+Exemplo conceitual (não obrigatório copiar literalmente):
+
+- CognitiveSnapshot
+  - persona_aplicada
+  - texto_entrada
+  - texto_saida
+  - tags_inferidas
+  - timestamp
+
+OBS:
+- Isso pode começar como struct simples em application/infrastructure.
+- NÃO é necessário persistir tudo agora (pode ser apenas em memória).
+
+--------------------------------------------------------------------
+5. COMPORTAMENTO ESPERADO DO PIPELINE
+--------------------------------------------------------------------
+
+ANTES:
+- Texto inicial
+- Persona 1 sobrescreve texto
+- Persona 2 sobrescreve texto
+- Resultado final
+
+DEPOIS:
+- Texto inicial
+- Snapshot 1 (Persona A)
+- Snapshot 2 (Persona B)
+- Snapshot 3 (Persona C)
+- Resultado final escolhido a partir do último snapshot
+
+IMPORTANTE:
+- O sistema CONTINUA retornando apenas UM Insight final.
+- Snapshots são artefatos internos, não UI.
+
+--------------------------------------------------------------------
+6. PAPEL DO ORQUESTRADOR (AJUSTE FINO)
+--------------------------------------------------------------------
+
+O Orquestrador já faz corretamente:
+- Diagnóstico do texto
+- Definição da sequência de operadores
+- Definição de uma tag cognitiva dominante
+
+AJUSTE NECESSÁRIO:
+- A tag (#Chaotic, #Divergent, #Integrative, #Closing)
+  deve ser tratada como ESTADO do texto,
+  e NÃO como atributo da persona.
+
+Sugestão:
+- Promover CognitiveState (enum ou string controlada)
+- Associar o estado ao snapshot inicial
+
+--------------------------------------------------------------------
+7. O QUE NÃO FAZER (IMPORTANTE)
+--------------------------------------------------------------------
+
+- NÃO criar novas personas sem necessidade
+- NÃO misturar estado cognitivo com operador cognitivo
+- NÃO adicionar UI agora
+- NÃO mudar o formato final das notas Markdown
+- NÃO remover os fallbacks atuais (Analista como fallback é correto)
+
+--------------------------------------------------------------------
+8. RESULTADO ESPERADO APÓS O AJUSTE
+--------------------------------------------------------------------
+
+Após esse ajuste, o sistema deverá:
+
+- Manter o comportamento atual funcionando
+- Permitir rastrear como um Insight foi construído
+- Preparar o terreno para:
+  - Backlinks semânticos
+  - Grafos cognitivos
+  - Auditoria de decisões
+  - Integração limpa com SisterSTRATA
+
+Este ajuste é FUNDACIONAL, não cosmético.
+
+====================================================================
+FIM DO DOCUMENTO
+====================================================================

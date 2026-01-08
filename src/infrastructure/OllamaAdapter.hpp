@@ -22,9 +22,6 @@ public:
      */
     OllamaAdapter(const std::string& host = "localhost", int port = 11434);
     
-    /** @brief Sets the persona for the AI service. */
-    void setPersona(domain::AIPersona persona) override;
-
     /** @brief Processes text using a structured prompt. @see domain::AIService::processRawThought */
     std::optional<domain::Insight> processRawThought(const std::string& rawContent, std::function<void(std::string)> statusCallback = nullptr) override;
 

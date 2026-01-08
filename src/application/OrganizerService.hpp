@@ -123,11 +123,6 @@ public:
                         std::function<void(std::string)> onSuccess, 
                         std::function<void(std::string)> onError);
 
-    /**
-     * @brief Sets the persona for the AI service.
-     * @param persona The desired persona.
-     */
-    void setAIPersona(domain::AIPersona persona);
 
     /**
      * @brief Retrieves the list of available history versions for a note.

@@ -1519,23 +1519,9 @@ static void DrawProjectModals(AppState& app) {
         ImGui::Text("Configurações Gerais");
         ImGui::Separator();
         
-        // AI Persona Selection
+        // AI Persona Selection (Removed - Now Autonomous)
         ImGui::Text("🧠 Personalidade da IA");
-        
-        const char* personas[] = { "Analista Cognitivo", "Secretário Executivo", "Brainstormer", "Orquestrador Cognitivo (TDAH)" };
-        int currentItem = static_cast<int>(app.currentPersona);
-        
-        if (ImGui::Combo("##persona", &currentItem, personas, IM_ARRAYSIZE(personas))) {
-            app.currentPersona = static_cast<domain::AIPersona>(currentItem);
-            if (app.organizerService) {
-                app.organizerService->setAIPersona(app.currentPersona);
-            }
-        }
-        
-        ImGui::TextDisabled((currentItem == 0) ? "Focado em tensão, conflito e estratégia." : 
-                            (currentItem == 1) ? "Focado em tarefas, resumo e eficiência." : 
-                            (currentItem == 2) ? "Focado em expansão, criatividade e divergência." :
-                            "Meta-Persona que diagnostica e orquestra os outros perfis.");
+        ImGui::TextDisabled("O sistema seleciona automaticamente o melhor perfil cognitivo (Orquestrador, Brainstormer, Analista) baseado no conteúdo.");
 
         ImGui::Separator();
         ImGui::Dummy(ImVec2(0, 10));

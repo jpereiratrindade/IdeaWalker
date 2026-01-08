@@ -8,6 +8,10 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 - **Log de Atividade Persistente**: Introduzido arquivo `.activity_log.json` para rastrear histórico de criação de notas, garantindo que o Heatmap de atividade seja preservado mesmo após reprocessamento total.
 - **Botão de Copiar no Chat**: Adicionado botão de conveniência ao lado de cada mensagem no painel de conversa para copiar o conteúdo para a área de transferência.
 
+### Alterado (Arquitetura)
+- **Pipeline Cognitivo Autônomo**: A seleção manual de persona foi removida. O sistema agora opera de forma autônoma, diagnosticando o estado cognitivo do texto e aplicando a sequência ideal de operadores (Brainstormer, Analista, Secretário).
+- **Rastreabilidade Cognitiva (Snapshots)**: Implementada estrutura interna de `CognitiveSnapshot` para registrar cada transformação aplicada ao pensamento, preparando o terreno para futuros grafos de decisão.
+
 ### Corrigido
 - **Ajuste de Texto (Word Wrap)**: Refatorada a exibição de mensagens no chat para usar quebra de linha automática (TextWrapped), garantindo legibilidade em qualquer largura de painel.
 - **Persistência do Heatmap**: Resolvido o problema onde o heatmap resetava para o dia atual ao usar a função "Reprocessar Tudo".

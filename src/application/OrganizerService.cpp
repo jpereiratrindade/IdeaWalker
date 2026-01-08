@@ -197,11 +197,6 @@ void OrganizerService::transcribeAudio(const std::string& audioPath,
 
 
 
-void OrganizerService::setAIPersona(domain::AIPersona persona) {
-    if (m_ai) {
-        m_ai->setPersona(persona);
-    }
-}
 
 std::vector<std::string> OrganizerService::getNoteHistory(const std::string& noteId) {
     if (m_repo) {
