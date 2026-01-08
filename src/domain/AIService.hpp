@@ -21,11 +21,6 @@ class AIService {
 public:
     virtual ~AIService() = default;
 
-    /**
-     * @brief Sets the persona for the AI service.
-     * @param persona The desired persona.
-     */
-    virtual void setPersona(AIPersona persona) = 0;
 
     /**
      * @struct ChatMessage
