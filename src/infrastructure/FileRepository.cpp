@@ -202,6 +202,11 @@ std::vector<std::string> FileRepository::getBacklinks(const std::string& filenam
             std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
             
             bool found = (content.find(searchId) != std::string::npos);
+            if (!found) {
+                // Also try with the full filename (with extension) e.g. [[Note.md]]
+                std::string searchFull = "[[" + filename + "]]";
+                found = (content.find(searchFull) != std::string::npos);
+            }
             if (!found && !searchTitle.empty()) {
                 found = (content.find(searchTitle) != std::string::npos);
             }
