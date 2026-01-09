@@ -2,6 +2,11 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [v0.1.5-beta] - 2026-01-09
+### Adicionado
+- **Finalização e Limpeza**: Revisão completa do sistema para release v0.1.5-beta.
+- **Sincronização de Documentação**: README atualizado com todas as funcionalidades recentes (PDF, Orquestração, Ressonância).
+
 ## [v0.1.4-beta] - 2026-01-08
 ### Adicionado
 - **Extração de Texto de PDF**: Implementado fallback automático via `pdftotext` para processar documentos PDF na inbox.

@@ -34,15 +34,16 @@ O **Idea Walker** é um suporte cognitivo projetado para transformar pensamentos
 4.  **Ação**: Tarefas são extraídas e consolidadas em `_Consolidated_Tasks.md`.
 
 ## ✨ Funcionalidades
-- Ingestão de arquivos `.txt` do **inbox** e geração de notas em Markdown.
-- **🕸️ Neural Web & Mind Map**: Visualiza conexões entre notas e tarefas em um mapa mental interativo.
-- **Static Preview**: Visualização estática, organizada e estável de gráficos Mermaid para arquivos externos.
-- **🚀 Gestão de Execução**: Kanban board sincronizado com as tarefas extraídas por IA.
-- **📤 Exportação Flexível**: Gere diagramas Mermaid ou relatórios completos em Markdown para Obsidian/GitHub.
-- **🎙️ Captura de Áudio**: Inteligência artificial local para transcrição e organização de insights.
+- **📂 Suporte Multi-formato**: Ingestão automática de `.txt`, `.pdf` (via pdftotext), `.md` e `.tex` do **inbox**.
+- **🧠 Orquestração Cognitiva Autônoma**: O sistema diagnostica o estado do texto e aplica automaticamente a sequência ideal de personas (Brainstormer, Analista, Secretário).
+- **🕸️ Neural Web & Mind Map**: Visualização interativa de conexões entre notas, tarefas e conceitos.
+- **✨ Ressonância Semântica**: Motor de sugestão que identifica conexões automáticas entre notas baseado em similaridade vetorial (Embeddings).
+- **Static Preview**: Visualização estável e organizada de gráficos Mermaid.
+- **🚀 Gestão de Execução**: Kanban board e lista de tarefas consolidadas sincronizados via IA.
+- **📤 Exportação Flexível**: Geração de diagramas e relatórios completos para Obsidian/GitHub.
+- **🎙️ Captura de Áudio**: Transcrição local de voz para insights estruturados.
 - **📜 Licença GPLv3**: Software livre e de código aberto.
-- **Menu File** com abrir/salvar/fechar projeto, Exit e criação das pastas necessárias.
-- **Navegação por pastas** integrada nos modais de projeto.
+- **Menu File & Navegação**: Gestão completa de projetos e navegação integrada por pastas.
 
 ---
 
@@ -64,7 +65,7 @@ make
 ---
 
 ## 🛡️ Governança
-- **Versão Atual**: v0.1.1-beta
+- **Versão Atual**: v0.1.5-beta
 - **Licença**: GPLv3
 - **Design System**: SisterSTRATA inspired.
 - **Recursos**: Brainstorming, Task Extraction, Backlinks e Heatmap de Atividade.
