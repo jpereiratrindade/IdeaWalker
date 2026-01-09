@@ -68,39 +68,29 @@ void ConversationService::sendMessage(const std::string& userMessage) {
         if (responseOpt) {
             responseContent = *responseOpt;
             
-            std::lock_guard<std::mutex> lock(m_mutex);
-            domain::AIService::ChatMessage aiMsg;
-            aiMsg.role = domain::AIService::ChatMessage::Role::Assistant;
-            aiMsg.content = responseContent;
-            m_history.push_back(aiMsg);
+            // Re-acquire lock to update state
+            std::vector<domain::AIService::ChatMessage> currentHistorySnapshot;
+            {
+                std::lock_guard<std::mutex> lock(m_mutex);
+                domain::AIService::ChatMessage aiMsg;
+                aiMsg.role = domain::AIService::ChatMessage::Role::Assistant;
+                aiMsg.content = responseContent;
+                m_history.push_back(aiMsg);
+                
+                // CRITICAL: Take a snapshot while locked for saving
+                // This removes the race condition where saveSession iterated m_history without lock
+                currentHistorySnapshot = m_history;
+            }
             
-            // Should be safe to call private method with internal locking? 
-            // Better to call it here inside lock
-            // But saveSession reads m_history which we locked. 
-            // We need to implement saveSession to be aware or not use the mutex recursively?
-            // Actually, m_mutex is not recursive. saveSession accesses members.
-            // Let's protect saveSession logic inside here or refactor saveSession.
-            // For now, I'll assume saveSession does NOT lock and relies on caller.
-            // Wait, saveSession in original code iterates m_history. 
-            // So we are safe because we hold the lock here.
-            
-            // Refactoring saveSession to NOT lock itself, but assume locked?
-            // saveSession is private. Let's look at it.
+            // Save safely OUTSIDE the lock using the snapshot
+            // This prevents I/O from blocking the UI thread waiting for the mutex
+            saveSession(currentHistorySnapshot); 
         } else {
              // Handle error
         }
         
-        // Save Session logic inline or called
-        if (responseOpt) {
-            saveSession(); // This access m_history, so we MUST hold lock if saveSession doesn't lock.
-                           // OR we release lock and call saveSession which locks?
-                           // Let's look at saveSession implementation below.
-        }
-
         m_isThinking = false;
     }).detach();
-
-    // Removed direct return string. UI listens to history.
 }
 
 std::vector<domain::AIService::ChatMessage> ConversationService::getHistory() const {
@@ -124,49 +114,56 @@ bool ConversationService::isThinking() const {
     return m_isThinking.load();
 }
 
-void ConversationService::saveSession() {
-    // Requires EXTERNAL MUTEX LOCK if accessing m_history directly?
-    // Or we lock inside.
-    // But if we call it from sendMessage (which holds lock), we dead lock if we lock again (std::mutex is not recursive).
-    // Let's assume saveSession is called by thread which ALREADY holds lock?
-    // 
-    // Let's look at sendMessage implementation above: 
-    /*
-        if (responseOpt) {
-            responseContent = *responseOpt;
-            std::lock_guard<std::mutex> lock(m_mutex);
-            ... push back ...
-            saveSession(); 
-        }
-    */
-    // YES, saveSession is called inside lock. 
-    // So saveSession should NOT lock.
-    // It just reads m_history.
-    
+void ConversationService::saveSession(const std::vector<domain::AIService::ChatMessage>& historySnapshot) {
     if (m_projectRoot.empty() || m_sessionStartTime.empty()) return;
 
     fs::path dialoguesDir = fs::path(m_projectRoot) / "dialogues";
     if (!fs::exists(dialoguesDir)) {
-        fs::create_directories(dialoguesDir);
+        try {
+            fs::create_directories(dialoguesDir);
+        } catch (...) {
+            std::cerr << "Failed to create dialogues directory: " << dialoguesDir << std::endl;
+            return;
+        }
     }
 
-    std::string filename = m_sessionStartTime + "_" + m_currentNoteId + ".md";
-    fs::path filePath = dialoguesDir / filename;
+    // Generate unique temp filename to avoid collision if multiple threads save simultaneously
+    auto timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
+    fs::path finalPath = dialoguesDir / filename;
+    fs::path tempPath = dialoguesDir / (filename + "." + std::to_string(timestamp) + ".tmp");
 
-    std::ofstream ofs(filePath);
-    if (ofs.is_open()) {
-        ofs << "# Conversa do Projeto\n\n";
-        ofs << "Data: " << m_sessionStartTime << "\n";
-        ofs << "Nota ativa: " << m_currentNoteId << "\n\n";
-        ofs << "---\n\n";
-        ofs << "## Diálogo\n\n";
+    // ATOMIC WRITE PATTERN: Write to .tmp, then rename
+    {
+        std::ofstream ofs(tempPath);
+        if (ofs.is_open()) {
+            ofs << "# Conversa do Projeto\n\n";
+            ofs << "Data: " << m_sessionStartTime << "\n";
+            ofs << "Nota ativa: " << m_currentNoteId << "\n\n";
+            ofs << "---\n\n";
+            ofs << "## Diálogo\n\n";
 
-        for (const auto& msg : m_history) {
-            if (msg.role == domain::AIService::ChatMessage::Role::System) continue;
+            for (const auto& msg : historySnapshot) {
+                if (msg.role == domain::AIService::ChatMessage::Role::System) continue;
+                
+                std::string roleName = (msg.role == domain::AIService::ChatMessage::Role::User) ? "**Usuário**" : "**IA**";
+                ofs << roleName << ": " << msg.content << "\n\n";
+            }
             
-            std::string roleName = (msg.role == domain::AIService::ChatMessage::Role::User) ? "**Usuário**" : "**IA**";
-            ofs << roleName << ": " << msg.content << "\n\n";
+            // Explicit flush to ensure data is on disk (managed by OS buffers, but helps)
+            ofs.flush(); 
+        } else {
+            std::cerr << "Failed to open temp file for writing: " << tempPath << std::endl;
+            return;
         }
+    } // ofs closed here
+
+    // Perform atomic rename
+    try {
+        fs::rename(tempPath, finalPath);
+    } catch (const std::filesystem::filesystem_error& e) {
+        std::cerr << "Failed to rename temp file to final: " << e.what() << std::endl;
+        // Try to delete temp file to avoid clutter, though strictly not necessary for correctness
+        try { fs::remove(tempPath); } catch (...) {}
     }
 }
 

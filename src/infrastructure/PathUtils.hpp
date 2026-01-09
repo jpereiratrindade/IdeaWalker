@@ -11,6 +11,8 @@ public:
     static std::filesystem::path GetConfigHome();
     static std::filesystem::path GetCacheHome();
     static std::filesystem::path GetModelsDir();
+    static std::filesystem::path GetProjectsDir();
+    static std::filesystem::path GetEmbeddingsDir();
 };
 
 } // namespace ideawalker::infrastructure

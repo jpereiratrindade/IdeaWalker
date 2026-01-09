@@ -1,0 +1,90 @@
+Objetivo:
+Garantir que IdeaWalker e STRATA compilem e rodem de forma previsível em máquinas
+com diferentes CPUs (Intel/AMD) e políticas de segurança.
+
+--------------------------------------------------
+FASE 1 — Infraestrutura de Build
+--------------------------------------------------
+
+1.1 Verificar FetchContent / Dependências via Git
+- Testar manualmente:
+  git clone https://github.com/ggerganov/whisper.cpp.git
+- Se falhar:
+  -> rede corporativa / firewall / SSL inspection / DNS
+
+1.2 Preferir dependências locais quando possível
+- Opção A: Submodules Git
+- Opção B: vendor/ com código versionado
+- Opção C: pacotes do sistema (dnf/apt) quando disponíveis
+
+1.3 Evitar GIT_TAG master
+- Fixar tags estáveis:
+  imgui: v1.90+
+  imnodes: tag específica
+
+1.4 Habilitar logs de FetchContent
+- Usar:
+  cmake .. --log-level=VERBOSE
+
+--------------------------------------------------
+FASE 2 — Portabilidade de Paths e I/O
+--------------------------------------------------
+
+2.1 Nunca usar diretório atual como raiz de dados
+- Definir:
+  ~/.config/ideawalker/
+  ~/.local/share/ideawalker/
+
+2.2 Criar diretórios automaticamente:
+- inbox/
+- dialogues/
+- embeddings/
+- projects/
+
+2.3 Validar permissões de escrita
+
+--------------------------------------------------
+FASE 3 — Concorrência
+--------------------------------------------------
+
+3.1 Nunca acessar estruturas compartilhadas sem mutex
+- Especialmente:
+  m_history
+  cache de embeddings
+  filas de eventos
+
+3.2 Evitar I/O dentro de locks
+- Copiar dados sob lock
+- Escrever fora do lock
+
+--------------------------------------------------
+FASE 4 — Persistência Segura
+--------------------------------------------------
+
+4.1 Nunca sobrescrever arquivos diretamente
+- Usar:
+  write -> flush -> close -> rename
+
+4.2 Validar integridade após escrita
+
+--------------------------------------------------
+FASE 5 — Diferenças de Hardware (Intel vs AMD)
+--------------------------------------------------
+
+5.1 Compilar com sanitizers:
+- -fsanitize=address,undefined,thread
+
+5.2 Testar:
+- alinhamento de memória
+- uso de atomics
+- dependência de ordem de execução
+
+5.3 Nunca assumir comportamento de scheduler
+
+--------------------------------------------------
+FASE 6 — Testes Reprodutíveis
+--------------------------------------------------
+
+6.1 Testes não devem depender de UI nem GPU
+6.2 Testes devem usar diretórios temporários
+6.3 Testes devem limpar estado após execução

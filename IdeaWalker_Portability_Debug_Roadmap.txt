@@ -1,0 +1,216 @@
+===========================================================
+IdeaWalker – Roteiro de Diagnóstico de Portabilidade
+===========================================================
+
+Objetivo:
+Identificar causas de falhas, diferenças de comportamento ou
+instabilidades do IdeaWalker entre máquinas, distros,
+arquiteturas de CPU e ambientes com/sem GPU.
+
+Foco principal:
+- Pipeline cognitivo
+- Orquestração de LLM local (Ollama)
+- I/O de arquivos e embeddings
+- Concorrência e estado de sessão
+
+
+-----------------------------------------------------------
+FASE 0 — CLASSIFICAÇÃO DO PROBLEMA
+-----------------------------------------------------------
+
+Registrar antes de qualquer ação:
+
+[ ] Tipo de falha:
+    (A) App não inicia
+    (B) Interface inicia mas não responde
+    (C) LLM não responde
+    (D) Dados incoerentes / sumiços de notas
+    (E) Lentidão extrema / travamentos
+
+[ ] Onde ocorre:
+    ( ) Startup
+    ( ) Ingestão de documentos
+    ( ) Geração de embeddings
+    ( ) Orquestração de personas
+    ( ) Persistência (files / sqlite)
+
+[ ] Logs completos capturados? (stdout + stderr)
+
+
+-----------------------------------------------------------
+FASE 1 — AMBIENTE E SERVIÇOS EXTERNOS
+-----------------------------------------------------------
+
+Objetivo: eliminar problemas de infraestrutura.
+
+1.1 — Verificar Ollama
+
+[ ] ollama serve ativo
+[ ] curl http://127.0.0.1:11434/api/version responde
+[ ] modelos listados corretamente
+
+Se não:
+    problema NÃO é do IdeaWalker.
+
+1.2 — Caminhos e permissões
+
+Verificar:
+
+[ ] pasta de projetos
+[ ] pasta de inbox
+[ ] pasta de embeddings
+[ ] permissões de escrita
+
+Evitar:
+    caminhos absolutos hardcoded.
+
+
+-----------------------------------------------------------
+FASE 2 — PIPELINE DE INFERÊNCIA E MODELOS
+-----------------------------------------------------------
+
+Objetivo: detectar dependência implícita de modelo/hardware.
+
+2.1 — Confirmar modelo ativo
+
+[ ] mesmo modelo em todas as máquinas?
+[ ] mesmo tamanho (7B, 14B, etc)?
+[ ] mesma quantização?
+
+2.2 — Capacidade de hardware
+
+Registrar:
+
+[ ] RAM disponível
+[ ] Swap ativo?
+[ ] Uso de GPU ou CPU puro
+
+Possível problema:
+    OOM silencioso mata threads de inferência.
+
+
+-----------------------------------------------------------
+FASE 3 — CONCORRÊNCIA E ESTADO
+-----------------------------------------------------------
+
+Objetivo: encontrar race conditions e corrupção de estado.
+
+3.1 — Áreas críticas
+
+Auditar:
+
+[ ] Snapshot recording
+[ ] Session state
+[ ] Job queues
+[ ] Workers de ingestão
+
+Verificar:
+
+[ ] Escrita concorrente em vetores
+[ ] Leitura enquanto escreve
+[ ] Falta de mutex / atomics
+
+3.2 — Sequenciamento lógico
+
+Garantir:
+
+[ ] Embedding só ocorre após ingestão completa
+[ ] Personas não alteram estado global
+[ ] Context builder é determinístico
+
+
+-----------------------------------------------------------
+FASE 4 — SERIALIZAÇÃO E PERSISTÊNCIA
+-----------------------------------------------------------
+
+Objetivo: evitar corrupção de dados dependente de FS.
+
+4.1 — Arquivos Markdown
+
+[ ] Escrita atômica (temp + rename)?
+[ ] Encoding consistente (UTF-8)?
+
+4.2 — SQLite (se usado)
+
+[ ] Transações explícitas?
+[ ] Locks tratados?
+[ ] Journaling ativo?
+
+
+-----------------------------------------------------------
+FASE 5 — DEPENDÊNCIAS E TOOLCHAIN
+-----------------------------------------------------------
+
+Objetivo: evitar comportamento divergente de build.
+
+Comparar:
+
+[ ] Versão do compilador
+[ ] Flags de otimização
+[ ] STL usada (libstdc++)
+
+Especial atenção:
+
+[ ] -O3 pode reordenar lógica não protegida
+[ ] -march=native quebra portabilidade
+
+
+-----------------------------------------------------------
+FASE 6 — LIMITES DE CONTEXTO E MEMÓRIA
+-----------------------------------------------------------
+
+Objetivo: explicar falhas intermitentes de geração.
+
+Verificar:
+
+[ ] Quantidade de texto enviado ao LLM
+[ ] Backlinks ativados?
+[ ] Unified Knowledge ativado?
+
+Possível efeito:
+
+    truncamento silencioso muda decisões do modelo
+
+
+-----------------------------------------------------------
+FASE 7 — ISOLAMENTO DE RESPONSABILIDADES (DDD)
+-----------------------------------------------------------
+
+Objetivo: impedir vazamento entre camadas.
+
+Confirmar:
+
+[ ] UI não executa lógica de pipeline
+[ ] Infra não altera domínio
+[ ] Personas não mutam estado
+
+Se não:
+    erro pode variar conforme tempo de execução.
+
+
+-----------------------------------------------------------
+CRITÉRIOS DE ESTABILIDADE
+-----------------------------------------------------------
+
+Considerar estável somente se:
+
+[ ] Mesmo comportamento em máquinas diferentes
+[ ] Mesmo resultado com mesmos dados
+[ ] Logs limpos
+[ ] Pipeline reprodutível
+
+Caso contrário:
+    sistema está em regime não determinístico.
+
+
+-----------------------------------------------------------
+NOTA FINAL
+-----------------------------------------------------------
+
+No IdeaWalker, bugs não são apenas técnicos:
+eles afetam rastreabilidade cognitiva,
+o que compromete validade epistemológica
+das análises posteriores.
+
+Portabilidade aqui é parte do método científico,
+não só engenharia de software.

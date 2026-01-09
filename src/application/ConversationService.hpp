@@ -67,7 +67,7 @@ public:
     bool loadSession(const std::string& filename);
 
 private:
-    void saveSession();
+    void saveSession(const std::vector<domain::AIService::ChatMessage>& historySnapshot);
     std::string generateSystemPrompt(const ContextBundle& bundle);
 
     std::shared_ptr<domain::AIService> m_aiService;

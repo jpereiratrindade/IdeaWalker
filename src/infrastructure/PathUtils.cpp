@@ -55,4 +55,28 @@ fs::path PathUtils::GetModelsDir() {
     return base;
 }
 
+fs::path PathUtils::GetProjectsDir() {
+    fs::path base = GetDataHome() / "IdeaWalker" / "projects";
+    try {
+        if (!fs::exists(base)) {
+            fs::create_directories(base);
+        }
+    } catch (...) {
+        // Fallback or log error if logging system exists
+    }
+    return base;
+}
+
+fs::path PathUtils::GetEmbeddingsDir() {
+    fs::path base = GetDataHome() / "IdeaWalker" / "embeddings";
+    try {
+        if (!fs::exists(base)) {
+            fs::create_directories(base);
+        }
+    } catch (...) {
+        // Fallback or log error
+    }
+    return base;
+}
+
 } // namespace ideawalker::infrastructure
