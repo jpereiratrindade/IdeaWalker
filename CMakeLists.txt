@@ -6,6 +6,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_definitions(-DIDEAWALKER_VERSION="v0.1.5-beta")
 
+# --- Debug & Sanitization (Uncomment to enable) ---
+# set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address,undefined -g -O1 -fno-omit-frame-pointer")
+# set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address,undefined")
+
+
 # --- Build Resilience Settings ---
 # Prevent CMake from trying to contact git server on every run (avoids network hangs)
 set(FETCHCONTENT_UPDATES_DISCONNECTED ON) 
@@ -83,6 +88,7 @@ FetchContent_Declare(
     GIT_TAG master # Use master as stable hash fetch failed with shallow clone
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
+    GIT_SUBMODULES "" # Prevent fetching vcpkg or other submodules
 )
 FetchContent_Populate(imnodes)
 

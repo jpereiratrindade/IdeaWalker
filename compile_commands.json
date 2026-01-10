@@ -1,0 +1,32 @@
+[
+{
+  "directory": "/home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-build",
+  "command": "/usr/bin/cc -DIDEAWALKER_VERSION=\\\"v0.1.5-beta\\\" -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -I/home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-src/.              -Wall                                       -Wextra                                     -Wpedantic                                  -Wshadow                                    -Wcast-qual                                 -Wstrict-prototypes                         -Wpointer-arith                             -Wno-unused-function                     -Werror=vla -mavx -mavx2 -mfma -mf16c -g -o CMakeFiles/whisper.dir/ggml.c.o -c /home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-src/ggml.c",
+  "file": "/home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-src/ggml.c",
+  "output": "_deps/whisper-build/CMakeFiles/whisper.dir/ggml.c.o"
+},
+{
+  "directory": "/home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-build",
+  "command": "/usr/bin/cc -DIDEAWALKER_VERSION=\\\"v0.1.5-beta\\\" -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -I/home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-src/.              -Wall                                       -Wextra                                     -Wpedantic                                  -Wshadow                                    -Wcast-qual                                 -Wstrict-prototypes                         -Wpointer-arith                             -Wno-unused-function                     -Werror=vla -mavx -mavx2 -mfma -mf16c -g -o CMakeFiles/whisper.dir/ggml-alloc.c.o -c /home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-src/ggml-alloc.c",
+  "file": "/home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-src/ggml-alloc.c",
+  "output": "_deps/whisper-build/CMakeFiles/whisper.dir/ggml-alloc.c.o"
+},
+{
+  "directory": "/home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-build",
+  "command": "/usr/bin/cc -DIDEAWALKER_VERSION=\\\"v0.1.5-beta\\\" -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -I/home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-src/.              -Wall                                       -Wextra                                     -Wpedantic                                  -Wshadow                                    -Wcast-qual                                 -Wstrict-prototypes                         -Wpointer-arith                             -Wno-unused-function                     -Werror=vla -mavx -mavx2 -mfma -mf16c -g -o CMakeFiles/whisper.dir/ggml-backend.c.o -c /home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-src/ggml-backend.c",
+  "file": "/home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-src/ggml-backend.c",
+  "output": "_deps/whisper-build/CMakeFiles/whisper.dir/ggml-backend.c.o"
+},
+{
+  "directory": "/home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-build",
+  "command": "/usr/bin/cc -DIDEAWALKER_VERSION=\\\"v0.1.5-beta\\\" -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -I/home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-src/.              -Wall                                       -Wextra                                     -Wpedantic                                  -Wshadow                                    -Wcast-qual                                 -Wstrict-prototypes                         -Wpointer-arith                             -Wno-unused-function                     -Werror=vla -mavx -mavx2 -mfma -mf16c -g -o CMakeFiles/whisper.dir/ggml-quants.c.o -c /home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-src/ggml-quants.c",
+  "file": "/home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-src/ggml-quants.c",
+  "output": "_deps/whisper-build/CMakeFiles/whisper.dir/ggml-quants.c.o"
+},
+{
+  "directory": "/home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-build",
+  "command": "/usr/bin/c++ -DIDEAWALKER_VERSION=\\\"v0.1.5-beta\\\" -D_GNU_SOURCE -D_XOPEN_SOURCE=600 -I/home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-src/.              -Wall                                       -Wextra                                     -Wpedantic                                  -Wcast-qual                              -g -fsanitize=address,undefined -g -O1 -fno-omit-frame-pointer -std=gnu++17 -o CMakeFiles/whisper.dir/whisper.cpp.o -c /home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-src/whisper.cpp",
+  "file": "/home/jpereiratrindade/dev/cpp/IdeaWalker/_deps/whisper-src/whisper.cpp",
+  "output": "_deps/whisper-build/CMakeFiles/whisper.dir/whisper.cpp.o"
+}
+]

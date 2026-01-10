@@ -77,7 +77,7 @@ AppState::AppState()
 }
 
 AppState::~AppState() {
-    // Cleanup in ShutdownImNodes()
+    ShutdownImNodes();
 }
 
 void AppState::InitImNodes() {
