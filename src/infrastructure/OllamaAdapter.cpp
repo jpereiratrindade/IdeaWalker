@@ -59,7 +59,59 @@ bool PersonaFromToken(const std::string& value, domain::AIPersona& outPersona) {
 } // namespace
 
 OllamaAdapter::OllamaAdapter(const std::string& host, int port)
-    : m_host(host), m_port(port) {}
+    : m_host(host), m_port(port) {
+    detectBestModel();
+}
+
+void OllamaAdapter::detectBestModel() {
+    httplib::Client cli(m_host, m_port);
+    cli.set_read_timeout(5); // Short timeout for detection
+    
+    auto res = cli.Get("/api/tags");
+    if (res && res->status == 200) {
+        try {
+            auto body = json::parse(res->body);
+            if (body.contains("models") && body["models"].is_array()) {
+                std::vector<std::string> availableModels;
+                for (const auto& item : body["models"]) {
+                    if (item.contains("name")) {
+                        availableModels.push_back(item["name"].get<std::string>());
+                    }
+                }
+
+                if (availableModels.empty()) return;
+
+                // Priority Hierarchy
+                const std::vector<std::string> priorities = {
+                    "qwen2.5:7b",
+                    "qwen2.5", 
+                    "llama3", 
+                    "mistral",
+                    "gemma",
+                    "deepseek-coder"
+                };
+
+                for (const auto& priority : priorities) {
+                    for (const auto& model : availableModels) {
+                        if (model.find(priority) != std::string::npos) {
+                            m_model = model;
+                            std::cout << "[OllamaAdapter] Auto-selected model: " << m_model << std::endl;
+                            return;
+                        }
+                    }
+                }
+
+                // Fallback: Pick the first available
+                m_model = availableModels[0];
+                std::cout << "[OllamaAdapter] Fallback model: " << m_model << std::endl;
+            }
+        } catch (...) {
+            std::cerr << "[OllamaAdapter] Error parsing models. Using default: " << m_model << std::endl;
+        }
+    } else {
+        std::cerr << "[OllamaAdapter] Failed to list models. Is Ollama running? Keeping default: " << m_model << std::endl;
+    }
+}
 
 std::string OllamaAdapter::getSystemPrompt(domain::AIPersona persona) {
     switch (persona) {
@@ -166,7 +218,10 @@ std::optional<std::string> OllamaAdapter::generateRawResponse(const std::string&
                                                               const std::string& userContent,
                                                               bool forceJson) {
     httplib::Client cli(m_host, m_port);
-    cli.set_read_timeout(120); // Longer timeout because orchestration chains might timeout otherwise, though here it's per call.
+    cli.set_read_timeout(600); // Increased to 600s (10 min) for CPU inference
+
+    std::cout << "[OllamaAdapter] Sending request to " << m_model << " (JSON=" << forceJson << ")" 
+              << " PromptSize=" << (systemPrompt.size() + userContent.size()) << " bytes" << std::endl;
 
     json requestData = {
         {"model", m_model},
@@ -175,27 +230,72 @@ std::optional<std::string> OllamaAdapter::generateRawResponse(const std::string&
     };
     if (forceJson) {
         requestData["format"] = "json";
+        std::cout << "[OllamaAdapter] Enforcing JSON format." << std::endl;
     }
 
     auto res = cli.Post("/api/generate", requestData.dump(), "application/json");
-    if (res && res->status == 200) {
-        try {
-            auto body = json::parse(res->body);
-            return body.value("response", "");
-        } catch (...) {}
+    // ... [Rest of method remains same, but we need to include it or be careful with replace_file_content scope]
+    if (res) {
+        if (res->status == 200) {
+            try {
+                std::cout << "[OllamaAdapter] Response received (" << res->body.size() << " bytes)" << std::endl;
+                auto body = json::parse(res->body);
+                if (body.contains("response")) {
+                    return body.value("response", "");
+                } else {
+                    std::cerr << "[OllamaAdapter] Response JSON missing 'response' field: " << res->body << std::endl;
+                }
+            } catch (const std::exception& e) {
+                 std::cerr << "[OllamaAdapter] JSON Parse Error: " << e.what() << "\nBody: " << res->body << std::endl;
+            }
+        } else {
+            std::cerr << "[OllamaAdapter] HTTP Error " << res->status << ": " << res->body << std::endl;
+        }
+    } else {
+        auto err = res.error();
+        std::cerr << "[OllamaAdapter] Connection failed. Error code: " << static_cast<int>(err) << std::endl;
     }
     return std::nullopt;
 }
 
-std::optional<domain::Insight> OllamaAdapter::processRawThought(const std::string& rawContent, std::function<void(std::string)> statusCallback) {
-    if (statusCallback) statusCallback("Iniciando processamento...");
+
+std::optional<domain::Insight> OllamaAdapter::processRawThought(const std::string& rawContent, bool fastMode, std::function<void(std::string)> statusCallback) {
+    if (statusCallback) statusCallback(fastMode ? "Iniciando modo rápido (CPU Optimization)..." : "Iniciando processamento...");
     
     std::string finalContent;
     std::vector<std::string> tags = {"#AutoGenerated"};
     std::vector<domain::CognitiveSnapshot> snapshots;
 
-    // 1. Orchestration logic (Autonomous)
-    {
+    if (fastMode) {
+        // Fast Mode: Single Pass (Direct Analysis)
+        if (statusCallback) statusCallback("Modo Rápido: Analisando diretamente...");
+        tags.push_back("#FastMode");
+        
+        std::string prompt = getSystemPrompt(domain::AIPersona::AnalistaCognitivo);
+        auto res = generateRawResponse(prompt, rawContent, false);
+        
+        if (res) {
+            finalContent = *res;
+            domain::CognitiveSnapshot snap;
+            snap.persona = domain::AIPersona::AnalistaCognitivo;
+            snap.textInput = rawContent;
+            snap.textOutput = finalContent;
+            snap.state = domain::CognitiveState::Convergent;
+            
+            auto now = std::chrono::system_clock::now();
+            auto in_time_t = std::chrono::system_clock::to_time_t(now);
+            std::stringstream ttss;
+            std::tm localTimeSnap = ToLocalTime(in_time_t);
+            ttss << std::put_time(&localTimeSnap, "%Y-%m-%d %X");
+            snap.timestamp = ttss.str();
+            
+            snapshots.push_back(snap);
+        } else {
+            return std::nullopt;
+        }
+
+    } else {
+        // Standard Mode: Full Orchestration
         if (statusCallback) statusCallback("Orquestrador: Diagnosticando...");
         tags.push_back("#Orchestrated");
         std::string orquestradorPrompt = getSystemPrompt(domain::AIPersona::Orquestrador);
@@ -304,7 +404,7 @@ std::optional<domain::Insight> OllamaAdapter::processRawThought(const std::strin
 
 std::optional<std::string> OllamaAdapter::chat(const std::vector<domain::AIService::ChatMessage>& history, bool stream) {
     httplib::Client cli(m_host, m_port);
-    cli.set_read_timeout(120);
+    cli.set_read_timeout(600); // 10 min
 
     json messagesJson = json::array();
     for (const auto& msg : history) {
@@ -337,7 +437,7 @@ std::optional<std::string> OllamaAdapter::chat(const std::vector<domain::AIServi
 
 std::optional<std::string> OllamaAdapter::consolidateTasks(const std::string& tasksMarkdown) {
     httplib::Client cli(m_host, m_port);
-    cli.set_read_timeout(60);
+    cli.set_read_timeout(600); // 10 min
 
     json requestData = {
         {"model", m_model},
@@ -372,7 +472,7 @@ std::optional<std::string> OllamaAdapter::consolidateTasks(const std::string& ta
 
 std::vector<float> OllamaAdapter::getEmbedding(const std::string& text) {
     httplib::Client cli(m_host, m_port);
-    cli.set_read_timeout(30);
+    cli.set_read_timeout(180); // 3 min
 
     json requestData = {
         {"model", m_model},

@@ -80,7 +80,7 @@ message(STATUS "Fetching imnodes (pinned)...")
 FetchContent_Declare(
     imnodes
     GIT_REPOSITORY https://github.com/nelarius/imnodes.git
-    GIT_TAG 9d6f6f7 # Stable commit
+    GIT_TAG master # Use master as stable hash fetch failed with shallow clone
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
 )
@@ -134,6 +134,8 @@ add_executable(${PROJECT_NAME}
     src/application/SuggestionService.cpp
     src/infrastructure/FileSystemArtifactScanner.cpp
     src/infrastructure/EmbeddingCache.cpp
+    src/infrastructure/PersistenceService.cpp
+
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -156,8 +158,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 add_executable(ideawalker_test
     src/test/ConcurrencyTest.cpp
     src/application/ConversationService.cpp
-    src/application/ContextAssembler.cpp
     src/infrastructure/PathUtils.cpp
+    src/infrastructure/PersistenceService.cpp
 )
 
 target_include_directories(ideawalker_test PRIVATE

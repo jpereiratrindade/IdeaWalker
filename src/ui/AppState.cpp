@@ -15,6 +15,7 @@
 #include "infrastructure/WhisperCppAdapter.hpp"
 #include "infrastructure/PathUtils.hpp"
 #include "application/ConversationService.hpp"
+#include "infrastructure/PersistenceService.hpp"
 
 #include <algorithm>
 #include <cstdio>
@@ -140,9 +141,12 @@ bool AppState::OpenProject(const std::string& rootPath) {
 
     organizerService = std::make_unique<application::OrganizerService>(std::move(repo), std::move(ai), std::move(transcriber));
     
+    // Initialize Persistence Service (Shared)
+    persistenceService = std::make_shared<infrastructure::PersistenceService>();
+
     // Initialize Conversation Service with its own AI instance (shared_ptr required)
     auto conversationAi = std::make_shared<infrastructure::OllamaAdapter>();
-    conversationService = std::make_unique<application::ConversationService>(conversationAi, root.string());
+    conversationService = std::make_unique<application::ConversationService>(conversationAi, persistenceService, root.string());
 
     auto scanPath = (root / "inbox").string();
     auto obsPath = (root / "observations").string();

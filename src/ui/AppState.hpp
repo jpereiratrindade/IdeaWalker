@@ -27,6 +27,8 @@ class ContextAssembler;
 class DocumentIngestionService;
 }
 
+namespace ideawalker::infrastructure { class PersistenceService; }
+
 namespace ideawalker::ui {
 
     /**
@@ -137,6 +139,7 @@ struct AppState {
     bool physicsEnabled = true;   ///< Neural Web setting.
     bool previewMode = false;     ///< Toggle for Markdown Preview in Knowledge tab.
     bool unifiedPreviewMode = false; ///< Toggle for unified knowledge markdown preview.
+    bool fastMode = false; ///< Toggle for single-pass inference (CPU optimization).
     std::string processingStatus = "Thinking..."; ///< Status text while processing.
     
     std::vector<ExternalFile> externalFiles; ///< List of open external files.
@@ -259,6 +262,7 @@ struct AppState {
     void AnalyzeSuggestions();
 
     std::unique_ptr<application::DocumentIngestionService> ingestionService;
+    std::shared_ptr<infrastructure::PersistenceService> persistenceService;
     
     bool showConversationPanel = true; ///< Visibility for the Cognitive Dialogue Panel.
 };

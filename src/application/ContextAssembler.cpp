@@ -34,39 +34,6 @@ ContextBundle ContextAssembler::assemble(const std::string& noteId, const std::s
     return bundle;
 }
 
-std::string ContextBundle::render() const {
-    std::stringstream ss;
 
-    ss << "Você está operando em um Contexto de Diálogo Cognitivo.\n"
-       << "Abaixo estão os blocos de contexto estruturados. Use-os para apoiar o usuário.\n\n";
-
-    if (!activeNoteContent.empty()) {
-        ss << "=== ACTIVE_NOTE (" << activeNoteId << ") ===\n"
-           << activeNoteContent << "\n"
-           << "========================================\n\n";
-    }
-
-    if (!backlinks.empty()) {
-        ss << "=== BACKLINKS (Contexto Adicional) ===\n";
-        for (const auto& bl : backlinks) {
-            ss << "--- Fonte: " << bl.first << " ---\n"
-               << bl.second << "\n";
-        }
-        ss << "========================================\n\n";
-    }
-
-    if (!observations.empty()) {
-        ss << "=== NARRATIVE_OBSERVATIONS (Bases de Dados / Ingestão) ===\n";
-        for (const auto& obs : observations) {
-            ss << "--- Observação: " << obs.first << " ---\n"
-               << obs.second << "\n";
-        }
-        ss << "========================================\n\n";
-    }
-
-    ss << "Instrução: Responda focando na Nota Ativa, usando os Backlinks e Observações apenas como suporte lateral.\n";
-
-    return ss.str();
-}
 
 } // namespace ideawalker::application

@@ -47,7 +47,7 @@ public:
      * @param statusCallback Optional callback for status.
      * @return Optional Insight object if processing succeeded.
      */
-    virtual std::optional<Insight> processRawThought(const std::string& rawContent, std::function<void(std::string)> statusCallback = nullptr) = 0;
+    virtual std::optional<Insight> processRawThought(const std::string& rawContent, bool fastMode = false, std::function<void(std::string)> statusCallback = nullptr) = 0;
 
     /**
      * @brief Sends a chat history to the AI and gets the next response.

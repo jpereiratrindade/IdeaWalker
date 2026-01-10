@@ -23,6 +23,7 @@
 #include <sstream>
 #include <string>
 #include <thread>
+#include <iostream>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -1523,12 +1524,24 @@ static void DrawProjectModals(AppState& app) {
         
         // AI Persona Selection (Removed - Now Autonomous)
         ImGui::Text("🧠 Personalidade da IA");
-        ImGui::TextDisabled("O sistema seleciona automaticamente o melhor perfil cognitivo (Orquestrador, Brainstormer, Analista) baseado no conteúdo.");
+        ImGui::TextDisabled("O sistema seleciona automaticamente o melhor perfil cognitivo.");
+        
+        ImGui::Spacing();
+        ImGui::Checkbox("⚡ Modo Rápido (CPU Optimization)", &app.fastMode);
+        if (ImGui::IsItemHovered()) {
+             ImGui::SetTooltip("Ignora orquestração e faz análise direta. Recomendado para CPUs antigas.");
+        }
 
         ImGui::Separator();
         ImGui::Dummy(ImVec2(0, 10));
         
         if (ImGui::Button("Fechar", ImVec2(120, 0))) {
+// ... [Lines 1532-1695 skipped for brevity in replacement, focusing on critical changes]
+// I need to use separate chunks or be very careful. 
+// I will use multi_replace for UI changes to ensure safety.
+
+// THIS CHUNK ONLY UPDATE SETTINGS MODAL
+
             app.showSettingsModal = false;
             ImGui::CloseCurrentPopup();
         }
@@ -1685,6 +1698,9 @@ static void DrawDashboardTab(AppState& app) {
             if (processing) ImGui::BeginDisabled();
             auto statusHandler = [&app](const std::string& s) {
                 app.SetProcessingStatus(s);
+                // Also print to stdout for CLI visibility (Low-end hardware awareness)
+                std::cout << "[Organizer] " << s << std::endl;
+
                 // Log relevant AI stages to the system log
                 if (s.find("Executando:") != std::string::npos || 
                     s.find("Orquestrador:") != std::string::npos ||
@@ -1697,7 +1713,7 @@ static void DrawDashboardTab(AppState& app) {
                 app.isProcessing.store(true);
                 app.AppendLog(force ? "[SYSTEM] Starting AI reprocess (batch)...\n" : "[SYSTEM] Starting AI batch processing...\n");
                 std::thread([&app, force, statusHandler]() {
-                    app.organizerService->processInbox(force, statusHandler);
+                    app.organizerService->processInbox(force, app.fastMode, statusHandler);
                     bool consolidated = app.organizerService->updateConsolidatedTasks();
                     app.isProcessing.store(false);
                     app.SetProcessingStatus("Thinking..."); // Reset
@@ -1713,7 +1729,7 @@ static void DrawDashboardTab(AppState& app) {
                 app.AppendLog(force ? "[SYSTEM] Starting AI reprocess for " + filename + "...\n"
                                     : "[SYSTEM] Starting AI processing for " + filename + "...\n");
                 std::thread([&app, filename, force, statusHandler]() {
-                    auto result = app.organizerService->processInboxItem(filename, force, statusHandler);
+                    auto result = app.organizerService->processInboxItem(filename, force, app.fastMode, statusHandler);
                     switch (result) {
                     case application::OrganizerService::ProcessResult::Processed:
                         app.AppendLog("[SYSTEM] Processing finished for " + filename + ".\n");

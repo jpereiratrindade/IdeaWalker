@@ -54,14 +54,14 @@ OrganizerService::OrganizerService(std::unique_ptr<domain::ThoughtRepository> re
                                    std::unique_ptr<domain::TranscriptionService> transcriber)
     : m_repo(std::move(repo)), m_ai(std::move(ai)), m_transcriber(std::move(transcriber)) {}
 
-void OrganizerService::processInbox(bool force, std::function<void(std::string)> statusCallback) {
+void OrganizerService::processInbox(bool force, bool fastMode, std::function<void(std::string)> statusCallback) {
     auto rawThoughts = m_repo->fetchInbox();
     for (const auto& thought : rawThoughts) {
         std::string insightId = NormalizeToId(thought.filename);
         if (!force && !m_repo->shouldProcess(thought, insightId)) {
             continue;
         }
-        auto insight = m_ai->processRawThought(thought.content, statusCallback);
+        auto insight = m_ai->processRawThought(thought.content, fastMode, statusCallback);
         if (insight) {
             auto meta = insight->getMetadata();
             meta.id = insightId;
@@ -71,7 +71,7 @@ void OrganizerService::processInbox(bool force, std::function<void(std::string)>
     }
 }
 
-OrganizerService::ProcessResult OrganizerService::processInboxItem(const std::string& filename, bool force, std::function<void(std::string)> statusCallback) {
+OrganizerService::ProcessResult OrganizerService::processInboxItem(const std::string& filename, bool force, bool fastMode, std::function<void(std::string)> statusCallback) {
     auto rawThoughts = m_repo->fetchInbox();
     for (const auto& thought : rawThoughts) {
         if (thought.filename != filename) {
@@ -83,7 +83,7 @@ OrganizerService::ProcessResult OrganizerService::processInboxItem(const std::st
             return ProcessResult::SkippedUpToDate;
         }
 
-        auto insight = m_ai->processRawThought(thought.content, statusCallback);
+        auto insight = m_ai->processRawThought(thought.content, fastMode, statusCallback);
         if (!insight) {
             return ProcessResult::Failed;
         }

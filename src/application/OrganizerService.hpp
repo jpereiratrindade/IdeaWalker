@@ -48,16 +48,17 @@ public:
      * @param force If true, re-processes items even if they haven't changed.
      * @param statusCallback Optional callback for status.
      */
-    void processInbox(bool force = false, std::function<void(std::string)> statusCallback = nullptr);
+    void processInbox(bool force = false, bool fastMode = false, std::function<void(std::string)> statusCallback = nullptr);
 
     /**
      * @brief Processes a specific item in the inbox.
      * @param filename Name of the file to process.
      * @param force If true, re-processes the item even if it hasn't changed.
+     * @param fastMode If true, use single-pass inference.
      * @param statusCallback Optional callback for status.
      * @return Result of the processing attempt.
      */
-    ProcessResult processInboxItem(const std::string& filename, bool force = false, std::function<void(std::string)> statusCallback = nullptr);
+    ProcessResult processInboxItem(const std::string& filename, bool force = false, bool fastMode = false, std::function<void(std::string)> statusCallback = nullptr);
 
     /**
      * @brief Scans all insights and updates the consolidated task file.

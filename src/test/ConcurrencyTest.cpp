@@ -7,11 +7,12 @@
 #include "application/ConversationService.hpp"
 #include "domain/AIService.hpp"
 #include "infrastructure/PathUtils.hpp"
+#include "infrastructure/PersistenceService.hpp"
 
 // Mock AI Service
 class MockAIService : public ideawalker::domain::AIService {
 public:
-    std::optional<ideawalker::domain::Insight> processRawThought(const std::string&, std::function<void(std::string)>) override {
+    std::optional<ideawalker::domain::Insight> processRawThought(const std::string&, bool, std::function<void(std::string)>) override {
         return std::nullopt;
     }
 
@@ -39,7 +40,8 @@ int main() {
     std::string testRoot = "test_project_root"; 
     std::filesystem::create_directories(testRoot);
     
-    ideawalker::application::ConversationService service(aiService, testRoot);
+    auto persistence = std::make_shared<ideawalker::infrastructure::PersistenceService>();
+    ideawalker::application::ConversationService service(aiService, persistence, testRoot);
 
     ideawalker::application::ContextBundle bundle;
     bundle.activeNoteId = "TestNote_Concurrency";

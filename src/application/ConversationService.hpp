@@ -11,6 +11,7 @@
 #include <atomic>
 #include "domain/AIService.hpp"
 #include "application/ContextAssembler.hpp"
+#include "infrastructure/PersistenceService.hpp"
 
 namespace ideawalker::application {
 
@@ -20,7 +21,9 @@ namespace ideawalker::application {
  */
 class ConversationService {
 public:
-    ConversationService(std::shared_ptr<domain::AIService> aiService, const std::string& projectRoot);
+    ConversationService(std::shared_ptr<domain::AIService> aiService, 
+                        std::shared_ptr<infrastructure::PersistenceService> persistence,
+                        const std::string& projectRoot);
     
     /**
      * @brief Starts or restarts a session focused on a specific note.
@@ -71,6 +74,7 @@ private:
     std::string generateSystemPrompt(const ContextBundle& bundle);
 
     std::shared_ptr<domain::AIService> m_aiService;
+    std::shared_ptr<infrastructure::PersistenceService> m_persistence;
     std::string m_projectRoot;
     
     std::string m_currentNoteId;

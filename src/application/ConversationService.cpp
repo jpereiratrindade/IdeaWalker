@@ -5,19 +5,22 @@
 
 #include "application/ConversationService.hpp"
 #include <filesystem>
-#include <fstream>
+#include <algorithm>
 #include <sstream>
 #include <chrono>
 #include <iomanip>
 #include <iostream>
 #include <thread>
+#include <fstream> 
 
 namespace ideawalker::application {
 
 namespace fs = std::filesystem;
 
-ConversationService::ConversationService(std::shared_ptr<domain::AIService> aiService, const std::string& projectRoot)
-    : m_aiService(std::move(aiService)), m_projectRoot(projectRoot) {}
+ConversationService::ConversationService(std::shared_ptr<domain::AIService> aiService, 
+                                         std::shared_ptr<infrastructure::PersistenceService> persistence,
+                                         const std::string& projectRoot)
+    : m_aiService(std::move(aiService)), m_persistence(std::move(persistence)), m_projectRoot(projectRoot) {}
 
 void ConversationService::startSession(const ContextBundle& bundle) {
     std::lock_guard<std::mutex> lock(m_mutex);
@@ -31,65 +34,47 @@ void ConversationService::startSession(const ContextBundle& bundle) {
     ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d_%H-%M-%S");
     m_sessionStartTime = ss.str();
 
-    // Context Injection
-    domain::AIService::ChatMessage systemMsg;
-    systemMsg.role = domain::AIService::ChatMessage::Role::System;
-    systemMsg.content = generateSystemPrompt(bundle);
-    m_history.push_back(systemMsg);
+    // Initial System Message
+    std::string systemPrompt = generateSystemPrompt(bundle);
+    m_history.push_back({domain::AIService::ChatMessage::Role::System, systemPrompt});
+
+    // Save initial state
+    saveSession(m_history);
 }
 
 void ConversationService::sendMessage(const std::string& userMessage) {
-    if (m_currentNoteId.empty()) {
-        return;
-    }
+    if (m_projectRoot.empty()) return;
 
+    std::vector<domain::AIService::ChatMessage> historyCopy;
     {
         std::lock_guard<std::mutex> lock(m_mutex);
-        domain::AIService::ChatMessage userMsg;
-        userMsg.role = domain::AIService::ChatMessage::Role::User;
-        userMsg.content = userMessage;
-        m_history.push_back(userMsg);
-    } // Unlock for UI update if needed
+        m_history.push_back({domain::AIService::ChatMessage::Role::User, userMessage});
+        m_isThinking.store(true);
+        historyCopy = m_history; // Snapshot for saving
+    }
+    
+    // Save immediately after user message
+    saveSession(historyCopy);
 
-    m_isThinking = true;
-
-    // Launch Async Thread
-    std::thread([this]() {
-        // Copy history for thread safety during heavy net op (snapshot)
-        std::vector<domain::AIService::ChatMessage> historySnapshot;
+    // AI Processing in background
+    std::thread([this, historyCopy]() {
+        auto responseOpt = m_aiService->chat(historyCopy, true);
+        
+        std::vector<domain::AIService::ChatMessage> updatedHistorySnapshot;
         {
-             std::lock_guard<std::mutex> lock(m_mutex);
-             historySnapshot = m_history;
-        }
-
-        auto responseOpt = m_aiService->chat(historySnapshot);
-        std::string responseContent;
-        
-        if (responseOpt) {
-            responseContent = *responseOpt;
-            
-            // Re-acquire lock to update state
-            std::vector<domain::AIService::ChatMessage> currentHistorySnapshot;
-            {
-                std::lock_guard<std::mutex> lock(m_mutex);
-                domain::AIService::ChatMessage aiMsg;
-                aiMsg.role = domain::AIService::ChatMessage::Role::Assistant;
-                aiMsg.content = responseContent;
-                m_history.push_back(aiMsg);
-                
-                // CRITICAL: Take a snapshot while locked for saving
-                // This removes the race condition where saveSession iterated m_history without lock
-                currentHistorySnapshot = m_history;
+            std::lock_guard<std::mutex> lock(m_mutex);
+            m_isThinking.store(false);
+            if (responseOpt) {
+                m_history.push_back({domain::AIService::ChatMessage::Role::Assistant, *responseOpt});
+            } else {
+                m_history.push_back({domain::AIService::ChatMessage::Role::Assistant, "[Erro: Sem resposta do AI]"});
             }
-            
-            // Save safely OUTSIDE the lock using the snapshot
-            // This prevents I/O from blocking the UI thread waiting for the mutex
-            saveSession(currentHistorySnapshot); 
-        } else {
-             // Handle error
+            updatedHistorySnapshot = m_history;
         }
         
-        m_isThinking = false;
+        // Save after AI response using the NEW snapshot
+        saveSession(updatedHistorySnapshot);
+
     }).detach();
 }
 
@@ -115,56 +100,35 @@ bool ConversationService::isThinking() const {
 }
 
 void ConversationService::saveSession(const std::vector<domain::AIService::ChatMessage>& historySnapshot) {
-    if (m_projectRoot.empty() || m_sessionStartTime.empty()) return;
+    if (m_projectRoot.empty() || m_sessionStartTime.empty() || !m_persistence) return;
 
     fs::path dialoguesDir = fs::path(m_projectRoot) / "dialogues";
-    if (!fs::exists(dialoguesDir)) {
-        try {
-            fs::create_directories(dialoguesDir);
-        } catch (...) {
-            std::cerr << "Failed to create dialogues directory: " << dialoguesDir << std::endl;
-            return;
-        }
-    }
-
-    // Generate unique temp filename to avoid collision if multiple threads save simultaneously
-    auto timestamp = std::chrono::steady_clock::now().time_since_epoch().count();
+    // Directory creation is handled by PersistenceService or pre-existing logic, 
+    // but we can ensure it exists here or rely on PersistenceService's parent_path check relative to filename.
+    
+    // Generate filename
+    std::string safeNoteId = m_currentNoteId;
+    std::replace(safeNoteId.begin(), safeNoteId.end(), '/', '_');
+    std::replace(safeNoteId.begin(), safeNoteId.end(), '\\', '_');
+    
+    std::string filename = safeNoteId + "_" + m_sessionStartTime + ".md";
     fs::path finalPath = dialoguesDir / filename;
-    fs::path tempPath = dialoguesDir / (filename + "." + std::to_string(timestamp) + ".tmp");
 
-    // ATOMIC WRITE PATTERN: Write to .tmp, then rename
-    {
-        std::ofstream ofs(tempPath);
-        if (ofs.is_open()) {
-            ofs << "# Conversa do Projeto\n\n";
-            ofs << "Data: " << m_sessionStartTime << "\n";
-            ofs << "Nota ativa: " << m_currentNoteId << "\n\n";
-            ofs << "---\n\n";
-            ofs << "## Diálogo\n\n";
+    std::stringstream ss;
+    ss << "# Conversa do Projeto\n\n";
+    ss << "Data: " << m_sessionStartTime << "\n";
+    ss << "Nota Foco: " << m_currentNoteId << "\n\n";
+    ss << "---\n\n";
 
-            for (const auto& msg : historySnapshot) {
-                if (msg.role == domain::AIService::ChatMessage::Role::System) continue;
-                
-                std::string roleName = (msg.role == domain::AIService::ChatMessage::Role::User) ? "**Usuário**" : "**IA**";
-                ofs << roleName << ": " << msg.content << "\n\n";
-            }
-            
-            // Explicit flush to ensure data is on disk (managed by OS buffers, but helps)
-            ofs.flush(); 
-        } else {
-            std::cerr << "Failed to open temp file for writing: " << tempPath << std::endl;
-            return;
-        }
-    } // ofs closed here
-
-    // Perform atomic rename
-    try {
-        fs::rename(tempPath, finalPath);
-    } catch (const std::filesystem::filesystem_error& e) {
-        std::cerr << "Failed to rename temp file to final: " << e.what() << std::endl;
-        // Try to delete temp file to avoid clutter, though strictly not necessary for correctness
-        try { fs::remove(tempPath); } catch (...) {}
+    for (const auto& msg : historySnapshot) {
+        if (msg.role == domain::AIService::ChatMessage::Role::System) continue; 
+        
+        ss << "### " << (msg.role == domain::AIService::ChatMessage::Role::User ? "Usuário" : "IdeaWalker") << "\n";
+        ss << msg.content << "\n\n"; 
     }
+
+    // Delegate IO to PersistenceService
+    m_persistence->saveTextAsync(finalPath.string(), ss.str());
 }
 
 std::vector<std::string> ConversationService::listDialogues() const {
@@ -193,53 +157,49 @@ bool ConversationService::loadSession(const std::string& filename) {
     std::ifstream ifs(filePath);
     if (!ifs.is_open()) return false;
 
-    std::lock_guard<std::mutex> lock(m_mutex);
-    m_history.clear();
-    m_currentNoteId = "";
-    m_sessionStartTime = "";
-
-    std::string line;
-    bool inDialogue = false;
-    
-    // Parse timestamp and note ID from headers
-    while (std::getline(ifs, line)) {
-        if (line.rfind("Data: ", 0) == 0) {
-            m_sessionStartTime = line.substr(6);
-        } else if (line.rfind("Nota ativa: ", 0) == 0) {
-            m_currentNoteId = line.substr(12);
-        } else if (line.find("## Diálogo") != std::string::npos) {
-            inDialogue = true;
-            break;
-        }
-    }
-
-    if (!inDialogue) return false;
-
-    // Simple parser for **Usuário** and **IA**
-    domain::AIService::ChatMessage currentMsg;
-    bool hasMsg = false;
-
-    while (std::getline(ifs, line)) {
-        if (line.empty()) continue;
-
-        if (line.rfind("**Usuário**: ", 0) == 0) {
-            if (hasMsg) m_history.push_back(currentMsg);
-            currentMsg.role = domain::AIService::ChatMessage::Role::User;
-            currentMsg.content = line.substr(13);
-            hasMsg = true;
-        } else if (line.rfind("**IA**: ", 0) == 0) {
-            if (hasMsg) m_history.push_back(currentMsg);
-            currentMsg.role = domain::AIService::ChatMessage::Role::Assistant;
-            currentMsg.content = line.substr(8);
-            hasMsg = true;
-        } else {
-            if (hasMsg) {
-                currentMsg.content += "\n" + line;
+    // Reset current state
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_history.clear();
+        m_currentNoteId = "";
+        m_sessionStartTime = "";
+        
+        // Parse basic metadata from filename or content (Simplified)
+        // Filename format: NoteID_Date_Time.md
+        // We can recover NoteID roughly
+        size_t underscore = filename.find_last_of('_'); 
+        // This is tricky without strict parsing, but for now we just load content.
+        // Recovering m_sessionStartTime from filename roughly is possible.
+        
+        // Very basic markdown parsing
+        std::string line;
+        domain::AIService::ChatMessage currentMsg;
+        bool hasMsg = false;
+        
+        while (std::getline(ifs, line)) {
+            if (line.rfind("Data: ", 0) == 0) {
+                m_sessionStartTime = line.substr(6);
+            } else if (line.rfind("Nota Foco: ", 0) == 0) {
+                m_currentNoteId = line.substr(11);
+            } else if (line.rfind("### Usuário", 0) == 0) {
+                if (hasMsg) m_history.push_back(currentMsg);
+                currentMsg.role = domain::AIService::ChatMessage::Role::User;
+                currentMsg.content = "";
+                hasMsg = true;
+            } else if (line.rfind("### IdeaWalker", 0) == 0) {
+                if (hasMsg) m_history.push_back(currentMsg);
+                currentMsg.role = domain::AIService::ChatMessage::Role::Assistant;
+                currentMsg.content = "";
+                hasMsg = true;
+            } else {
+                if (hasMsg && currentMsg.role != domain::AIService::ChatMessage::Role::System) { // Skip preamble
+                     if (!line.empty()) currentMsg.content += line + "\n";
+                }
             }
         }
+        if (hasMsg) m_history.push_back(currentMsg);
     }
-    if (hasMsg) m_history.push_back(currentMsg);
-
+    
     return true;
 }
 
