@@ -1477,6 +1477,12 @@ static void DrawMenuBar(AppState& app) {
             if (ImGui::MenuItem("Writing Trajectories", nullptr, app.showTrajectoryPanel)) {
                  app.showTrajectoryPanel = !app.showTrajectoryPanel;
             }
+             if (ImGui::MenuItem("Defense Mode", nullptr, app.showDefensePanel)) {
+                 app.showDefensePanel = !app.showDefensePanel;
+            }
+            if (ImGui::MenuItem("Segment Editor", nullptr, app.showSegmentEditor)) {
+                 app.showSegmentEditor = !app.showSegmentEditor;
+            }
             ImGui::EndMenu();
         }
 
@@ -2512,5 +2518,6 @@ void DrawUI(AppState& app) {
     // Writing Trajectory Panels
     DrawTrajectoryPanel(app);
     DrawSegmentEditorPanel(app);
+    DrawDefensePanel(app);
 }
 } // namespace ideawalker::ui

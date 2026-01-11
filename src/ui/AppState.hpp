@@ -20,6 +20,8 @@
 #include "domain/Suggestion.hpp"
 #include "application/SuggestionService.hpp"
 #include "application/writing/WritingTrajectoryService.hpp"
+#include "domain/writing/services/CoherenceLensService.hpp"
+#include "domain/writing/services/RevisionQualityService.hpp"
 
 namespace ideawalker::application {
 class OrganizerService;
@@ -266,7 +268,12 @@ struct AppState {
     std::unique_ptr<application::writing::WritingTrajectoryService> writingTrajectoryService;
     bool showTrajectoryPanel = false;
     bool showSegmentEditor = false;
+    bool showDefensePanel = false;
     std::string activeTrajectoryId;
+    
+    // Coherence Analysis
+    std::vector<ideawalker::domain::writing::Inconsistency> coherenceIssues;
+    ideawalker::domain::writing::QualityReport lastQualityReport;
 
 
     std::unique_ptr<application::DocumentIngestionService> ingestionService;

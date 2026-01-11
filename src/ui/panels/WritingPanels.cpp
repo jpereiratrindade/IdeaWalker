@@ -5,6 +5,7 @@
 
 #include "WritingPanels.hpp"
 #include "imgui.h"
+#include "../../domain/writing/services/RevisionQualityService.hpp"
 #include <vector>
 #include <string>
 
@@ -22,6 +23,22 @@ static char segmentContentBuf[4096 * 4] = ""; // 16KB buffer for content
 
 static char rationaleBuf[512] = "";
 static int selectedOp = 0; // index for revision op
+
+static bool tragectoryStageCanAdvance(TrajectoryStage current) {
+    return current != TrajectoryStage::Final;
+}
+
+static TrajectoryStage getNextStage(TrajectoryStage current) {
+    switch(current) {
+        case TrajectoryStage::Intent: return TrajectoryStage::Outline;
+        case TrajectoryStage::Outline: return TrajectoryStage::Drafting;
+        case TrajectoryStage::Drafting: return TrajectoryStage::Revising;
+        case TrajectoryStage::Revising: return TrajectoryStage::Consolidating;
+        case TrajectoryStage::Consolidating: return TrajectoryStage::ReadyForDefense;
+        case TrajectoryStage::ReadyForDefense: return TrajectoryStage::Final;
+        default: return TrajectoryStage::Final;
+    }
+}
 
 void DrawTrajectoryPanel(AppState& state) {
     if (!state.showTrajectoryPanel) return;
@@ -60,19 +77,34 @@ void DrawTrajectoryPanel(AppState& state) {
         ImGui::InputTextMultiline("Core Claim", claimBuf, IM_ARRAYSIZE(claimBuf));
 
         if (ImGui::Button("Create", ImVec2(120, 0))) {
-            if (state.writingTrajectoryService) {
-                std::string id = state.writingTrajectoryService->createTrajectory(
-                    purposeBuf, audienceBuf, claimBuf, "");
-                state.activeTrajectoryId = id;
-                state.showSegmentEditor = true;
-                
-                // Clear buffers
-                purposeBuf[0] = '\0';
-                audienceBuf[0] = '\0';
-                claimBuf[0] = '\0';
-                
+            if (strlen(purposeBuf) == 0 || strlen(audienceBuf) == 0) {
+                 ImGui::OpenPopup("InvalidInput"); 
+            } else if (state.writingTrajectoryService) {
+                try {
+                    std::string id = state.writingTrajectoryService->createTrajectory(
+                        purposeBuf, audienceBuf, claimBuf, "");
+                    state.activeTrajectoryId = id;
+                    state.showSegmentEditor = true;
+                    
+                    // Clear buffers
+                    purposeBuf[0] = '\0';
+                    audienceBuf[0] = '\0';
+                    claimBuf[0] = '\0';
+                    
+                    ImGui::CloseCurrentPopup();
+                } catch (const std::exception& e) {
+                    state.AppendLog(std::string("Error creating trajectory: ") + e.what() + "\n");
+                }
+            }
+        }
+        
+        // Error Popup
+        if (ImGui::BeginPopupModal("InvalidInput", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::Text("Purpose and Audience are required.");
+            if (ImGui::Button("OK", ImVec2(120, 0))) {
                 ImGui::CloseCurrentPopup();
             }
+            ImGui::EndPopup();
         }
         ImGui::SameLine();
         if (ImGui::Button("Cancel", ImVec2(120, 0))) {
@@ -99,6 +131,15 @@ void DrawSegmentEditorPanel(AppState& state) {
     ImGui::Begin(("Editor: " + traj.getIntent().purpose).c_str(), &state.showSegmentEditor);
 
     ImGui::Text("Stage: %s", StageToString(traj.getStage()).c_str());
+    ImGui::SameLine();
+    
+    // Logic to advance stage (simple sequence for MVP)
+    if (tragectoryStageCanAdvance(traj.getStage())) {
+        if (ImGui::Button("Advance Stage")) {
+             TrajectoryStage next = getNextStage(traj.getStage());
+             state.writingTrajectoryService->advanceStage(state.activeTrajectoryId, next);
+        }
+    }
     ImGui::SameLine();
     if (ImGui::Button("Export (Markdown)")) {
          // Call export service (TODO)
@@ -142,9 +183,24 @@ void DrawSegmentEditorPanel(AppState& state) {
             ImGui::SameLine();
             ImGui::TextColored(ImVec4(0.5,0.5,0.5,1), "[%s]", SourceTagToString(seg.source).c_str());
             
-            ImGui::InputTextMultiline("##editor", segmentContentBuf, IM_ARRAYSIZE(segmentContentBuf), 
-                ImVec2(-FLT_MIN, -100)); // Leave space for rationale
+
             
+            ImGui::InputTextMultiline("##editor", segmentContentBuf, IM_ARRAYSIZE(segmentContentBuf), 
+                ImVec2(-FLT_MIN, -150)); // Leave space for rationale and quality warnings
+            
+            // --- Revision Quality Check ---
+            // Real-time check or on button? Real-time is better for guidance.
+            // Check only if content changed length significantly/heuristic to avoid spam
+            state.lastQualityReport = RevisionQualityService::analyze(seg.content, segmentContentBuf);
+            
+            if (!state.lastQualityReport.passed) {
+                ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), "Quality Warnings:");
+                for (const auto& w : state.lastQualityReport.warnings) {
+                    ImGui::BulletText("%s", w.c_str());
+                }
+            } else {
+                ImGui::TextColored(ImVec4(0, 1, 0, 0.5f), "Quality Check: Pass");
+            }
             ImGui::Separator();
             ImGui::Text("Revision Rationale (Mandatory)");
             
@@ -188,9 +244,13 @@ void DrawSegmentEditorPanel(AppState& state) {
     if (ImGui::BeginPopupModal("AddSegmentPopup", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
         ImGui::InputText("Title", segmentTitleBuf, IM_ARRAYSIZE(segmentTitleBuf));
         if (ImGui::Button("Add", ImVec2(120, 0))) {
-            state.writingTrajectoryService->addSegment(state.activeTrajectoryId, segmentTitleBuf, "");
-            ImGui::CloseCurrentPopup();
-            segmentTitleBuf[0] = '\0';
+            try {
+                state.writingTrajectoryService->addSegment(state.activeTrajectoryId, segmentTitleBuf, "");
+                ImGui::CloseCurrentPopup();
+                segmentTitleBuf[0] = '\0';
+            } catch (const std::exception& e) {
+                state.AppendLog(std::string("Error adding segment: ") + e.what() + "\n");
+            }
         }
         ImGui::SameLine();
         if (ImGui::Button("Cancel")) ImGui::CloseCurrentPopup();

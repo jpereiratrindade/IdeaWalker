@@ -1,0 +1,332 @@
+\documentclass[12pt,a4paper]{article}
+
+% -------------------------------------------------
+% Pacotes básicos
+% -------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{setspace}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{csquotes}
+
+% -------------------------------------------------
+% Configuração de página
+% -------------------------------------------------
+\geometry{
+	top=3cm,
+	bottom=2.5cm,
+	left=3cm,
+	right=2.5cm
+}
+\onehalfspacing
+\setlength{\parindent}{1.2cm}
+\setlength{\parskip}{0.2cm}
+
+% -------------------------------------------------
+% Título
+% -------------------------------------------------
+\title{\textbf{WritingTrajectoryContext (WTC)}\\
+\large Domain-Driven Design para Trajetórias de Escrita com Autoria Cognitiva, Rastreabilidade e Defesa}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents*
+\newpage
+
+% =================================================
+\section{Purpose and Epistemic Contract}
+
+\subsection{Purpose}
+Modelar a escrita como uma trajetória versionada de decisões, onde o valor está no processo:
+intenção $\rightarrow$ estrutura $\rightarrow$ rascunhos $\rightarrow$ revisões $\rightarrow$ defesa.
+
+\subsection{Epistemic Contract}
+\begin{itemize}[leftmargin=*]
+  \item A IA pode participar como \textbf{instrumento} (sugestão, revisão, crítica), nunca como \textbf{autor} do compromisso argumentativo.
+  \item A autoria é definida pela \textbf{trajetória decisional humana} e sua \textbf{defensabilidade}.
+  \item O contexto registra \textbf{o que mudou}, \textbf{por que mudou} e \textbf{quais alternativas foram consideradas}.
+  \item Detecção de ``IA vs humano'' é \textbf{fora de escopo}. O foco é \textbf{controle epistêmico e rastreabilidade}.
+\end{itemize}
+
+% =================================================
+\section{Bounded Context}
+
+\subsection{Nome}
+WritingTrajectoryContext (WTC)
+
+\subsection{Responsabilidades}
+\begin{itemize}[leftmargin=*]
+  \item Gerenciar trajetórias de escrita (do outline ao texto final).
+  \item Versionar segmentos e registrar decisões editoriais.
+  \item Manter ligações semânticas com notas/artefatos (backlinks, fontes, evidências).
+  \item Produzir material para \textbf{defesa} (auto-arguição / perguntas críticas).
+\end{itemize}
+
+\subsection{Fora de Escopo}
+\begin{itemize}[leftmargin=*]
+  \item Geração automática de ``texto final'' como substituição do autor.
+  \item Otimização para evasão de detectores.
+  \item Verificação externa de fatos (pode integrar, mas não pertence ao domínio).
+\end{itemize}
+
+% =================================================
+\section{Ubiquitous Language}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Trajectory}: sequência de estados de escrita com eventos e decisões.
+  \item \textbf{Segment}: unidade mínima versionada (parágrafo, seção, bloco).
+  \item \textbf{Revision}: transformação de um segmento com propósito e justificativa.
+  \item \textbf{Decision}: escolha argumentativa/editorial explicitada e justificável.
+  \item \textbf{Evidence Link}: referência a fonte, nota, dado, citação.
+  \item \textbf{Defense Prompt}: pergunta de arguição que valida compreensão.
+\end{itemize}
+
+% =================================================
+\section{Core Domain Model}
+
+\subsection{Aggregate Root: WritingTrajectory}
+
+\textbf{WritingTrajectory} representa um trabalho textual em evolução (ex.: relatório, capítulo, artigo).
+
+\subsubsection{Identity}
+\begin{itemize}[leftmargin=*]
+  \item TrajectoryId (UUID)
+\end{itemize}
+
+\subsubsection{State (Value Object)}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Stage}: \{Intent, Outline, Drafting, Revising, Consolidating, ReadyForDefense, Final\}
+  \item \textbf{Confidence}: 0..1 (autoavaliação do autor, opcional)
+  \item \textbf{LastUpdated}
+\end{itemize}
+
+\subsubsection{Children / Components}
+\begin{itemize}[leftmargin=*]
+  \item WritingIntent (VO)
+  \item OutlineGraph (Entity) \textit{(estrutura e ordem de segmentos)}
+  \item DraftSegment (Entity) \textit{(conteúdo versionado)}
+  \item RevisionDecision (Entity)
+  \item EvidenceLink (VO)
+  \item AIInteractionRecord (VO) \textit{(transparência e metacognição)}
+  \item DefenseCard (Entity)
+\end{itemize}
+
+\subsubsection{Aggregate Invariants}
+\begin{itemize}[leftmargin=*]
+  \item Não existe revisão sem \textbf{Rationale} (decisão explicitada).
+  \item Todo segmento publicado como ``Final'' deve ter:
+  \begin{itemize}
+    \item pelo menos 1 revisão humana (source=human\_reviewed)
+    \item pelo menos 1 defense card associado (ou justificativa de dispensa)
+  \end{itemize}
+  \item Toda evidência linkada deve apontar para \textbf{um artefato rastreável} (nota, DOI, arquivo, entrevista).
+  \item Stage só avança por \textbf{Domain Events} (sem pulo mágico).
+\end{itemize}
+
+% =================================================
+\section{Entities and Value Objects}
+
+\subsection{WritingIntent (Value Object)}
+\begin{itemize}[leftmargin=*]
+  \item Purpose: informar | argumentar | relatar | propor | instruir
+  \item Audience: banca | cliente | público geral | equipe técnica
+  \item CoreClaim / ResearchQuestion
+  \item Constraints: tamanho, normas (ABNT), prazo, tom
+\end{itemize}
+Invariante: não pode ser vazio.
+
+\subsection{DraftSegment (Entity)}
+\begin{itemize}[leftmargin=*]
+  \item SegmentId
+  \item Title / Label
+  \item Content
+  \item SourceTag: human | ai\_assisted | ai\_generated | human\_reviewed
+  \item Version: monotônica
+  \item Timestamp
+\end{itemize}
+
+\subsection{RevisionDecision (Entity)}
+\begin{itemize}[leftmargin=*]
+  \item DecisionId
+  \item Target: SegmentId
+  \item Operation: clarify | compress | expand | reorganize | cite | remove | reframe
+  \item Rationale: texto curto, obrigatório
+  \item AlternativesConsidered: lista curta (opcional, mas recomendada)
+\end{itemize}
+
+\subsection{EvidenceLink (Value Object)}
+\begin{itemize}[leftmargin=*]
+  \item RefType: note | pdf | doi | url | interview | dataset
+  \item RefId (ou caminho/identificador)
+  \item ClaimAnchor: trecho/posição do segmento (range)
+  \item Confidence: 0..1
+\end{itemize}
+
+\subsection{AIInteractionRecord (Value Object)}
+\begin{itemize}[leftmargin=*]
+  \item Tool: qwen | llama | gpt | etc.
+  \item Intent: brainstorm | critique | rewrite | outline | citation\_ideas
+  \item InputHash (não precisa armazenar o texto bruto sempre)
+  \item OutputSummary (curto)
+  \item Timestamp
+\end{itemize}
+
+\subsection{DefenseCard (Entity)}
+\begin{itemize}[leftmargin=*]
+  \item CardId
+  \item SegmentId (ou OutlineNodeId)
+  \item Prompt: pergunta de defesa
+  \item ExpectedDefensePoints: bullets (opcional)
+  \item Status: pending | rehearsed | passed
+\end{itemize}
+
+% =================================================
+\section{Domain Events}
+
+Eventos que \textbf{mudam estado} e registram história.
+
+\begin{itemize}[leftmargin=*]
+  \item TrajectoryCreated
+  \item IntentDeclared
+  \item OutlineUpdated
+  \item SegmentAdded
+  \item SegmentRevised
+  \item DecisionRecorded
+  \item EvidenceLinked
+  \item DefenseCardsGenerated
+  \item StageAdvanced
+  \item TrajectoryFinalized
+\end{itemize}
+
+% =================================================
+\section{Commands (Application Use Cases)}
+
+\begin{itemize}[leftmargin=*]
+  \item CreateTrajectory(intent)
+  \item UpdateOutline(graphDelta)
+  \item AddSegment(label, content, sourceTag)
+  \item ReviseSegment(segmentId, newContent, operation, rationale, sourceTag)
+  \item LinkEvidence(segmentId, evidenceLink)
+  \item GenerateDefenseCards(scope)
+  \item AdvanceStage(expectedStage)
+  \item ExportArtifact(format=\{md, tex\})
+\end{itemize}
+
+Regra: todo command deve resultar em 0..N domain events.
+
+% =================================================
+\section{Domain Services}
+
+\subsection{CoherenceLensService}
+Verifica alinhamento: Intent $\leftrightarrow$ Outline $\leftrightarrow$ Segmentos.
+Saída: lista de inconsistências e sugestões (não altera domínio).
+
+\subsection{RevisionQualityService}
+Classifica revisões por propósito (clareza/coerência/densidade) e detecta:
+\begin{itemize}[leftmargin=*]
+  \item homogeneização excessiva do estilo
+  \item perda de termos técnicos essenciais
+  \item cortes que removem suporte evidencial
+\end{itemize}
+
+\subsection{DefensePromptFactory}
+Gera prompts de defesa com base em:
+\begin{itemize}[leftmargin=*]
+  \item decisões registradas
+  \item pontos de tensão argumentativa
+  \item trechos com baixa evidência/confiança
+\end{itemize}
+
+% =================================================
+\section{Integration with IdeaWalker}
+
+\subsection{Context Map}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Note/Knowledge Context} (upstream): fornece notas e backlinks como evidências.
+  \item \textbf{Cognitive Dialogue Context} (collaboration): conversas podem gerar decisões e defense cards.
+  \item \textbf{PersistenceService} (infrastructure): grava eventos, snapshots e exportações de modo atômico.
+\end{itemize}
+
+\subsection{Anti-Corruption Layer (ACL)}
+Um adaptador protege o domínio WTC de formatos externos:
+\begin{itemize}[leftmargin=*]
+  \item NotesAdapter: converte notas em EvidenceLink.
+  \item AIAdapter: converte interações em AIInteractionRecord (sem vazar prompts brutos se não desejado).
+\end{itemize}
+
+\subsection{Storage Strategy (Event + Snapshot Hybrid)}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Event Log} (fonte da verdade): \texttt{/writing/trajectories/<id>/events.ndjson}
+  \item \textbf{Snapshots} (performance): \texttt{/writing/trajectories/<id>/snapshot.json}
+  \item \textbf{Exports}: \texttt{/writing/trajectories/<id>/exports/<name>.tex/.md}
+\end{itemize}
+
+% =================================================
+\section{Suggested Folder Layout (C++ Project)}
+
+\begin{verbatim}
+src/domain/writing/
+  WritingTrajectory.hpp/.cpp
+  value_objects/
+    WritingIntent.hpp
+    EvidenceLink.hpp
+    TrajectoryStage.hpp
+    AIInteractionRecord.hpp
+  entities/
+    DraftSegment.hpp
+    RevisionDecision.hpp
+    DefenseCard.hpp
+  services/
+    CoherenceLensService.hpp
+    RevisionQualityService.hpp
+    DefensePromptFactory.hpp
+  events/
+    WritingEvents.hpp
+  repositories/
+    IWritingTrajectoryRepository.hpp
+
+src/application/writing/
+  WritingTrajectoryAppService.hpp/.cpp
+  ExportService.hpp/.cpp
+
+src/infrastructure/writing/
+  WritingTrajectoryRepositoryFs.hpp/.cpp
+  WritingEventStoreFs.hpp/.cpp
+  adapters/
+    NotesAdapter.hpp/.cpp
+    AIAdapter.hpp/.cpp
+\end{verbatim}
+
+% =================================================
+\section{UI Integration (Panels)}
+
+Painéis mínimos:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{TrajectoryPanel}: lista e status das trajetórias.
+  \item \textbf{OutlinePanel}: grafo/árvore da estrutura.
+  \item \textbf{SegmentEditorPanel}: edição + versão + rationale.
+  \item \textbf{DefensePanel}: cards de defesa e modo ensaio.
+\end{itemize}
+
+Regra UI: o usuário sempre vê \textbf{o porquê} (rationale) como cidadão de primeira classe.
+
+% =================================================
+\section{Operational Workflow}
+
+\begin{enumerate}[leftmargin=*]
+  \item CreateTrajectory + Declare Intent
+  \item Construir Outline humano
+  \item Rascunhar segmentos (human/ai\_assisted)
+  \item Revisar com decisões (rationale obrigatório)
+  \item Linkar evidências (notas, PDFs, DOI)
+  \item Gerar DefenseCards
+  \item Ensaiar defesa (auto-arguição)
+  \item Exportar em \texttt{.tex} (ABNT) e/ou \texttt{.md}
+\end{enumerate}
+
+\end{document}

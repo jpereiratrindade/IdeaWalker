@@ -12,7 +12,7 @@ latex/
 
 # Models and Large Data
 *.bin
-*.tex
+#*.tex
 *.wav
 *.a
 *.so

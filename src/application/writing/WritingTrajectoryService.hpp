@@ -42,13 +42,34 @@ public:
     // Advances the stage of the project
     void advanceStage(const std::string& trajectoryId, TrajectoryStage newStage);
 
+    // Defense Commands
+    void addDefenseCard(const std::string& trajectoryId, 
+                       const std::string& cardId, // Provided by UI or generated
+                       const std::string& segmentId, 
+                       const std::string& prompt, 
+                       const std::vector<std::string>& points);
+
+    void updateDefenseStatus(const std::string& trajectoryId, 
+                            const std::string& cardId, 
+                            DefenseStatus newStatus, 
+                            const std::string& response);
+
     // Retrieval
     size_t getTrajectoryCount() const;
     std::vector<WritingTrajectory> getAllTrajectories() const;
     std::unique_ptr<WritingTrajectory> getTrajectory(const std::string& id) const;
 
+
+    void refreshCache(); // Force reload from disk
+
 private:
     std::shared_ptr<IWritingTrajectoryRepository> m_repository;
+    
+    // Cache
+    mutable std::vector<WritingTrajectory> m_trajectoryCache;
+    mutable bool m_cacheValid = false;
+    
+    void updateCache() const;
 };
 
 } // namespace ideawalker::application::writing

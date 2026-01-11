@@ -18,5 +18,6 @@ void DrawTrajectoryPanel(AppState& state);
  * @brief Renders the editor for the active writing trajectory.
  */
 void DrawSegmentEditorPanel(AppState& state);
+void DrawDefensePanel(AppState& state);
 
 } // namespace ideawalker::ui

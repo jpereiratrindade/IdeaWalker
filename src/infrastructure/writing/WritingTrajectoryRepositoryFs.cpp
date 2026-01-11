@@ -58,6 +58,21 @@ std::vector<StoredEvent> WritingTrajectoryRepositoryFs::serializeEvents(const st
                     {"newStage", StageToString(e.newStage)}
                 };
             }
+            else if constexpr (std::is_same_v<T, DefenseCardAdded>) {
+                j = {
+                    {"cardId", e.cardId},
+                    {"segmentId", e.segmentId},
+                    {"prompt", e.prompt},
+                    {"expectedPoints", e.expectedPoints}
+                };
+            }
+            else if constexpr (std::is_same_v<T, DefenseStatusUpdated>) {
+                j = {
+                    {"cardId", e.cardId},
+                    {"newStatus", e.newStatus},
+                    {"response", e.response}
+                };
+            }
             
             stored.push_back({T::Type, j.dump(), e.timestamp});
         }, varEvent);
@@ -89,67 +104,119 @@ std::optional<WritingTrajectory> WritingTrajectoryRepositoryFs::findById(const s
     // Rehydrate
     auto trajectory = WritingTrajectory::createEmpty(id);
     
-    for (const auto& s : stored) {
-        if (s.eventType == TrajectoryCreated::Type) {
-            auto j = json::parse(s.eventDataJson);
-            WritingIntent intent(
-                j["intent"]["purpose"],
-                j["intent"]["audience"],
-                j["intent"].value("coreClaim", ""),
-                j["intent"].value("constraints", "")
-            );
-            trajectory.applyEvent(TrajectoryCreated{id, intent, s.timestamp});
-        }
-        else if (s.eventType == SegmentAdded::Type) {
-            auto j = json::parse(s.eventDataJson);
-            trajectory.applyEvent(SegmentAdded{
-                id, 
-                j["segmentId"], 
-                j["title"], 
-                j["content"], 
-                j.value("sourceTag", "human"), 
-                s.timestamp
-            });
-        }
-        else if (s.eventType == SegmentRevised::Type) {
-            auto j = json::parse(s.eventDataJson);
-            RevisionOperation op = RevisionOperation::Clarify; // Default
-            std::string opStr = j["operation"];
-            if (opStr == "clarify") op = RevisionOperation::Clarify;
-            else if (opStr == "compress") op = RevisionOperation::Compress;
-            else if (opStr == "expand") op = RevisionOperation::Expand;
-            else if (opStr == "reorganize") op = RevisionOperation::Reorganize;
-            else if (opStr == "cite") op = RevisionOperation::Cite;
-            else if (opStr == "remove") op = RevisionOperation::Remove;
-            else if (opStr == "reframe") op = RevisionOperation::Reframe;
-            else if (opStr == "correction") op = RevisionOperation::Correction;
+    try {
+        for (const auto& s : stored) {
+            if (s.eventType == TrajectoryCreated::Type) {
+                auto j = json::parse(s.eventDataJson);
+                WritingIntent intent(
+                    j["intent"]["purpose"],
+                    j["intent"]["audience"],
+                    j["intent"].value("coreClaim", ""),
+                    j["intent"].value("constraints", "")
+                );
+                trajectory.applyEvent(TrajectoryCreated{id, intent, s.timestamp});
+            }
+            else if (s.eventType == SegmentAdded::Type) {
+                auto j = json::parse(s.eventDataJson);
+                trajectory.applyEvent(SegmentAdded{
+                    id, 
+                    j["segmentId"], 
+                    j["title"], 
+                    j["content"], 
+                    j.value("sourceTag", "human"), 
+                    s.timestamp
+                });
+            }
+            else if (s.eventType == SegmentRevised::Type) {
+                auto j = json::parse(s.eventDataJson);
+                RevisionOperation op = RevisionOperation::Clarify; // Default
+                std::string opStr = j["operation"];
+                if (opStr == "clarify") op = RevisionOperation::Clarify;
+                else if (opStr == "compress") op = RevisionOperation::Compress;
+                else if (opStr == "expand") op = RevisionOperation::Expand;
+                else if (opStr == "reorganize") op = RevisionOperation::Reorganize;
+                else if (opStr == "cite") op = RevisionOperation::Cite;
+                else if (opStr == "remove") op = RevisionOperation::Remove;
+                else if (opStr == "reframe") op = RevisionOperation::Reframe;
+                else if (opStr == "correction") op = RevisionOperation::Correction;
 
-            trajectory.applyEvent(SegmentRevised{
-                id,
-                j["segmentId"],
-                j["oldContent"],
-                j["newContent"],
-                j["decisionId"],
-                op,
-                j["rationale"],
-                j.value("sourceTag", "human"),
-                s.timestamp
-            });
+                trajectory.applyEvent(SegmentRevised{
+                    id,
+                    j["segmentId"],
+                    j["oldContent"],
+                    j["newContent"],
+                    j["decisionId"],
+                    op,
+                    j["rationale"],
+                    j.value("sourceTag", "human"),
+                    s.timestamp
+                });
+            }
+            else if (s.eventType == DefenseCardAdded::Type) {
+                auto j = json::parse(s.eventDataJson);
+                trajectory.applyEvent(DefenseCardAdded{
+                    id,
+                    j["cardId"],
+                    j["segmentId"],
+                    j["prompt"],
+                    j.value("expectedPoints", std::vector<std::string>{}),
+                    s.timestamp
+                });
+            }
+            else if (s.eventType == DefenseStatusUpdated::Type) {
+                auto j = json::parse(s.eventDataJson);
+                trajectory.applyEvent(DefenseStatusUpdated{
+                    id,
+                    j["cardId"],
+                    j["newStatus"],
+                    j.value("response", ""),
+                    s.timestamp
+                });
+            }
+            else if (s.eventType == StageAdvanced::Type) {
+                auto j = json::parse(s.eventDataJson);
+                // We need to parse string back to enum. 
+                // A helper would be better, but for now simple comparison:
+                auto stageFromString = [](const std::string& str) {
+                    if (str == "Outline") return TrajectoryStage::Outline;
+                    if (str == "Drafting") return TrajectoryStage::Drafting;
+                    if (str == "Revising") return TrajectoryStage::Revising;
+                    if (str == "Consolidating") return TrajectoryStage::Consolidating;
+                    if (str == "ReadyForDefense") return TrajectoryStage::ReadyForDefense;
+                    if (str == "Final") return TrajectoryStage::Final;
+                    return TrajectoryStage::Intent;
+                };
+
+                trajectory.applyEvent(StageAdvanced{
+                    id,
+                    stageFromString(j["oldStage"]),
+                    stageFromString(j["newStage"]),
+                    s.timestamp
+                });
+            }
         }
-        else if (s.eventType == StageAdvanced::Type) {
-             // ... parsing logic for stage ...
-             // Simplified for brevity
-             // For now we trust strict ordering in store
-        }
+    } catch (const std::exception& e) {
+        std::cerr << "Error rehydrating trajectory " << id << ": " << e.what() << std::endl;
+        return std::nullopt;
     }
     
     return trajectory;
 }
 
 std::vector<WritingTrajectory> WritingTrajectoryRepositoryFs::findAll() {
-    // In a real FS implementation we would scan the directory.
-    // For MVP, we'll return empty or implement scan later.
-    return {}; 
+    std::vector<WritingTrajectory> trajectories;
+    auto ids = m_eventStore->getAllTrajectoryIds();
+    
+    for (const auto& id : ids) {
+        auto trajOpt = findById(id);
+        if (trajOpt) {
+            trajectories.push_back(std::move(*trajOpt));
+        }
+    }
+    
+    // Sort by timestamp? Or allow service to sort. 
+    // Repo returns unsorted collection usually.
+    return trajectories; 
 }
 
 } // namespace ideawalker::infrastructure::writing

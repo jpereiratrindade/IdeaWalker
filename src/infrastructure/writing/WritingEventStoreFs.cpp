@@ -31,34 +31,26 @@ void WritingEventStoreFs::append(const std::string& trajectoryId, const std::vec
 
     std::string filepath = getEventsFilePath(trajectoryId);
     
-    // Read existing content first (to ensure we append correctly w/ PersistenceService)
-    // NOTE: This is not efficient for huge logs, but implementing true append in PersistenceService
-    // is out of scope for now. For text projects, this is acceptable.
-    std::string fileContent;
-    if (fs::exists(filepath)) {
-        std::ifstream inFile(filepath);
-        if (inFile) {
-            std::stringstream buffer;
-            buffer << inFile.rdbuf();
-            fileContent = buffer.str();
-            // Ensure ending newline
-            if (!fileContent.empty() && fileContent.back() != '\n') {
-                fileContent += "\n";
-            }
-        }
+
+    
+    // Use synchronous append for data integrity and immediate consistency.
+    // This avoids race conditions between creation and subsequent reads, 
+    // and ensures events are not lost if the application closes immediately.
+    std::ofstream outFile(filepath, std::ios::app);
+    if (!outFile) {
+        // In a real app we might throw or log, but for MVP we just return
+        return;
     }
 
-    std::stringstream newContent;
     for (const auto& evt : events) {
         json j;
         j["type"] = evt.eventType;
         j["data"] = json::parse(evt.eventDataJson);
         j["ts"] = std::chrono::duration_cast<std::chrono::milliseconds>(
             evt.timestamp.time_since_epoch()).count();
-        newContent << j.dump() << "\n";
+        outFile << j.dump() << "\n";
     }
-
-    m_persistence->saveTextAsync(filepath, fileContent + newContent.str());
+    // File closes automatically and flushes handles
 }
 
 std::vector<StoredEvent> WritingEventStoreFs::readAll(const std::string& trajectoryId) {
@@ -87,6 +79,23 @@ std::vector<StoredEvent> WritingEventStoreFs::readAll(const std::string& traject
         }
     }
     return results;
+}
+
+std::vector<std::string> WritingEventStoreFs::getAllTrajectoryIds() {
+    std::vector<std::string> ids;
+    fs::path rootPath = fs::path(m_projectRoot) / "writing" / "trajectories";
+    
+    if (!fs::exists(rootPath) || !fs::is_directory(rootPath)) {
+        return ids;
+    }
+
+    for (const auto& entry : fs::directory_iterator(rootPath)) {
+        if (entry.is_directory()) {
+            // The directory name is the trajectory ID
+            ids.push_back(entry.path().filename().string());
+        }
+    }
+    return ids;
 }
 
 } // namespace ideawalker::infrastructure::writing

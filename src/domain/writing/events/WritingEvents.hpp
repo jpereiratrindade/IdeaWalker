@@ -52,7 +52,34 @@ struct StageAdvanced {
     std::chrono::system_clock::time_point timestamp;
 };
 
+// Defense Events
+struct DefenseCardAdded {
+    static constexpr const char* Type = "DefenseCardAdded";
+    std::string trajectoryId;
+    std::string cardId;
+    std::string segmentId;
+    std::string prompt;
+    std::vector<std::string> expectedPoints;
+    std::chrono::system_clock::time_point timestamp;
+};
+
+struct DefenseStatusUpdated {
+    static constexpr const char* Type = "DefenseStatusUpdated";
+    std::string trajectoryId;
+    std::string cardId;
+    std::string newStatus; // "Pending", "Rehearsed", "Passed"
+    std::string response; 
+    std::chrono::system_clock::time_point timestamp;
+};
+
 // variant for generic handling
-using WritingDomainEvent = std::variant<TrajectoryCreated, SegmentAdded, SegmentRevised, StageAdvanced>;
+using WritingDomainEvent = std::variant<
+    TrajectoryCreated, 
+    SegmentAdded, 
+    SegmentRevised, 
+    StageAdvanced,
+    DefenseCardAdded,
+    DefenseStatusUpdated
+>;
 
 } // namespace ideawalker::domain::writing

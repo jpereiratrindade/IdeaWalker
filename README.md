@@ -44,7 +44,7 @@ O **Idea Walker** é um suporte cognitivo projetado para transformar pensamentos
 - **🎙️ Captura de Áudio**: Transcrição local de voz para insights estruturados.
 - **📜 Licença GPLv3**: Software livre e de código aberto.
 - **Menu File & Navegação**: Gestão completa de projetos e navegação integrada por pastas.
-- **🖊️ Trajetórias de Escrita**: Ambiente focado em intenção e revisão para escrita longa (DDD + Event Sourcing). Editor de segmentos com racional obrigatório para mudanças.
+- **🖊️ Trajetórias de Escrita**: Ambiente focado em intenção e revisão para escrita longa (DDD + Event Sourcing). Inclui **Editor de Segmentos** com rastreabilidade, **Modo de Defesa** com IA e verificação de coerência. [Detalhes da Implementação](docs/WRITING_TRAJECTORY_IMPLEMENTATION.md)
 
 ---
 

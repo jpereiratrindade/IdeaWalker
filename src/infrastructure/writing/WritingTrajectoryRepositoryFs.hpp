@@ -26,9 +26,7 @@ private:
     
     // Helper to serialize events from the aggregate
     std::vector<StoredEvent> serializeEvents(const std::string& trajectoryId, 
-                                           // Ideally we get a list of events from the aggregate
-                                           // For MVP we might need to change Aggregate to expose them
-                                           const std::vector<std::variant<TrajectoryCreated, SegmentAdded, SegmentRevised, StageAdvanced>>& domainEvents);
+                                           const std::vector<WritingDomainEvent>& domainEvents);
 };
 
 } // namespace ideawalker::infrastructure::writing

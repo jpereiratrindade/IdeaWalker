@@ -146,6 +146,7 @@ add_executable(${PROJECT_NAME}
     src/application/writing/WritingTrajectoryService.cpp
     src/application/writing/ExportService.cpp
     src/ui/panels/WritingPanels.cpp
+    src/ui/panels/DefensePanel.cpp
 
 )
 

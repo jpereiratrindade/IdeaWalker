@@ -31,6 +31,9 @@ public:
     // Reads all events for a trajectory
     std::vector<StoredEvent> readAll(const std::string& trajectoryId);
 
+    // List all trajectory IDs found in storage
+    std::vector<std::string> getAllTrajectoryIds();
+
 private:
     std::string m_projectRoot;
     std::shared_ptr<PersistenceService> m_persistence;
