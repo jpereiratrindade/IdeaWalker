@@ -4,6 +4,7 @@
  */
 #include "ui/UiRenderer.hpp"
 #include "ui/ConversationPanel.hpp"
+#include "ui/panels/WritingPanels.hpp"
 
 #include "application/OrganizerService.hpp"
 #include "application/DocumentIngestionService.hpp"
@@ -1472,6 +1473,13 @@ static void DrawMenuBar(AppState& app) {
             ImGui::EndMenu();
         }
 
+        if (ImGui::BeginMenu("View")) {
+            if (ImGui::MenuItem("Writing Trajectories", nullptr, app.showTrajectoryPanel)) {
+                 app.showTrajectoryPanel = !app.showTrajectoryPanel;
+            }
+            ImGui::EndMenu();
+        }
+
         if (ImGui::BeginMenu("⚙️ Configurações")) {
              if (ImGui::MenuItem("Preferências...", nullptr, false, true)) {
                  app.showSettingsModal = true;
@@ -2500,5 +2508,9 @@ void DrawUI(AppState& app) {
 
     DrawMainWindow(app);
     DrawAllModals(app);
+    
+    // Writing Trajectory Panels
+    DrawTrajectoryPanel(app);
+    DrawSegmentEditorPanel(app);
 }
 } // namespace ideawalker::ui

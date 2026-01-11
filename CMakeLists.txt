@@ -141,6 +141,11 @@ add_executable(${PROJECT_NAME}
     src/infrastructure/FileSystemArtifactScanner.cpp
     src/infrastructure/EmbeddingCache.cpp
     src/infrastructure/PersistenceService.cpp
+    src/infrastructure/writing/WritingEventStoreFs.cpp
+    src/infrastructure/writing/WritingTrajectoryRepositoryFs.cpp
+    src/application/writing/WritingTrajectoryService.cpp
+    src/application/writing/ExportService.cpp
+    src/ui/panels/WritingPanels.cpp
 
 )
 

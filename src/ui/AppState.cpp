@@ -16,6 +16,8 @@
 #include "infrastructure/PathUtils.hpp"
 #include "application/ConversationService.hpp"
 #include "infrastructure/PersistenceService.hpp"
+#include "infrastructure/writing/WritingEventStoreFs.hpp"
+#include "infrastructure/writing/WritingTrajectoryRepositoryFs.hpp"
 
 #include <algorithm>
 #include <cstdio>
@@ -155,6 +157,11 @@ bool AppState::OpenProject(const std::string& rootPath) {
 
     contextAssembler = std::make_unique<application::ContextAssembler>(*organizerService, *ingestionService);
     suggestionService = std::make_unique<application::SuggestionService>(conversationAi, root.string());
+
+    // Initialize Writing Trajectory Service
+    auto eventStore = std::make_unique<infrastructure::writing::WritingEventStoreFs>(root.string(), persistenceService);
+    auto trajRepo = std::make_shared<infrastructure::writing::WritingTrajectoryRepositoryFs>(std::move(eventStore));
+    writingTrajectoryService = std::make_unique<application::writing::WritingTrajectoryService>(std::move(trajRepo));
 
     projectRoot = root.string();
     std::snprintf(projectPathBuffer, sizeof(projectPathBuffer), "%s", projectRoot.c_str());

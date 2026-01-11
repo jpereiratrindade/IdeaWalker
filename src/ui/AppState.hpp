@@ -19,6 +19,7 @@
 #include "domain/AIService.hpp"
 #include "domain/Suggestion.hpp"
 #include "application/SuggestionService.hpp"
+#include "application/writing/WritingTrajectoryService.hpp"
 
 namespace ideawalker::application {
 class OrganizerService;
@@ -260,6 +261,13 @@ struct AppState {
 
     /** @brief Triggers a background indexing and suggestion generation session. */
     void AnalyzeSuggestions();
+    
+    // Writing Trajectory Context
+    std::unique_ptr<application::writing::WritingTrajectoryService> writingTrajectoryService;
+    bool showTrajectoryPanel = false;
+    bool showSegmentEditor = false;
+    std::string activeTrajectoryId;
+
 
     std::unique_ptr<application::DocumentIngestionService> ingestionService;
     std::shared_ptr<infrastructure::PersistenceService> persistenceService;
