@@ -34,6 +34,10 @@ public:
     /** @brief Generates a semantic embedding vector. @see domain::AIService::getEmbedding */
     std::vector<float> getEmbedding(const std::string& text) override;
 
+    std::vector<std::string> getAvailableModels() override;
+    void setModel(const std::string& modelName) override;
+    std::string getCurrentModel() const override;
+
 private:
     void detectBestModel();
     std::string getSystemPrompt(domain::AIPersona persona);

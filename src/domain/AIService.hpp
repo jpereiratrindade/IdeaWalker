@@ -70,6 +70,24 @@ public:
      * @return A vector of floats representing the embedding.
      */
     virtual std::vector<float> getEmbedding(const std::string& text) = 0;
+
+    /**
+     * @brief Retrieves a list of available AI models from the provider.
+     * @return Vector of model names.
+     */
+    virtual std::vector<std::string> getAvailableModels() = 0;
+
+    /**
+     * @brief Sets the specific AI model to use for future requests.
+     * @param modelName The name of the model to select (must be available).
+     */
+    virtual void setModel(const std::string& modelName) = 0;
+
+    /**
+     * @brief Gets the name of the currently selected AI model.
+     * @return The model name.
+     */
+    virtual std::string getCurrentModel() const = 0;
 };
 
 } // namespace ideawalker::domain

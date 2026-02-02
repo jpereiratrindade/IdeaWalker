@@ -50,7 +50,7 @@ std::string FilterTaskLines(const std::string& text) {
 } // namespace
 
 OrganizerService::OrganizerService(std::unique_ptr<domain::ThoughtRepository> repo, 
-                                   std::unique_ptr<domain::AIService> ai,
+                                   std::shared_ptr<domain::AIService> ai,
                                    std::unique_ptr<domain::TranscriptionService> transcriber)
     : m_repo(std::move(repo)), m_ai(std::move(ai)), m_transcriber(std::move(transcriber)) {}
 

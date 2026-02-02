@@ -29,6 +29,16 @@ public:
     std::vector<float> getEmbedding(const std::string&) override {
         return {};
     }
+
+    std::vector<std::string> getAvailableModels() override {
+        return {"mock-model"};
+    }
+
+    void setModel(const std::string&) override {}
+
+    std::string getCurrentModel() const override {
+        return "mock-model";
+    }
 };
 
 int main() {

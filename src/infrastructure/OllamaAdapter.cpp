@@ -64,53 +64,72 @@ OllamaAdapter::OllamaAdapter(const std::string& host, int port)
 }
 
 void OllamaAdapter::detectBestModel() {
+    auto availableModels = getAvailableModels();
+    
+    if (availableModels.empty()) {
+        std::cerr << "[OllamaAdapter] Failed to list models. Is Ollama running? Keeping default: " << m_model << std::endl;
+        return;
+    }
+
+    // Priority Hierarchy
+    const std::vector<std::string> priorities = {
+        "qwen2.5:7b",
+        "qwen2.5", 
+        "llama3", 
+        "mistral",
+        "gemma",
+        "deepseek-coder"
+    };
+
+    for (const auto& priority : priorities) {
+        for (const auto& model : availableModels) {
+            if (model.find(priority) != std::string::npos) {
+                m_model = model;
+                std::cout << "[OllamaAdapter] Auto-selected model: " << m_model << std::endl;
+                return;
+            }
+        }
+    }
+
+    // Fallback: Pick the first available
+    if (!availableModels.empty()) {
+        m_model = availableModels[0];
+        std::cout << "[OllamaAdapter] Fallback model: " << m_model << std::endl;
+    }
+}
+
+std::vector<std::string> OllamaAdapter::getAvailableModels() {
     httplib::Client cli(m_host, m_port);
-    cli.set_read_timeout(5); // Short timeout for detection
+    cli.set_read_timeout(5); 
     
     auto res = cli.Get("/api/tags");
+    std::vector<std::string> availableModels;
     if (res && res->status == 200) {
         try {
             auto body = json::parse(res->body);
             if (body.contains("models") && body["models"].is_array()) {
-                std::vector<std::string> availableModels;
                 for (const auto& item : body["models"]) {
                     if (item.contains("name")) {
                         availableModels.push_back(item["name"].get<std::string>());
                     }
                 }
-
-                if (availableModels.empty()) return;
-
-                // Priority Hierarchy
-                const std::vector<std::string> priorities = {
-                    "qwen2.5:7b",
-                    "qwen2.5", 
-                    "llama3", 
-                    "mistral",
-                    "gemma",
-                    "deepseek-coder"
-                };
-
-                for (const auto& priority : priorities) {
-                    for (const auto& model : availableModels) {
-                        if (model.find(priority) != std::string::npos) {
-                            m_model = model;
-                            std::cout << "[OllamaAdapter] Auto-selected model: " << m_model << std::endl;
-                            return;
-                        }
-                    }
-                }
-
-                // Fallback: Pick the first available
-                m_model = availableModels[0];
-                std::cout << "[OllamaAdapter] Fallback model: " << m_model << std::endl;
             }
         } catch (...) {
-            std::cerr << "[OllamaAdapter] Error parsing models. Using default: " << m_model << std::endl;
+            std::cerr << "[OllamaAdapter] Error parsing models list." << std::endl;
         }
-    } else {
-        std::cerr << "[OllamaAdapter] Failed to list models. Is Ollama running? Keeping default: " << m_model << std::endl;
     }
+    return availableModels;
+}
+
+void OllamaAdapter::setModel(const std::string& modelName) {
+    if (modelName != m_model) {
+        m_model = modelName;
+        std::cout << "[OllamaAdapter] Model manually set to: " << m_model << std::endl;
+    }
+}
+
+std::string OllamaAdapter::getCurrentModel() const {
+    return m_model;
 }
 
 std::string OllamaAdapter::getSystemPrompt(domain::AIPersona persona) {
@@ -420,16 +439,26 @@ std::optional<std::string> OllamaAdapter::chat(const std::vector<domain::AIServi
         {"stream", stream}
     };
 
+
+
     auto res = cli.Post("/api/chat", requestData.dump(), "application/json");
     if (res && res->status == 200) {
         try {
             auto body = json::parse(res->body);
-            // Ollama /api/chat response: { "message": { "role": "assistant", "content": "..." }, ... }
             if (body.contains("message") && body["message"].contains("content")) {
                 return body["message"]["content"].get<std::string>();
+            } else {
+                 std::cerr << "[OllamaAdapter] Chat response missing content. Body: " << res->body << std::endl;
             }
-        } catch (...) {
+        } catch (const std::exception& e) {
+            std::cerr << "[OllamaAdapter] Chat JSON Parse Error: " << e.what() << "\nBody: " << res->body << std::endl;
             return std::nullopt;
+        }
+    } else {
+        if (res) {
+            std::cerr << "[OllamaAdapter] Chat HTTP Error " << res->status << ": " << res->body << std::endl;
+        } else {
+            std::cerr << "[OllamaAdapter] Chat Connection Failed. Error code: " << static_cast<int>(res.error()) << std::endl;
         }
     }
     return std::nullopt;

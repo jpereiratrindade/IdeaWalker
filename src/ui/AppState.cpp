@@ -123,7 +123,7 @@ bool AppState::OpenProject(const std::string& rootPath) {
         (root / "notas").string(),
         (root / ".history").string()
     );
-    auto ai = std::make_unique<infrastructure::OllamaAdapter>();
+    auto sharedAi = std::make_shared<infrastructure::OllamaAdapter>();
     
     // Pure C++ Implementation using Whisper.cpp
     // Model expected at standard XDG location: ~/.local/share/IdeaWalker/models/ggml-medium.bin
@@ -141,22 +141,21 @@ bool AppState::OpenProject(const std::string& rootPath) {
 
     auto transcriber = std::make_unique<infrastructure::WhisperCppAdapter>(modelPath, inboxPath);
 
-    organizerService = std::make_unique<application::OrganizerService>(std::move(repo), std::move(ai), std::move(transcriber));
+    organizerService = std::make_unique<application::OrganizerService>(std::move(repo), sharedAi, std::move(transcriber));
     
     // Initialize Persistence Service (Shared)
     persistenceService = std::make_shared<infrastructure::PersistenceService>();
 
-    // Initialize Conversation Service with its own AI instance (shared_ptr required)
-    auto conversationAi = std::make_shared<infrastructure::OllamaAdapter>();
-    conversationService = std::make_unique<application::ConversationService>(conversationAi, persistenceService, root.string());
+    // Initialize Conversation Service with shared AI
+    conversationService = std::make_unique<application::ConversationService>(sharedAi, persistenceService, root.string());
 
     auto scanPath = (root / "inbox").string();
     auto obsPath = (root / "observations").string();
     auto scanner = std::make_unique<infrastructure::FileSystemArtifactScanner>(scanPath);
-    ingestionService = std::make_unique<application::DocumentIngestionService>(std::move(scanner), conversationAi, obsPath);
+    ingestionService = std::make_unique<application::DocumentIngestionService>(std::move(scanner), sharedAi, obsPath);
 
     contextAssembler = std::make_unique<application::ContextAssembler>(*organizerService, *ingestionService);
-    suggestionService = std::make_unique<application::SuggestionService>(conversationAi, root.string());
+    suggestionService = std::make_unique<application::SuggestionService>(sharedAi, root.string());
 
     // Initialize Writing Trajectory Service
     auto eventStore = std::make_unique<infrastructure::writing::WritingEventStoreFs>(root.string(), persistenceService);

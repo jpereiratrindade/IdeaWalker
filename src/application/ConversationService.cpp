@@ -58,7 +58,7 @@ void ConversationService::sendMessage(const std::string& userMessage) {
 
     // AI Processing in background
     std::thread([this, historyCopy]() {
-        auto responseOpt = m_aiService->chat(historyCopy, true);
+        auto responseOpt = m_aiService->chat(historyCopy, false);
         
         std::vector<domain::AIService::ChatMessage> updatedHistorySnapshot;
         {
@@ -67,7 +67,7 @@ void ConversationService::sendMessage(const std::string& userMessage) {
             if (responseOpt) {
                 m_history.push_back({domain::AIService::ChatMessage::Role::Assistant, *responseOpt});
             } else {
-                m_history.push_back({domain::AIService::ChatMessage::Role::Assistant, "[Erro: Sem resposta do AI]"});
+                m_history.push_back({domain::AIService::ChatMessage::Role::Assistant, "[Erro: Sem resposta da IA]"});
             }
             updatedHistorySnapshot = m_history;
         }

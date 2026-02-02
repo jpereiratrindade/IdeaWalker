@@ -1490,6 +1490,39 @@ static void DrawMenuBar(AppState& app) {
              if (ImGui::MenuItem("Preferências...", nullptr, false, true)) {
                  app.showSettingsModal = true;
              }
+             
+             if (hasProject && app.organizerService->getAI()) {
+                 if (ImGui::BeginMenu("🧠 Selecionar Modelo de IA")) {
+                     auto currentModel = app.organizerService->getAI()->getCurrentModel();
+                     static std::vector<std::string> cachedModels;
+                     static std::chrono::steady_clock::time_point lastCheck;
+                     auto now = std::chrono::steady_clock::now();
+                     
+                     // Cache model list for 10 seconds to avoid spamming the API on every frame
+                     if (cachedModels.empty() || std::chrono::duration_cast<std::chrono::seconds>(now - lastCheck).count() > 10) {
+                         cachedModels = app.organizerService->getAI()->getAvailableModels();
+                         lastCheck = now;
+                     }
+
+                     if (cachedModels.empty()) {
+                         ImGui::TextDisabled("Nenhum modelo encontrado.");
+                     } else {
+                         for (const auto& model : cachedModels) {
+                             bool isSelected = (model == currentModel);
+                             if (ImGui::MenuItem(model.c_str(), nullptr, isSelected)) {
+                                 app.organizerService->getAI()->setModel(model);
+                                 app.AppendLog("[Sistema] Modelo de IA alterado para: " + model + "\n");
+                             }
+                         }
+                     }
+                     ImGui::Separator();
+                     if (ImGui::MenuItem("🔄 Atualizar Lista")) {
+                         cachedModels.clear(); // Force refresh next frame
+                     }
+                     ImGui::EndMenu();
+                 }
+             }
+
              ImGui::EndMenu();
         }
 

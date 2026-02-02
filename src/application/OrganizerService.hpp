@@ -40,7 +40,7 @@ public:
      * @param transcriber Pointer to the audio transcription service.
      */
     OrganizerService(std::unique_ptr<domain::ThoughtRepository> repo, 
-                     std::unique_ptr<domain::AIService> ai,
+                     std::shared_ptr<domain::AIService> ai,
                      std::unique_ptr<domain::TranscriptionService> transcriber);
 
     /**
@@ -145,10 +145,16 @@ public:
      * @return Content string.
      */
     std::string getNoteContent(const std::string& filename);
+
+    /**
+     * @brief Accessor for the underlying AI service.
+     * @return Raw pointer to the AI service.
+     */
+    domain::AIService* getAI() const { return m_ai.get(); }
     
 private:
     std::unique_ptr<domain::ThoughtRepository> m_repo; ///< Repository for project data.
-    std::unique_ptr<domain::AIService> m_ai; ///< AI processing service.
+    std::shared_ptr<domain::AIService> m_ai; ///< AI processing service.
     std::unique_ptr<domain::TranscriptionService> m_transcriber; ///< Audio transcription service.
 };
 
