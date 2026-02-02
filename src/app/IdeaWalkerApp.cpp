@@ -15,6 +15,7 @@
 #include <SDL2/SDL_opengl.h>
 
 #include <cstdio>
+#include <iostream>
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -38,25 +39,31 @@ bool LoadFonts(ImGuiIO& io) {
 
 #if defined(_WIN32)
     const std::vector<const char*> baseCandidates = {
+        "assets/fonts/NotoEmoji-Regular.ttf", // Prioritize local asset
         "C:\\\\Windows\\\\Fonts\\\\segoeui.ttf",
     };
     const std::vector<const char*> emojiCandidates = {
+        "assets/fonts/NotoEmoji-Regular.ttf", // Prioritize local asset
         "C:\\\\Windows\\\\Fonts\\\\seguiemj.ttf",
     };
 #elif defined(__APPLE__)
     const std::vector<const char*> baseCandidates = {
+        "assets/fonts/NotoEmoji-Regular.ttf",
         "/System/Library/Fonts/Supplemental/Arial.ttf",
     };
     const std::vector<const char*> emojiCandidates = {
+        "assets/fonts/NotoEmoji-Regular.ttf",
         "/System/Library/Fonts/Apple Color Emoji.ttc",
     };
 #else
     const std::vector<const char*> baseCandidates = {
+        "assets/fonts/NotoEmoji-Regular.ttf",
         "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf",
         "/usr/share/fonts/TTF/NotoSans-Regular.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
     };
     const std::vector<const char*> emojiCandidates = {
+        "assets/fonts/NotoEmoji-Regular.ttf",
         "/usr/share/fonts/google-noto-emoji-fonts/NotoEmoji-Regular.ttf",
         "/usr/share/fonts/truetype/noto/NotoEmoji-Regular.ttf",
         "/usr/share/fonts/TTF/NotoEmoji-Regular.ttf",
@@ -77,13 +84,14 @@ bool LoadFonts(ImGuiIO& io) {
 
     std::string emojiPath = FindFontPath(emojiCandidates);
     if (!emojiPath.empty()) {
+        std::cout << "[IdeaWalkerApp] Found Emoji Font: " << emojiPath << std::endl;
         ImFontConfig config;
         config.MergeMode = true;
         config.PixelSnapH = true;
 
         static const ImWchar emojiRanges[] = {
             0x00A0, 0x00FF,   // Latin-1 Supplement (Accents)
-            0x2000, 0x206F,   // General Punctuation (Bullets, etc.)
+            0x2000, 0x3000,   // General Punctuation, Symbols, Dingbats, Technical (includes Gear 2699)
             0x1F300, 0x1FAFF, // Emoji ranges
             0
         };
@@ -96,6 +104,8 @@ bool LoadFonts(ImGuiIO& io) {
 
         ImFont* emojiFont = io.Fonts->AddFontFromFileTTF(emojiPath.c_str(), baseFontSize, &config, ranges.Data);
         emojiLoaded = (emojiFont != nullptr);
+    } else {
+        std::cerr << "[IdeaWalkerApp] WARNING: No Emoji font found in system paths. Icons will be disabled." << std::endl;
     }
 
     return emojiLoaded;

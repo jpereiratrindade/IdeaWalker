@@ -1486,13 +1486,13 @@ static void DrawMenuBar(AppState& app) {
             ImGui::EndMenu();
         }
 
-        if (ImGui::BeginMenu("⚙️ Configurações")) {
+        if (ImGui::BeginMenu(label("⚙️ Configurações", "Configurações"))) {
              if (ImGui::MenuItem("Preferências...", nullptr, false, true)) {
                  app.showSettingsModal = true;
              }
              
              if (hasProject && app.organizerService->getAI()) {
-                 if (ImGui::BeginMenu("🧠 Selecionar Modelo de IA")) {
+                 if (ImGui::BeginMenu(label("🧠 Selecionar Modelo de IA", "Selecionar Modelo de IA"))) {
                      auto currentModel = app.organizerService->getAI()->getCurrentModel();
                      static std::vector<std::string> cachedModels;
                      static std::chrono::steady_clock::time_point lastCheck;
@@ -1516,7 +1516,7 @@ static void DrawMenuBar(AppState& app) {
                          }
                      }
                      ImGui::Separator();
-                     if (ImGui::MenuItem("🔄 Atualizar Lista")) {
+                     if (ImGui::MenuItem(label("🔄 Atualizar Lista", "Atualizar Lista"))) {
                          cachedModels.clear(); // Force refresh next frame
                      }
                      ImGui::EndMenu();
@@ -1559,6 +1559,9 @@ static void DrawMenuBar(AppState& app) {
 }
 
 static void DrawProjectModals(AppState& app) {
+    auto label = [&app](const char* withEmoji, const char* plain) {
+        return app.emojiEnabled ? withEmoji : plain;
+    };
     const bool hasProject = (app.organizerService != nullptr);
 
     // --- Settings Modal ---
@@ -1570,11 +1573,11 @@ static void DrawProjectModals(AppState& app) {
         ImGui::Separator();
         
         // AI Persona Selection (Removed - Now Autonomous)
-        ImGui::Text("🧠 Personalidade da IA");
+        ImGui::Text("%s", label("🧠 Personalidade da IA", "Personalidade da IA"));
         ImGui::TextDisabled("O sistema seleciona automaticamente o melhor perfil cognitivo.");
         
         ImGui::Spacing();
-        ImGui::Checkbox("⚡ Modo Rápido (CPU Optimization)", &app.fastMode);
+        ImGui::Checkbox(label("⚡ Modo Rápido (CPU Optimization)", "Modo Rápido (CPU Optimization)"), &app.fastMode);
         if (ImGui::IsItemHovered()) {
              ImGui::SetTooltip("Ignora orquestração e faz análise direta. Recomendado para CPUs antigas.");
         }
