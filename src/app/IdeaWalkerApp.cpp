@@ -99,7 +99,8 @@ bool LoadFonts(ImGuiIO& io) {
         ImFontGlyphRangesBuilder builder;
         builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
         builder.AddRanges(emojiRanges);
-        ImVector<ImWchar> ranges;
+        static ImVector<ImWchar> ranges; // Static to persist until atlas build
+        ranges.clear();
         builder.BuildRanges(&ranges);
 
         ImFont* emojiFont = io.Fonts->AddFontFromFileTTF(emojiPath.c_str(), baseFontSize, &config, ranges.Data);
