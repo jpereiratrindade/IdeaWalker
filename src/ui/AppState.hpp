@@ -222,6 +222,16 @@ struct AppState {
     void SetAIModel(const std::string& modelName);
 
     bool showConversationPanel = true; ///< Visibility for the Cognitive Dialogue Panel.
+
+    // Help & Updates
+    bool updateAvailable = false;
+    std::string latestVersion;
+    std::atomic<bool> isCheckingUpdates{false};
+    bool showUpdateModal = false;
+    bool showHelpModal = false;
+    
+    /** @brief Triggers an asynchronous check for updates on GitHub. */
+    void CheckForUpdates();
 };
 
 } // namespace ideawalker::ui

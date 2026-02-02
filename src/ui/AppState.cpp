@@ -326,6 +326,46 @@ void AppState::LoadHistory(const std::string& noteId) {
     }
 }
 
+void AppState::CheckForUpdates() {
+    if (isCheckingUpdates.exchange(true)) return;
+    
+    std::thread([this]() {
+        // Fallback to curl for now to avoid OpenSSL issues in C++ build
+        // curl -s https://api.github.com/repos/jpereiratrindade/IdeaWalker/releases/latest
+        std::string command = "curl -s https://api.github.com/repos/jpereiratrindade/IdeaWalker/releases/latest";
+        
+        FILE* pipe = popen(command.c_str(), "r");
+        if (pipe) {
+            char buffer[128];
+            std::string result = "";
+            while (fgets(buffer, sizeof(buffer), pipe) != NULL) {
+                result += buffer;
+            }
+            pclose(pipe);
+            
+            try {
+                auto j = nlohmann::json::parse(result);
+                if (j.contains("tag_name")) {
+                    latestVersion = j["tag_name"];
+                    // IDEAWALKER_VERSION is defined in CMakeLists.txt (e.g. "v0.1.6-beta")
+                    if (latestVersion != IDEAWALKER_VERSION) {
+                        updateAvailable = true;
+                    } else {
+                        updateAvailable = false;
+                    }
+                }
+            } catch (...) {
+                AppendLog("[Sistema] Erro ao verificar atualizações (JSON inválido).\n");
+            }
+        } else {
+             AppendLog("[Sistema] Erro ao verificar atualizações (curl falhou).\n");
+        }
+        
+        isCheckingUpdates.store(false);
+        showUpdateModal = true; // Show results
+    }).detach();
+}
+
 void AppState::RebuildGraph() {
     graphNodes.clear();
     graphLinks.clear();

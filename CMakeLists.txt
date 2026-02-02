@@ -4,7 +4,7 @@ project(IdeaWalker VERSION 0.1.5 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_definitions(-DIDEAWALKER_VERSION="v0.1.5-beta")
+add_definitions(-DIDEAWALKER_VERSION="v0.1.6-beta")
 
 # --- Debug & Sanitization (Uncomment to enable) ---
 # set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address,undefined -g -O1 -fno-omit-frame-pointer")

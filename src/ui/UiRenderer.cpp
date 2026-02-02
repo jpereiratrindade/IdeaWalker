@@ -19,6 +19,7 @@
 #include <cfloat>
 #include <cmath>
 #include <cstdio>
+#include <fstream>
 #include <cstring>
 #include <ctime>
 #include <filesystem>
@@ -235,6 +236,118 @@ void DrawTaskDetailsModal(AppState& app) {
     }
 }
 
+void DrawUpdateModal(AppState& app) {
+    if (app.showUpdateModal) {
+        ImGui::OpenPopup("Check for Updates");
+    }
+
+    if (ImGui::BeginPopupModal("Check for Updates", &app.showUpdateModal, ImGuiWindowFlags_AlwaysAutoResize)) {
+        if (app.isCheckingUpdates.load()) {
+            ImGui::Text("Checking GitHub for the latest release...");
+            // Simple animated dots
+            static float f = 0.0f;
+            f += ImGui::GetIO().DeltaTime;
+            char dots[10];
+            int numDots = (int(f * 2.0f) % 4);
+            std::memset(dots, '.', numDots);
+            dots[numDots] = '\0';
+            ImGui::Text("%s", dots);
+        } else {
+            if (app.updateAvailable) {
+                ImGui::TextColored(ImVec4(0, 1, 0, 1), "A new version is available: %s", app.latestVersion.c_str());
+                ImGui::Text("Current version: %s", IDEAWALKER_VERSION);
+                ImGui::Spacing();
+                ImGui::TextWrapped("Visit the GitHub releases page to download the latest version.");
+                ImGui::TextDisabled("https://github.com/jpereiratrindade/IdeaWalker/releases");
+            } else {
+                if (app.latestVersion.empty()) {
+                    ImGui::Text("Could not fetch update information.");
+                } else {
+                    ImGui::Text("You are using the latest version (%s).", IDEAWALKER_VERSION);
+                }
+            }
+            ImGui::Spacing();
+            if (ImGui::Button("Close", ImVec2(120, 0))) {
+                app.showUpdateModal = false;
+                ImGui::CloseCurrentPopup();
+            }
+        }
+        ImGui::EndPopup();
+    }
+}
+
+void DrawHelpModal(AppState& app) {
+    if (app.showHelpModal) {
+        ImGui::OpenPopup("Help & Documentation");
+    }
+
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowSize(ImVec2(900, 700), ImGuiCond_FirstUseEver);
+
+    if (ImGui::BeginPopupModal("Help & Documentation", &app.showHelpModal, ImGuiWindowFlags_NoCollapse)) {
+        static std::string helpContent;
+        static std::string lastLoadedFile;
+
+        // List files in docs/ and README.md
+        struct HelpDoc { std::string name; std::string path; };
+        static std::vector<HelpDoc> docs = {
+            {"System Overview", "README.md"},
+            {"Changelog", "CHANGELOG.md"},
+            {"Technical Guide", "docs/TECHNICAL_GUIDE.md"},
+            {"LLM Prompt Guidelines", "docs/LLM_PROMPT_GUIDELINES.md"},
+            {"Writing Implementation", "docs/WRITING_TRAJECTORY_IMPLEMENTATION.md"}
+        };
+
+        if (lastLoadedFile.empty()) {
+            // Load default
+            lastLoadedFile = docs[0].path;
+            std::ifstream f(docs[0].path);
+            if (f.is_open()) {
+                std::stringstream ss;
+                ss << f.rdbuf();
+                helpContent = ss.str();
+            }
+        }
+
+        static float w = 220.0f;
+        ImGui::BeginChild("HelpList", ImVec2(w, -ImGui::GetFrameHeightWithSpacing()), true);
+        for (const auto& doc : docs) {
+            bool selected = (lastLoadedFile == doc.path);
+            if (ImGui::Selectable(doc.name.c_str(), selected)) {
+                lastLoadedFile = doc.path;
+                std::ifstream f(doc.path);
+                if (f.is_open()) {
+                    std::stringstream ss;
+                    ss << f.rdbuf();
+                    helpContent = ss.str();
+                } else {
+                    helpContent = "Não foi possível carregar: " + doc.path;
+                }
+            }
+        }
+        ImGui::EndChild();
+        ImGui::SameLine();
+        ImGui::BeginChild("HelpView", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), true);
+        if (helpContent.empty()) {
+            ImGui::Text("Select a document to read.");
+        } else {
+            DrawMarkdownPreview(app, helpContent, false);
+        }
+        ImGui::EndChild();
+
+        ImGui::Spacing();
+        if (ImGui::Button("Close", ImVec2(120, 0))) {
+            app.showHelpModal = false;
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        ImGui::TextDisabled("(Versão: %s)", IDEAWALKER_VERSION);
+        
+        ImGui::EndPopup();
+    }
+}
+
 } // namespace
 
 static void DrawMenuBar(AppState& app) {
@@ -363,6 +476,18 @@ static void DrawMenuBar(AppState& app) {
                 }
                 ImGui::EndMenu();
             }
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu(label("❓ Ajuda", "Ajuda"))) {
+            if (ImGui::MenuItem(label("📘 Documentação...", "Documentação..."))) {
+                app.showHelpModal = true;
+            }
+            if (ImGui::MenuItem(label("🔄 Verificar Atualizações", "Verificar Atualizações"))) {
+                app.CheckForUpdates();
+            }
+            ImGui::Separator();
+            ImGui::TextDisabled("Versão: %s", IDEAWALKER_VERSION);
             ImGui::EndMenu();
         }
 
@@ -1365,6 +1490,8 @@ static void DrawAllModals(AppState& app) {
     DrawProjectModals(app);
     DrawTaskDetailsModal(app);
     DrawHistoryModal(app);
+    DrawHelpModal(app);
+    DrawUpdateModal(app);
 }
 
 static void DrawMainWindow(AppState& app) {

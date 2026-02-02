@@ -1,0 +1,1 @@
+-rwxr-xr-x. 1 jpereiratrindade jpereiratrindade 3587752 fev  2 14:01 build/IdeaWalker

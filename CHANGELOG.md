@@ -7,9 +7,11 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 - **Arquitetura Modular de UI**: Refatoração profunda do `UiRenderer.cpp`, extraindo componentes especializados para reduzir o acoplamento e facilitar a manutenção.
     - `UiMarkdownRenderer`: Módulo dedicado para renderização de Markdown e previews de Mermaid.
     - `UiFileBrowser`: Componente isolado para navegação no sistema de arquivos e utilitários de caminho.
+- **Menu de Ajuda e Documentação**: Implementado sistema de visualização de manuais técnicos e guias diretamente na interface do app.
+- **Verificador de Atualizações**: Novo recurso para checagem assíncrona de novas versões no repositório GitHub.
 - **Domínio Mermaid**: O parser de Mermaid foi movido para o diretório de domínio (`src/domain/writing`), alinhando o projeto com princípios de DDD (Domain-Driven Design).
 - **Utilitários de Áudio**: Lógica de processamento de áudio extraída de adaptadores para utilitários reaproveitáveis.
-- **Limpeza de Build**: Atualização do `CMakeLists.txt` e remoção de redundâncias no código-base UI.
+- **Limpeza de Build**: Atualização do `CMakeLists.txt` (v0.1.6-beta) e correção de dependências de headers (`fstream`) no `UiRenderer.cpp`.
 
 ## [v0.1.5-beta] - 2026-01-09
 ### Adicionado
