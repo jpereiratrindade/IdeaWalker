@@ -1510,8 +1510,8 @@ static void DrawMenuBar(AppState& app) {
                          for (const auto& model : cachedModels) {
                              bool isSelected = (model == currentModel);
                              if (ImGui::MenuItem(model.c_str(), nullptr, isSelected)) {
-                                 app.organizerService->getAI()->setModel(model);
-                                 app.AppendLog("[Sistema] Modelo de IA alterado para: " + model + "\n");
+                                 app.SetAIModel(model);
+                                 app.AppendLog("[Sistema] Modelo de IA alterado (e salvo) para: " + model + "\n");
                              }
                          }
                      }

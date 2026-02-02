@@ -279,6 +279,15 @@ struct AppState {
     std::unique_ptr<application::DocumentIngestionService> ingestionService;
     std::shared_ptr<infrastructure::PersistenceService> persistenceService;
     
+    // Configuration / Persistence
+    std::string currentAIModel; ///< The currently selected AI model.
+    /** @brief Loads application settings from the project root. */
+    void LoadConfig();
+    /** @brief Saves application settings to the project root. */
+    void SaveConfig();
+    /** @brief Sets the AI model and persists the choice. */
+    void SetAIModel(const std::string& modelName);
+
     bool showConversationPanel = true; ///< Visibility for the Cognitive Dialogue Panel.
 };
 

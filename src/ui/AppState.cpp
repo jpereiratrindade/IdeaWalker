@@ -30,6 +30,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <thread>
+#include <nlohmann/json.hpp>
 
 #include "imnodes.h"
 
@@ -175,6 +176,7 @@ bool AppState::OpenProject(const std::string& rootPath) {
     RefreshInbox();
     RefreshAllInsights();
     RefreshDialogueList();
+    LoadConfig(); // Load project-specific settings
     AnalyzeSuggestions();
     AppendLog("[SISTEMA] Projeto aberto: " + projectRoot + "\n");
     return true;
@@ -746,6 +748,52 @@ void AppState::SaveExternalFile(int index) {
     } else {
         AppendLog("[Erro] Não foi possível salvar o arquivo: " + extFile.path + "\n");
     }
+}
+
+void AppState::LoadConfig() {
+    if (projectRoot.empty()) return;
+    try {
+        std::filesystem::path configPath = std::filesystem::path(projectRoot) / "settings.json";
+        if (std::filesystem::exists(configPath)) {
+            std::ifstream f(configPath);
+            nlohmann::json j;
+            f >> j;
+            if (j.contains("ai_model")) {
+                std::string model = j["ai_model"];
+                currentAIModel = model;
+                if (organizerService) {
+                    auto ai = organizerService->getAI();
+                    if (ai) {
+                        ai->setModel(model);
+                        AppendLog("[AppState] Loaded persisted model: " + model + "\n");
+                    }
+                }
+            }
+        }
+    } catch (const std::exception& e) {
+        AppendLog(std::string("[AppState] Error loading config: ") + e.what() + "\n");
+    }
+}
+
+void AppState::SaveConfig() {
+    if (projectRoot.empty()) return;
+    try {
+        std::filesystem::path configPath = std::filesystem::path(projectRoot) / "settings.json";
+        nlohmann::json j;
+        j["ai_model"] = currentAIModel;
+        std::ofstream f(configPath);
+        f << j.dump(4);
+    } catch (const std::exception& e) {
+        AppendLog(std::string("[AppState] Error saving config: ") + e.what() + "\n");
+    }
+}
+
+void AppState::SetAIModel(const std::string& modelName) {
+    currentAIModel = modelName;
+    if (organizerService) {
+        organizerService->getAI()->setModel(modelName);
+    }
+    SaveConfig();
 }
 
 } // namespace ideawalker::ui
