@@ -754,10 +754,10 @@ void AppState::SaveExternalFile(int index) {
     }
 }
 
-void AppState::LoadConfig(const std::string& projectPath) {
-    if (projectPath.empty()) return;
+void AppState::LoadConfig() {
+    if (projectRoot.empty()) return;
 
-    std::filesystem::path configPath = std::filesystem::path(projectPath) / "settings.json";
+    std::filesystem::path configPath = std::filesystem::path(projectRoot) / "settings.json";
     if (!std::filesystem::exists(configPath)) return;
 
     try {
@@ -767,16 +767,12 @@ void AppState::LoadConfig(const std::string& projectPath) {
 
         if (j.contains("ai_model")) {
             std::string model = j["ai_model"];
-            // Defer model setting until loop
-            // For now, we just store it or set it if service is ready
-            // ... (existing logic)
             if (organizerService && organizerService->getAI()) {
                  organizerService->getAI()->setModel(model);
                  AppendLog("[Config] Modelo restaurado: " + model + "\n");
             }
         }
         
-        // Unified loader usage (or just reading JSON since we have it open)
         if (j.contains("video_driver")) {
             videoDriverPreference = j["video_driver"];
             AppendLog("[Config] Driver de vídeo preferencial: " + videoDriverPreference + " (Requer reinício para aplicar)\n");
@@ -786,53 +782,34 @@ void AppState::LoadConfig(const std::string& projectPath) {
     }
 }
 
-void AppState::SaveConfig(const std::string& projectPath) {
-    if (projectPath.empty()) return;
+void AppState::SaveConfig() {
+    if (projectRoot.empty()) return;
 
-    // Use ConfigLoader for video_driver to ensure consistency
+    // Persist video_driver using ConfigLoader
     if (!videoDriverPreference.empty()) {
-        infrastructure::ConfigLoader::SaveVideoDriverPreference(projectPath, videoDriverPreference);
+        infrastructure::ConfigLoader::SaveVideoDriverPreference(projectRoot, videoDriverPreference);
     }
 
-    // ... for other non-unified settings we might still use local logic, 
-    // but video_driver is now managed by ConfigLoader mostly.
-    // However, AppState also persists AI model selection.
-    // Ideally we should move ALL config to ConfigLoader, but let's start with video_driver as requested.
-    
-    // Existing logic persists:
-    std::filesystem::path configPath = std::filesystem::path(projectPath) / "settings.json";
+    // Persist AI Model (merging with existing file)
+    std::filesystem::path configPath = std::filesystem::path(projectRoot) / "settings.json";
     nlohmann::json j;
 
-    // Load existing to merge
     if (std::filesystem::exists(configPath)) {
         try {
             std::ifstream f(configPath);
             f >> j;
-                // THEN it calls m_state.OpenProject? 
-                // Actually IdeaWalkerApp.cpp main structure needs review.
-                // If OpenProject happens AFTER SDL_Init, this preference won't apply until NEXT run if we only rely on AppState.
-                // BUT, IdeaWalkerApp instance is created, then Run() is called.
-                // We might need to peek at settings.json in IdeaWalkerApp BEFORE SDL_Init.
-            }
-        }
-    } catch (const std::exception& e) {
-        AppendLog(std::string("[AppState] Error loading config: ") + e.what() + "\n");
+        } catch (...) {}
     }
-}
 
-void AppState::SaveConfig() {
-    if (projectRoot.empty()) return;
+    if (organizerService && organizerService->getAI()) {
+        j["ai_model"] = organizerService->getAI()->getCurrentModel();
+    }
+    
     try {
-        std::filesystem::path configPath = std::filesystem::path(projectRoot) / "settings.json";
-        nlohmann::json j;
-        j["ai_model"] = currentAIModel;
-        if (!videoDriverPreference.empty()) {
-            j["video_driver"] = videoDriverPreference;
-        }
         std::ofstream f(configPath);
         f << j.dump(4);
     } catch (const std::exception& e) {
-        AppendLog(std::string("[AppState] Error saving config: ") + e.what() + "\n");
+        AppendLog(std::string("[AppState] Erro ao salvar config: ") + e.what() + "\n");
     }
 }
 
