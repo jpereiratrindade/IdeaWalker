@@ -149,7 +149,7 @@ bool EnsureModelDownloaded(const std::string& modelPath, std::string& errorMsg) 
     return true;
 }
 
-} // namespace
+
 
 bool WhisperCppAdapter::loadModel(std::string& errorMsg) {
     if (m_modelLoaded) return true;
