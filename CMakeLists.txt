@@ -142,6 +142,10 @@ add_executable(${PROJECT_NAME}
     src/infrastructure/EmbeddingCache.cpp
     src/infrastructure/PersistenceService.cpp
     src/infrastructure/ConfigLoader.cpp
+    src/infrastructure/AudioUtils.cpp
+    src/domain/writing/MermaidParser.cpp
+    src/ui/UiMarkdownRenderer.cpp
+    src/ui/UiFileBrowser.cpp
     src/infrastructure/writing/WritingEventStoreFs.cpp
     src/infrastructure/writing/WritingTrajectoryRepositoryFs.cpp
     src/application/writing/WritingTrajectoryService.cpp

@@ -22,6 +22,7 @@
 #include "application/writing/WritingTrajectoryService.hpp"
 #include "domain/writing/services/CoherenceLensService.hpp"
 #include "domain/writing/services/RevisionQualityService.hpp"
+#include "domain/writing/MermaidGraph.hpp"
 
 namespace ideawalker::application {
 class OrganizerService;
@@ -34,19 +35,14 @@ namespace ideawalker::infrastructure { class PersistenceService; }
 
 namespace ideawalker::ui {
 
-    /**
-     * @enum NodeType
-     * @brief Types of nodes available in the interactive graph.
-     */
-    enum class NodeType {
-        INSIGHT,    ///< A structured note or insight.
-        TASK_TODO,  ///< A task that hasn't been started.
-        TASK_DONE,  ///< A completed task.
-        NOTE_LINK,  ///< A wiki-style link to another note.
-        TASK,       ///< General task node.
-        CONCEPT,    ///< A referenced concept that doesn't exist as a file yet.
-        HYPOTHESIS  ///< A temporary anchor for integration hypotheses (Cyan).
-    };
+    // Moved NodeType, NodeShape, LayoutOrientation, GraphNode, GraphLink to domain/writing/MermaidGraph.hpp
+    
+    using domain::writing::NodeType;
+    using domain::writing::NodeShape;
+    using domain::writing::LayoutOrientation;
+    using domain::writing::GraphNode;
+    using domain::writing::GraphLink;
+    using domain::writing::PreviewGraphState;
 
     /**
      * @struct ExternalFile
@@ -58,60 +54,6 @@ namespace ideawalker::ui {
         std::string content;  ///< Current text content in editor.
         bool modified = false; ///< True if content has unsaved changes.
     };
-
-    /**
-     * @enum NodeShape
-     * @brief Mermaid-style shapes for graph rendering.
-     */
-    enum class NodeShape {
-        BOX,            ///< [ ] Square box.
-        ROUNDED_BOX,    ///< ( ) Rounded box.
-        CIRCLE,         ///< (( )) Circle.
-        STADIUM,        ///< ([ ]) Stadium shape.
-        SUBROUTINE,     ///< [[ ]] Double-bordered box.
-        CYLINDER,       ///< [( )] Cylinder/Database.
-        HEXAGON,        ///< {{ }} Hexagon.
-        RHOMBUS,        ///< { } Diamond.
-        ASYMMETRIC,     ///< > ] Flag shape.
-        BANG,           ///< )) (( Bang shape.
-        CLOUD           ///< ) ( Cloud shape.
-    };
-
-    /**
-     * @enum LayoutOrientation
-     * @brief Orientation for tree-like diagrams.
-     */
-    enum class LayoutOrientation {
-        LeftRight,
-        TopDown
-    };
-
-    /**
-     * @struct GraphNode
-     * @brief Represents a visible node in the graph (Neural Web or Mermaid Preview).
-     */
-    struct GraphNode {
-        int id; ///< Unique node ID.
-        std::string title; ///< Text label.
-        float x, y; ///< Normalized or screen coordinates.
-        float w, h; ///< Exact dimensions (width, height) calculated for rendering.
-        float wrapW = 200.0f; ///< The text wrap width used during size calculation.
-        float vx, vy; ///< Velocity vectors for physics simulation.
-        NodeType type; ///< Categorical type.
-        bool isCompleted = false; ///< Task status (if applicable).
-        bool isInProgress = false; ///< Task status (if applicable).
-        NodeShape shape = NodeShape::ROUNDED_BOX; ///< Visual shape style.
-    };
-
-/**
- * @struct GraphLink
- * @brief Represents a connection between two nodes.
- */
-struct GraphLink {
-    int id; ///< Unique link ID.
-    int startNode; ///< Source node ID.
-    int endNode; ///< Destination node ID.
-};
 
 /**
  * @struct AppState
@@ -194,20 +136,6 @@ struct AppState {
     std::vector<GraphLink> graphLinks; ///< Links for the Neural Web view.
     bool graphInitialized = false; ///< Initialization flag for ImNodes positions.
 
-    /**
-     * @struct PreviewGraphState
-     * @brief Cached layout and nodes for a specific Mermaid block in Markdown.
-     */
-    struct PreviewGraphState {
-        std::vector<GraphNode> nodes; ///< List of nodes in the diagram.
-        std::vector<GraphLink> links; ///< List of links between nodes.
-        std::unordered_map<int, int> nodeById; ///< Mapping of node IDs to their indices in the nodes vector (O(1) lookup).
-        std::vector<int> roots; ///< List of root node IDs for the hierarchical layout.
-        std::unordered_map<int, std::vector<int>> childrenNodes; ///< Adjacency list for fast tree traversal.
-        bool initialized = false; ///< Flag indicating if the graph layout has been initialized.
-        LayoutOrientation orientation = LayoutOrientation::LeftRight; ///< Target orientation (LR or TB).
-        std::string lastContent; ///< Cached content to prevent redundant layout updates.
-    };
     std::map<int, PreviewGraphState> previewGraphs; ///< Multi-diagram cache.
 
     void* mainGraphContext = nullptr; ///< Pointer to the ImNodes editor context for Neural Web.

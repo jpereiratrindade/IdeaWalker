@@ -86,7 +86,7 @@ O IdeaWalker suporta transcrição local offline usando **Whisper.cpp**.
 ---
 
 ## 🛡️ Governança
-- **Versão Atual**: v0.1.5-beta
+- **Versão Atual**: v0.1.6-beta
 - **Licença**: GPLv3
 - **Design System**: SisterSTRATA inspired.
 - **Recursos**: Brainstorming, Task Extraction, Backlinks e Heatmap de Atividade.

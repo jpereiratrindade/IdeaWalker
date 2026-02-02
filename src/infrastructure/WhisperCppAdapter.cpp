@@ -14,97 +14,12 @@
 #include <cmath>
 #include <algorithm>
 
+#include "infrastructure/AudioUtils.hpp"
+
 namespace ideawalker::infrastructure {
 
 namespace {
-
-// Helper to execute system command
-int ExecCmd(const std::string& cmd) {
-    return std::system(cmd.c_str());
-}
-
-// Convert audio to 16kHz mono WAV using ffmpeg
-bool ConvertAudioToWav(const std::string& inputPath, std::string& outputPath, std::string& error) {
-    namespace fs = std::filesystem;
-    fs::path tempPath = fs::temp_directory_path() / (fs::path(inputPath).stem().string() + "_temp.wav");
-    outputPath = tempPath.string();
-
-    // Remove if exists
-    if (fs::exists(tempPath)) {
-        fs::remove(tempPath);
-    }
-
-    // ffmpeg -i input -ar 16000 -ac 1 -c:a pcm_s16le output
-    // -y to overwrite, -loglevel error to reduce noise
-    std::string cmd = "ffmpeg -y -loglevel error -i \"" + inputPath + "\" -ar 16000 -ac 1 -c:a pcm_s16le \"" + outputPath + "\"";
-    
-    int ret = ExecCmd(cmd);
-    if (ret != 0) {
-        error = "Falha ao converter áudio com ffmpeg. Verifique se o ffmpeg está instalado.";
-        return false;
-    }
-    
-    if (!fs::exists(outputPath)) {
-        error = "Arquivo convertido não encontrado: " + outputPath;
-        return false;
-    }
-
-    return true;
-}
-
-// Helper to load WAV using SDL2 and convert to 16kHz float32 mono
-bool LoadAudioSDL(const std::string& fname, std::vector<float>& pcmf32, std::string& error) {
-    SDL_AudioSpec wavSpec;
-    Uint32 wavLength;
-    Uint8 *wavBuffer;
-
-    if (SDL_LoadWAV(fname.c_str(), &wavSpec, &wavBuffer, &wavLength) == NULL) {
-        error = "Falha em SDL_LoadWAV: " + std::string(SDL_GetError());
-        return false;
-    }
-
-    // Target format: 16000 Hz, Float32, Mono
-    SDL_AudioSpec targetSpec;
-    SDL_zero(targetSpec);
-    targetSpec.freq = 16000;
-    targetSpec.format = AUDIO_F32SYS;
-    targetSpec.channels = 1;
-
-    SDL_AudioCVT cvt;
-    if (SDL_BuildAudioCVT(&cvt, wavSpec.format, wavSpec.channels, wavSpec.freq,
-                          targetSpec.format, targetSpec.channels, targetSpec.freq) < 0) {
-        error = "Falha em SDL_BuildAudioCVT: " + std::string(SDL_GetError());
-        SDL_FreeWAV(wavBuffer);
-        return false;
-    }
-
-    cvt.len = wavLength;
-    // cvt.len_mult is the multiplier for buffer size
-    // We need to allocate enough space given the conversion
-    // For safety, let's use a large buffer allocation or let SDL calculate
-    // SDL requires cvt.buf to be allocated by caller with length len * len_mult
-    cvt.buf = (Uint8 *)SDL_malloc(cvt.len * cvt.len_mult);
-    SDL_memcpy(cvt.buf, wavBuffer, wavLength);
-    
-    if (SDL_ConvertAudio(&cvt) < 0) {
-        error = "Falha em SDL_ConvertAudio: " + std::string(SDL_GetError());
-        SDL_free(cvt.buf);
-        SDL_FreeWAV(wavBuffer);
-        return false;
-    }
-
-    // Now cvt.buf has the data in float32 mono 16kHz
-    // The length in bytes is cvt.len_cvt
-    int sampleCount = cvt.len_cvt / sizeof(float);
-    pcmf32.resize(sampleCount);
-    SDL_memcpy(pcmf32.data(), cvt.buf, cvt.len_cvt);
-
-    SDL_free(cvt.buf);
-    SDL_FreeWAV(wavBuffer);
-    
-    return true;
-}
-
+    // Local internal helpers (if any remain)
 } // namespace
 
 WhisperCppAdapter::WhisperCppAdapter(const std::string& modelPath, const std::string& inboxPath)
@@ -140,7 +55,7 @@ bool EnsureModelDownloaded(const std::string& modelPath, std::string& errorMsg) 
     std::string url = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin";
     std::string cmd = "curl -L -o \"" + modelPath + "\" \"" + url + "\"";
     
-    int ret = ExecCmd(cmd);
+    int ret = AudioUtils::ExecCmd(cmd);
     if (ret != 0 || !fs::exists(modelPath)) {
         errorMsg = "Falha ao baixar modelo Whisper automaticamente. Verifique conexão ou instale manualmente em: " + modelPath;
         return false;
@@ -199,7 +114,7 @@ void WhisperCppAdapter::transcribeAsync(const std::string& audioPath, OnSuccess 
 
         if (ext != ".wav") {
              std::string convError;
-             if (!ConvertAudioToWav(audioPath, processedPath, convError)) {
+             if (!AudioUtils::ConvertAudioToWav(audioPath, processedPath, convError)) {
                  if (onError) onError(convError);
                  return;
              }
@@ -208,7 +123,7 @@ void WhisperCppAdapter::transcribeAsync(const std::string& audioPath, OnSuccess 
 
         // Load Audio
         std::vector<float> pcmf32;
-        if (!LoadAudioSDL(processedPath, pcmf32, error)) {
+        if (!AudioUtils::LoadAudioSDL(processedPath, pcmf32, error)) {
             if (usingTempFile) fs::remove(processedPath);
             if (onError) onError("Erro ao Carregar Áudio: " + error);
             return;
