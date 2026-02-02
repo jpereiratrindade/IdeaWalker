@@ -6,6 +6,9 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 ### Adicionado
 - **Finalização e Limpeza**: Revisão completa do sistema para release v0.1.5-beta.
 - **Sincronização de Documentação**: README atualizado com todas as funcionalidades recentes (PDF, Orquestração, Ressonância).
+- **Persistência de Modelo de IA**: A seleção do modelo de IA (Configurações > Selecionar Modelo) agora é salva em `settings.json` e restaurada automaticamente ao abrir o projeto.
+- **Resiliência de Ícones (Font Fallback)**: Implementado sistema robusto que reverte ícones para texto simples caso a fonte Emoji não seja encontrada, prevenindo crashes e inconsistências visuais.
+- **Correção de Segfault em Fontes**: Corrigido um bug crítico de gerenciamento de memória no carregamento de ranges de glifos unicode (`IdeaWalkerApp.cpp`).
 
 ## [v0.1.4-beta] - 2026-01-08
 ### Adicionado
