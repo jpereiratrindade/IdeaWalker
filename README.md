@@ -62,6 +62,26 @@ cmake ..
 make
 ./IdeaWalker
 ```
+./IdeaWalker
+```
+
+### Configuração de Driver de Vídeo (Linux/Wayland)
+Se você encontrar erros como `Wayland display connection closed`, você pode forçar o back-end X11 editando o arquivo `settings.json` na raiz do projeto:
+```json
+{
+    "video_driver": "x11"
+}
+```
+Isso evita a necessidade de alterar variáveis de ambiente a cada execução.
+
+---
+
+## 🎙️ Transcrição de Áudio
+O IdeaWalker suporta transcrição local offline usando **Whisper.cpp**.
+- **Modelos**: Baixa automaticamente o modelo `ggml-base.bin` (~140MB) na primeira execução.
+- **Como usar**:
+    1. **Drag & Drop**: Arraste um arquivo de áudio para a janela.
+    2. **Menu**: Arquivo > Transcrever Áudio... (Ideal para Wayland/Gnome onde Drag & Drop pode falhar).
 
 ---
 

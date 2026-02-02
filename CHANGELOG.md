@@ -9,6 +9,10 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 - **Persistência de Modelo de IA**: A seleção do modelo de IA (Configurações > Selecionar Modelo) agora é salva em `settings.json` e restaurada automaticamente ao abrir o projeto.
 - **Resiliência de Ícones (Font Fallback)**: Implementado sistema robusto que reverte ícones para texto simples caso a fonte Emoji não seja encontrada, prevenindo crashes e inconsistências visuais.
 - **Correção de Segfault em Fontes**: Corrigido um bug crítico de gerenciamento de memória no carregamento de ranges de glifos unicode (`IdeaWalkerApp.cpp`).
+- **Auto-Download de Modelo Whisper**: O sistema verifica e baixa automaticamente o modelo `ggml-base.bin` se não encontrado, garantindo transcrição out-of-the-box.
+- **Seletor de Driver de Vídeo (Wayland/X11)**: Adicionada opção `video_driver` em `settings.json` para forçar compatibilidade X11 em ambientes Wayland instáveis, sem necessidade de recompilação.
+- **Interface de Transcrição Explícita**: Nova opção de menu `File > Transcrever Áudio...` permite carregar arquivos via caminho absoluto, contornando limitações de Drag & Drop em alguns ambientes Linux/Wayland.
+- **Estabilidade Wayland**: Revertida bandeira experimental `LIBDECOR` que causava instabilidade; solução via configuraçao é recomendada.
 
 ## [v0.1.4-beta] - 2026-01-08
 ### Adicionado

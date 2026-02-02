@@ -149,6 +149,8 @@ struct AppState {
     int selectedExternalFileIndex = -1; ///< Index of the currently edited external file.
     bool showOpenFileModal = false;  ///< UI visibility flag.
     char openFilePathBuffer[512] = ""; ///< Buffer for file path input.
+    bool showTranscriptionModal = false; ///< UI visibility flag for audio transcription.
+    char transcriptionPathBuffer[512] = ""; ///< Buffer for audio file path input.
     bool showSettingsModal = false; ///< Show the settings modal.
     bool showTaskDetailsModal = false; ///< Show the task details modal.
     std::string selectedTaskTitle; ///< Title of the selected task for the detailed modal.
@@ -238,6 +240,8 @@ struct AppState {
     void RefreshAllInsights();
     /** @brief Handles file dnd events (e.g., audio files for transcription). */
     void HandleFileDrop(const std::string& filePath);
+    /** @brief Explicitly requests transcription for a file path. */
+    void RequestTranscription(const std::string& filePath);
     /** @brief Regenerates the Neural Web graph nodes and links from notes. */
     void RebuildGraph();
     /** @brief Thread-safe log append. */
@@ -281,6 +285,7 @@ struct AppState {
     
     // Configuration / Persistence
     std::string currentAIModel; ///< The currently selected AI model.
+    std::string videoDriverPreference; ///< Preference for SDL Video Driver (e.g. "x11" or "wayland").
     /** @brief Loads application settings from the project root. */
     void LoadConfig();
     /** @brief Saves application settings to the project root. */

@@ -123,9 +123,30 @@ WhisperCppAdapter::~WhisperCppAdapter() {
 bool WhisperCppAdapter::loadModel(std::string& errorMsg) {
     if (m_modelLoaded) return true;
     
-    if (!std::filesystem::exists(m_modelPath)) {
-        errorMsg = "Arquivo de modelo não encontrado em: " + m_modelPath + ". Por favor baixe um modelo ggml (ex: ggml-base.bin).";
-        return false;
+    namespace fs = std::filesystem;
+    if (!fs::exists(m_modelPath)) {
+        // Log attempt
+        std::cout << "[WhisperCppAdapter] Model not found at: " << m_modelPath << std::endl;
+        std::cout << "[WhisperCppAdapter] Attempting auto-download of ggml-base.bin..." << std::endl;
+
+        // Ensure directory exists
+        fs::path modelDir = fs::path(m_modelPath).parent_path();
+        if (!fs::exists(modelDir)) {
+            fs::create_directories(modelDir);
+        }
+
+        // Use curl to download
+        // URL for ggml-base.bin (compatible with whisper.cpp)
+        // Using huggingface link for reliability
+        std::string url = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin";
+        std::string cmd = "curl -L -o \"" + m_modelPath + "\" \"" + url + "\"";
+        
+        int ret = ExecCmd(cmd);
+        if (ret != 0 || !fs::exists(m_modelPath)) {
+            errorMsg = "Falha ao baixar modelo Whisper automaticamente. Verifique conexão ou instale manualmente em: " + m_modelPath;
+            return false;
+        }
+        std::cout << "[WhisperCppAdapter] Download completed successfully." << std::endl;
     }
 
     struct whisper_context_params cparams = whisper_context_default_params();

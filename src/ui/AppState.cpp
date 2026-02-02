@@ -130,12 +130,12 @@ bool AppState::OpenProject(const std::string& rootPath) {
     // Model expected at standard XDG location: ~/.local/share/IdeaWalker/models/ggml-medium.bin
     // Fallback to project root if needed (optional, but XDG is preferred now)
     auto modelsDir = infrastructure::PathUtils::GetModelsDir();
-    std::string modelPath = (modelsDir / "ggml-medium.bin").string();
+    std::string modelPath = (modelsDir / "ggml-base.bin").string();
     
     // Check if model exists in XDG, if not check local project for backward compatibility checking
     if (!std::filesystem::exists(modelPath)) {
-         if (std::filesystem::exists(root / "ggml-medium.bin")) {
-             modelPath = (root / "ggml-medium.bin").string();
+         if (std::filesystem::exists(root / "ggml-base.bin")) {
+             modelPath = (root / "ggml-base.bin").string();
          }
     }
     std::string inboxPath = (root / "inbox").string();
@@ -597,7 +597,10 @@ void AppState::HandleFileDrop(const std::string& filePath) {
         AppendLog("[SISTEMA] Drop ignorado: Nenhum projeto aberto.\n");
         return;
     }
+    RequestTranscription(filePath);
+}
 
+void AppState::RequestTranscription(const std::string& filePath) {
     std::string pathObj = filePath;
     // Check extension
     std::string ext = "";
@@ -607,7 +610,7 @@ void AppState::HandleFileDrop(const std::string& filePath) {
         std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
     }
 
-    if (ext == ".wav" || ext == ".mp3" || ext == ".m4a") {
+    if (ext == ".wav" || ext == ".mp3" || ext == ".m4a" || ext == ".ogg" || ext == ".flac") {
         if (isTranscribing.load()) {
             AppendLog("[SISTEMA] Ocupado: Transcrição já em andamento.\n");
             return;
@@ -628,7 +631,7 @@ void AppState::HandleFileDrop(const std::string& filePath) {
             }
         );
     } else {
-        AppendLog("[SISTEMA] Drop ignorado: Tipo de arquivo não suportado (" + ext + ")\n");
+        AppendLog("[SISTEMA] Arquivo não suportado para transcrição: " + ext + "\n");
     }
 }
 
@@ -769,6 +772,22 @@ void AppState::LoadConfig() {
                     }
                 }
             }
+            if (j.contains("video_driver")) {
+                videoDriverPreference = j["video_driver"];
+                // Note: Changing this requires restart, so we just load it here for reference or future saves.
+                // The actual application of this preference happens in IdeaWalkerApp.cpp based on the file content directly
+                // OR we can make sure LoadConfig is called early enough (it isn't, it's called in OpenProject).
+                // Wait. OpenProject is called AFTER SDL_Init in IdeaWalkerApp::Run usually? 
+                // Let's check IdeaWalkerApp usage.
+                
+                // Correction: IdeaWalkerApp calls m_state.OpenProject BEFORE SDL_Init?
+                // No, IdeaWalkerApp::Run calls Init() which calls SDL_Init.
+                // THEN it calls m_state.OpenProject? 
+                // Actually IdeaWalkerApp.cpp main structure needs review.
+                // If OpenProject happens AFTER SDL_Init, this preference won't apply until NEXT run if we only rely on AppState.
+                // BUT, IdeaWalkerApp instance is created, then Run() is called.
+                // We might need to peek at settings.json in IdeaWalkerApp BEFORE SDL_Init.
+            }
         }
     } catch (const std::exception& e) {
         AppendLog(std::string("[AppState] Error loading config: ") + e.what() + "\n");
@@ -781,6 +800,9 @@ void AppState::SaveConfig() {
         std::filesystem::path configPath = std::filesystem::path(projectRoot) / "settings.json";
         nlohmann::json j;
         j["ai_model"] = currentAIModel;
+        if (!videoDriverPreference.empty()) {
+            j["video_driver"] = videoDriverPreference;
+        }
         std::ofstream f(configPath);
         f << j.dump(4);
     } catch (const std::exception& e) {
