@@ -1,0 +1,125 @@
+====================================================
+RECOMENDAÇÕES PARA EVITAR SPAGHETTI CODE
+====================================================
+
+Objetivo
+--------
+Este documento reúne recomendações práticas para evitar a degradação estrutural do código-fonte conhecida como “spaghetti code”, caracterizada por acoplamento excessivo, fluxo confuso e baixa manutenibilidade.
+
+O foco não é estética, mas legibilidade, previsibilidade e sustentabilidade técnica.
+
+----------------------------------------------------
+1. RESPONSABILIDADE ÚNICA (SRP)
+----------------------------------------------------
+- Cada função, classe ou módulo deve ter um único propósito claro.
+- Se for difícil explicar “o que isso faz” em uma frase curta, há violação do princípio.
+- Funções que fazem múltiplas coisas tendem a crescer indefinidamente.
+
+Regra prática:
+“Uma mudança de requisito → um único ponto de modificação”.
+
+----------------------------------------------------
+2. FUNÇÕES PEQUENAS E COESAS
+----------------------------------------------------
+- Evitar funções longas e com múltiplos níveis de aninhamento.
+- Preferir decomposição explícita em vez de blocos complexos.
+
+Indicadores de risco:
+- Muitas responsabilidades dentro da mesma função
+- Muitos if/else encadeados
+- Loops dentro de loops com lógica condicional pesada
+
+----------------------------------------------------
+3. NOMES EXPLÍCITOS E SEMÂNTICOS
+----------------------------------------------------
+- Nomes devem revelar intenção, não implementação.
+- Evitar nomes genéricos como: processData, handleStuff, doIt.
+
+Um bom nome reduz a necessidade de comentários.
+Comentários não devem compensar nomes ruins.
+
+----------------------------------------------------
+4. DEPENDÊNCIAS EXPLÍCITAS
+----------------------------------------------------
+- Evitar estados globais e dependências implícitas.
+- Um componente deve deixar claro do que depende para funcionar.
+
+Práticas recomendadas:
+- Injeção de dependências
+- Interfaces bem definidas
+- Parâmetros explícitos
+
+----------------------------------------------------
+5. EVITAR ACOPLAMENTO DESNECESSÁRIO
+----------------------------------------------------
+- Módulos não devem conhecer detalhes internos uns dos outros.
+- Alterar uma parte do sistema não deve exigir mudanças em cadeia.
+
+Sinais de alerta:
+- Mudanças pequenas quebram muitas áreas
+- Componentes “sabem demais” sobre outros
+
+----------------------------------------------------
+6. EVITAR DUPLICAÇÃO DE CÓDIGO
+----------------------------------------------------
+- Código duplicado tende a divergir com o tempo.
+- Copiar e colar é aceitável apenas como passo temporário.
+
+Pergunta-chave:
+“Isso é um padrão que deveria virar abstração?”
+
+----------------------------------------------------
+7. CONTROLE DE COMPLEXIDADE
+----------------------------------------------------
+- Monitorar complexidade ciclomática e profundidade de aninhamento.
+- Complexidade deve refletir o problema, não descuido estrutural.
+
+Quando a lógica parece confusa:
+- Extrair funções
+- Nomear decisões
+- Tornar estados explícitos
+
+----------------------------------------------------
+8. TESTES COMO MECANISMO DE SEGURANÇA
+----------------------------------------------------
+- Testes automatizados permitem refatorar sem medo.
+- Código sem testes tende a congelar e apodrecer.
+
+Regra prática:
+Se ninguém quer mexer no código, ele já virou spaghetti.
+
+----------------------------------------------------
+9. REFATORAÇÃO CONTÍNUA
+----------------------------------------------------
+- Refatoração não deve ser um evento extraordinário.
+- Pequenas melhorias constantes evitam grandes colapsos estruturais.
+
+Evitar:
+“Depois a gente refatora tudo”.
+
+Preferir:
+“Deixar o código um pouco melhor do que estava”.
+
+----------------------------------------------------
+10. SIMPLICIDADE ARQUITETURAL
+----------------------------------------------------
+- Arquitetura deve servir à clareza, não ao exibicionismo técnico.
+- Soluções simples e explícitas são preferíveis a soluções “geniais”.
+
+Se apenas o autor entende o código, o sistema é frágil.
+
+----------------------------------------------------
+11. REVISÃO DE CÓDIGO
+----------------------------------------------------
+- Revisões devem focar clareza, acoplamento e responsabilidade.
+- Pergunta central:
+“Isso será fácil de entender daqui a 6 meses?”
+
+----------------------------------------------------
+REGRA FINAL
+----------------------------------------------------
+Código fácil de escrever costuma ser difícil de ler.
+Código fácil de ler exige mais disciplina para escrever.
+
+Escolha sempre o segundo.
+====================================================

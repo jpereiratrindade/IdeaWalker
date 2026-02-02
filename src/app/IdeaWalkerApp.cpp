@@ -19,9 +19,7 @@
 #include <filesystem>
 #include <string>
 #include <vector>
-#include <fstream>
-#include <sstream>
-#include <nlohmann/json.hpp>
+#include "infrastructure/ConfigLoader.hpp"
 
 namespace ideawalker::app {
 
@@ -124,29 +122,16 @@ bool IdeaWalkerApp::Init() {
         return false;
     }
 
-    // Pre-flight check for Video Driver preference in settings.json
-    // We do this manually because AppState::LoadConfig is called later
-    std::string configPath = (std::filesystem::path(defaultRoot) / "settings.json").string();
-    if (std::filesystem::exists(configPath)) {
-        std::ifstream f(configPath);
-        std::stringstream buffer;
-        buffer << f.rdbuf();
-        std::string content = buffer.str();
-        // Simple search to avoid heavy JSON parsing here if possible, but we include nlohmann/json anyway
-        // Let's use the robust way since we link it.
-        try {
-            auto j = nlohmann::json::parse(content);
-            if (j.contains("video_driver")) {
-                std::string driver = j["video_driver"];
-                if (driver == "x11") {
-                    std::cout << "[IdeaWalkerApp] Enforcing X11 Video Driver via settings.json" << std::endl;
-                    SDL_SetHint(SDL_HINT_VIDEODRIVER, "x11");
-                } else if (driver == "wayland") {
-                    std::cout << "[IdeaWalkerApp] Enforcing Wayland Video Driver via settings.json" << std::endl;
-                    SDL_SetHint(SDL_HINT_VIDEODRIVER, "wayland");
-                }
-            }
-        } catch (...) {}
+    // Unified Config Loader
+    auto videoDriver = infrastructure::ConfigLoader::GetVideoDriverPreference(defaultRoot);
+    if (videoDriver) {
+        if (*videoDriver == "x11") {
+            std::cout << "[IdeaWalkerApp] Enforcing X11 Video Driver via settings.json" << std::endl;
+            SDL_SetHint(SDL_HINT_VIDEODRIVER, "x11");
+        } else if (*videoDriver == "wayland") {
+            std::cout << "[IdeaWalkerApp] Enforcing Wayland Video Driver via settings.json" << std::endl;
+            SDL_SetHint(SDL_HINT_VIDEODRIVER, "wayland");
+        }
     }
 
     // Proactive stability fix for Wayland (Client-side decorations) - REVERTED due to crashes

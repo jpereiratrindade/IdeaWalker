@@ -120,33 +120,43 @@ WhisperCppAdapter::~WhisperCppAdapter() {
     }
 }
 
+// Helper to ensure model exists or downloads it
+bool EnsureModelDownloaded(const std::string& modelPath, std::string& errorMsg) {
+    namespace fs = std::filesystem;
+    if (fs::exists(modelPath)) return true;
+
+    // Log attempt
+    std::cout << "[WhisperCppAdapter] Model not found at: " << modelPath << std::endl;
+    std::cout << "[WhisperCppAdapter] Attempting auto-download of ggml-base.bin..." << std::endl;
+
+    // Ensure directory exists
+    fs::path modelDir = fs::path(modelPath).parent_path();
+    if (!fs::exists(modelDir)) {
+        fs::create_directories(modelDir);
+    }
+
+    // Use curl to download
+    // URL for ggml-base.bin (compatible with whisper.cpp)
+    std::string url = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin";
+    std::string cmd = "curl -L -o \"" + modelPath + "\" \"" + url + "\"";
+    
+    int ret = ExecCmd(cmd);
+    if (ret != 0 || !fs::exists(modelPath)) {
+        errorMsg = "Falha ao baixar modelo Whisper automaticamente. Verifique conexão ou instale manualmente em: " + modelPath;
+        return false;
+    }
+    std::cout << "[WhisperCppAdapter] Download completed successfully." << std::endl;
+    return true;
+}
+
+} // namespace
+
 bool WhisperCppAdapter::loadModel(std::string& errorMsg) {
     if (m_modelLoaded) return true;
     
-    namespace fs = std::filesystem;
-    if (!fs::exists(m_modelPath)) {
-        // Log attempt
-        std::cout << "[WhisperCppAdapter] Model not found at: " << m_modelPath << std::endl;
-        std::cout << "[WhisperCppAdapter] Attempting auto-download of ggml-base.bin..." << std::endl;
-
-        // Ensure directory exists
-        fs::path modelDir = fs::path(m_modelPath).parent_path();
-        if (!fs::exists(modelDir)) {
-            fs::create_directories(modelDir);
-        }
-
-        // Use curl to download
-        // URL for ggml-base.bin (compatible with whisper.cpp)
-        // Using huggingface link for reliability
-        std::string url = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin";
-        std::string cmd = "curl -L -o \"" + m_modelPath + "\" \"" + url + "\"";
-        
-        int ret = ExecCmd(cmd);
-        if (ret != 0 || !fs::exists(m_modelPath)) {
-            errorMsg = "Falha ao baixar modelo Whisper automaticamente. Verifique conexão ou instale manualmente em: " + m_modelPath;
-            return false;
-        }
-        std::cout << "[WhisperCppAdapter] Download completed successfully." << std::endl;
+    // Auto-download if needed
+    if (!EnsureModelDownloaded(m_modelPath, errorMsg)) {
+        return false;
     }
 
     struct whisper_context_params cparams = whisper_context_default_params();

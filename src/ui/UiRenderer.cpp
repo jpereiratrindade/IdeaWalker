@@ -1563,29 +1563,7 @@ static void DrawMenuBar(AppState& app) {
     }
 }
 
-static void DrawProjectModals(AppState& app) {
-    auto label = [&app](const char* withEmoji, const char* plain) {
-        return app.emojiEnabled ? withEmoji : plain;
-    };
-    const bool hasProject = (app.organizerService != nullptr);
-
-    // --- Settings Modal ---
-    if (app.showSettingsModal) {
-        ImGui::OpenPopup("Preferências");
-    }
-    if (ImGui::BeginPopupModal("Preferências", &app.showSettingsModal, ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::Text("Configurações do IdeaWalker");
-        ImGui::Separator();
-        
-        static int modelIdx = -1;
-        // ... (existing settings logic would be here, but we are inserting before it or around it)
-        // actually looking at the file view, I need to place the NEW modal *outside* the Settings modal block.
-        // Let's rely on the context.
-        
-        ImGui::EndPopup();
-    }
-
-    // --- Transcription Modal ---
+static void DrawTranscriptionModal(AppState& app) {
     if (app.showTranscriptionModal) {
         ImGui::OpenPopup("Transcrever Áudio");
     }
@@ -1609,6 +1587,15 @@ static void DrawProjectModals(AppState& app) {
         
         ImGui::EndPopup();
     }
+}
+
+static void DrawSettingsModal(AppState& app) {
+    auto label = [&app](const char* withEmoji, const char* plain) {
+        return app.emojiEnabled ? withEmoji : plain;
+    };
+    if (app.showSettingsModal) {
+        ImGui::OpenPopup("Preferências");
+    }
     if (ImGui::BeginPopupModal("Preferências", &app.showSettingsModal, ImGuiWindowFlags_AlwaysAutoResize)) {
         ImGui::Text("Configurações Gerais");
         ImGui::Separator();
@@ -1627,17 +1614,24 @@ static void DrawProjectModals(AppState& app) {
         ImGui::Dummy(ImVec2(0, 10));
         
         if (ImGui::Button("Fechar", ImVec2(120, 0))) {
-// ... [Lines 1532-1695 skipped for brevity in replacement, focusing on critical changes]
-// I need to use separate chunks or be very careful. 
-// I will use multi_replace for UI changes to ensure safety.
-
-// THIS CHUNK ONLY UPDATE SETTINGS MODAL
-
             app.showSettingsModal = false;
             ImGui::CloseCurrentPopup();
         }
         ImGui::EndPopup();
     }
+}
+
+static void DrawProjectModals(AppState& app) {
+    auto label = [&app](const char* withEmoji, const char* plain) {
+        return app.emojiEnabled ? withEmoji : plain;
+    };
+    const bool hasProject = (app.organizerService != nullptr);
+
+    // --- Settings Modal ---
+    DrawSettingsModal(app);
+
+    // --- Transcription Modal ---
+    DrawTranscriptionModal(app);
 
     if (app.showNewProjectModal) {
         std::filesystem::path defaultPath = ResolveBrowsePath(nullptr, app.projectRoot);
