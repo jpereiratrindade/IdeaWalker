@@ -6,6 +6,7 @@
 #include "application/scientific/ScientificIngestionService.hpp"
 
 #include <chrono>
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -48,6 +49,44 @@ bool WriteJsonFile(const fs::path& path, const nlohmann::json& payload, std::str
     }
     file << payload.dump(2);
     return true;
+}
+
+bool HasAnchoredField(const nlohmann::json& obj, const char* key) {
+    if (!obj.contains(key) || !obj[key].is_string()) return false;
+    std::string value = obj[key].get<std::string>();
+    if (value.empty()) return false;
+    std::string lowered = value;
+    std::transform(lowered.begin(), lowered.end(), lowered.begin(), [](unsigned char c){ return std::tolower(c); });
+    return lowered != "unknown";
+}
+
+void FilterByAnchoring(nlohmann::json& array, const std::vector<const char*>& requiredKeys) {
+    if (!array.is_array()) return;
+    nlohmann::json filtered = nlohmann::json::array();
+    for (const auto& item : array) {
+        if (!item.is_object()) continue;
+        bool ok = true;
+        for (const auto& key : requiredKeys) {
+            if (!HasAnchoredField(item, key)) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok) filtered.push_back(item);
+    }
+    array = std::move(filtered);
+}
+
+void SanitizeBundleAnchoring(nlohmann::json& bundle) {
+    if (bundle.contains("narrativeObservations")) {
+        FilterByAnchoring(bundle["narrativeObservations"], {"evidenceSnippet", "sourceSection"});
+    }
+    if (bundle.contains("allegedMechanisms")) {
+        FilterByAnchoring(bundle["allegedMechanisms"], {"evidenceSnippet", "sourceSection"});
+    }
+    if (bundle.contains("temporalWindowReferences")) {
+        FilterByAnchoring(bundle["temporalWindowReferences"], {"evidenceSnippet", "sourceSection"});
+    }
 }
 
 } // namespace
@@ -108,6 +147,8 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::ingestPe
             continue;
         }
 
+        SanitizeBundleAnchoring(bundle);
+
         std::vector<std::string> validationErrors;
         if (!validateBundleJson(bundle, validationErrors)) {
             std::ostringstream oss;
@@ -157,6 +198,7 @@ std::string ScientificIngestionService::buildSystemPrompt() const {
        << "Objetivo: produzir ARTEFATOS COGNITIVOS explícitos, sem recomendações e sem normatividade.\n"
        << "Responda APENAS com JSON válido e estritamente no esquema solicitado.\n"
        << "Não inclua texto fora do JSON.\n"
+       << "Todo item em narrativeObservations, allegedMechanisms e temporalWindowReferences deve conter evidenceSnippet e sourceSection.\n"
        << "Se algo não puder ser inferido, use valores \"unknown\" ou listas vazias.\n";
     return ss.str();
 }
@@ -176,7 +218,7 @@ std::string ScientificIngestionService::buildUserPrompt(
        << "------------------------\n\n"
        << "ESQUEMA JSON OBRIGATÓRIO (schemaVersion=" << domain::scientific::ScientificSchema::SchemaVersion << "):\n"
        << "{\n"
-       << "  \"schemaVersion\": 1,\n"
+       << "  \"schemaVersion\": " << domain::scientific::ScientificSchema::SchemaVersion << ",\n"
        << "  \"sourceProfile\": {\n"
        << "    \"studyType\": \"experimental|observational|review|theoretical|simulation|mixed|unknown\",\n"
        << "    \"temporalScale\": \"short|medium|long|multi|unknown\",\n"
@@ -192,7 +234,9 @@ std::string ScientificIngestionService::buildUserPrompt(
        << "      \"context\": \"...\",\n"
        << "      \"limits\": \"...\",\n"
        << "      \"confidence\": \"low|medium|high|unknown\",\n"
-       << "      \"evidence\": \"direct|inferred|unknown\"\n"
+       << "      \"evidence\": \"direct|inferred|unknown\",\n"
+       << "      \"evidenceSnippet\": \"trecho curto do artigo\",\n"
+       << "      \"sourceSection\": \"Results|Discussion|Methods|Unknown\"\n"
        << "    }\n"
        << "  ],\n"
        << "  \"allegedMechanisms\": [\n"
@@ -200,7 +244,9 @@ std::string ScientificIngestionService::buildUserPrompt(
        << "      \"mechanism\": \"...\",\n"
        << "      \"status\": \"tested|inferred|speculative|unknown\",\n"
        << "      \"context\": \"...\",\n"
-       << "      \"limitations\": \"...\"\n"
+       << "      \"limitations\": \"...\",\n"
+       << "      \"evidenceSnippet\": \"trecho curto do artigo\",\n"
+       << "      \"sourceSection\": \"Results|Discussion|Methods|Unknown\"\n"
        << "    }\n"
        << "  ],\n"
        << "  \"temporalWindowReferences\": [\n"
@@ -208,7 +254,9 @@ std::string ScientificIngestionService::buildUserPrompt(
        << "      \"timeWindow\": \"...\",\n"
        << "      \"changeRhythm\": \"...\",\n"
        << "      \"delaysOrHysteresis\": \"...\",\n"
-       << "      \"context\": \"...\"\n"
+       << "      \"context\": \"...\",\n"
+       << "      \"evidenceSnippet\": \"trecho curto do artigo\",\n"
+       << "      \"sourceSection\": \"Results|Discussion|Methods|Unknown\"\n"
        << "    }\n"
        << "  ],\n"
        << "  \"baselineAssumptions\": [\n"

@@ -16,7 +16,7 @@ namespace ideawalker::domain::scientific {
 class ScientificSchema {
 public:
     /** @brief Current schema version for scientific consumables. */
-    static constexpr int SchemaVersion = 1;
+    static constexpr int SchemaVersion = 2;
 
     /** @brief Allowed study types. */
     static constexpr std::array<const char*, 7> StudyTypes = {

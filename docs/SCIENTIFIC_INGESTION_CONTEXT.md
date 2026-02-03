@@ -39,13 +39,13 @@ Fluxo:
 
 ---
 
-## 4. Esquema (schemaVersion=1)
+## 4. Esquema (schemaVersion=2)
 
 **Bundle JSON base (salvo em `observations/scientific/`):**
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "sourceProfile": {
     "studyType": "experimental|observational|review|theoretical|simulation|mixed|unknown",
     "temporalScale": "short|medium|long|multi|unknown",
@@ -61,7 +61,9 @@ Fluxo:
       "context": "...",
       "limits": "...",
       "confidence": "low|medium|high|unknown",
-      "evidence": "direct|inferred|unknown"
+      "evidence": "direct|inferred|unknown",
+      "evidenceSnippet": "trecho curto do artigo",
+      "sourceSection": "Results|Discussion|Methods|Unknown"
     }
   ],
   "allegedMechanisms": [
@@ -69,7 +71,9 @@ Fluxo:
       "mechanism": "...",
       "status": "tested|inferred|speculative|unknown",
       "context": "...",
-      "limitations": "..."
+      "limitations": "...",
+      "evidenceSnippet": "trecho curto do artigo",
+      "sourceSection": "Results|Discussion|Methods|Unknown"
     }
   ],
   "temporalWindowReferences": [
@@ -77,7 +81,9 @@ Fluxo:
       "timeWindow": "...",
       "changeRhythm": "...",
       "delaysOrHysteresis": "...",
-      "context": "..."
+      "context": "...",
+      "evidenceSnippet": "trecho curto do artigo",
+      "sourceSection": "Results|Discussion|Methods|Unknown"
     }
   ],
   "baselineAssumptions": [
@@ -115,6 +121,14 @@ Fluxo:
 Todos os consumíveis incluem:
 - `schemaVersion`
 - `source` (com `artifactId`, `path`, `contentHash`, `ingestedAt`, `model`)
+
+### 4.1 Regra de ancoragem (obrigatória)
+Os itens de `narrativeObservations`, `allegedMechanisms` e `temporalWindowReferences`
+devem conter:
+- `evidenceSnippet`: trecho curto do artigo
+- `sourceSection`: seção de origem (ex.: `Results`, `Discussion`, `Methods`, `Unknown`)
+
+Itens sem ancoragem são descartados durante a ingestão.
 
 ---
 
