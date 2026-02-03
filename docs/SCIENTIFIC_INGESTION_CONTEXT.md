@@ -39,13 +39,13 @@ Fluxo:
 
 ---
 
-## 4. Esquema (schemaVersion=2)
+## 4. Esquema (schemaVersion=3)
 
 **Bundle JSON base (salvo em `observations/scientific/`):**
 
 ```json
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "sourceProfile": {
     "studyType": "experimental|observational|review|theoretical|simulation|mixed|unknown",
     "temporalScale": "short|medium|long|multi|unknown",
@@ -63,7 +63,8 @@ Fluxo:
       "confidence": "low|medium|high|unknown",
       "evidence": "direct|inferred|unknown",
       "evidenceSnippet": "trecho curto do artigo",
-      "sourceSection": "Results|Discussion|Methods|Unknown"
+      "sourceSection": "Results|Discussion|Methods|Unknown",
+      "pageRange": "pp. 3-4"
     }
   ],
   "allegedMechanisms": [
@@ -73,7 +74,8 @@ Fluxo:
       "context": "...",
       "limitations": "...",
       "evidenceSnippet": "trecho curto do artigo",
-      "sourceSection": "Results|Discussion|Methods|Unknown"
+      "sourceSection": "Results|Discussion|Methods|Unknown",
+      "pageRange": "pp. 5-6"
     }
   ],
   "temporalWindowReferences": [
@@ -83,7 +85,8 @@ Fluxo:
       "delaysOrHysteresis": "...",
       "context": "...",
       "evidenceSnippet": "trecho curto do artigo",
-      "sourceSection": "Results|Discussion|Methods|Unknown"
+      "sourceSection": "Results|Discussion|Methods|Unknown",
+      "pageRange": "pp. 7-9"
     }
   ],
   "baselineAssumptions": [
@@ -127,6 +130,7 @@ Os itens de `narrativeObservations`, `allegedMechanisms` e `temporalWindowRefere
 devem conter:
 - `evidenceSnippet`: trecho curto do artigo
 - `sourceSection`: seção de origem (ex.: `Results`, `Discussion`, `Methods`, `Unknown`)
+- `pageRange`: intervalo de páginas (ex.: `pp. 3-4`)
 
 Itens sem ancoragem são descartados durante a ingestão.
 

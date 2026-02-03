@@ -11,6 +11,7 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
+#include <cctype>
 
 #include "infrastructure/ContentExtractor.hpp"
 
@@ -60,7 +61,34 @@ bool HasAnchoredField(const nlohmann::json& obj, const char* key) {
     return lowered != "unknown";
 }
 
-void FilterByAnchoring(nlohmann::json& array, const std::vector<const char*>& requiredKeys) {
+std::string NormalizeForSearch(const std::string& input) {
+    std::string out;
+    out.reserve(input.size());
+    bool lastWasSpace = false;
+    for (unsigned char c : input) {
+        if (std::isspace(c)) {
+            if (!lastWasSpace) {
+                out.push_back(' ');
+                lastWasSpace = true;
+            }
+            continue;
+        }
+        out.push_back(static_cast<char>(std::tolower(c)));
+        lastWasSpace = false;
+    }
+    return out;
+}
+
+bool SnippetAppearsInContent(const std::string& snippet, const std::string& content) {
+    if (snippet.empty()) return false;
+    const std::string normSnippet = NormalizeForSearch(snippet);
+    const std::string normContent = NormalizeForSearch(content);
+    return normContent.find(normSnippet) != std::string::npos;
+}
+
+void FilterByAnchoring(nlohmann::json& array,
+                       const std::vector<const char*>& requiredKeys,
+                       const std::string& content) {
     if (!array.is_array()) return;
     nlohmann::json filtered = nlohmann::json::array();
     for (const auto& item : array) {
@@ -72,20 +100,25 @@ void FilterByAnchoring(nlohmann::json& array, const std::vector<const char*>& re
                 break;
             }
         }
+        if (ok && item.contains("evidenceSnippet") && item["evidenceSnippet"].is_string()) {
+            if (!SnippetAppearsInContent(item["evidenceSnippet"].get<std::string>(), content)) {
+                ok = false;
+            }
+        }
         if (ok) filtered.push_back(item);
     }
     array = std::move(filtered);
 }
 
-void SanitizeBundleAnchoring(nlohmann::json& bundle) {
+void SanitizeBundleAnchoring(nlohmann::json& bundle, const std::string& content) {
     if (bundle.contains("narrativeObservations")) {
-        FilterByAnchoring(bundle["narrativeObservations"], {"evidenceSnippet", "sourceSection"});
+        FilterByAnchoring(bundle["narrativeObservations"], {"evidenceSnippet", "sourceSection", "pageRange"}, content);
     }
     if (bundle.contains("allegedMechanisms")) {
-        FilterByAnchoring(bundle["allegedMechanisms"], {"evidenceSnippet", "sourceSection"});
+        FilterByAnchoring(bundle["allegedMechanisms"], {"evidenceSnippet", "sourceSection", "pageRange"}, content);
     }
     if (bundle.contains("temporalWindowReferences")) {
-        FilterByAnchoring(bundle["temporalWindowReferences"], {"evidenceSnippet", "sourceSection"});
+        FilterByAnchoring(bundle["temporalWindowReferences"], {"evidenceSnippet", "sourceSection", "pageRange"}, content);
     }
 }
 
@@ -147,7 +180,7 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::ingestPe
             continue;
         }
 
-        SanitizeBundleAnchoring(bundle);
+        SanitizeBundleAnchoring(bundle, content);
 
         std::vector<std::string> validationErrors;
         if (!validateBundleJson(bundle, validationErrors)) {
@@ -198,7 +231,8 @@ std::string ScientificIngestionService::buildSystemPrompt() const {
        << "Objetivo: produzir ARTEFATOS COGNITIVOS explícitos, sem recomendações e sem normatividade.\n"
        << "Responda APENAS com JSON válido e estritamente no esquema solicitado.\n"
        << "Não inclua texto fora do JSON.\n"
-       << "Todo item em narrativeObservations, allegedMechanisms e temporalWindowReferences deve conter evidenceSnippet e sourceSection.\n"
+       << "Todo item em narrativeObservations, allegedMechanisms e temporalWindowReferences deve conter evidenceSnippet, sourceSection e pageRange.\n"
+       << "evidenceSnippet deve ser TRECHO LITERAL do artigo (copiado do texto extraído).\n"
        << "Se algo não puder ser inferido, use valores \"unknown\" ou listas vazias.\n";
     return ss.str();
 }
@@ -236,7 +270,8 @@ std::string ScientificIngestionService::buildUserPrompt(
        << "      \"confidence\": \"low|medium|high|unknown\",\n"
        << "      \"evidence\": \"direct|inferred|unknown\",\n"
        << "      \"evidenceSnippet\": \"trecho curto do artigo\",\n"
-       << "      \"sourceSection\": \"Results|Discussion|Methods|Unknown\"\n"
+       << "      \"sourceSection\": \"Results|Discussion|Methods|Unknown\",\n"
+       << "      \"pageRange\": \"pp. 3-4\" \n"
        << "    }\n"
        << "  ],\n"
        << "  \"allegedMechanisms\": [\n"
@@ -246,7 +281,8 @@ std::string ScientificIngestionService::buildUserPrompt(
        << "      \"context\": \"...\",\n"
        << "      \"limitations\": \"...\",\n"
        << "      \"evidenceSnippet\": \"trecho curto do artigo\",\n"
-       << "      \"sourceSection\": \"Results|Discussion|Methods|Unknown\"\n"
+       << "      \"sourceSection\": \"Results|Discussion|Methods|Unknown\",\n"
+       << "      \"pageRange\": \"pp. 5-6\" \n"
        << "    }\n"
        << "  ],\n"
        << "  \"temporalWindowReferences\": [\n"
@@ -256,7 +292,8 @@ std::string ScientificIngestionService::buildUserPrompt(
        << "      \"delaysOrHysteresis\": \"...\",\n"
        << "      \"context\": \"...\",\n"
        << "      \"evidenceSnippet\": \"trecho curto do artigo\",\n"
-       << "      \"sourceSection\": \"Results|Discussion|Methods|Unknown\"\n"
+       << "      \"sourceSection\": \"Results|Discussion|Methods|Unknown\",\n"
+       << "      \"pageRange\": \"pp. 7-9\" \n"
        << "    }\n"
        << "  ],\n"
        << "  \"baselineAssumptions\": [\n"
