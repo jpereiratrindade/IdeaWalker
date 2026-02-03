@@ -5,6 +5,7 @@
 #include "application/AIProcessingService.hpp"
 #include "application/DocumentIngestionService.hpp"
 #include "imgui.h"
+#include <algorithm>
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -107,12 +108,25 @@ void DrawDashboardTab(AppState& app) {
 
             ImGui::Separator();
             ImGui::Text("System Log:");
-            ImGui::BeginChild("Log", ImVec2(0, -100), true);
+            float maxLogHeight = ImGui::GetContentRegionAvail().y - 200.0f;
+            if (maxLogHeight < 120.0f) maxLogHeight = 120.0f;
+            app.ui.dashboardLogHeight = std::clamp(app.ui.dashboardLogHeight, 80.0f, maxLogHeight);
+
+            ImGui::BeginChild("Log", ImVec2(0, app.ui.dashboardLogHeight), true);
             std::string logSnapshot = app.GetLogSnapshot();
             ImGui::TextUnformatted(logSnapshot.c_str());
             if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
                 ImGui::SetScrollHereY(1.0f);
             ImGui::EndChild();
+
+            ImGui::InvisibleButton("LogSplitter", ImVec2(-1.0f, 6.0f));
+            if (ImGui::IsItemActive()) {
+                app.ui.dashboardLogHeight += ImGui::GetIO().MouseDelta.y;
+                app.ui.dashboardLogHeight = std::clamp(app.ui.dashboardLogHeight, 80.0f, maxLogHeight);
+            }
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
+            }
 
             ImGui::Separator();
             ImGui::Text("%s", label("📥 Ingestão de Documentos (Observacional)", "Ingestion of Documents (Observational)"));

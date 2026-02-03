@@ -107,6 +107,7 @@ namespace ideawalker::ui {
         bool fastMode = false;
         std::string processingStatus = "Thinking...";
         bool requestExit = false;
+        float dashboardLogHeight = 220.0f;
 
         // Modals visibility and buffers
         bool showOpenProject = false;
