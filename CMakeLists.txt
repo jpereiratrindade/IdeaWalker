@@ -203,3 +203,21 @@ target_link_libraries(ideawalker_test PRIVATE
     Threads::Threads
     dl
 )
+
+add_executable(ideawalker_writing_test
+    src/test/WritingTrajectoryRoundTripTest.cpp
+    src/application/writing/WritingTrajectoryService.cpp
+    src/infrastructure/PersistenceService.cpp
+    src/infrastructure/writing/WritingEventStoreFs.cpp
+    src/infrastructure/writing/WritingTrajectoryRepositoryFs.cpp
+)
+
+target_include_directories(ideawalker_writing_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_link_libraries(ideawalker_writing_test PRIVATE
+    Threads::Threads
+    dl
+    nlohmann_json::nlohmann_json
+)

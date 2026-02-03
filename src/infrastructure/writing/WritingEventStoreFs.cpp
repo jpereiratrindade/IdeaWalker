@@ -8,6 +8,7 @@
 #include <sstream>
 #include <filesystem>
 #include <nlohmann/json.hpp>
+#include <iostream>
 
 namespace ideawalker::infrastructure::writing {
 
@@ -38,12 +39,13 @@ void WritingEventStoreFs::append(const std::string& trajectoryId, const std::vec
     // and ensures events are not lost if the application closes immediately.
     std::ofstream outFile(filepath, std::ios::app);
     if (!outFile) {
-        // In a real app we might throw or log, but for MVP we just return
+        std::cerr << "[WritingEventStoreFs] Failed to open events file for append: " << filepath << std::endl;
         return;
     }
 
     for (const auto& evt : events) {
         json j;
+        j["schemaVersion"] = 1;
         j["type"] = evt.eventType;
         j["data"] = json::parse(evt.eventDataJson);
         j["ts"] = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -60,6 +62,10 @@ std::vector<StoredEvent> WritingEventStoreFs::readAll(const std::string& traject
     if (!fs::exists(filepath)) return results;
 
     std::ifstream inFile(filepath);
+    if (!inFile) {
+        std::cerr << "[WritingEventStoreFs] Failed to open events file for read: " << filepath << std::endl;
+        return results;
+    }
     std::string line;
     while (std::getline(inFile, line)) {
         if (line.empty()) continue;
@@ -75,7 +81,7 @@ std::vector<StoredEvent> WritingEventStoreFs::readAll(const std::string& traject
             
             results.push_back(evt);
         } catch (...) {
-            // Ignore malformed lines
+            std::cerr << "[WritingEventStoreFs] Ignoring malformed event line in: " << filepath << std::endl;
         }
     }
     return results;

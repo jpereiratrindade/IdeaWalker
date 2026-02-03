@@ -27,6 +27,7 @@ Persistence is handled via a custom file-system-based Event Store.
     *   `WritingEventStoreFs`: Appends events to `.ndjson` files (`writing/trajectories/<uuid>/events.ndjson`).
     *   **Synchronous Storage**: Writes are performed synchronously to `std::ios::app` to ensure data integrity and prevent race conditions.
     *   All domain events include timestamps to preserve ordering and enable audits.
+    *   Each event record includes a `schemaVersion` to support forward-compatible changes.
 *   **Repository**:
     *   `WritingTrajectoryRepositoryFs`: Rehydrates `WritingTrajectory` objects by replaying stored events (`applyEvent`).
     *   Handles serialization/deserialization of polymorphic events (JSON).
@@ -60,6 +61,7 @@ ImGui-based panels for interaction.
 *   **Robust Event Store**: Fixed race conditions causing data corruption. Events are now append-only and thread-safe.
 *   **Crash Prevention**: Added exception handling boundaries in the UI to prevent "window closed" crashes during file operations.
 *   **Data Recovery**: Deleted corrupted artifacts and implemented validation logic in `WritingTrajectory::createEmpty`.
+*   **I/O Diagnostics**: Read/write failures are now logged to stderr for easier troubleshooting.
 
 ### "Traceable Revision" Workflow
 1.  User adds a segment (creates blank entry).
@@ -96,3 +98,34 @@ The system has been verified manually:
 - [x] Segment Addition & Revision (Rationale Logic Verified)
 - [x] Defense Mode Generation & Interaction (UI Layout Verified)
 - [x] Recovery from closed windows via View menu.
+
+## 5. Example Usage (C++)
+Below is a minimal example that creates a trajectory, revises a segment, advances stage, and adds a defense card.
+```cpp
+#include "application/writing/WritingTrajectoryService.hpp"
+#include "infrastructure/PersistenceService.hpp"
+#include "infrastructure/writing/WritingEventStoreFs.hpp"
+#include "infrastructure/writing/WritingTrajectoryRepositoryFs.hpp"
+
+using namespace ideawalker::application::writing;
+using namespace ideawalker::infrastructure::writing;
+using namespace ideawalker::domain::writing;
+
+int main() {
+    auto persistence = std::make_shared<ideawalker::infrastructure::PersistenceService>();
+    auto eventStore = std::make_unique<WritingEventStoreFs>(".", persistence);
+    auto repo = std::make_shared<WritingTrajectoryRepositoryFs>(std::move(eventStore));
+    WritingTrajectoryService service(repo);
+
+    std::string id = service.createTrajectory("Argumentar", "Banca", "Tese central", "ABNT");
+    service.addSegment(id, "Introdução", "Texto inicial", SourceTag::Human);
+
+    auto traj = service.getTrajectory(id);
+    auto segmentId = traj->getSegments().begin()->first;
+    service.reviseSegment(id, segmentId, "Texto revisado", RevisionOperation::Clarify, "Clarificar tese");
+    service.advanceStage(id, TrajectoryStage::Outline);
+
+    service.addDefenseCard(id, "card-1", segmentId, "Defenda a tese.", {"Ponto A"});
+    service.updateDefenseStatus(id, "card-1", DefenseStatus::Rehearsed, "Resposta");
+}
+```
