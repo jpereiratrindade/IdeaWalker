@@ -39,13 +39,13 @@ Fluxo:
 
 ---
 
-## 4. Esquema (schemaVersion=3)
+## 4. Esquema (schemaVersion=4)
 
 **Bundle JSON base (salvo em `observations/scientific/`):**
 
 ```json
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "sourceProfile": {
     "studyType": "experimental|observational|review|theoretical|simulation|mixed|unknown",
     "temporalScale": "short|medium|long|multi|unknown",
@@ -64,7 +64,8 @@ Fluxo:
       "evidence": "direct|inferred|unknown",
       "evidenceSnippet": "trecho curto do artigo",
       "sourceSection": "Results|Discussion|Methods|Unknown",
-      "pageRange": "pp. 3-4"
+      "pageRange": "pp. 3-4",
+      "contextuality": "site-specific|conditional|comparative|non-universal"
     }
   ],
   "allegedMechanisms": [
@@ -75,7 +76,8 @@ Fluxo:
       "limitations": "...",
       "evidenceSnippet": "trecho curto do artigo",
       "sourceSection": "Results|Discussion|Methods|Unknown",
-      "pageRange": "pp. 5-6"
+      "pageRange": "pp. 5-6",
+      "contextuality": "site-specific|conditional|comparative|non-universal"
     }
   ],
   "temporalWindowReferences": [
@@ -133,6 +135,26 @@ devem conter:
 - `pageRange`: intervalo de páginas (ex.: `pp. 3-4`)
 
 Itens sem ancoragem são descartados durante a ingestão.
+
+---
+
+## 6. Validador Epistemológico (VE-IW)
+
+Antes da exportação para STRATA, o bundle passa pelo VE-IW:
+
+**Checks mínimos**
+- Contextualidade explícita em observações e mecanismos.
+- Baseline coerente com a escala temporal.
+- Janelas temporais explícitas e sem vagueza.
+- Linguagem sem normatividade implícita.
+- Mecanismos com status e limitações.
+- Camada correta (InterpretationLayers nunca para STRATA-Core).
+
+**Artefatos gerados**
+- `EpistemicValidationReport.json`
+- `ExportSeal.json` (com `exportAllowed` e `allowedTargets`)
+
+Sem selo, nada entra no STRATA.
 
 ---
 

@@ -16,7 +16,7 @@ namespace ideawalker::domain::scientific {
 class ScientificSchema {
 public:
     /** @brief Current schema version for scientific consumables. */
-    static constexpr int SchemaVersion = 3;
+    static constexpr int SchemaVersion = 4;
 
     /** @brief Allowed study types. */
     static constexpr std::array<const char*, 7> StudyTypes = {
@@ -51,6 +51,11 @@ public:
     /** @brief Allowed mechanism status values. */
     static constexpr std::array<const char*, 4> MechanismStatus = {
         "tested", "inferred", "speculative", "unknown"
+    };
+
+    /** @brief Allowed contextuality labels for scientific statements. */
+    static constexpr std::array<const char*, 4> ContextualityLabels = {
+        "site-specific", "conditional", "comparative", "non-universal"
     };
 
     /** @brief Allowed baseline types. */

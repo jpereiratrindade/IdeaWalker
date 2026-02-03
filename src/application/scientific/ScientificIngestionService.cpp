@@ -4,6 +4,7 @@
  */
 
 #include "application/scientific/ScientificIngestionService.hpp"
+#include "application/scientific/EpistemicValidator.hpp"
 
 #include <chrono>
 #include <algorithm>
@@ -197,13 +198,40 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::ingestPe
         }
 
         attachSourceMetadata(bundle, artifact, artifactId);
+
         std::string saveError;
         if (!saveRawBundle(bundle, artifactId, saveError)) {
             result.errors.push_back(saveError);
             continue;
         }
 
+        EpistemicValidator validator;
+        auto validation = validator.Validate(bundle);
+        std::string validationError;
+        fs::path validationDir = fs::path(m_observationsPath) / "validation";
+        if (!fs::exists(validationDir)) {
+            fs::create_directories(validationDir);
+        }
+        if (!WriteJsonFile(validationDir / (artifactId + ".json"), validation.report, validationError)) {
+            result.errors.push_back(validationError);
+            continue;
+        }
+        if (!validation.exportAllowed) {
+            result.errors.push_back("Exportação bloqueada pelo Validador Epistemológico: " + artifact.filename);
+            continue;
+        }
+
         if (!exportConsumables(bundle, artifactId, saveError)) {
+            result.errors.push_back(saveError);
+            continue;
+        }
+
+        fs::path consumableDir = fs::path(m_consumablesPath) / artifactId;
+        if (!WriteJsonFile(consumableDir / "EpistemicValidationReport.json", validation.report, saveError)) {
+            result.errors.push_back(saveError);
+            continue;
+        }
+        if (!WriteJsonFile(consumableDir / "ExportSeal.json", validation.seal, saveError)) {
             result.errors.push_back(saveError);
             continue;
         }
@@ -233,6 +261,7 @@ std::string ScientificIngestionService::buildSystemPrompt() const {
        << "Não inclua texto fora do JSON.\n"
        << "Todo item em narrativeObservations, allegedMechanisms e temporalWindowReferences deve conter evidenceSnippet, sourceSection e pageRange.\n"
        << "evidenceSnippet deve ser TRECHO LITERAL do artigo (copiado do texto extraído).\n"
+       << "Todo item em narrativeObservations e allegedMechanisms deve declarar contextuality.\n"
        << "Se algo não puder ser inferido, use valores \"unknown\" ou listas vazias.\n";
     return ss.str();
 }
@@ -271,7 +300,8 @@ std::string ScientificIngestionService::buildUserPrompt(
        << "      \"evidence\": \"direct|inferred|unknown\",\n"
        << "      \"evidenceSnippet\": \"trecho curto do artigo\",\n"
        << "      \"sourceSection\": \"Results|Discussion|Methods|Unknown\",\n"
-       << "      \"pageRange\": \"pp. 3-4\" \n"
+       << "      \"pageRange\": \"pp. 3-4\",\n"
+       << "      \"contextuality\": \"site-specific|conditional|comparative|non-universal\" \n"
        << "    }\n"
        << "  ],\n"
        << "  \"allegedMechanisms\": [\n"
@@ -282,7 +312,8 @@ std::string ScientificIngestionService::buildUserPrompt(
        << "      \"limitations\": \"...\",\n"
        << "      \"evidenceSnippet\": \"trecho curto do artigo\",\n"
        << "      \"sourceSection\": \"Results|Discussion|Methods|Unknown\",\n"
-       << "      \"pageRange\": \"pp. 5-6\" \n"
+       << "      \"pageRange\": \"pp. 5-6\",\n"
+       << "      \"contextuality\": \"site-specific|conditional|comparative|non-universal\" \n"
        << "    }\n"
        << "  ],\n"
        << "  \"temporalWindowReferences\": [\n"

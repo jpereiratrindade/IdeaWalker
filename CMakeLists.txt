@@ -141,6 +141,7 @@ add_executable(${PROJECT_NAME}
     src/application/ConversationService.cpp
     src/application/DocumentIngestionService.cpp
     src/application/scientific/ScientificIngestionService.cpp
+    src/application/scientific/EpistemicValidator.cpp
     src/application/ContextAssembler.cpp
     src/application/SuggestionService.cpp
     src/infrastructure/FileSystemArtifactScanner.cpp
