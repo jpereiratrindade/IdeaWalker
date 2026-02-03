@@ -6,6 +6,7 @@
 #pragma once
 
 #include <atomic>
+#include <functional>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -177,6 +178,7 @@ struct AppState {
     UiState ui;
 
     application::AppServices services; ///< Injected services.
+    std::function<application::AppServices(const std::string&)> servicesFactory; ///< Builds services for a project root.
 
     AppState();
     ~AppState();

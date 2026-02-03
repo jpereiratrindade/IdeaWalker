@@ -122,19 +122,9 @@ bool LoadFonts(ImGuiIO& io) {
     return emojiLoaded;
 }
 
-} // namespace
-
-bool IdeaWalkerApp::Init() {
-    std::string defaultRoot = std::filesystem::current_path().string();
-    if (!m_state.OpenProject(defaultRoot)) {
-        std::fprintf(stderr, "Failed to initialize folder structure at %s\n", defaultRoot.c_str());
-        return false;
-    }
-
-    // Dependency Injection / Composition Root
-    auto root = std::filesystem::path(defaultRoot);
+application::AppServices BuildServicesForRoot(const std::filesystem::path& root) {
     auto repo = std::make_unique<infrastructure::FileRepository>(
-        (root / "inbox").string(), 
+        (root / "inbox").string(),
         (root / "notas").string(),
         (root / ".history").string()
     );
@@ -142,13 +132,13 @@ bool IdeaWalkerApp::Init() {
     sharedAi->initialize();
 
     auto taskManager = std::make_shared<application::AsyncTaskManager>();
-    
+
     auto modelsDir = infrastructure::PathUtils::GetModelsDir();
     std::string modelPath = (modelsDir / "ggml-base.bin").string();
     if (!std::filesystem::exists(modelPath)) {
-         if (std::filesystem::exists(root / "ggml-base.bin")) {
-             modelPath = (root / "ggml-base.bin").string();
-         }
+        if (std::filesystem::exists(root / "ggml-base.bin")) {
+            modelPath = (root / "ggml-base.bin").string();
+        }
     }
     std::string inboxPath = (root / "inbox").string();
     auto transcriber = std::make_unique<infrastructure::WhisperCppAdapter>(modelPath, inboxPath);
@@ -156,7 +146,7 @@ bool IdeaWalkerApp::Init() {
     application::AppServices services;
     auto knowledge = std::make_unique<application::KnowledgeService>(std::move(repo));
     auto processing = std::make_unique<application::AIProcessingService>(*knowledge, sharedAi, taskManager, std::move(transcriber));
-    
+
     services.knowledgeService = std::move(knowledge);
     services.aiProcessingService = std::move(processing);
     services.persistenceService = std::make_shared<infrastructure::PersistenceService>();
@@ -178,7 +168,24 @@ bool IdeaWalkerApp::Init() {
     services.exportService = std::make_unique<application::KnowledgeExportService>();
     services.taskManager = taskManager;
 
-    m_state.InjectServices(std::move(services));
+    return services;
+}
+
+} // namespace
+
+bool IdeaWalkerApp::Init() {
+    std::string defaultRoot = std::filesystem::current_path().string();
+    if (!m_state.OpenProject(defaultRoot)) {
+        std::fprintf(stderr, "Failed to initialize folder structure at %s\n", defaultRoot.c_str());
+        return false;
+    }
+
+    // Dependency Injection / Composition Root
+    auto root = std::filesystem::path(defaultRoot);
+    m_state.servicesFactory = [](const std::string& rootPath) {
+        return BuildServicesForRoot(std::filesystem::path(rootPath));
+    };
+    m_state.InjectServices(BuildServicesForRoot(root));
 
     // Unified Config Loader
     auto videoDriver = infrastructure::ConfigLoader::GetVideoDriverPreference(defaultRoot);

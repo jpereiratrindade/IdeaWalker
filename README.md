@@ -32,7 +32,7 @@ O **Idea Walker** é um suporte cognitivo projetado para transformar pensamentos
 1.  **Ingestão**: Jogue arquivos de texto, áudio ou PDFs na pasta `inbox/`.
 2.  **Orquestração Autônoma**: O sistema utiliza o `AIProcessingService` para diagnosticar o estado cognitivo e aplicar a sequência correta de personas via `PersonaOrchestrator`.
 3.  **Processamento Assíncrono**: Transcrições e indexações ocorrem em segundo plano, gerenciadas pelo `AsyncTaskManager`, sem travar a UI.
-4.  **Refinamento**: O output é salvo como Markdown estruturado na pasta `knowledge/` via `KnowledgeService`.
+4.  **Refinamento**: O output é salvo como Markdown estruturado na pasta `notas/` via `KnowledgeService`.
 5.  **Ação**: Tarefas são extraídas e consolidadas em `_Consolidated_Tasks.md`.
 
 ## ✨ Funcionalidades
@@ -46,6 +46,7 @@ O **Idea Walker** é um suporte cognitivo projetado para transformar pensamentos
 - **🎙️ Captura de Áudio Offline**: Transcrição local de voz (Whisper.cpp) gerenciada por tarefas assíncronas.
 - **📜 Licença GPLv3**: Software livre e de código aberto.
 - **Menu File & Navegação**: Gestão completa de projetos e navegação integrada por pastas.
+- **Troca de Projeto Confiável**: ao abrir um novo projeto, os serviços são reconfigurados para usar o novo `root` (inbox/notas/histórico).
 - **🖊️ Trajetórias de Escrita**: Ambiente focado em intenção e revisão para escrita longa (DDD + Event Sourcing). Inclui **Editor de Segmentos**, **Modo de Defesa** com IA e verificação de coerência. [Detalhes da Implementação](docs/WRITING_TRAJECTORY_IMPLEMENTATION.md)
 
 ---

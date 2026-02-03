@@ -83,6 +83,12 @@ bool AppState::OpenProject(const std::string& rootPath) {
     ui.currentBacklinks.clear();
 
     AppendLog("[SISTEMA] Pasta de projeto definida: " + project.root + "\n");
+
+    const bool hasServices =
+        services.knowledgeService || services.aiProcessingService || services.conversationService || services.persistenceService;
+    if (servicesFactory && hasServices) {
+        InjectServices(servicesFactory(project.root));
+    }
     return true;
 }
 

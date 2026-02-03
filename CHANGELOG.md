@@ -10,6 +10,8 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 - **Gerenciamento Assíncrono Centralizado**: Introdução do `AsyncTaskManager` para execução robusta e não-bloqueante de tarefas em background (Transcrição, Indexação, IA), com status unificado na UI.
 - **Refatoração dos Painéis de Escrita**: `WritingPanels` e `ModalPanels` atualizados para consumir a nova arquitetura de serviços.
 - **Chat Conversacional Desacoplado**: O painel de chat agora depende estritamente do `ConversationService`, removendo dependências legadas.
+### Corrigido
+- **Troca de Projeto com Inbox Antiga**: ao abrir um novo projeto, os serviços são reconstruídos com o novo `root`, evitando leitura da inbox e notas de pastas anteriores.
 
 ## [v0.1.7-beta] - 2026-02-03
 ### Adicionado
