@@ -34,12 +34,12 @@ bool InputTextMultilineString(const char* label, std::string* str, const ImVec2&
 namespace ideawalker::ui {
 
 void ConversationPanel::DrawContent(AppState& app) {
-    if (!app.conversationService) {
+    if (!app.services.conversationService) {
         ImGui::Text("Service not available (No project open?)");
         return;
     }
 
-    auto& service = *app.conversationService;
+    auto& service = *app.services.conversationService;
     std::string activeNoteId = app.selectedFilename;
     
     // Dialogue Selection
@@ -77,8 +77,8 @@ void ConversationPanel::DrawContent(AppState& app) {
             ImGui::PopStyleColor();
             
             if (ImGui::Button("Iniciar Sessão de Diálogo")) {
-                 if (app.contextAssembler) {
-                     auto bundle = app.contextAssembler->assemble(activeNoteId, app.selectedNoteContent);
+                 if (app.services.contextAssembler) {
+                     auto bundle = app.services.contextAssembler->assemble(activeNoteId, app.selectedNoteContent);
                      service.startSession(bundle);
                  }
             }
@@ -87,8 +87,8 @@ void ConversationPanel::DrawContent(AppState& app) {
              ImGui::SameLine();
              
              if (ImGui::SmallButton("Reiniciar")) {
-                 if (app.contextAssembler) {
-                     auto bundle = app.contextAssembler->assemble(activeNoteId, app.selectedNoteContent);
+                 if (app.services.contextAssembler) {
+                     auto bundle = app.services.contextAssembler->assemble(activeNoteId, app.selectedNoteContent);
                      service.startSession(bundle);
                  }
              }

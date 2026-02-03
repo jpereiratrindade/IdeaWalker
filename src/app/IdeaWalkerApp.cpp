@@ -20,6 +20,15 @@
 #include <string>
 #include <vector>
 #include "infrastructure/ConfigLoader.hpp"
+#include "infrastructure/FileRepository.hpp"
+#include "infrastructure/OllamaAdapter.hpp"
+#include "infrastructure/WhisperCppAdapter.hpp"
+#include "infrastructure/PathUtils.hpp"
+#include "infrastructure/PersistenceService.hpp"
+#include "infrastructure/FileSystemArtifactScanner.hpp"
+#include "infrastructure/writing/WritingEventStoreFs.hpp"
+#include "infrastructure/writing/WritingTrajectoryRepositoryFs.hpp"
+#include "application/AppServices.hpp"
 
 namespace ideawalker::app {
 
@@ -118,9 +127,50 @@ bool LoadFonts(ImGuiIO& io) {
 bool IdeaWalkerApp::Init() {
     std::string defaultRoot = std::filesystem::current_path().string();
     if (!m_state.OpenProject(defaultRoot)) {
-        std::fprintf(stderr, "Failed to open default project at %s\n", defaultRoot.c_str());
+        std::fprintf(stderr, "Failed to initialize folder structure at %s\n", defaultRoot.c_str());
         return false;
     }
+
+    // Dependency Injection / Composition Root
+    auto root = std::filesystem::path(defaultRoot);
+    auto repo = std::make_unique<infrastructure::FileRepository>(
+        (root / "inbox").string(), 
+        (root / "notas").string(),
+        (root / ".history").string()
+    );
+    auto sharedAi = std::make_shared<infrastructure::OllamaAdapter>();
+    
+    auto modelsDir = infrastructure::PathUtils::GetModelsDir();
+    std::string modelPath = (modelsDir / "ggml-base.bin").string();
+    if (!std::filesystem::exists(modelPath)) {
+         if (std::filesystem::exists(root / "ggml-base.bin")) {
+             modelPath = (root / "ggml-base.bin").string();
+         }
+    }
+    std::string inboxPath = (root / "inbox").string();
+    auto transcriber = std::make_unique<infrastructure::WhisperCppAdapter>(modelPath, inboxPath);
+
+    application::AppServices services;
+    services.organizerService = std::make_unique<application::OrganizerService>(std::move(repo), sharedAi, std::move(transcriber));
+    services.persistenceService = std::make_shared<infrastructure::PersistenceService>();
+    services.conversationService = std::make_unique<application::ConversationService>(sharedAi, services.persistenceService, root.string());
+
+    auto scanPath = (root / "inbox").string();
+    auto obsPath = (root / "observations").string();
+    auto scanner = std::make_unique<infrastructure::FileSystemArtifactScanner>(scanPath);
+    services.ingestionService = std::make_unique<application::DocumentIngestionService>(std::move(scanner), sharedAi, obsPath);
+
+    services.contextAssembler = std::make_unique<application::ContextAssembler>(*services.organizerService, *services.ingestionService);
+    services.suggestionService = std::make_unique<application::SuggestionService>(sharedAi, root.string());
+
+    auto eventStore = std::make_unique<infrastructure::writing::WritingEventStoreFs>(root.string(), services.persistenceService);
+    auto trajRepo = std::make_shared<infrastructure::writing::WritingTrajectoryRepositoryFs>(std::move(eventStore));
+    services.writingTrajectoryService = std::make_unique<application::writing::WritingTrajectoryService>(std::move(trajRepo));
+    services.graphService = std::make_unique<application::GraphService>();
+    services.projectService = std::make_unique<application::ProjectService>();
+    services.exportService = std::make_unique<application::KnowledgeExportService>();
+
+    m_state.InjectServices(std::move(services));
 
     // Unified Config Loader
     auto videoDriver = infrastructure::ConfigLoader::GetVideoDriverPreference(defaultRoot);

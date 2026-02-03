@@ -150,8 +150,20 @@ add_executable(${PROJECT_NAME}
     src/infrastructure/writing/WritingTrajectoryRepositoryFs.cpp
     src/application/writing/WritingTrajectoryService.cpp
     src/application/writing/ExportService.cpp
+    src/application/GraphService.cpp
+    src/application/ProjectService.cpp
+    src/application/KnowledgeExportService.cpp
     src/ui/panels/WritingPanels.cpp
     src/ui/panels/DefensePanel.cpp
+    src/ui/UiUtils.cpp
+    src/ui/panels/DashboardPanel.cpp
+    src/ui/panels/KnowledgePanel.cpp
+    src/ui/panels/ExecutionPanel.cpp
+    src/ui/panels/GraphPanel.cpp
+    src/ui/panels/ExternalFilesPanel.cpp
+    src/ui/panels/TabOrchestrator.cpp
+    src/ui/panels/ModalPanels.cpp
+    src/ui/panels/MenuBarPanel.cpp
 
 )
 

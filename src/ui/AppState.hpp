@@ -18,18 +18,10 @@
 #include "domain/ThoughtRepository.hpp"
 #include "domain/AIService.hpp"
 #include "domain/Suggestion.hpp"
-#include "application/SuggestionService.hpp"
-#include "application/writing/WritingTrajectoryService.hpp"
+#include "domain/writing/MermaidGraph.hpp"
 #include "domain/writing/services/CoherenceLensService.hpp"
 #include "domain/writing/services/RevisionQualityService.hpp"
-#include "domain/writing/MermaidGraph.hpp"
-
-namespace ideawalker::application {
-class OrganizerService;
-class ConversationService;
-class ContextAssembler;
-class DocumentIngestionService;
-}
+#include "application/AppServices.hpp"
 
 namespace ideawalker::infrastructure { class PersistenceService; }
 
@@ -126,7 +118,9 @@ struct AppState {
     void SaveExternalFile(int index);
 
     std::unique_ptr<domain::Insight> currentInsight; ///< Domain object for the active note.
-    std::unique_ptr<application::OrganizerService> organizerService; ///< Service that powers the app logic.
+    
+    application::AppServices services; ///< Injected services.
+
     std::vector<domain::RawThought> inboxThoughts; ///< List of items in the project inbox.
     std::vector<domain::Insight> allInsights; ///< List of all project notes.
     std::map<std::string, int> activityHistory; ///< Map for the activity heatmap (date -> count).
@@ -183,12 +177,9 @@ struct AppState {
     /** @brief Loads history versions and resets selection for a note. */
     void LoadHistory(const std::string& noteId);
 
-    // Conversational Context State
-    std::unique_ptr<application::ConversationService> conversationService;
-    std::unique_ptr<application::ContextAssembler> contextAssembler;
-    
-    // Suggestion Engine
-    std::unique_ptr<application::SuggestionService> suggestionService;
+    /** @brief Injects the required services into the state. */
+    void InjectServices(application::AppServices&& newServices);
+    // Suggestion Engine UI State
     std::vector<domain::Suggestion> currentSuggestions;
     std::atomic<bool> isAnalyzingSuggestions{false};
     std::mutex suggestionsMutex;
@@ -196,21 +187,16 @@ struct AppState {
     /** @brief Triggers a background indexing and suggestion generation session. */
     void AnalyzeSuggestions();
     
-    // Writing Trajectory Context
-    std::unique_ptr<application::writing::WritingTrajectoryService> writingTrajectoryService;
+    // Writing Trajectory Context UI State
     bool showTrajectoryPanel = false;
     bool showSegmentEditor = false;
     bool showDefensePanel = false;
     std::string activeTrajectoryId;
     
-    // Coherence Analysis
+    // Coherence Analysis Results
     std::vector<ideawalker::domain::writing::Inconsistency> coherenceIssues;
     ideawalker::domain::writing::QualityReport lastQualityReport;
 
-
-    std::unique_ptr<application::DocumentIngestionService> ingestionService;
-    std::shared_ptr<infrastructure::PersistenceService> persistenceService;
-    
     // Configuration / Persistence
     std::string currentAIModel; ///< The currently selected AI model.
     std::string videoDriverPreference; ///< Preference for SDL Video Driver (e.g. "x11" or "wayland").

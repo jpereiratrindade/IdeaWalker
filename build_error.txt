@@ -1,0 +1,6 @@
+[ 10%] Built target whisper
+[ 24%] Built target imgui
+[ 28%] Built target imnodes
+[ 29%] Building CXX object CMakeFiles/IdeaWalker.dir/src/ui/AppState.cpp.o
+[ 31%] Linking CXX executable IdeaWalker
+[100%] Built target IdeaWalker

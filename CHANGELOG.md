@@ -2,7 +2,16 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
-## [v0.1.6-beta] - 2026-02-02
+## [v0.1.7-beta] - 2026-02-03
+### Adicionado
+- **Arquitetura de Serviços Desacoplada (Phase 4)**: Extração completa da lógica de negócio do `AppState` para serviços especializados, reduzindo a complexidade do estado da UI.
+    - `GraphService`: Gerenciamento de reconstrução e física do grafo de nós.
+    - `ProjectService`: Centralização do ciclo de vida do projeto (Novo, Abrir, Salvar) e gestão de pastas.
+    - `KnowledgeExportService`: Centralização de exportação para formatos Mermaid e Markdown.
+- **Decomposição Completa da UI (Phase 2)**: O `UiRenderer.cpp` agora atua estritamente como um orquestrador de alto nível, delegando toda a renderização para painéis modulares em `src/ui/panels/`.
+- **Injeção de Dependência (Phase 1)**: Inicialização de infraestrutura movida para o `IdeaWalkerApp` (Composition Root), permitindo testes e modularidade.
+
+## [v0.1.6-beta] - 2026-02-03
 ### Adicionado
 - **Arquitetura Modular de UI**: Refatoração profunda do `UiRenderer.cpp`, extraindo componentes especializados para reduzir o acoplamento e facilitar a manutenção.
     - `UiMarkdownRenderer`: Módulo dedicado para renderização de Markdown e previews de Mermaid.
@@ -11,7 +20,7 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 - **Verificador de Atualizações**: Novo recurso para checagem assíncrona de novas versões no repositório GitHub.
 - **Domínio Mermaid**: O parser de Mermaid foi movido para o diretório de domínio (`src/domain/writing`), alinhando o projeto com princípios de DDD (Domain-Driven Design).
 - **Utilitários de Áudio**: Lógica de processamento de áudio extraída de adaptadores para utilitários reaproveitáveis.
-- **Limpeza de Build**: Atualização do `CMakeLists.txt` (v0.1.6-beta) e correção de dependências de headers (`fstream`) no `UiRenderer.cpp`.
+- **Limpeza de Build**: Atualização do `CMakeLists.txt` (v0.1.7-beta) e correção de dependências de headers no `UiRenderer.cpp`.
 
 ## [v0.1.5-beta] - 2026-01-09
 ### Adicionado

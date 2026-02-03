@@ -31,7 +31,7 @@ void DrawDefensePanel(AppState& state) {
             return;
         }
 
-        auto trajPtr = state.writingTrajectoryService->getTrajectory(state.activeTrajectoryId);
+        auto trajPtr = state.services.writingTrajectoryService->getTrajectory(state.activeTrajectoryId);
         if (!trajPtr) {
             ImGui::Text("Trajectory not found.");
             ImGui::End();
@@ -59,7 +59,7 @@ void DrawDefensePanel(AppState& state) {
             auto prompts = DefensePromptFactory::generatePrompts(*trajPtr);
             for (const auto& p : prompts) {
                 // Check if already exists? For MVP just add.
-                state.writingTrajectoryService->addDefenseCard(
+                state.services.writingTrajectoryService->addDefenseCard(
                     state.activeTrajectoryId, 
                     generateDefenseUUID(), 
                     p.segmentId, 
@@ -110,11 +110,11 @@ void DrawDefensePanel(AppState& state) {
                         ImGui::InputTextMultiline(("##response" + card.cardId).c_str(), defenseBuf, sizeof(defenseBuf), ImVec2(-FLT_MIN, 100));
                         
                         if (ImGui::Button("Mark Rehearsed")) {
-                            state.writingTrajectoryService->updateDefenseStatus(state.activeTrajectoryId, card.cardId, DefenseStatus::Rehearsed, defenseBuf);
+                            state.services.writingTrajectoryService->updateDefenseStatus(state.activeTrajectoryId, card.cardId, DefenseStatus::Rehearsed, defenseBuf);
                         }
                         ImGui::SameLine();
                         if (ImGui::Button("Pass Defense")) {
-                            state.writingTrajectoryService->updateDefenseStatus(state.activeTrajectoryId, card.cardId, DefenseStatus::Passed, "Passed via UI");
+                            state.services.writingTrajectoryService->updateDefenseStatus(state.activeTrajectoryId, card.cardId, DefenseStatus::Passed, "Passed via UI");
                         }
                     } else {
                         ImGui::TextWrapped("Defense Passed! (Locked)");

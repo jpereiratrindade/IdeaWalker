@@ -51,8 +51,8 @@ void DrawTrajectoryPanel(AppState& state) {
 
     ImGui::Separator();
 
-    if (state.writingTrajectoryService) {
-        auto trajectories = state.writingTrajectoryService->getAllTrajectories();
+    if (state.services.writingTrajectoryService) {
+        auto trajectories = state.services.writingTrajectoryService->getAllTrajectories();
         
         for (const auto& traj : trajectories) {
             std::string label = traj.getIntent().purpose + " (" + StageToString(traj.getStage()) + ")";
@@ -79,9 +79,9 @@ void DrawTrajectoryPanel(AppState& state) {
         if (ImGui::Button("Create", ImVec2(120, 0))) {
             if (strlen(purposeBuf) == 0 || strlen(audienceBuf) == 0) {
                  ImGui::OpenPopup("InvalidInput"); 
-            } else if (state.writingTrajectoryService) {
+            } else if (state.services.writingTrajectoryService) {
                 try {
-                    std::string id = state.writingTrajectoryService->createTrajectory(
+                    std::string id = state.services.writingTrajectoryService->createTrajectory(
                         purposeBuf, audienceBuf, claimBuf, "");
                     state.activeTrajectoryId = id;
                     state.showSegmentEditor = true;
@@ -120,7 +120,7 @@ void DrawSegmentEditorPanel(AppState& state) {
     if (!state.showSegmentEditor) return;
     if (state.activeTrajectoryId.empty()) return;
 
-    auto trajPtr = state.writingTrajectoryService->getTrajectory(state.activeTrajectoryId);
+    auto trajPtr = state.services.writingTrajectoryService->getTrajectory(state.activeTrajectoryId);
     if (!trajPtr) {
         ImGui::Text("Error loading trajectory.");
         return;
@@ -137,7 +137,7 @@ void DrawSegmentEditorPanel(AppState& state) {
     if (tragectoryStageCanAdvance(traj.getStage())) {
         if (ImGui::Button("Advance Stage")) {
              TrajectoryStage next = getNextStage(traj.getStage());
-             state.writingTrajectoryService->advanceStage(state.activeTrajectoryId, next);
+             state.services.writingTrajectoryService->advanceStage(state.activeTrajectoryId, next);
         }
     }
     ImGui::SameLine();
@@ -215,7 +215,7 @@ void DrawSegmentEditorPanel(AppState& state) {
                 } else {
                     // Save
                     RevisionOperation op = static_cast<RevisionOperation>(selectedOp);
-                    state.writingTrajectoryService->reviseSegment(
+                    state.services.writingTrajectoryService->reviseSegment(
                         state.activeTrajectoryId, 
                         selectedSegmentId, 
                         segmentContentBuf, 
@@ -245,7 +245,7 @@ void DrawSegmentEditorPanel(AppState& state) {
         ImGui::InputText("Title", segmentTitleBuf, IM_ARRAYSIZE(segmentTitleBuf));
         if (ImGui::Button("Add", ImVec2(120, 0))) {
             try {
-                state.writingTrajectoryService->addSegment(state.activeTrajectoryId, segmentTitleBuf, "");
+                state.services.writingTrajectoryService->addSegment(state.activeTrajectoryId, segmentTitleBuf, "");
                 ImGui::CloseCurrentPopup();
                 segmentTitleBuf[0] = '\0';
             } catch (const std::exception& e) {

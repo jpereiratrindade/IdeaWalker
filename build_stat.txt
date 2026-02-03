@@ -1,0 +1,9 @@
+    Arquivo: build/IdeaWalker
+    Tamanho: 3610832   	Blocos: 7056       bloco de E/S: 4096   arquivo comum
+Dispositivo: 8,1	Inode: 187246202   Ligações: 1
+     Acesso: (0755/-rwxr-xr-x)  Uid: ( 1000/jpereiratrindade)   Gid: ( 1000/jpereiratrindade)
+Contexto: unconfined_u:object_r:unlabeled_t:s0
+     Acesso: 2026-02-03 09:04:23.694743914 -0300
+Modificação: 2026-02-03 09:04:23.696223064 -0300
+  Alteração: 2026-02-03 09:04:23.696412395 -0300
+    Criação: 2026-02-03 09:04:23.602223636 -0300
