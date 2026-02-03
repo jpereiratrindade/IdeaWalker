@@ -2,7 +2,7 @@
 
 ### "Transformando o caos do TDAH em concretude técnica."
 
-O **Idea Walker** é um suporte cognitivo projetado para transformar pensamentos não-lineares e transcrições de áudio em estruturas de conhecimento organizadas (Markdown). Desenvolvido em C++ com uma arquitetura baseada em **Domain-Driven Design (DDD)** e **Ports & Adapters**, ele garante que a lógica de organização permaneça pura e desacoplada das ferramentas de IA ou de interface.
+O **Idea Walker** é um suporte cognitivo projetado para transformar pensamentos não-lineares e transcrições de áudio em estruturas de conhecimento organizadas (Markdown). Desenvolvido em C++ com uma arquitetura baseada em **Domain-Driven Design (DDD)** e **Service Layer Isolation**, ele garante que a lógica de organização permaneça pura, modular e desacoplada das ferramentas de IA ou de interface.
 
 ---
 
@@ -11,16 +11,17 @@ O **Idea Walker** é um suporte cognitivo projetado para transformar pensamentos
 - **Interface**: Dear ImGui (OpenGL3 + SDL2)
 - **Cérebro (IA)**: Ollama (**Qwen 2.5:14b** local)
 - **Comunicação**: cpp-httplib & nlohmann-json
-- **Arquitetura**: DDD (Domain-Driven Design)
+- **Arquitetura**: DDD (Services: Knowledge, AIProcessing, Conversation) + Async Task Manager
+- **Infraestrutura**: Ports & Adapters
 
 ---
 
 ## 🏗️ Estrutura do Projeto
 - `src/app`: Ciclo de vida da aplicação e carregamento de fontes.
 - `src/domain`: Entidades puras e interfaces (Ports).
-- `src/infrastructure`: Implementações técnicas (Ollama, FileSystem).
-- `src/application`: Orquestração de serviços.
-- `src/ui`: Estado e renderização da UI (ImGui).
+- `src/infrastructure`: Implementações técnicas (OllamaClient, FileSystem, Whisper).
+- `src/application`: Serviços de Domínio (KnowledgeService, AIProcessingService, ConversationService).
+- `src/ui`: Estado e renderização da UI (ImGui Panels).
 - `inbox/`: Onde as ideias brutas (.txt) entram.
 - `notas/`: Onde o conhecimento estruturado (.md) é salvo.
 - `docs/`: Documentação técnica e arquitetura.
@@ -29,9 +30,10 @@ O **Idea Walker** é um suporte cognitivo projetado para transformar pensamentos
 
 ### Fluxo de Trabalho (Workflow)
 1.  **Ingestão**: Jogue arquivos de texto, áudio ou PDFs na pasta `inbox/`.
-2.  **Orquestração Autônoma**: O sistema detecta novos arquivos, diagnostica o estado cognitivo (Caótico, Divergente, etc.) e aplica automaticamente a sequência correta de personas (Brainstormer, Analista, Secretário).
-3.  **Refinamento**: O output é salvo como Markdown estruturado na pasta `knowledge/`.
-4.  **Ação**: Tarefas são extraídas e consolidadas em `_Consolidated_Tasks.md`.
+2.  **Orquestração Autônoma**: O sistema utiliza o `AIProcessingService` para diagnosticar o estado cognitivo e aplicar a sequência correta de personas via `PersonaOrchestrator`.
+3.  **Processamento Assíncrono**: Transcrições e indexações ocorrem em segundo plano, gerenciadas pelo `AsyncTaskManager`, sem travar a UI.
+4.  **Refinamento**: O output é salvo como Markdown estruturado na pasta `knowledge/` via `KnowledgeService`.
+5.  **Ação**: Tarefas são extraídas e consolidadas em `_Consolidated_Tasks.md`.
 
 ## ✨ Funcionalidades
 - **📂 Suporte Multi-formato**: Ingestão automática de `.txt`, `.pdf` (via pdftotext), `.md` e `.tex` do **inbox**.
@@ -41,10 +43,10 @@ O **Idea Walker** é um suporte cognitivo projetado para transformar pensamentos
 - **Static Preview**: Visualização estável e organizada de gráficos Mermaid.
 - **🚀 Gestão de Execução**: Kanban board e lista de tarefas consolidadas sincronizados via IA.
 - **📤 Exportação Flexível**: Geração de diagramas e relatórios completos para Obsidian/GitHub.
-- **🎙️ Captura de Áudio**: Transcrição local de voz para insights estruturados.
+- **🎙️ Captura de Áudio Offline**: Transcrição local de voz (Whisper.cpp) gerenciada por tarefas assíncronas.
 - **📜 Licença GPLv3**: Software livre e de código aberto.
 - **Menu File & Navegação**: Gestão completa de projetos e navegação integrada por pastas.
-- **🖊️ Trajetórias de Escrita**: Ambiente focado em intenção e revisão para escrita longa (DDD + Event Sourcing). Inclui **Editor de Segmentos** com rastreabilidade, **Modo de Defesa** com IA e verificação de coerência. [Detalhes da Implementação](docs/WRITING_TRAJECTORY_IMPLEMENTATION.md)
+- **🖊️ Trajetórias de Escrita**: Ambiente focado em intenção e revisão para escrita longa (DDD + Event Sourcing). Inclui **Editor de Segmentos**, **Modo de Defesa** com IA e verificação de coerência. [Detalhes da Implementação](docs/WRITING_TRAJECTORY_IMPLEMENTATION.md)
 
 ---
 
@@ -60,8 +62,6 @@ O **Idea Walker** é um suporte cognitivo projetado para transformar pensamentos
 mkdir build && cd build
 cmake ..
 make
-./IdeaWalker
-```
 ./IdeaWalker
 ```
 
@@ -81,15 +81,15 @@ O IdeaWalker suporta transcrição local offline usando **Whisper.cpp**.
 - **Modelos**: Baixa automaticamente o modelo `ggml-base.bin` (~140MB) na primeira execução.
 - **Como usar**:
     1. **Drag & Drop**: Arraste um arquivo de áudio para a janela.
-    2. **Menu**: Arquivo > Transcrever Áudio... (Ideal para Wayland/Gnome onde Drag & Drop pode falhar).
+    2. **Menu**: Arquivo > Transcrever Áudio... (Executado em segundo plano via `AsyncTaskManager`).
 
 ---
 
 ## 🛡️ Governança
-- **Versão Atual**: v0.1.6-beta
+- **Versão Atual**: v0.1.8-beta
 - **Licença**: GPLv3
 - **Design System**: SisterSTRATA inspired.
-- **Recursos**: Brainstorming, Task Extraction, Backlinks e Heatmap de Atividade.
+- **Recursos**: Brainstorming, Task Extraction, Backlinks, Heatmap e Chat Contextual (ConversationService).
 
 ---
 
