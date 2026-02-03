@@ -317,4 +317,4 @@ O sistema sustenta o pensamento no tempo — não o substitui.
 Quando a fonte é científica, a ingestão passa por um pipeline dedicado e governado,
 produzindo artefatos cognitivos tipados e consumíveis estáveis para o STRATA.
 
-Detalhes completos em `docs/SCIENTIFIC_INGESTION_CONTEXT.md`.
+Detalhes completos em `docs/SCIENTIFIC_INGESTION_CONTEXT.md`, incluindo o Validador Epistemológico (VE-IW).

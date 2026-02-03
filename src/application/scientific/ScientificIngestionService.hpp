@@ -7,6 +7,7 @@
 
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -34,6 +35,18 @@ public:
     };
 
     /**
+     * @brief Summary of the latest epistemic validation report.
+     */
+    struct ValidationSummary {
+        std::string path;
+        std::string status;
+        bool exportAllowed = false;
+        size_t errorCount = 0;
+        size_t warningCount = 0;
+        std::string reportJson;
+    };
+
+    /**
      * @brief Constructs a scientific ingestion service.
      * @param scanner Artifact scanner for scientific inbox.
      * @param aiService AI service used to generate structured artifacts.
@@ -57,6 +70,12 @@ public:
      * @return Number of raw scientific bundle files on disk.
      */
     size_t getBundlesCount() const;
+
+    /**
+     * @brief Retrieves the most recent epistemic validation summary, if available.
+     * @return Optional summary with report status and location.
+     */
+    std::optional<ValidationSummary> getLatestValidationSummary() const;
 
 private:
     std::unique_ptr<infrastructure::FileSystemArtifactScanner> m_scanner;

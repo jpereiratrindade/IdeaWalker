@@ -154,6 +154,10 @@ Antes da exportação para STRATA, o bundle passa pelo VE-IW:
 - `EpistemicValidationReport.json`
 - `ExportSeal.json` (com `exportAllowed` e `allowedTargets`)
 
+**Visibilidade na UI**
+- A aba `Dashboard & Inbox` mostra o status da última validação.
+- O botão **Ver Relatório no Log** imprime o JSON completo no System Log.
+
 Sem selo, nada entra no STRATA.
 
 ---

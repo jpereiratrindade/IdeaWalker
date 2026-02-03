@@ -253,6 +253,62 @@ size_t ScientificIngestionService::getBundlesCount() const {
     return count;
 }
 
+std::optional<ScientificIngestionService::ValidationSummary> ScientificIngestionService::getLatestValidationSummary() const {
+    fs::path validationDir = fs::path(m_observationsPath) / "validation";
+    if (!fs::exists(validationDir) || !fs::is_directory(validationDir)) {
+        return std::nullopt;
+    }
+
+    fs::path latestFile;
+    std::chrono::system_clock::time_point latestTime;
+    bool hasFile = false;
+
+    for (const auto& entry : fs::directory_iterator(validationDir)) {
+        if (!entry.is_regular_file() || entry.path().extension() != ".json") continue;
+        auto ftime = fs::last_write_time(entry);
+        auto sysTime = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+            ftime - fs::file_time_type::clock::now() + std::chrono::system_clock::now()
+        );
+        if (!hasFile || sysTime > latestTime) {
+            latestTime = sysTime;
+            latestFile = entry.path();
+            hasFile = true;
+        }
+    }
+
+    if (!hasFile) return std::nullopt;
+
+    std::ifstream file(latestFile);
+    if (!file.is_open()) return std::nullopt;
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    const std::string reportJson = buffer.str();
+
+    nlohmann::json report;
+    try {
+        report = nlohmann::json::parse(reportJson);
+    } catch (...) {
+        return std::nullopt;
+    }
+
+    ValidationSummary summary;
+    summary.path = latestFile.string();
+    summary.reportJson = reportJson;
+    if (report.contains("status") && report["status"].is_string()) {
+        summary.status = report["status"].get<std::string>();
+    }
+    if (report.contains("errors") && report["errors"].is_array()) {
+        summary.errorCount = report["errors"].size();
+    }
+    if (report.contains("warnings") && report["warnings"].is_array()) {
+        summary.warningCount = report["warnings"].size();
+    }
+    summary.exportAllowed = (summary.status != "block");
+
+    return summary;
+}
+
 std::string ScientificIngestionService::buildSystemPrompt() const {
     std::ostringstream ss;
     ss << "Você é um analista científico do IdeaWalker.\n"

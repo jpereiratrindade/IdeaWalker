@@ -176,6 +176,24 @@ void DrawDashboardTab(AppState& app) {
                 if (ImGui::IsItemHovered()) {
                     ImGui::SetTooltip("Total de bundles científicos salvos em /observations/scientific.");
                 }
+
+                if (auto summary = app.services.scientificIngestionService->getLatestValidationSummary()) {
+                    ImGui::Text("Última validação: %s | exportAllowed=%s",
+                                summary->status.c_str(),
+                                summary->exportAllowed ? "true" : "false");
+                    ImGui::Text("Erros: %zu | Avisos: %zu", summary->errorCount, summary->warningCount);
+                    ImGui::Text("Relatório: %s", summary->path.c_str());
+                    if (ImGui::Button("Ver Relatório no Log")) {
+                        app.AppendLog("[VE-IW] " + summary->path + "\n");
+                        app.AppendLog(summary->reportJson + "\n");
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::IsItemHovered()) {
+                        ImGui::SetTooltip("Imprime o relatório completo no System Log.");
+                    }
+                } else {
+                    ImGui::TextDisabled("Nenhum relatório de validação encontrado.");
+                }
             }
 
             ImGui::Separator();
