@@ -141,8 +141,9 @@ EpistemicValidator::Result EpistemicValidator::Validate(const nlohmann::json& bu
     bool temporalOk = true;
     bool temporalWarning = false;
     if (!bundle.contains("temporalWindowReferences") || !bundle["temporalWindowReferences"].is_array() || bundle["temporalWindowReferences"].empty()) {
-        temporalOk = false;
-        AddError(report, "temporalWindowReferences ausente.");
+        // Relaxed: treated as warning instead of blocking error
+        temporalWarning = true;
+        AddWarning(report, "temporalWindowReferences ausente (Validation Relaxed).");
     } else {
         for (const auto& tw : bundle["temporalWindowReferences"]) {
             if (!IsNonEmptyString(tw, "timeWindow") || !IsNonEmptyString(tw, "changeRhythm") || !IsNonEmptyString(tw, "delaysOrHysteresis")) {

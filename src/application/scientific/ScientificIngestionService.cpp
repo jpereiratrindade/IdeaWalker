@@ -318,7 +318,11 @@ std::string ScientificIngestionService::buildSystemPrompt() const {
        << "Todo item em narrativeObservations, allegedMechanisms e temporalWindowReferences deve conter evidenceSnippet, sourceSection e pageRange.\n"
        << "evidenceSnippet deve ser TRECHO LITERAL do artigo (copiado do texto extraído).\n"
        << "Todo item em narrativeObservations e allegedMechanisms deve declarar contextuality.\n"
-       << "Se algo não puder ser inferido, use valores \"unknown\" ou listas vazias.\n";
+       << "Se algo não puder ser inferido, use valores \"unknown\" ou listas vazias.\n"
+       << "\n"
+       << "EXTRAÇÃO DISCURSIVA (OPCIONAL):\n"
+       << "Além da extração narrativa (o que aconteceu), identifique frames discursivos (como o autor fala).\n"
+       << "Separe claramente o que é observação factual do que é enquadramento retórico ou normativo.\n";
     return ss.str();
 }
 
@@ -401,6 +405,18 @@ std::string ScientificIngestionService::buildUserPrompt(
        << "    \"observedStatements\": [\"...\"],\n"
        << "    \"authorInterpretations\": [\"...\"],\n"
        << "    \"possibleReadings\": [\"...\"]\n"
+       << "    \"possibleReadings\": [\"...\"]\n"
+       << "  },\n"
+       << "  \"discursiveContext\": {\n"
+       << "    \"frames\": [\n"
+       << "      {\n"
+       << "        \"label\": \"...\",\n"
+       << "        \"description\": \"...\",\n"
+       << "        \"valence\": \"normative|descriptive|critical|implicit\",\n"
+       << "        \"evidenceSnippet\": \"...\"\n"
+       << "      }\n"
+       << "    ],\n"
+       << "    \"epistemicRole\": \"discursive-reading\"\n"
        << "  }\n"
        << "}\n";
     return ss.str();
@@ -494,6 +510,18 @@ bool ScientificIngestionService::validateBundleJson(const nlohmann::json& bundle
             errors.push_back("interpretationLayers.possibleReadings inválido");
         }
     }
+    
+    // Discursive Context (Optional)
+    if (bundle.contains("discursiveContext")) {
+        const auto& dc = bundle["discursiveContext"];
+        if (!dc.is_object()) {
+            errors.push_back("discursiveContext deve ser um objeto");
+        } else {
+            if (dc.contains("frames") && !dc["frames"].is_array()) {
+                errors.push_back("discursiveContext.frames deve ser array");
+            }
+        }
+    }
 
     return errors.empty();
 }
@@ -567,8 +595,14 @@ bool ScientificIngestionService::exportConsumables(
     layers["interpretationLayers"] = bundle["interpretationLayers"];
     if (!WriteJsonFile(baseDir / "InterpretationLayers.json", layers, error)) return false;
 
+    if (bundle.contains("discursiveContext")) {
+        nlohmann::json discursive = baseEnvelope;
+        discursive["discursiveContext"] = bundle["discursiveContext"];
+        if (!WriteJsonFile(baseDir / "DiscursiveContext.json", discursive, error)) return false;
+    }
+
     nlohmann::json manifest = baseEnvelope;
-    manifest["files"] = {
+    std::vector<std::string> files = {
         "SourceProfile.json",
         "NarrativeObservation.json",
         "AllegedMechanisms.json",
@@ -577,6 +611,10 @@ bool ScientificIngestionService::exportConsumables(
         "TrajectoryAnalogies.json",
         "InterpretationLayers.json"
     };
+    if (bundle.contains("discursiveContext")) {
+        files.push_back("DiscursiveContext.json");
+    }
+    manifest["files"] = files;
     if (!WriteJsonFile(baseDir / "Manifest.json", manifest, error)) return false;
 
     return true;

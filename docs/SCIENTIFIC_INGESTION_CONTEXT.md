@@ -21,6 +21,7 @@ O sistema gera artefatos cognitivos explicitamente tipados e, a partir deles, pr
 2. **Evitar normatividade** (sem recomendações, sem conclusões prescritivas).
 3. **Gerar artefatos auditáveis**, com fonte, escopo e incerteza.
 4. **Consumíveis STRATA são derivados**, não o texto cru do artigo.
+5. **Declaração ≠ Ontologia**: O IdeaWalker exporta *candidatos* (strings), o STRATA decide a ontologia (enums).
 
 ---
 
@@ -109,6 +110,17 @@ Fluxo:
     "observedStatements": ["..."],
     "authorInterpretations": ["..."],
     "possibleReadings": ["..."]
+  },
+  "discursiveContext": {
+    "frames": [
+      {
+        "label": "...",
+        "description": "...",
+        "valence": "normative|descriptive|critical|implicit",
+        "evidenceSnippet": "..."
+      }
+    ],
+    "epistemicRole": "discursive-reading"
   }
 }
 ```
@@ -121,6 +133,7 @@ Fluxo:
 - `BaselineAssumptions.json`
 - `TrajectoryAnalogies.json`
 - `InterpretationLayers.json`
+- `DiscursiveContext.json` (opcional)
 - `Manifest.json`
 
 Todos os consumíveis incluem:

@@ -2,6 +2,16 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [v0.1.9-beta] - 2026-02-03
+### Adicionado
+- **Extração de Contexto Discursivo**: Nova camada na ingestão científica que captura *frames* discursivos, valência e retórica (`DiscursiveContext.json`), separada da narrativa factual.
+- **DTOs Candidatos (Scientific Ingestion)**: A saída narrativa (`NarrativeObservation.json`) agora é explicitamente tratada como "Candidatos" (strings), evitando acoplamento prematuro com Enums do STRATA.
+- **Exportação de Artefatos Estendida**: O `ScientificIngestionService` agora gera e exporta o arquivo `DiscursiveContext.json` quando frames são detectados.
+
+### Alterado
+- **Validação Epistêmica Relaxada**: A ausência de `temporalWindowReferences` agora é tratada como um **Aviso** (pass-with-warnings) em vez de Erro bloqueante, aumentando a resiliência do processo de ingestão.
+- **Prompts de IA**: Instruções atualizadas para solicitar explicitamente a separação entre observação narrativa e enquadramento discursivo.
+
 ## [v0.1.8-beta] - 2026-02-03
 ### Adicionado
 - **Isolamento da Camada de Serviço (Phase 5.3)**: Completa decomposição do `OrganizerService` monolítico em serviços de domínio focados:
