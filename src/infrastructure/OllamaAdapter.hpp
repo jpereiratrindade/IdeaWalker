@@ -25,6 +25,7 @@ public:
 
     std::optional<domain::Insight> processRawThought(const std::string& rawContent, bool fastMode = false, std::function<void(std::string)> statusCallback = nullptr) override;
     std::optional<std::string> chat(const std::vector<domain::AIService::ChatMessage>& history, bool stream = false) override;
+    std::optional<std::string> generateJson(const std::string& systemPrompt, const std::string& userPrompt) override;
     std::optional<std::string> consolidateTasks(const std::string& tasksMarkdown) override;
     std::vector<float> getEmbedding(const std::string& text) override;
 

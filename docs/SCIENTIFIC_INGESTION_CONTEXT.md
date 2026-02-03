@@ -1,0 +1,127 @@
+# DDD — SCIENTIFIC INGESTION CONTEXT
+## Ingestão científica e geração de consumíveis STRATA
+
+**VERSÃO:** 1.0  
+**STATUS:** Implementado (MVP governado)  
+**NATUREZA:** Observacional / Declarativa / Read-only  
+**ESCOPO:** Contexto Auxiliar (NÃO Core Domain)
+
+---
+
+## 1. Objetivo
+
+Adaptar a ingestão de documentos para artigos científicos sem transformar o IdeaWalker em um “parser de STRATA”.
+O sistema gera artefatos cognitivos explicitamente tipados e, a partir deles, produz consumíveis estáveis para o STRATA.
+
+---
+
+## 2. Princípios
+
+1. **Separar o que o artigo diz do que sugere.**
+2. **Evitar normatividade** (sem recomendações, sem conclusões prescritivas).
+3. **Gerar artefatos auditáveis**, com fonte, escopo e incerteza.
+4. **Consumíveis STRATA são derivados**, não o texto cru do artigo.
+
+---
+
+## 3. Pastas e fluxo
+
+- Inbox científica: `inbox/scientific/`
+- Bundles brutos (auditoria): `observations/scientific/`
+- Consumíveis STRATA: `strata/consumables/<artifactId>/`
+
+Fluxo:
+1. Scanner detecta artigos na inbox científica.
+2. Conteúdo é extraído (PDF/LaTeX/Markdown/Text).
+3. IA gera bundle JSON com artefatos cognitivos.
+4. Bundle é validado e salvo.
+5. Consumíveis STRATA são exportados por artefato.
+
+---
+
+## 4. Esquema (schemaVersion=1)
+
+**Bundle JSON base (salvo em `observations/scientific/`):**
+
+```json
+{
+  "schemaVersion": 1,
+  "sourceProfile": {
+    "studyType": "experimental|observational|review|theoretical|simulation|mixed|unknown",
+    "temporalScale": "short|medium|long|multi|unknown",
+    "ecosystemType": "terrestrial|aquatic|urban|agro|industrial|social|digital|mixed|unknown",
+    "evidenceType": "empirical|theoretical|mixed|unknown",
+    "transferability": "high|medium|low|contextual|unknown",
+    "contextNotes": "texto curto ou unknown",
+    "limitations": "texto curto ou unknown"
+  },
+  "narrativeObservations": [
+    {
+      "observation": "...",
+      "context": "...",
+      "limits": "...",
+      "confidence": "low|medium|high|unknown",
+      "evidence": "direct|inferred|unknown"
+    }
+  ],
+  "allegedMechanisms": [
+    {
+      "mechanism": "...",
+      "status": "tested|inferred|speculative|unknown",
+      "context": "...",
+      "limitations": "..."
+    }
+  ],
+  "temporalWindowReferences": [
+    {
+      "timeWindow": "...",
+      "changeRhythm": "...",
+      "delaysOrHysteresis": "...",
+      "context": "..."
+    }
+  ],
+  "baselineAssumptions": [
+    {
+      "baselineType": "fixed|dynamic|multiple|none|unknown",
+      "description": "...",
+      "context": "..."
+    }
+  ],
+  "trajectoryAnalogies": [
+    {
+      "analogy": "...",
+      "scope": "...",
+      "justification": "..."
+    }
+  ],
+  "interpretationLayers": {
+    "observedStatements": ["..."],
+    "authorInterpretations": ["..."],
+    "possibleReadings": ["..."]
+  }
+}
+```
+
+**Consumíveis STRATA (exportados em `strata/consumables/<artifactId>/`):**
+- `SourceProfile.json`
+- `NarrativeObservation.json`
+- `AllegedMechanisms.json`
+- `TemporalWindowReference.json`
+- `BaselineAssumptions.json`
+- `TrajectoryAnalogies.json`
+- `InterpretationLayers.json`
+- `Manifest.json`
+
+Todos os consumíveis incluem:
+- `schemaVersion`
+- `source` (com `artifactId`, `path`, `contentHash`, `ingestedAt`, `model`)
+
+---
+
+## 5. Governança
+
+Regra de ouro:
+- Se o artefato ainda admite debate, ele permanece no IdeaWalker.
+- Se é referência explícita e estável, ele pode alimentar o STRATA.
+
+Essa separação mantém auditabilidade e reduz risco de normatividade indevida.

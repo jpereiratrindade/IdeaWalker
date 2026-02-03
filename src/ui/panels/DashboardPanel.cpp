@@ -138,6 +138,33 @@ void DrawDashboardTab(AppState& app) {
             }
 
             ImGui::Separator();
+            ImGui::Text("%s", label("🧪 Ingestão Científica (STRATA)", "Scientific Ingestion (STRATA)"));
+            if (app.services.scientificIngestionService) {
+                if (ImGui::Button("Processar Inbox Científica & Gerar Consumíveis")) {
+                    app.AppendLog("[SYSTEM] Starting scientific ingestion...\n");
+                    app.services.taskManager->SubmitTask(application::TaskType::Indexing, "Ingestão Científica", [&app](std::shared_ptr<application::TaskStatus> status) {
+                        auto result = app.services.scientificIngestionService->ingestPending([&app, status](const std::string& s) {
+                            app.SetProcessingStatus(s);
+                            app.AppendLog("[SCIENTIFIC] " + s + "\n");
+                        });
+                        for (const auto& err : result.errors) {
+                            app.AppendLog("[SCIENTIFIC][ERRO] " + err + "\n");
+                        }
+                        app.ui.pendingRefresh.store(true);
+                    });
+                }
+                ImGui::SameLine();
+                if (ImGui::IsItemHovered()) {
+                    ImGui::SetTooltip("Processa arquivos em /inbox/scientific e exporta consumíveis em /strata/consumables.");
+                }
+
+                ImGui::Text("Bundles científicos gerados: %zu", app.services.scientificIngestionService->getBundlesCount());
+                if (ImGui::IsItemHovered()) {
+                    ImGui::SetTooltip("Total de bundles científicos salvos em /observations/scientific.");
+                }
+            }
+
+            ImGui::Separator();
             ImGui::Text("%s", label("🔥 Activity Heatmap (Last 30 Days)", "Activity Heatmap (Last 30 Days)"));
             
             ImDrawList* draw_list = ImGui::GetWindowDrawList();

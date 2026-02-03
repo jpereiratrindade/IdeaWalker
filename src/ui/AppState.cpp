@@ -65,8 +65,11 @@ bool AppState::OpenProject(const std::string& rootPath) {
         // Fallback for early initialization before services are injected
         try {
             std::filesystem::create_directories(root / "inbox");
+            std::filesystem::create_directories(root / "inbox" / "scientific");
             std::filesystem::create_directories(root / "notas");
             std::filesystem::create_directories(root / ".history");
+            std::filesystem::create_directories(root / "observations" / "scientific");
+            std::filesystem::create_directories(root / "strata" / "consumables");
         } catch (...) {
             if (!std::filesystem::exists(root)) return false;
         }
@@ -138,6 +141,7 @@ bool AppState::CloseProject() {
     services.conversationService.reset();
     services.contextAssembler.reset();
     services.ingestionService.reset();
+    services.scientificIngestionService.reset();
     services.suggestionService.reset();
     services.writingTrajectoryService.reset();
     services.persistenceService.reset();

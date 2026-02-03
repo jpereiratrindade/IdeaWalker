@@ -61,6 +61,18 @@ public:
     virtual std::optional<std::string> chat(const std::vector<ChatMessage>& history, bool stream = false) = 0;
 
     /**
+     * @brief Generates a JSON-only response using a system prompt and a user prompt.
+     * @param systemPrompt System-level instructions (must enforce JSON-only output).
+     * @param userPrompt User content (the document or request).
+     * @return Optional JSON string if generation succeeded.
+     */
+    virtual std::optional<std::string> generateJson(const std::string& systemPrompt, const std::string& userPrompt) {
+        (void)systemPrompt;
+        (void)userPrompt;
+        return std::nullopt;
+    }
+
+    /**
      * @brief Consolidates multiple tasks from different sources into a single markdown list.
      * @param tasksMarkdown Markdown list of tasks to consolidate.
      * @return Optional consolidated markdown string.

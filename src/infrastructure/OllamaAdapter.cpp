@@ -39,6 +39,10 @@ std::optional<std::string> OllamaAdapter::chat(const std::vector<domain::AIServi
     return m_client.chat(m_model, messagesJson, stream);
 }
 
+std::optional<std::string> OllamaAdapter::generateJson(const std::string& systemPrompt, const std::string& userPrompt) {
+    return m_client.generate(m_model, systemPrompt, userPrompt, true);
+}
+
 std::optional<std::string> OllamaAdapter::consolidateTasks(const std::string& tasksMarkdown) {
     return m_client.generate(m_model, PromptCatalog::GetConsolidationPrompt(), tasksMarkdown, false);
 }

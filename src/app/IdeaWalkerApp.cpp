@@ -157,6 +157,16 @@ application::AppServices BuildServicesForRoot(const std::filesystem::path& root)
     auto scanner = std::make_unique<infrastructure::FileSystemArtifactScanner>(scanPath);
     services.ingestionService = std::make_unique<application::DocumentIngestionService>(std::move(scanner), sharedAi, obsPath);
 
+    auto scientificInboxPath = (root / "inbox" / "scientific").string();
+    auto scientificObsPath = (root / "observations" / "scientific").string();
+    auto strataConsumablesPath = (root / "strata" / "consumables").string();
+    auto scientificScanner = std::make_unique<infrastructure::FileSystemArtifactScanner>(scientificInboxPath);
+    services.scientificIngestionService = std::make_unique<application::scientific::ScientificIngestionService>(
+        std::move(scientificScanner),
+        sharedAi,
+        scientificObsPath,
+        strataConsumablesPath);
+
     services.contextAssembler = std::make_unique<application::ContextAssembler>(*services.knowledgeService, *services.ingestionService);
     services.suggestionService = std::make_unique<application::SuggestionService>(sharedAi, root.string());
 

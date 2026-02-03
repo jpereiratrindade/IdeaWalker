@@ -309,3 +309,12 @@ Este contexto amplia o IdeaWalker para organizar não apenas ideias emergentes
 - e o princípio observacional
 
 O sistema sustenta o pensamento no tempo — não o substitui.
+
+---
+
+## 16. Extensão Científica (STRATA)
+
+Quando a fonte é científica, a ingestão passa por um pipeline dedicado e governado,
+produzindo artefatos cognitivos tipados e consumíveis estáveis para o STRATA.
+
+Detalhes completos em `docs/SCIENTIFIC_INGESTION_CONTEXT.md`.

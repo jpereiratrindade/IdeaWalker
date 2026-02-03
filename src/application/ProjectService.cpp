@@ -6,8 +6,11 @@ namespace ideawalker::application {
 bool ProjectService::EnsureProjectFolders(const std::filesystem::path& root) {
     try {
         std::filesystem::create_directories(root / "inbox");
+        std::filesystem::create_directories(root / "inbox" / "scientific");
         std::filesystem::create_directories(root / "notas");
         std::filesystem::create_directories(root / ".history");
+        std::filesystem::create_directories(root / "observations" / "scientific");
+        std::filesystem::create_directories(root / "strata" / "consumables");
         return true;
     } catch (...) {
         return false;
@@ -17,13 +20,22 @@ bool ProjectService::EnsureProjectFolders(const std::filesystem::path& root) {
 bool ProjectService::CopyProjectData(const std::filesystem::path& fromRoot, const std::filesystem::path& toRoot) {
     try {
         std::filesystem::create_directories(toRoot / "inbox");
+        std::filesystem::create_directories(toRoot / "inbox" / "scientific");
         std::filesystem::create_directories(toRoot / "notas");
         std::filesystem::create_directories(toRoot / ".history");
+        std::filesystem::create_directories(toRoot / "observations" / "scientific");
+        std::filesystem::create_directories(toRoot / "strata" / "consumables");
         
         std::filesystem::copy_options options = std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing;
         
         std::filesystem::copy(fromRoot / "inbox", toRoot / "inbox", options);
         std::filesystem::copy(fromRoot / "notas", toRoot / "notas", options);
+        if (std::filesystem::exists(fromRoot / "observations")) {
+            std::filesystem::copy(fromRoot / "observations", toRoot / "observations", options);
+        }
+        if (std::filesystem::exists(fromRoot / "strata")) {
+            std::filesystem::copy(fromRoot / "strata", toRoot / "strata", options);
+        }
         
         if (std::filesystem::exists(fromRoot / ".history")) {
              std::filesystem::copy(fromRoot / ".history", toRoot / ".history", options);

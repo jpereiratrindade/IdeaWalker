@@ -1,0 +1,80 @@
+/**
+ * @file ScientificIngestionService.hpp
+ * @brief Service to ingest scientific sources and produce cognitive artifacts.
+ */
+
+#pragma once
+
+#include <functional>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include <nlohmann/json.hpp>
+#include "domain/AIService.hpp"
+#include "domain/SourceArtifact.hpp"
+#include "domain/scientific/ScientificSchema.hpp"
+#include "infrastructure/FileSystemArtifactScanner.hpp"
+
+namespace ideawalker::application::scientific {
+
+/**
+ * @class ScientificIngestionService
+ * @brief Orchestrates ingestion of scientific sources and exports STRATA consumables.
+ */
+class ScientificIngestionService {
+public:
+    /**
+     * @brief Result of a scientific ingestion batch.
+     */
+    struct IngestionResult {
+        int artifactsDetected;
+        int bundlesGenerated;
+        std::vector<std::string> errors;
+    };
+
+    /**
+     * @brief Constructs a scientific ingestion service.
+     * @param scanner Artifact scanner for scientific inbox.
+     * @param aiService AI service used to generate structured artifacts.
+     * @param observationsPath Path where raw bundles are stored.
+     * @param consumablesPath Path where STRATA consumables are exported.
+     */
+    ScientificIngestionService(std::unique_ptr<infrastructure::FileSystemArtifactScanner> scanner,
+                               std::shared_ptr<domain::AIService> aiService,
+                               const std::string& observationsPath,
+                               const std::string& consumablesPath);
+
+    /**
+     * @brief Scans and processes all pending scientific documents.
+     * @param statusCallback Optional UI feedback callback.
+     * @return Summary of the operation.
+     */
+    IngestionResult ingestPending(std::function<void(std::string)> statusCallback = nullptr);
+
+    /**
+     * @brief Counts stored scientific bundles.
+     * @return Number of raw scientific bundle files on disk.
+     */
+    size_t getBundlesCount() const;
+
+private:
+    std::unique_ptr<infrastructure::FileSystemArtifactScanner> m_scanner;
+    std::shared_ptr<domain::AIService> m_aiService;
+    std::string m_observationsPath;
+    std::string m_consumablesPath;
+
+    std::string buildSystemPrompt() const;
+    std::string buildUserPrompt(const domain::SourceArtifact& artifact, const std::string& content) const;
+    std::string buildArtifactId(const domain::SourceArtifact& artifact) const;
+
+    bool validateBundleJson(const nlohmann::json& bundle, std::vector<std::string>& errors) const;
+    void attachSourceMetadata(nlohmann::json& bundle,
+                              const domain::SourceArtifact& artifact,
+                              const std::string& artifactId) const;
+    bool saveRawBundle(const nlohmann::json& bundle, const std::string& artifactId, std::string& error) const;
+    bool exportConsumables(const nlohmann::json& bundle, const std::string& artifactId, std::string& error) const;
+    bool saveErrorPayload(const std::string& artifactId, const std::string& payload, std::string& error) const;
+};
+
+} // namespace ideawalker::application::scientific
