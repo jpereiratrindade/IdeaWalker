@@ -135,10 +135,15 @@ Fluxo:
 - `InterpretationLayers.json`
 - `DiscursiveContext.json` (opcional)
 - `Manifest.json`
+Opcional (se houver conteúdo):
+- `DiscursiveSystem.json`
 
 Todos os consumíveis incluem:
 - `schemaVersion`
 - `source` (com `artifactId`, `path`, `contentHash`, `ingestedAt`, `model`)
+
+Observação:
+- `NarrativeObservation.json` e `DiscursiveSystem.json` só são gerados quando houver conteúdo (não são emitidos vazios).
 
 ### 4.1 Regra de ancoragem (obrigatória)
 Os itens de `narrativeObservations`, `allegedMechanisms` e `temporalWindowReferences`

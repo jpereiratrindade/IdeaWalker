@@ -123,6 +123,107 @@ void SanitizeBundleAnchoring(nlohmann::json& bundle, const std::string& content)
     }
 }
 
+std::string JsonValueToString(const nlohmann::json& value) {
+    if (value.is_string()) return value.get<std::string>();
+    if (value.is_boolean()) return value.get<bool>() ? "true" : "false";
+    if (value.is_number_integer()) return std::to_string(value.get<long long>());
+    if (value.is_number_unsigned()) return std::to_string(value.get<unsigned long long>());
+    if (value.is_number_float()) {
+        std::ostringstream oss;
+        oss << value.get<double>();
+        return oss.str();
+    }
+    if (value.is_null()) return "";
+    return value.dump();
+}
+
+void AddStringField(nlohmann::json& target, const std::string& key, const nlohmann::json& value) {
+    target[key] = JsonValueToString(value);
+}
+
+void AppendStatementFrom(nlohmann::json& out, const nlohmann::json& item, const std::vector<std::string>& keys) {
+    if (item.is_string()) {
+        const auto text = item.get<std::string>();
+        if (!text.empty()) out.push_back({{"statement", text}});
+        return;
+    }
+    if (!item.is_object()) return;
+    if (item.contains("statement") && item["statement"].is_string()) {
+        const auto text = item["statement"].get<std::string>();
+        if (!text.empty()) out.push_back({{"statement", text}});
+        return;
+    }
+    for (const auto& key : keys) {
+        if (item.contains(key) && item[key].is_string()) {
+            const auto text = item[key].get<std::string>();
+            if (!text.empty()) out.push_back({{"statement", text}});
+            return;
+        }
+    }
+}
+
+bool ValidateStrataNarrativeEnvelope(const nlohmann::json& envelope, std::string& error) {
+    if (!envelope.contains("history") || !envelope["history"].is_array()) {
+        error = "Narrative envelope invalido: 'history' ausente ou nao-array.";
+        return false;
+    }
+    for (const auto& item : envelope["history"]) {
+        if (!item.is_object()) {
+            error = "Narrative envelope invalido: item nao-objeto.";
+            return false;
+        }
+        if (!item.contains("metadata") || !item["metadata"].is_object()) {
+            error = "Narrative envelope invalido: metadata ausente ou nao-objeto.";
+            return false;
+        }
+        for (auto it = item["metadata"].begin(); it != item["metadata"].end(); ++it) {
+            if (!it.value().is_string()) {
+                error = "Narrative envelope invalido: metadata deve conter apenas strings.";
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool ValidateStrataDiscursiveEnvelope(const nlohmann::json& envelope, std::string& error) {
+    if (!envelope.contains("systems") || !envelope["systems"].is_array()) {
+        error = "Discursive envelope invalido: 'systems' ausente ou nao-array.";
+        return false;
+    }
+    for (const auto& sys : envelope["systems"]) {
+        if (!sys.is_object()) {
+            error = "Discursive envelope invalido: system nao-objeto.";
+            return false;
+        }
+        if (sys.contains("interpretationMetadata")) {
+            if (!sys["interpretationMetadata"].is_object()) {
+                error = "Discursive envelope invalido: interpretationMetadata nao-objeto.";
+                return false;
+            }
+            for (auto it = sys["interpretationMetadata"].begin(); it != sys["interpretationMetadata"].end(); ++it) {
+                if (!it.value().is_string()) {
+                    error = "Discursive envelope invalido: interpretationMetadata deve conter apenas strings.";
+                    return false;
+                }
+            }
+        }
+        const std::vector<std::string> statementArrays = {
+            "declaredProblems", "declaredActions", "allegedMechanisms", "expectedEffects"
+        };
+        for (const auto& key : statementArrays) {
+            if (!sys.contains(key) || !sys[key].is_array()) continue;
+            for (const auto& item : sys[key]) {
+                if (!item.is_object() || !item.contains("statement") || !item["statement"].is_string()) {
+                    error = "Discursive envelope invalido: itens devem ter 'statement' string.";
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
 } // namespace
 
 ScientificIngestionService::ScientificIngestionService(
@@ -417,6 +518,11 @@ std::string ScientificIngestionService::buildUserPrompt(
        << "      }\n"
        << "    ],\n"
        << "    \"epistemicRole\": \"discursive-reading\"\n"
+       << "  },\n"
+       << "  \"discursiveSystem\": {\n"
+       << "    \"declaredProblems\": [ { \"statement\": \"...\", \"context\": \"...\" } ],\n"
+       << "    \"declaredActions\": [ { \"statement\": \"...\", \"status\": \"proposed|implemented\" } ],\n"
+       << "    \"expectedEffects\": [ { \"statement\": \"...\", \"likelihood\": \"...\" } ]\n"
        << "  }\n"
        << "}\n";
     return ss.str();
@@ -522,6 +628,16 @@ bool ScientificIngestionService::validateBundleJson(const nlohmann::json& bundle
             }
         }
     }
+    
+    // Discursive System (Optional, but fields must be arrays)
+    if (bundle.contains("discursiveSystem")) {
+        const auto& ds = bundle["discursiveSystem"];
+        if (ds.is_object()) {
+            if (ds.contains("declaredProblems") && !ds["declaredProblems"].is_array()) errors.push_back("discursiveSystem.declaredProblems deve ser array");
+            if (ds.contains("declaredActions") && !ds["declaredActions"].is_array()) errors.push_back("discursiveSystem.declaredActions deve ser array");
+            if (ds.contains("expectedEffects") && !ds["expectedEffects"].is_array()) errors.push_back("discursiveSystem.expectedEffects deve ser array");
+        }
+    }
 
     return errors.empty();
 }
@@ -571,48 +687,202 @@ bool ScientificIngestionService::exportConsumables(
     sourceProfile["sourceProfile"] = bundle["sourceProfile"];
     if (!WriteJsonFile(baseDir / "SourceProfile.json", sourceProfile, error)) return false;
 
-    nlohmann::json narrative = baseEnvelope;
-    narrative["narrativeObservations"] = bundle["narrativeObservations"];
-    if (!WriteJsonFile(baseDir / "NarrativeObservation.json", narrative, error)) return false;
+    // Export NarrativeState Candidate Objects
+    if (bundle.contains("narrativeObservations")) {
+        nlohmann::json narrativeList = nlohmann::json::array();
+        for (const auto& obs : bundle["narrativeObservations"]) {
+            nlohmann::json stateCandidate;
+            stateCandidate["id"] = "candidate_" + ToIsoTimestamp(std::chrono::system_clock::now()); // simplified unique ID
+            
+            // Map source metadata to STRATA SourceReference keys
+            nlohmann::json sourceRef;
+            std::string author = "unknown";
+            std::string productionDate = "unknown";
 
-    nlohmann::json mechanisms = baseEnvelope;
-    mechanisms["allegedMechanisms"] = bundle["allegedMechanisms"];
-    if (!WriteJsonFile(baseDir / "AllegedMechanisms.json", mechanisms, error)) return false;
+            if (bundle.contains("source") && bundle["source"].is_object()) {
+                const auto& src = bundle["source"];
+                sourceRef["type"] = 3; // 3 = Scientific Article (Candidate Int)
+                sourceRef["sourceId"] = src.contains("artifactId") ? src["artifactId"] : "unknown";
+                if (src.contains("ingestedAt")) productionDate = src["ingestedAt"];
+                // author remains unknown
+            } else {
+                 sourceRef["type"] = 3;
+                 sourceRef["sourceId"] = "unknown";
+            }
+            sourceRef["productionDate"] = productionDate;
+            sourceRef["author"] = author;
+            stateCandidate["source"] = sourceRef;
+            
+            stateCandidate["intent"] = { {"type", 0} }; // 0 = Descriptive Record
+            stateCandidate["temporalContext"] = { 
+                {"category", 3}, // 3 = Contemporary
+                {"label", obs.contains("context") ? obs["context"] : "unknown"} 
+            };
+            stateCandidate["axes"] = { 
+                { 
+                    {"label", "extracted_theme"}, 
+                    {"description", obs.contains("observation") ? obs["observation"] : ""}, 
+                    {"level", 0} // 0 = Local
+                } 
+            };
+            
+            // Move Global Metadata into Item Metadata
+            nlohmann::json meta = nlohmann::json::object();
+            if (obs.is_object()) {
+                for (auto it = obs.begin(); it != obs.end(); ++it) {
+                    AddStringField(meta, it.key(), it.value());
+                }
+            }
+            if (bundle.contains("source") && bundle["source"].is_object()) {
+                const auto& src = bundle["source"];
+                AddStringField(meta, "schemaVersion", std::to_string(domain::scientific::ScientificSchema::SchemaVersion));
+                if (src.contains("artifactId")) AddStringField(meta, "artifactId", src["artifactId"]);
+                if (src.contains("contentHash")) AddStringField(meta, "contentHash", src["contentHash"]);
+                if (src.contains("filename")) AddStringField(meta, "filename", src["filename"]);
+                if (src.contains("ingestedAt")) AddStringField(meta, "ingestedAt", src["ingestedAt"]);
+                if (src.contains("model")) AddStringField(meta, "model", src["model"]);
+                if (src.contains("path")) AddStringField(meta, "path", src["path"]);
+            }
+            stateCandidate["metadata"] = meta;
 
-    nlohmann::json temporal = baseEnvelope;
-    temporal["temporalWindowReferences"] = bundle["temporalWindowReferences"];
-    if (!WriteJsonFile(baseDir / "TemporalWindowReference.json", temporal, error)) return false;
+            stateCandidate["spatialScope"] = { {"type", 0} }; // 0 = NONE
 
-    nlohmann::json baseline = baseEnvelope;
-    baseline["baselineAssumptions"] = bundle["baselineAssumptions"];
-    if (!WriteJsonFile(baseDir / "BaselineAssumptions.json", baseline, error)) return false;
-
-    nlohmann::json analogies = baseEnvelope;
-    analogies["trajectoryAnalogies"] = bundle["trajectoryAnalogies"];
-    if (!WriteJsonFile(baseDir / "TrajectoryAnalogies.json", analogies, error)) return false;
-
-    nlohmann::json layers = baseEnvelope;
-    layers["interpretationLayers"] = bundle["interpretationLayers"];
-    if (!WriteJsonFile(baseDir / "InterpretationLayers.json", layers, error)) return false;
+            narrativeList.push_back(stateCandidate);
+        }
+        
+    if (!narrativeList.empty()) {
+        nlohmann::json narrativeEnvelope;
+        narrativeEnvelope["history"] = narrativeList;
+        std::string validateError;
+        if (!ValidateStrataNarrativeEnvelope(narrativeEnvelope, validateError)) {
+            error = validateError;
+            return false;
+        }
+        if (!WriteJsonFile(baseDir / "NarrativeObservation.json", narrativeEnvelope, error)) return false;
+    }
+    }
 
     if (bundle.contains("discursiveContext")) {
-        nlohmann::json discursive = baseEnvelope;
-        discursive["discursiveContext"] = bundle["discursiveContext"];
-        if (!WriteJsonFile(baseDir / "DiscursiveContext.json", discursive, error)) return false;
+        nlohmann::json discursiveEnvelope;
+        discursiveEnvelope["discursiveContext"] = bundle["discursiveContext"];
+        if (!WriteJsonFile(baseDir / "DiscursiveContext.json", discursiveEnvelope, error)) return false;
+    }
+
+    // Export DiscursiveSystem Candidate Object
+    nlohmann::json discursiveSystemCandidate;
+    discursiveSystemCandidate["id"] = "ds_candidate_" + artifactId;
+    
+    // Source References must be an array of objects
+    nlohmann::json sourceRefObj;
+    if (bundle.contains("source") && bundle["source"].is_object()) {
+         const auto& src = bundle["source"];
+         sourceRefObj["type"] = 4; // REPORT (Discursive SourceType)
+         sourceRefObj["sourceId"] = src.contains("artifactId") ? src["artifactId"] : "unknown";
+         sourceRefObj["productionDate"] = src.contains("ingestedAt") ? src["ingestedAt"] : "unknown";
+         sourceRefObj["author"] = "unknown";
+    } else {
+         sourceRefObj["type"] = 4;
+         sourceRefObj["sourceId"] = "unknown";
+         sourceRefObj["productionDate"] = "unknown";
+         sourceRefObj["author"] = "unknown";
+    }
+    discursiveSystemCandidate["sourceReferences"] = nlohmann::json::array({sourceRefObj});
+
+    discursiveSystemCandidate["temporalContext"] = { {"category", 3}, {"label", "general"} };
+    
+    nlohmann::json interpMeta = nlohmann::json::object();
+    AddStringField(interpMeta, "context", "scientific_ingestion");
+    // Inject global metadata here for discursive too
+    if (bundle.contains("source") && bundle["source"].is_object()) {
+        const auto& src = bundle["source"];
+        if (src.contains("filename")) AddStringField(interpMeta, "filename", src["filename"]);
+        if (src.contains("model")) AddStringField(interpMeta, "model", src["model"]);
+    }
+
+    // Map allegedMechanisms to use 'statement' key and strip non-STRATA fields.
+    // Preserve full evidence payload as a JSON string in interpretationMetadata.
+    nlohmann::json mechanismsArr = nlohmann::json::array();
+    nlohmann::json mechanismsEvidence = nlohmann::json::array();
+    if (bundle.contains("allegedMechanisms") && bundle["allegedMechanisms"].is_array()) {
+        for (const auto& item : bundle["allegedMechanisms"]) {
+             AppendStatementFrom(mechanismsArr, item, {"mechanism"});
+             if (item.is_object()) {
+                 mechanismsEvidence.push_back(item);
+             }
+        }
+    }
+    discursiveSystemCandidate["allegedMechanisms"] = mechanismsArr;
+
+    if (!mechanismsEvidence.empty()) {
+        AddStringField(interpMeta, "allegedMechanismsEvidence", mechanismsEvidence.dump());
+    }
+    if (bundle.contains("discursiveContext") && bundle["discursiveContext"].is_object()) {
+        AddStringField(interpMeta, "discursiveContext", bundle["discursiveContext"].dump());
+    }
+    discursiveSystemCandidate["interpretationMetadata"] = interpMeta;
+
+    discursiveSystemCandidate["declaredProblems"] = nlohmann::json::array();
+    discursiveSystemCandidate["declaredActions"] = nlohmann::json::array();
+    discursiveSystemCandidate["expectedEffects"] = nlohmann::json::array();
+
+    if (bundle.contains("discursiveSystem")) {
+        const auto& ds = bundle["discursiveSystem"];
+        if (ds.contains("declaredProblems") && ds["declaredProblems"].is_array()) {
+            nlohmann::json out = nlohmann::json::array();
+            for (const auto& item : ds["declaredProblems"]) {
+                AppendStatementFrom(out, item, {"problem", "declaredProblem"});
+            }
+            discursiveSystemCandidate["declaredProblems"] = out;
+        }
+        if (ds.contains("declaredActions") && ds["declaredActions"].is_array()) {
+            nlohmann::json out = nlohmann::json::array();
+            for (const auto& item : ds["declaredActions"]) {
+                AppendStatementFrom(out, item, {"action", "declaredAction"});
+            }
+            discursiveSystemCandidate["declaredActions"] = out;
+        }
+        if (ds.contains("expectedEffects") && ds["expectedEffects"].is_array()) {
+            nlohmann::json out = nlohmann::json::array();
+            for (const auto& item : ds["expectedEffects"]) {
+                AppendStatementFrom(out, item, {"effect", "expectedEffect"});
+            }
+            discursiveSystemCandidate["expectedEffects"] = out;
+        }
+    }
+    
+    // Only export if we have meaningful content
+    if (!discursiveSystemCandidate["allegedMechanisms"].empty() || 
+        !discursiveSystemCandidate["declaredProblems"].empty() ||
+        !discursiveSystemCandidate["declaredActions"].empty()) {
+            
+        nlohmann::json dsEnvelope;
+        dsEnvelope["systems"] = nlohmann::json::array({discursiveSystemCandidate});
+        std::string validateError;
+        if (!ValidateStrataDiscursiveEnvelope(dsEnvelope, validateError)) {
+            error = validateError;
+            return false;
+        }
+        if (!WriteJsonFile(baseDir / "DiscursiveSystem.json", dsEnvelope, error)) return false;
     }
 
     nlohmann::json manifest = baseEnvelope;
     std::vector<std::string> files = {
         "SourceProfile.json",
-        "NarrativeObservation.json",
         "AllegedMechanisms.json",
         "TemporalWindowReference.json",
         "BaselineAssumptions.json",
         "TrajectoryAnalogies.json",
         "InterpretationLayers.json"
     };
+    if (fs::exists(baseDir / "NarrativeObservation.json")) {
+        files.push_back("NarrativeObservation.json");
+    }
     if (bundle.contains("discursiveContext")) {
         files.push_back("DiscursiveContext.json");
+    }
+    // Check if we created DiscursiveSystem.json
+    if (fs::exists(baseDir / "DiscursiveSystem.json")) {
+        files.push_back("DiscursiveSystem.json");
     }
     manifest["files"] = files;
     if (!WriteJsonFile(baseDir / "Manifest.json", manifest, error)) return false;

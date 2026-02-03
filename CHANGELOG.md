@@ -11,6 +11,8 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 ### Alterado
 - **Validação Epistêmica Relaxada**: A ausência de `temporalWindowReferences` agora é tratada como um **Aviso** (pass-with-warnings) em vez de Erro bloqueante, aumentando a resiliência do processo de ingestão.
 - **Prompts de IA**: Instruções atualizadas para solicitar explicitamente a separação entre observação narrativa e enquadramento discursivo.
+- **Compatibilidade STRATA (Metadados)**: `metadata` e `interpretationMetadata` agora são forçados a `map<string,string>` e arrays discursivos são normalizados para `{statement}`.
+- **Exportação Limpa**: Consumíveis vazios não são mais gerados; `NarrativeObservation.json` só é escrito quando há conteúdo.
 
 ## [v0.1.8-beta] - 2026-02-03
 ### Adicionado
