@@ -6,7 +6,8 @@
 #pragma once
 
 #include <memory>
-#include "application/OrganizerService.hpp"
+#include "application/KnowledgeService.hpp"
+#include "application/AIProcessingService.hpp"
 #include "application/ConversationService.hpp"
 #include "application/ContextAssembler.hpp"
 #include "application/DocumentIngestionService.hpp"
@@ -15,12 +16,14 @@
 #include "application/GraphService.hpp"
 #include "application/ProjectService.hpp"
 #include "application/KnowledgeExportService.hpp"
+#include "application/AsyncTaskManager.hpp"
 #include "infrastructure/PersistenceService.hpp"
 
 namespace ideawalker::application {
 
 struct AppServices {
-    std::unique_ptr<OrganizerService> organizerService;
+    std::unique_ptr<KnowledgeService> knowledgeService;
+    std::unique_ptr<AIProcessingService> aiProcessingService;
     std::unique_ptr<ConversationService> conversationService;
     std::unique_ptr<ContextAssembler> contextAssembler;
     std::unique_ptr<DocumentIngestionService> ingestionService;
@@ -30,6 +33,7 @@ struct AppServices {
     std::unique_ptr<ProjectService> projectService;
     std::unique_ptr<KnowledgeExportService> exportService;
     std::shared_ptr<infrastructure::PersistenceService> persistenceService;
+    std::shared_ptr<AsyncTaskManager> taskManager;
 };
 
 } // namespace ideawalker::application

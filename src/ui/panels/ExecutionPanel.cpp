@@ -1,6 +1,6 @@
 #include "ui/panels/MainPanels.hpp"
 #include "ui/UiUtils.hpp"
-#include "application/OrganizerService.hpp"
+#include "application/KnowledgeService.hpp"
 #include "domain/Insight.hpp"
 #include "imgui.h"
 #include <vector>
@@ -10,14 +10,14 @@ namespace ideawalker::ui {
 
 void DrawExecutionTab(AppState& app) {
     auto label = [&app](const char* withEmoji, const char* plain) {
-        return app.emojiEnabled ? withEmoji : plain;
+        return app.ui.emojiEnabled ? withEmoji : plain;
     };
-    const bool hasProject = (app.services.organizerService != nullptr);
+    const bool hasProject = (app.services.knowledgeService != nullptr);
 
-    ImGuiTabItemFlags flags2 = (app.requestedTab == 2) ? ImGuiTabItemFlags_SetSelected : 0;
+    ImGuiTabItemFlags flags2 = (app.ui.requestedTab == 2) ? ImGuiTabItemFlags_SetSelected : 0;
     if (ImGui::BeginTabItem(label("🏭 Execução", "Execução"), NULL, flags2)) {
-        if (app.requestedTab == 2) app.requestedTab = -1;
-        app.activeTab = 2;
+        if (app.ui.requestedTab == 2) app.ui.requestedTab = -1;
+        app.ui.activeTab = 2;
         if (!hasProject) {
             ImGui::TextDisabled("Nenhum projeto aberto.");
             ImGui::TextDisabled("Use File > New Project ou File > Open Project para comecar.");
@@ -34,12 +34,12 @@ void DrawExecutionTab(AppState& app) {
             ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(12.0f, 12.0f));
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
 
-            const bool useConsolidatedTasks = app.consolidatedInsight && !app.consolidatedInsight->getActionables().empty();
+            const bool useConsolidatedTasks = app.project.consolidatedInsight && !app.project.consolidatedInsight->getActionables().empty();
             std::vector<const domain::Insight*> taskSources;
             if (useConsolidatedTasks) {
-                taskSources.push_back(app.consolidatedInsight.get());
+                taskSources.push_back(app.project.consolidatedInsight.get());
             } else {
-                for (const auto& insight : app.allInsights) {
+                for (const auto& insight : app.project.allInsights) {
                     taskSources.push_back(&insight);
                 }
             }
@@ -69,20 +69,20 @@ void DrawExecutionTab(AppState& app) {
                             cardWidth = 1.0f;
                         }
                         if (TaskCard(itemId.c_str(), actionables[i].description, cardWidth)) {
-                            app.selectedFilename = insight->getMetadata().id;
-                            app.selectedNoteContent = insight->getContent();
+                            app.ui.selectedFilename = insight->getMetadata().id;
+                            app.ui.selectedNoteContent = insight->getContent();
 
                             domain::Insight::Metadata meta;
-                            meta.id = app.selectedFilename;
-                            app.currentInsight = std::make_unique<domain::Insight>(meta, app.selectedNoteContent);
-                            app.currentInsight->parseActionablesFromContent();
+                            meta.id = app.ui.selectedFilename;
+                            app.project.currentInsight = std::make_unique<domain::Insight>(meta, app.ui.selectedNoteContent);
+                            app.project.currentInsight->parseActionablesFromContent();
                         }
                         
                         if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-                            app.showTaskDetailsModal = true;
-                            app.selectedTaskTitle = "Detalhes da Tarefa";
-                            app.selectedTaskContent = actionables[i].description;
-                            app.selectedTaskOrigin = insight->getMetadata().id;
+                            app.ui.showTaskDetails = true;
+                            app.ui.selectedTaskTitle = "Detalhes da Tarefa";
+                            app.ui.selectedTaskContent = actionables[i].description;
+                            app.ui.selectedTaskOrigin = insight->getMetadata().id;
                         }
 
                         if (ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort)) {
@@ -104,14 +104,14 @@ void DrawExecutionTab(AppState& app) {
                     }
                 }
                 ImGui::EndChild();
-                if (app.services.organizerService && ImGui::BeginDragDropTarget()) {
+                if (app.services.knowledgeService && ImGui::BeginDragDropTarget()) {
                     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_TASK")) {
                         std::string data = static_cast<const char*>(payload->Data);
                         size_t sep = data.find('|');
                         std::string filename = data.substr(0, sep);
                         int index = std::stoi(data.substr(sep + 1));
-                        app.services.organizerService->setTaskStatus(filename, index, completed, inProgress);
-                        app.pendingRefresh.store(true);
+                        app.services.knowledgeService->SetTaskStatus(filename, index, completed, inProgress);
+                        app.ui.pendingRefresh.store(true);
                     }
                     ImGui::EndDragDropTarget();
                 }

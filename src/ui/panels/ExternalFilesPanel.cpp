@@ -8,24 +8,24 @@ namespace ideawalker::ui {
 
 void DrawExternalFilesTab(AppState& app) {
     auto label = [&app](const char* withEmoji, const char* plain) {
-        return app.emojiEnabled ? withEmoji : plain;
+        return app.ui.emojiEnabled ? withEmoji : plain;
     };
 
-    ImGuiTabItemFlags flagsExt = (app.requestedTab == 4) ? ImGuiTabItemFlags_SetSelected : 0;
+    ImGuiTabItemFlags flagsExt = (app.ui.requestedTab == 4) ? ImGuiTabItemFlags_SetSelected : 0;
     if (ImGui::BeginTabItem(label("📂 External Files", "External Files"), NULL, flagsExt)) {
-        if (app.requestedTab == 4) app.requestedTab = -1;
-        app.activeTab = 4;
+        if (app.ui.requestedTab == 4) app.ui.requestedTab = -1;
+        app.ui.activeTab = 4;
 
-        if (app.externalFiles.empty()) {
+        if (app.external.files.empty()) {
             ImGui::TextDisabled("No external files open.");
             ImGui::TextDisabled("Use File > Open File... to open .txt or .md files.");
         } else {
             // File Tabs
             if (ImGui::BeginTabBar("ExternalFilesTabs", ImGuiTabBarFlags_AutoSelectNewTabs)) {
-                for (int i = 0; i < (int)app.externalFiles.size(); ++i) {
+                for (int i = 0; i < (int)app.external.files.size(); ++i) {
                     bool open = true;
-                    if (ImGui::BeginTabItem(app.externalFiles[i].filename.c_str(), &open)) {
-                        app.selectedExternalFileIndex = i;
+                    if (ImGui::BeginTabItem(app.external.files[i].filename.c_str(), &open)) {
+                        app.external.selectedIndex = i;
                         
                         if (ImGui::Button(label("💾 Save", "Save"))) {
                             app.SaveExternalFile(i);
@@ -35,15 +35,15 @@ void DrawExternalFilesTab(AppState& app) {
                             open = false;
                         }
                         ImGui::SameLine();
-                        if (ImGui::Checkbox(label("👁️ Preview", "Preview"), &app.previewMode)) {
+                        if (ImGui::Checkbox(label("👁️ Preview", "Preview"), &app.ui.previewMode)) {
                             // toggle
                         }
 
                         ImGui::Separator();
                         
-                        ExternalFile& file = app.externalFiles[i];
+                        ExternalFile& file = app.external.files[i];
 
-                        if (app.previewMode) {
+                        if (app.ui.previewMode) {
                             ImGui::BeginChild("ExtPreview", ImVec2(0, -10), true);
                             DrawMarkdownPreview(app, file.content, true);
                             ImGui::EndChild();
@@ -56,8 +56,8 @@ void DrawExternalFilesTab(AppState& app) {
                         ImGui::EndTabItem();
                     }
                     if (!open) {
-                        app.externalFiles.erase(app.externalFiles.begin() + i);
-                        if (app.selectedExternalFileIndex >= i) app.selectedExternalFileIndex--;
+                        app.external.files.erase(app.external.files.begin() + i);
+                        if (app.external.selectedIndex >= i) app.external.selectedIndex--;
                         i--; // adjust index
                     }
                 }

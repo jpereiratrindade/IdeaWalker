@@ -244,7 +244,7 @@ void DrawStaticMermaidPreview(const ideawalker::domain::writing::PreviewGraphSta
 
 void DrawMarkdownPreview(AppState& app, const std::string& content, bool staticMermaidPreview) {
     auto label = [&app](const char* withEmoji, const char* plain) {
-        return app.emojiEnabled ? withEmoji : plain;
+        return app.ui.emojiEnabled ? withEmoji : plain;
     };
 
     std::stringstream ss(content);
@@ -264,7 +264,7 @@ void DrawMarkdownPreview(AppState& app, const std::string& content, bool staticM
                 ImGui::PushID(blockId);
                 if (codeBlockLanguage == "mermaid") {
                     int mermaidBlockId = static_cast<int>(std::hash<std::string>{}(codeBlockContent)) % 10000;
-                    auto& graph = app.previewGraphs[mermaidBlockId];
+                    auto& graph = app.neuralWeb.previewGraphs[mermaidBlockId];
                     
                     bool newLayout = ideawalker::domain::writing::MermaidParser::Parse(
                         codeBlockContent, 
@@ -277,7 +277,7 @@ void DrawMarkdownPreview(AppState& app, const std::string& content, bool staticM
                     );
 
                     if (newLayout && !staticMermaidPreview) {
-                        ImNodes::EditorContextSet((ImNodesEditorContext*)app.previewGraphContext);
+                        ImNodes::EditorContextSet((ImNodesEditorContext*)app.neuralWeb.previewContext);
                         for (const auto& node : graph.nodes) {
                             ImNodes::SetNodeGridSpacePos(node.id, ImVec2(node.x, node.y));
                         }
@@ -292,7 +292,7 @@ void DrawMarkdownPreview(AppState& app, const std::string& content, bool staticM
                         ImGui::PopStyleColor();
                     } else {
                         if (ImGui::Button("Fit to Screen") || newLayout) {
-                            ImNodes::EditorContextSet((ImNodesEditorContext*)app.previewGraphContext);
+                            ImNodes::EditorContextSet((ImNodesEditorContext*)app.neuralWeb.previewContext);
                             ImVec2 min(FLT_MAX, FLT_MAX), max(-FLT_MAX, -FLT_MAX);
                             if (graph.nodes.empty()) { min = max = ImVec2(0,0); }
                             else {
@@ -308,7 +308,7 @@ void DrawMarkdownPreview(AppState& app, const std::string& content, bool staticM
                         }
                         
                         ImGui::BeginChild("##mermaid_graph", ImVec2(0, 700), true);
-                        ImNodes::EditorContextSet((ImNodesEditorContext*)app.previewGraphContext);
+                        ImNodes::EditorContextSet((ImNodesEditorContext*)app.neuralWeb.previewContext);
                         ImNodes::PushColorStyle(ImNodesCol_GridBackground, ImGui::GetColorU32(ImVec4(0.12f, 0.14f, 0.18f, 1.0f)));
                         ImNodes::PushColorStyle(ImNodesCol_GridLine, ImGui::GetColorU32(ImVec4(0.2f, 0.2f, 0.2f, 0.5f)));
                         ImNodes::BeginNodeEditor();
@@ -422,7 +422,7 @@ void DrawMarkdownPreview(AppState& app, const std::string& content, bool staticM
                 if (endPos != std::string::npos) {
                     std::string linkName = trimmed.substr(startPos + 2, endPos - startPos - 2);
                     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.3f, 0.5f, 1.0f));
-                    if (ImGui::SmallButton(linkName.c_str())) { app.selectedFilename = linkName + ".md"; }
+                    if (ImGui::SmallButton(linkName.c_str())) { app.ui.selectedFilename = linkName + ".md"; }
                     ImGui::PopStyleColor(); ImGui::SameLine(0, 0);
                     lastPos = endPos + 2; startPos = trimmed.find("[[", lastPos);
                 } else { break; }

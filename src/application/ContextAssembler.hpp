@@ -8,7 +8,7 @@
 #include <vector>
 #include <memory>
 #include <sstream>
-#include "application/OrganizerService.hpp"
+#include "application/KnowledgeService.hpp"
 #include "application/DocumentIngestionService.hpp"
 
 namespace ideawalker::application {
@@ -71,7 +71,7 @@ struct ContextBundle {
  */
 class ContextAssembler {
 public:
-    ContextAssembler(OrganizerService& organizer, DocumentIngestionService& ingestion);
+    ContextAssembler(KnowledgeService& knowledge, DocumentIngestionService& ingestion);
 
     /**
      * @brief Assembles a context bundle for a specific note.
@@ -80,9 +80,9 @@ public:
      * @return A ContextBundle ready for the LLM.
      */
     ContextBundle assemble(const std::string& noteId, const std::string& noteContent);
-
+    
 private:
-    OrganizerService& m_organizer;
+    KnowledgeService& m_knowledge;
     DocumentIngestionService& m_ingestion;
 };
 

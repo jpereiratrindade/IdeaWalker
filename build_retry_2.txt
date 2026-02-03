@@ -1,0 +1,9 @@
+[ 12%] Built target imgui
+[ 15%] Built target imnodes
+[ 24%] Built target whisper
+[ 26%] Building CXX object CMakeFiles/IdeaWalker.dir/src/infrastructure/OllamaClient.cpp.o
+[ 27%] Building CXX object CMakeFiles/IdeaWalker.dir/src/infrastructure/PersonaOrchestrator.cpp.o
+[ 29%] Building CXX object CMakeFiles/IdeaWalker.dir/src/infrastructure/PromptCatalog.cpp.o
+[ 30%] Linking CXX executable IdeaWalker
+[ 92%] Built target IdeaWalker
+[100%] Built target ideawalker_test

@@ -8,8 +8,8 @@
 
 namespace ideawalker::application {
 
-ContextAssembler::ContextAssembler(OrganizerService& organizer, DocumentIngestionService& ingestion)
-    : m_organizer(organizer), m_ingestion(ingestion) {}
+ContextAssembler::ContextAssembler(KnowledgeService& knowledge, DocumentIngestionService& ingestion)
+    : m_knowledge(knowledge), m_ingestion(ingestion) {}
 
 ContextBundle ContextAssembler::assemble(const std::string& noteId, const std::string& noteContent) {
     ContextBundle bundle;
@@ -17,9 +17,9 @@ ContextBundle ContextAssembler::assemble(const std::string& noteId, const std::s
     bundle.activeNoteContent = noteContent;
 
     // Fetch Backlinks
-    auto backlinkIds = m_organizer.getBacklinks(noteId);
+    auto backlinkIds = m_knowledge.GetBacklinks(noteId);
     for (const auto& blId : backlinkIds) {
-        std::string content = m_organizer.getNoteContent(blId);
+        std::string content = m_knowledge.GetNoteContent(blId);
         if (!content.empty()) {
             bundle.backlinks.emplace_back(blId, content);
         }

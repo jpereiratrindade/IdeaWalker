@@ -5,7 +5,7 @@
 
 #include "ui/ConversationPanel.hpp"
 #include "application/ConversationService.hpp"
-#include "application/OrganizerService.hpp"
+// #include "application/OrganizerService.hpp" // Removed
 #include "imgui.h"
 #include <algorithm>
 
@@ -40,17 +40,17 @@ void ConversationPanel::DrawContent(AppState& app) {
     }
 
     auto& service = *app.services.conversationService;
-    std::string activeNoteId = app.selectedFilename;
+    std::string activeNoteId = app.ui.selectedFilename;
     
     // Dialogue Selection
-    if (!app.dialogueFiles.empty()) {
+    if (!app.ui.dialogueFiles.empty()) {
         ImGui::SetNextItemWidth(250.0f);
-        if (ImGui::BeginCombo("##dialogue_select", app.selectedDialogueIndex >= 0 ? app.dialogueFiles[app.selectedDialogueIndex].c_str() : "Selecionar diálogo anterior...")) {
-            for (int i = 0; i < (int)app.dialogueFiles.size(); i++) {
-                bool isSelected = (app.selectedDialogueIndex == i);
-                if (ImGui::Selectable(app.dialogueFiles[i].c_str(), isSelected)) {
-                    app.selectedDialogueIndex = i;
-                    service.loadSession(app.dialogueFiles[i]);
+        if (ImGui::BeginCombo("##dialogue_select", app.ui.selectedDialogueIndex >= 0 ? app.ui.dialogueFiles[app.ui.selectedDialogueIndex].c_str() : "Selecionar diálogo anterior...")) {
+            for (int i = 0; i < (int)app.ui.dialogueFiles.size(); i++) {
+                bool isSelected = (app.ui.selectedDialogueIndex == i);
+                if (ImGui::Selectable(app.ui.dialogueFiles[i].c_str(), isSelected)) {
+                    app.ui.selectedDialogueIndex = i;
+                    service.loadSession(app.ui.dialogueFiles[i]);
                 }
                 if (isSelected) ImGui::SetItemDefaultFocus();
             }
@@ -78,7 +78,7 @@ void ConversationPanel::DrawContent(AppState& app) {
             
             if (ImGui::Button("Iniciar Sessão de Diálogo")) {
                  if (app.services.contextAssembler) {
-                     auto bundle = app.services.contextAssembler->assemble(activeNoteId, app.selectedNoteContent);
+                     auto bundle = app.services.contextAssembler->assemble(activeNoteId, app.ui.selectedNoteContent);
                      service.startSession(bundle);
                  }
             }
@@ -88,7 +88,7 @@ void ConversationPanel::DrawContent(AppState& app) {
              
              if (ImGui::SmallButton("Reiniciar")) {
                  if (app.services.contextAssembler) {
-                     auto bundle = app.services.contextAssembler->assemble(activeNoteId, app.selectedNoteContent);
+                     auto bundle = app.services.contextAssembler->assemble(activeNoteId, app.ui.selectedNoteContent);
                      service.startSession(bundle);
                  }
              }
@@ -142,9 +142,9 @@ void ConversationPanel::DrawContent(AppState& app) {
         ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Pensando... (aguarde)");
         // Force scroll to see thinking
         ImGui::SetScrollHereY(1.0f);
-    } else if (newMessages || app.activeTab == -999) {
+    } else if (newMessages || app.ui.activeTab == -999) {
         ImGui::SetScrollHereY(1.0f);
-        if (app.activeTab == -999) app.activeTab = 0;
+        if (app.ui.activeTab == -999) app.ui.activeTab = 0;
     }
     
     ImGui::EndChild();

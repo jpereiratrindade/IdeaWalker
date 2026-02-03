@@ -2,14 +2,20 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [v0.1.8-beta] - 2026-02-03
+### Adicionado
+- **Isolamento da Camada de Serviço (Phase 5.3)**: Completa decomposição do `OrganizerService` monolítico em serviços de domínio focados:
+    - `KnowledgeService`: Gerenciamento puro de conhecimento (Notas, Insights, Histórico).
+    - `AIProcessingService`: Orquestração de pipelines de IA e consolidação.
+- **Gerenciamento Assíncrono Centralizado**: Introdução do `AsyncTaskManager` para execução robusta e não-bloqueante de tarefas em background (Transcrição, Indexação, IA), com status unificado na UI.
+- **Refatoração dos Painéis de Escrita**: `WritingPanels` e `ModalPanels` atualizados para consumir a nova arquitetura de serviços.
+- **Chat Conversacional Desacoplado**: O painel de chat agora depende estritamente do `ConversationService`, removendo dependências legadas.
+
 ## [v0.1.7-beta] - 2026-02-03
 ### Adicionado
-- **Arquitetura de Serviços Desacoplada (Phase 4)**: Extração completa da lógica de negócio do `AppState` para serviços especializados, reduzindo a complexidade do estado da UI.
-    - `GraphService`: Gerenciamento de reconstrução e física do grafo de nós.
-    - `ProjectService`: Centralização do ciclo de vida do projeto (Novo, Abrir, Salvar) e gestão de pastas.
-    - `KnowledgeExportService`: Centralização de exportação para formatos Mermaid e Markdown.
-- **Decomposição Completa da UI (Phase 2)**: O `UiRenderer.cpp` agora atua estritamente como um orquestrador de alto nível, delegando toda a renderização para painéis modulares em `src/ui/panels/`.
-- **Injeção de Dependência (Phase 1)**: Inicialização de infraestrutura movida para o `IdeaWalkerApp` (Composition Root), permitindo testes e modularidade.
+- **Arquitetura de Serviços Desacoplada (Phase 4)**: Extração da lógica de negócio do `AppState` para `GraphService`, `ProjectService` e `KnowledgeExportService`.
+- **Decomposição Completa da UI (Phase 2)**: Modularização do `UiRenderer.cpp` em painéis especializados (`DashboardPanel`, `KnowledgePanel`, `ExecutionPanel`, etc.).
+- **Injeção de Dependência**: Inicialização de serviços via `AppServices` no `IdeaWalkerApp`.
 
 ## [v0.1.6-beta] - 2026-02-03
 ### Adicionado

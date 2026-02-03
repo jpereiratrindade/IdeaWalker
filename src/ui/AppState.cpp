@@ -18,43 +18,34 @@
 
 namespace ideawalker::ui {
 
-namespace {
-
-// Helper functions moved to application::ProjectService
-} // namespace
-
-AppState::AppState()
-    : outputLog("Idea Walker v0.1.5-beta - Núcleo DDD inicializado.\n") {
-    saveAsFilename[0] = '\0';
-    projectPathBuffer[0] = '\0';
-
-    // Initialize ImNodes contexts in InitImNodes() instead
-}
+AppState::AppState() {
+    ui.outputLog = "Idea Walker v0.1.8-beta - Núcleo DDD inicializado.\n";
+ }
 
 AppState::~AppState() {
     ShutdownImNodes();
 }
 
 void AppState::InitImNodes() {
-    if (!mainGraphContext) {
-        mainGraphContext = ImNodes::EditorContextCreate();
-        ImNodes::EditorContextSet((ImNodesEditorContext*)mainGraphContext);
+    if (!neuralWeb.mainContext) {
+        neuralWeb.mainContext = ImNodes::EditorContextCreate();
+        ImNodes::EditorContextSet((ImNodesEditorContext*)neuralWeb.mainContext);
         ImNodes::PushAttributeFlag(ImNodesAttributeFlags_EnableLinkDetachWithDragClick);
     }
     
-    if (!previewGraphContext) {
-        previewGraphContext = ImNodes::EditorContextCreate();
+    if (!neuralWeb.previewContext) {
+        neuralWeb.previewContext = ImNodes::EditorContextCreate();
     }
 }
 
 void AppState::ShutdownImNodes() {
-    if (mainGraphContext) {
-        ImNodes::EditorContextFree((ImNodesEditorContext*)mainGraphContext);
-        mainGraphContext = nullptr;
+    if (neuralWeb.mainContext) {
+        ImNodes::EditorContextFree((ImNodesEditorContext*)neuralWeb.mainContext);
+        neuralWeb.mainContext = nullptr;
     }
-    if (previewGraphContext) {
-        ImNodes::EditorContextFree((ImNodesEditorContext*)previewGraphContext);
-        previewGraphContext = nullptr;
+    if (neuralWeb.previewContext) {
+        ImNodes::EditorContextFree((ImNodesEditorContext*)neuralWeb.previewContext);
+        neuralWeb.previewContext = nullptr;
     }
 }
 
@@ -63,24 +54,35 @@ bool AppState::NewProject(const std::string& rootPath) {
 }
 
 bool AppState::OpenProject(const std::string& rootPath) {
-    if (rootPath.empty() || !services.projectService) return false;
+    if (rootPath.empty()) return false;
     
     std::filesystem::path root(rootPath);
-    if (!services.projectService->EnsureProjectFolders(root)) {
-        return false;
+    if (services.projectService) {
+        if (!services.projectService->EnsureProjectFolders(root)) {
+            return false;
+        }
+    } else {
+        // Fallback for early initialization before services are injected
+        try {
+            std::filesystem::create_directories(root / "inbox");
+            std::filesystem::create_directories(root / "notas");
+            std::filesystem::create_directories(root / ".history");
+        } catch (...) {
+            if (!std::filesystem::exists(root)) return false;
+        }
     }
 
-    projectRoot = root.string();
-    std::snprintf(projectPathBuffer, sizeof(projectPathBuffer), "%s", projectRoot.c_str());
+    project.root = root.string();
+    std::snprintf(project.pathBuffer, sizeof(project.pathBuffer), "%s", project.root.c_str());
 
-    selectedInboxFilename.clear();
-    selectedFilename.clear();
-    selectedNoteContent.clear();
-    unifiedKnowledge.clear();
-    consolidatedInsight.reset();
-    currentBacklinks.clear();
+    ui.selectedInboxFilename.clear();
+    ui.selectedFilename.clear();
+    ui.selectedNoteContent.clear();
+    ui.unifiedKnowledge.clear();
+    project.consolidatedInsight.reset();
+    ui.currentBacklinks.clear();
 
-    AppendLog("[SISTEMA] Pasta de projeto definida: " + projectRoot + "\n");
+    AppendLog("[SISTEMA] Pasta de projeto definida: " + project.root + "\n");
     return true;
 }
 
@@ -96,12 +98,12 @@ void AppState::InjectServices(application::AppServices&& newServices) {
 }
 
 bool AppState::SaveProject() {
-    if (projectRoot.empty() || !services.projectService) return false;
+    if (project.root.empty() || !services.projectService) return false;
     
-    if (!services.projectService->EnsureProjectFolders(std::filesystem::path(projectRoot))) {
+    if (!services.projectService->EnsureProjectFolders(std::filesystem::path(project.root))) {
         return false;
     }
-    AppendLog("[SISTEMA] Projeto salvo: " + projectRoot + "\n");
+    AppendLog("[SISTEMA] Projeto salvo: " + project.root + "\n");
     return true;
 }
 
@@ -109,11 +111,11 @@ bool AppState::SaveProjectAs(const std::string& rootPath) {
     if (rootPath.empty() || !services.projectService) return false;
 
     std::filesystem::path newRoot(rootPath);
-    if (projectRoot.empty()) {
+    if (project.root.empty()) {
         return OpenProject(newRoot.string());
     }
     
-    std::filesystem::path currentRoot(projectRoot);
+    std::filesystem::path currentRoot(project.root);
     if (currentRoot == newRoot) {
         return SaveProject();
     }
@@ -125,7 +127,8 @@ bool AppState::SaveProjectAs(const std::string& rootPath) {
 }
 
 bool AppState::CloseProject() {
-    services.organizerService.reset();
+    services.knowledgeService.reset();
+    services.aiProcessingService.reset();
     services.conversationService.reset();
     services.contextAssembler.reset();
     services.ingestionService.reset();
@@ -133,121 +136,117 @@ bool AppState::CloseProject() {
     services.writingTrajectoryService.reset();
     services.persistenceService.reset();
 
-    projectRoot.clear();
-    projectPathBuffer[0] = '\0';
-    selectedInboxFilename.clear();
-    selectedFilename.clear();
-    selectedNoteContent.clear();
-    unifiedKnowledge.clear();
-    consolidatedInsight.reset();
-    currentBacklinks.clear();
-    inboxThoughts.clear();
-    allInsights.clear();
-    activityHistory.clear();
-    currentInsight.reset();
+    project.root.clear();
+    project.pathBuffer[0] = '\0';
+    ui.selectedInboxFilename.clear();
+    ui.selectedFilename.clear();
+    ui.selectedNoteContent.clear();
+    ui.unifiedKnowledge.clear();
+    project.consolidatedInsight.reset();
+    ui.currentBacklinks.clear();
+    project.inboxThoughts.clear();
+    project.allInsights.clear();
+    project.activityHistory.clear();
+    project.currentInsight.reset();
     AppendLog("[SISTEMA] Projeto fechado.\n");
     return true;
 }
 
 void AppState::RefreshInbox() {
-    if (services.organizerService) {
-        inboxThoughts = services.organizerService->getRawThoughts();
+    if (services.knowledgeService) {
+        project.inboxThoughts = services.knowledgeService->GetRawThoughts();
     }
     RefreshDialogueList();
 }
 
 void AppState::RefreshDialogueList() {
     if (services.conversationService) {
-        dialogueFiles = services.conversationService->listDialogues();
+        ui.dialogueFiles = services.conversationService->listDialogues();
     }
 }
 
 void AppState::AnalyzeSuggestions() {
-    if (!services.suggestionService || !services.organizerService || isAnalyzingSuggestions) return;
-
-    isAnalyzingSuggestions = true;
+    if (!services.suggestionService || !services.knowledgeService || ui.isAnalyzingSuggestions) return;
     std::thread([this]() {
-        services.suggestionService->indexProject(allInsights);
+        services.suggestionService->indexProject(project.allInsights);
         
-        if (!selectedFilename.empty() && !selectedNoteContent.empty()) {
-            auto suggestions = services.suggestionService->generateSemanticSuggestions(selectedFilename, selectedNoteContent);
-            std::lock_guard<std::mutex> lock(suggestionsMutex);
-            currentSuggestions = std::move(suggestions);
+        if (!ui.selectedFilename.empty() && !ui.selectedNoteContent.empty()) {
+            auto suggestions = services.suggestionService->generateSemanticSuggestions(ui.selectedFilename, ui.selectedNoteContent);
+            std::lock_guard<std::mutex> lock(ui.suggestionsMutex);
+            ui.currentSuggestions = std::move(suggestions);
         }
         
-        isAnalyzingSuggestions = false;
-        pendingRefresh = true; 
+        ui.isAnalyzingSuggestions = false;
+        ui.pendingRefresh = true; 
     }).detach();
 }
 
 void AppState::RefreshAllInsights() {
-    if (services.organizerService) {
-        auto insights = services.organizerService->getAllInsights();
-        allInsights.clear();
-        consolidatedInsight.reset();
+    if (services.knowledgeService) {
+        auto insights = services.knowledgeService->GetAllInsights();
+        project.allInsights.clear();
+        project.consolidatedInsight.reset();
         for (auto& insight : insights) {
-            if (insight.getMetadata().id == application::OrganizerService::kConsolidatedTasksFilename) {
-                consolidatedInsight = std::make_unique<domain::Insight>(insight);
+            if (insight.getMetadata().id == "_Consolidated_Tasks.md") {
+                project.consolidatedInsight = std::make_unique<domain::Insight>(insight);
             } else {
-                allInsights.push_back(std::move(insight));
+                project.allInsights.push_back(std::move(insight));
             }
         }
-        activityHistory = services.organizerService->getActivityHistory();
-        std::sort(allInsights.begin(), allInsights.end(), [](const domain::Insight& a, const domain::Insight& b) {
+        project.activityHistory = services.knowledgeService->GetActivityHistory();
+        std::sort(project.allInsights.begin(), project.allInsights.end(), [](const domain::Insight& a, const domain::Insight& b) {
             return a.getMetadata().id < b.getMetadata().id;
         });
 
         std::ostringstream combined;
-        for (size_t i = 0; i < allInsights.size(); ++i) {
-            const auto& insight = allInsights[i];
+        for (size_t i = 0; i < project.allInsights.size(); ++i) {
+            const auto& insight = project.allInsights[i];
             combined << "## " << insight.getMetadata().id << "\n\n";
             combined << insight.getContent();
-            if (i + 1 < allInsights.size()) {
+            if (i + 1 < project.allInsights.size()) {
                 combined << "\n\n---\n\n";
             }
         }
-        unifiedKnowledge = combined.str();
+        ui.unifiedKnowledge = combined.str();
         
         RebuildGraph();
     }
 }
 
 void AppState::AppendLog(const std::string& line) {
-    std::lock_guard<std::mutex> lock(logMutex);
-    outputLog += line;
+    std::lock_guard<std::mutex> lock(ui.logMutex);
+    ui.outputLog += line;
 }
 
 std::string AppState::GetLogSnapshot() {
-    std::lock_guard<std::mutex> lock(logMutex);
-    return outputLog;
+    std::lock_guard<std::mutex> lock(ui.logMutex);
+    return ui.outputLog;
 }
 
 void AppState::SetProcessingStatus(const std::string& status) {
-    std::lock_guard<std::mutex> lock(processingStatusMutex);
-    processingStatus = status;
+    std::lock_guard<std::mutex> lock(ui.statusMutex);
+    ui.processingStatus = status;
 }
 
 std::string AppState::GetProcessingStatus() {
-    std::lock_guard<std::mutex> lock(processingStatusMutex);
-    return processingStatus;
+    std::lock_guard<std::mutex> lock(ui.statusMutex);
+    return ui.processingStatus;
 }
 
 void AppState::LoadHistory(const std::string& noteId) {
-    selectedNoteIdForHistory = noteId;
-    selectedHistoryIndex = -1;
-    selectedHistoryContent.clear();
-    historyVersions.clear();
-    if (services.organizerService) {
-        historyVersions = services.organizerService->getNoteHistory(noteId);
+    ui.selectedNoteIdForHistory = noteId;
+    ui.selectedHistoryIndex = -1;
+    ui.selectedHistoryContent.clear();
+    ui.historyVersions.clear();
+    if (services.knowledgeService) {
+        ui.historyVersions = services.knowledgeService->GetNoteHistory(noteId);
     }
 }
 
 void AppState::CheckForUpdates() {
-    if (isCheckingUpdates.exchange(true)) return;
+    if (ui.isCheckingUpdates.exchange(true)) return;
     
     std::thread([this]() {
-        // Fallback to curl for now to avoid OpenSSL issues in C++ build
-        // curl -s https://api.github.com/repos/jpereiratrindade/IdeaWalker/releases/latest
         std::string command = "curl -s https://api.github.com/repos/jpereiratrindade/IdeaWalker/releases/latest";
         
         FILE* pipe = popen(command.c_str(), "r");
@@ -262,12 +261,12 @@ void AppState::CheckForUpdates() {
             try {
                 auto j = nlohmann::json::parse(result);
                 if (j.contains("tag_name")) {
-                    latestVersion = j["tag_name"];
-                    // IDEAWALKER_VERSION is defined in CMakeLists.txt (e.g. "v0.1.6-beta")
-                    if (latestVersion != IDEAWALKER_VERSION) {
-                        updateAvailable = true;
+                    ui.latestVersion = j["tag_name"];
+                    // IDEAWALKER_VERSION is defined in CMakeLists.txt (e.g. "v0.1.7-beta")
+                    if (ui.latestVersion != IDEAWALKER_VERSION) {
+                        ui.updateAvailable = true;
                     } else {
-                        updateAvailable = false;
+                        ui.updateAvailable = false;
                     }
                 }
             } catch (...) {
@@ -277,30 +276,30 @@ void AppState::CheckForUpdates() {
              AppendLog("[Sistema] Erro ao verificar atualizações (curl falhou).\n");
         }
         
-        isCheckingUpdates.store(false);
-        showUpdateModal = true; // Show results
+        ui.isCheckingUpdates.store(false);
+        ui.showUpdate = true; // Show results
     }).detach();
 }
 
 void AppState::RebuildGraph() {
     if (!services.graphService) return;
-    services.graphService->RebuildGraph(allInsights, showTasksInGraph, graphNodes, graphLinks);
-    graphInitialized = false; 
+    services.graphService->RebuildGraph(project.allInsights, neuralWeb.showTasks, neuralWeb.nodes, neuralWeb.links);
+    neuralWeb.initialized = false; 
 }
 
 void AppState::UpdateGraphPhysics(const std::unordered_set<int>& selectedNodes) {
     if (!services.graphService) return;
-    services.graphService->UpdatePhysics(graphNodes, graphLinks, selectedNodes);
+    services.graphService->UpdatePhysics(neuralWeb.nodes, neuralWeb.links, selectedNodes);
 }
 
 void AppState::CenterGraph() {
     if (!services.graphService) return;
-    services.graphService->CenterGraph(graphNodes);
+    services.graphService->CenterGraph(neuralWeb.nodes);
 }
 
 void AppState::HandleFileDrop(const std::string& filePath) {
-    if (!services.organizerService) {
-        AppendLog("[SISTEMA] Drop ignorado: Nenhum projeto aberto.\n");
+    if (!services.aiProcessingService) {
+        AppendLog("[SISTEMA] Drop ignorado: Nenhum projeto aberto ou serviço de IA indisponível.\n");
         return;
     }
     RequestTranscription(filePath);
@@ -317,25 +316,18 @@ void AppState::RequestTranscription(const std::string& filePath) {
     }
 
     if (ext == ".wav" || ext == ".mp3" || ext == ".m4a" || ext == ".ogg" || ext == ".flac") {
-        if (isTranscribing.load()) {
+        if (ui.isTranscribing.load()) {
             AppendLog("[SISTEMA] Ocupado: Transcrição já em andamento.\n");
             return;
         }
 
-        isTranscribing.store(true);
+        ui.isTranscribing.store(true);
         AppendLog("[Transcrição] Iniciada para: " + filePath + "\n");
         
-        services.organizerService->transcribeAudio(filePath,
-            [this](std::string textPath) {
-                AppendLog("[Transcrição] Sucesso! Texto salvo em: " + textPath + "\n");
-                isTranscribing.store(false);
-                pendingRefresh.store(true);
-            },
-            [this](std::string error) {
-                AppendLog("[Transcrição] Erro: " + error + "\n");
-                isTranscribing.store(false);
-            }
-        );
+        if (services.aiProcessingService) {
+             services.aiProcessingService->TranscribeAudioAsync(filePath);
+             AppendLog("[Transcrição] Solicitada em segundo plano.\n");
+        }
     } else {
         AppendLog("[SISTEMA] Arquivo não suportado para transcrição: " + ext + "\n");
     }
@@ -343,12 +335,12 @@ void AppState::RequestTranscription(const std::string& filePath) {
 
 std::string AppState::ExportToMermaid() const {
     if (!services.exportService) return "";
-    return services.exportService->ToMermaidMindmap(graphNodes, graphLinks);
+    return services.exportService->ToMermaidMindmap(neuralWeb.nodes, neuralWeb.links);
 }
 
 std::string AppState::ExportFullMarkdown() const {
     if (!services.exportService) return "";
-    return services.exportService->ToFullMarkdown(allInsights, graphNodes, graphLinks);
+    return services.exportService->ToFullMarkdown(project.allInsights, neuralWeb.nodes, neuralWeb.links);
 }
 
 void AppState::OpenExternalFile(const std::string& path) {
@@ -367,27 +359,27 @@ void AppState::OpenExternalFile(const std::string& path) {
     extFile.modified = false;
     
     // Check if already open
-    for (size_t i = 0; i < externalFiles.size(); ++i) {
-        if (externalFiles[i].path == path) {
-            selectedExternalFileIndex = i;
+    for (size_t i = 0; i < external.files.size(); ++i) {
+        if (external.files[i].path == path) {
+            external.selectedIndex = i;
             // Update content just in case
-            externalFiles[i].content = buffer.str();
+            external.files[i].content = buffer.str();
             return;
         }
     }
 
-    externalFiles.push_back(extFile);
-    selectedExternalFileIndex = externalFiles.size() - 1;
+    external.files.push_back(extFile);
+    external.selectedIndex = external.files.size() - 1;
     AppendLog("[Sistema] Arquivo externo aberto: " + path + "\n");
     
     // Switch to External tab (index 4)
-    requestedTab = 4; 
+    ui.requestedTab = 4; 
 }
 
 void AppState::SaveExternalFile(int index) {
-    if (index < 0 || index >= static_cast<int>(externalFiles.size())) return;
+    if (index < 0 || index >= static_cast<int>(external.files.size())) return;
     
-    auto& extFile = externalFiles[index];
+    auto& extFile = external.files[index];
     std::ofstream file(extFile.path);
     if (file.is_open()) {
         file << extFile.content;
@@ -399,9 +391,9 @@ void AppState::SaveExternalFile(int index) {
 }
 
 void AppState::LoadConfig() {
-    if (projectRoot.empty()) return;
+    if (project.root.empty()) return;
 
-    std::filesystem::path configPath = std::filesystem::path(projectRoot) / "settings.json";
+    std::filesystem::path configPath = std::filesystem::path(project.root) / "settings.json";
     if (!std::filesystem::exists(configPath)) return;
 
     try {
@@ -411,15 +403,15 @@ void AppState::LoadConfig() {
 
         if (j.contains("ai_model")) {
             std::string model = j["ai_model"];
-            if (services.organizerService && services.organizerService->getAI()) {
-                 services.organizerService->getAI()->setModel(model);
+            if (services.aiProcessingService && services.aiProcessingService->GetAI()) {
+                 services.aiProcessingService->GetAI()->setModel(model);
                  AppendLog("[Config] Modelo restaurado: " + model + "\n");
             }
         }
         
         if (j.contains("video_driver")) {
-            videoDriverPreference = j["video_driver"];
-            AppendLog("[Config] Driver de vídeo preferencial: " + videoDriverPreference + " (Requer reinício para aplicar)\n");
+            project.videoDriverPreference = j["video_driver"];
+            AppendLog("[Config] Driver de vídeo preferencial: " + project.videoDriverPreference + " (Requer reinício para aplicar)\n");
         }
     } catch (...) {
         AppendLog("[Config] Erro ao carregar settings.json\n");
@@ -427,15 +419,15 @@ void AppState::LoadConfig() {
 }
 
 void AppState::SaveConfig() {
-    if (projectRoot.empty()) return;
+    if (project.root.empty()) return;
 
     // Persist video_driver using ConfigLoader
-    if (!videoDriverPreference.empty()) {
-        infrastructure::ConfigLoader::SaveVideoDriverPreference(projectRoot, videoDriverPreference);
+    if (!project.videoDriverPreference.empty()) {
+        infrastructure::ConfigLoader::SaveVideoDriverPreference(project.root, project.videoDriverPreference);
     }
 
     // Persist AI Model (merging with existing file)
-    std::filesystem::path configPath = std::filesystem::path(projectRoot) / "settings.json";
+    std::filesystem::path configPath = std::filesystem::path(project.root) / "settings.json";
     nlohmann::json j;
 
     if (std::filesystem::exists(configPath)) {
@@ -445,8 +437,8 @@ void AppState::SaveConfig() {
         } catch (...) {}
     }
 
-    if (services.organizerService && services.organizerService->getAI()) {
-        j["ai_model"] = services.organizerService->getAI()->getCurrentModel();
+    if (services.aiProcessingService && services.aiProcessingService->GetAI()) {
+        j["ai_model"] = services.aiProcessingService->GetAI()->getCurrentModel();
     }
     
     try {
@@ -458,9 +450,9 @@ void AppState::SaveConfig() {
 }
 
 void AppState::SetAIModel(const std::string& modelName) {
-    currentAIModel = modelName;
-    if (services.organizerService) {
-        services.organizerService->getAI()->setModel(modelName);
+    project.currentAIModel = modelName;
+    if (services.aiProcessingService && services.aiProcessingService->GetAI()) {
+        services.aiProcessingService->GetAI()->setModel(modelName);
     }
     SaveConfig();
 }

@@ -139,6 +139,9 @@ bool IdeaWalkerApp::Init() {
         (root / ".history").string()
     );
     auto sharedAi = std::make_shared<infrastructure::OllamaAdapter>();
+    sharedAi->initialize();
+
+    auto taskManager = std::make_shared<application::AsyncTaskManager>();
     
     auto modelsDir = infrastructure::PathUtils::GetModelsDir();
     std::string modelPath = (modelsDir / "ggml-base.bin").string();
@@ -151,7 +154,11 @@ bool IdeaWalkerApp::Init() {
     auto transcriber = std::make_unique<infrastructure::WhisperCppAdapter>(modelPath, inboxPath);
 
     application::AppServices services;
-    services.organizerService = std::make_unique<application::OrganizerService>(std::move(repo), sharedAi, std::move(transcriber));
+    auto knowledge = std::make_unique<application::KnowledgeService>(std::move(repo));
+    auto processing = std::make_unique<application::AIProcessingService>(*knowledge, sharedAi, taskManager, std::move(transcriber));
+    
+    services.knowledgeService = std::move(knowledge);
+    services.aiProcessingService = std::move(processing);
     services.persistenceService = std::make_shared<infrastructure::PersistenceService>();
     services.conversationService = std::make_unique<application::ConversationService>(sharedAi, services.persistenceService, root.string());
 
@@ -160,7 +167,7 @@ bool IdeaWalkerApp::Init() {
     auto scanner = std::make_unique<infrastructure::FileSystemArtifactScanner>(scanPath);
     services.ingestionService = std::make_unique<application::DocumentIngestionService>(std::move(scanner), sharedAi, obsPath);
 
-    services.contextAssembler = std::make_unique<application::ContextAssembler>(*services.organizerService, *services.ingestionService);
+    services.contextAssembler = std::make_unique<application::ContextAssembler>(*services.knowledgeService, *services.ingestionService);
     services.suggestionService = std::make_unique<application::SuggestionService>(sharedAi, root.string());
 
     auto eventStore = std::make_unique<infrastructure::writing::WritingEventStoreFs>(root.string(), services.persistenceService);
@@ -169,6 +176,7 @@ bool IdeaWalkerApp::Init() {
     services.graphService = std::make_unique<application::GraphService>();
     services.projectService = std::make_unique<application::ProjectService>();
     services.exportService = std::make_unique<application::KnowledgeExportService>();
+    services.taskManager = taskManager;
 
     m_state.InjectServices(std::move(services));
 
@@ -218,7 +226,7 @@ bool IdeaWalkerApp::Init() {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    m_state.emojiEnabled = LoadFonts(io);
+    m_state.ui.emojiEnabled = LoadFonts(io);
     ImGui::StyleColorsDark();
 
     ImNodes::CreateContext();
@@ -286,7 +294,7 @@ int IdeaWalkerApp::Run() {
         ImGui::NewFrame();
 
         ui::DrawUI(m_state);
-        if (m_state.requestExit) {
+        if (m_state.ui.requestExit) {
             done = true;
         }
 

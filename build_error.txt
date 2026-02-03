@@ -1,6 +1,86 @@
-[ 10%] Built target whisper
-[ 24%] Built target imgui
-[ 28%] Built target imnodes
-[ 29%] Building CXX object CMakeFiles/IdeaWalker.dir/src/ui/AppState.cpp.o
-[ 31%] Linking CXX executable IdeaWalker
-[100%] Built target IdeaWalker
+[  1%] Building CXX object CMakeFiles/imgui.dir/_deps/imgui-src/imgui.cpp.o
+[  3%] Building CXX object CMakeFiles/imgui.dir/_deps/imgui-src/imgui_draw.cpp.o
+[  8%] Building CXX object CMakeFiles/imgui.dir/_deps/imgui-src/imgui_tables.cpp.o
+[  8%] Building CXX object CMakeFiles/imgui.dir/_deps/imgui-src/imgui_widgets.cpp.o
+[  8%] Building CXX object CMakeFiles/imgui.dir/_deps/imgui-src/imgui_demo.cpp.o
+[ 12%] Building C object _deps/whisper-build/CMakeFiles/whisper.dir/ggml.c.o
+[ 12%] Building CXX object CMakeFiles/imgui.dir/_deps/imgui-src/backends/imgui_impl_sdl2.cpp.o
+[ 15%] Building CXX object CMakeFiles/imgui.dir/_deps/imgui-src/backends/imgui_impl_opengl3.cpp.o
+[ 15%] Building C object _deps/whisper-build/CMakeFiles/whisper.dir/ggml-alloc.c.o
+[ 17%] Building C object _deps/whisper-build/CMakeFiles/whisper.dir/ggml-backend.c.o
+[ 19%] Building C object _deps/whisper-build/CMakeFiles/whisper.dir/ggml-quants.c.o
+[ 21%] Building CXX object _deps/whisper-build/CMakeFiles/whisper.dir/whisper.cpp.o
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/build/_deps/whisper-src/whisper.cpp: In function ‘ggml_backend* whisper_backend_init(const whisper_context_params&)’:
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/build/_deps/whisper-src/whisper.cpp:1056:75: warning: unused parameter ‘params’ [-Wunused-parameter]
+ 1056 | static ggml_backend_t whisper_backend_init(const whisper_context_params & params) {
+      |                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/build/_deps/whisper-src/whisper.cpp: At global scope:
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/build/_deps/whisper-src/whisper.cpp:202:29: warning: ‘ggml_tensor* ggml_mul_mat_pad(ggml_context*, ggml_tensor*, ggml_tensor*, int)’ defined but not used [-Wunused-function]
+  202 | static struct ggml_tensor * ggml_mul_mat_pad(struct ggml_context * ctx, struct ggml_tensor * x, struct ggml_tensor * y, int pad = 32) {
+      |                             ^~~~~~~~~~~~~~~~
+[ 22%] Linking CXX static library libimgui.a
+[ 22%] Built target imgui
+[ 24%] Building CXX object CMakeFiles/imnodes.dir/_deps/imnodes-src/imnodes.cpp.o
+In file included from /run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/build/_deps/imnodes-src/imnodes.cpp:9:
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/build/_deps/imnodes-src/imnodes_internal.h:3:9: warning: ‘IMGUI_DEFINE_MATH_OPERATORS’ redefined
+    3 | #define IMGUI_DEFINE_MATH_OPERATORS
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+<command-line>: note: essa é a localização da definição anterior
+[ 26%] Linking CXX static library libimnodes.a
+[ 26%] Built target imnodes
+[ 28%] Linking CXX static library libwhisper.a
+[ 28%] Built target whisper
+[ 33%] Building CXX object CMakeFiles/IdeaWalker.dir/src/application/ContextAssembler.cpp.o
+[ 33%] Building CXX object CMakeFiles/IdeaWalker.dir/src/application/DocumentIngestionService.cpp.o
+[ 33%] Building CXX object CMakeFiles/IdeaWalker.dir/main.cpp.o
+[ 38%] Building CXX object CMakeFiles/IdeaWalker.dir/src/application/GraphService.cpp.o
+[ 38%] Building CXX object CMakeFiles/IdeaWalker.dir/src/application/ConversationService.cpp.o
+[ 38%] Building CXX object CMakeFiles/IdeaWalker.dir/src/app/IdeaWalkerApp.cpp.o
+[ 40%] Building CXX object CMakeFiles/IdeaWalker.dir/src/application/KnowledgeExportService.cpp.o
+[ 42%] Building CXX object CMakeFiles/IdeaWalker.dir/src/application/writing/ExportService.cpp.o
+[ 45%] Building CXX object CMakeFiles/IdeaWalker.dir/src/application/OrganizerService.cpp.o
+[ 45%] Building CXX object CMakeFiles/IdeaWalker.dir/src/application/SuggestionService.cpp.o
+[ 47%] Building CXX object CMakeFiles/IdeaWalker.dir/src/domain/writing/MermaidParser.cpp.o
+[ 49%] Building CXX object CMakeFiles/IdeaWalker.dir/src/infrastructure/AudioUtils.cpp.o
+[ 50%] Building CXX object CMakeFiles/IdeaWalker.dir/src/application/ProjectService.cpp.o
+[ 54%] Building CXX object CMakeFiles/IdeaWalker.dir/src/infrastructure/ConfigLoader.cpp.o
+[ 54%] Building CXX object CMakeFiles/IdeaWalker.dir/src/application/writing/WritingTrajectoryService.cpp.o
+[ 59%] Building CXX object CMakeFiles/IdeaWalker.dir/src/infrastructure/FileRepository.cpp.o
+[ 59%] Building CXX object CMakeFiles/IdeaWalker.dir/src/infrastructure/FileSystemArtifactScanner.cpp.o
+[ 59%] Building CXX object CMakeFiles/IdeaWalker.dir/src/infrastructure/EmbeddingCache.cpp.o
+[ 61%] Building CXX object CMakeFiles/IdeaWalker.dir/src/infrastructure/PathUtils.cpp.o
+[ 63%] Building CXX object CMakeFiles/IdeaWalker.dir/src/infrastructure/OllamaAdapter.cpp.o
+[ 64%] Building CXX object CMakeFiles/IdeaWalker.dir/src/infrastructure/PersistenceService.cpp.o
+[ 66%] Building CXX object CMakeFiles/IdeaWalker.dir/src/infrastructure/WhisperCppAdapter.cpp.o
+[ 70%] Building CXX object CMakeFiles/IdeaWalker.dir/src/ui/ConversationPanel.cpp.o
+[ 70%] Building CXX object CMakeFiles/IdeaWalker.dir/src/infrastructure/writing/WritingTrajectoryRepositoryFs.cpp.o
+[ 71%] Building CXX object CMakeFiles/IdeaWalker.dir/src/infrastructure/writing/WritingEventStoreFs.cpp.o
+[ 73%] Building CXX object CMakeFiles/IdeaWalker.dir/src/ui/AppState.cpp.o
+[ 75%] Building CXX object CMakeFiles/IdeaWalker.dir/src/ui/UiFileBrowser.cpp.o
+[ 77%] Building CXX object CMakeFiles/IdeaWalker.dir/src/ui/UiMarkdownRenderer.cpp.o
+[ 78%] Building CXX object CMakeFiles/IdeaWalker.dir/src/ui/UiRenderer.cpp.o
+[ 80%] Building CXX object CMakeFiles/IdeaWalker.dir/src/ui/UiUtils.cpp.o
+[ 82%] Building CXX object CMakeFiles/IdeaWalker.dir/src/ui/panels/DashboardPanel.cpp.o
+[ 84%] Building CXX object CMakeFiles/IdeaWalker.dir/src/ui/panels/DefensePanel.cpp.o
+[ 85%] Building CXX object CMakeFiles/IdeaWalker.dir/src/ui/panels/ExecutionPanel.cpp.o
+[ 87%] Building CXX object CMakeFiles/IdeaWalker.dir/src/ui/panels/ExternalFilesPanel.cpp.o
+[ 89%] Building CXX object CMakeFiles/IdeaWalker.dir/src/ui/panels/GraphPanel.cpp.o
+[ 91%] Building CXX object CMakeFiles/IdeaWalker.dir/src/ui/panels/KnowledgePanel.cpp.o
+In file included from /run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/infrastructure/OllamaAdapter.cpp:1:
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/infrastructure/OllamaAdapter.hpp:42:1: error: expected declaration before ‘}’ token
+   42 | } // namespace ideawalker::infrastructure
+      | ^
+[ 92%] Building CXX object CMakeFiles/IdeaWalker.dir/src/ui/panels/MenuBarPanel.cpp.o
+[ 94%] Building CXX object CMakeFiles/IdeaWalker.dir/src/ui/panels/ModalPanels.cpp.o
+[ 96%] Building CXX object CMakeFiles/IdeaWalker.dir/src/ui/panels/TabOrchestrator.cpp.o
+[ 98%] Building CXX object CMakeFiles/IdeaWalker.dir/src/ui/panels/WritingPanels.cpp.o
+make[3]: *** [CMakeFiles/IdeaWalker.dir/build.make:149: CMakeFiles/IdeaWalker.dir/src/infrastructure/OllamaAdapter.cpp.o] Error 1
+make[3]: ** Esperando que outros processos terminem.
+In file included from /run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/app/IdeaWalkerApp.cpp:24:
+/run/media/jpereiratrindade/labeco10T/dev/cpp/IdeaWalker/src/infrastructure/OllamaAdapter.hpp:42:1: error: expected declaration before ‘}’ token
+   42 | } // namespace ideawalker::infrastructure
+      | ^
+make[3]: *** [CMakeFiles/IdeaWalker.dir/build.make:93: CMakeFiles/IdeaWalker.dir/src/app/IdeaWalkerApp.cpp.o] Error 1
+make[2]: *** [CMakeFiles/Makefile2:252: CMakeFiles/IdeaWalker.dir/all] Error 2
+make[1]: *** [CMakeFiles/Makefile2:259: CMakeFiles/IdeaWalker.dir/rule] Error 2
+make: *** [Makefile:195: IdeaWalker] Error 2

@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.15)
-project(IdeaWalker VERSION 0.1.7 LANGUAGES CXX)
+project(IdeaWalker VERSION 0.1.8 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_definitions(-DIDEAWALKER_VERSION="v0.1.7-beta")
+add_definitions(-DIDEAWALKER_VERSION="v0.1.8-beta")
 
 # --- Debug & Sanitization (Uncomment to enable) ---
 # set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address,undefined -g -O1 -fno-omit-frame-pointer")
@@ -130,10 +130,14 @@ add_executable(${PROJECT_NAME}
     src/ui/UiRenderer.cpp
     src/ui/ConversationPanel.cpp
     src/infrastructure/OllamaAdapter.cpp
+    src/infrastructure/OllamaClient.cpp
+    src/infrastructure/PersonaOrchestrator.cpp
+    src/infrastructure/PromptCatalog.cpp
     src/infrastructure/FileRepository.cpp
     src/infrastructure/PathUtils.cpp
     src/infrastructure/WhisperCppAdapter.cpp
-    src/application/OrganizerService.cpp
+    src/application/KnowledgeService.cpp
+    src/application/AIProcessingService.cpp
     src/application/ConversationService.cpp
     src/application/DocumentIngestionService.cpp
     src/application/ContextAssembler.cpp

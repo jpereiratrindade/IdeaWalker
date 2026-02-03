@@ -21,6 +21,9 @@ class AIService {
 public:
     virtual ~AIService() = default;
 
+    /** @brief Optional initialization (e.g., connection check, model detection). */
+    virtual void initialize() {}
+
 
     /**
      * @struct ChatMessage

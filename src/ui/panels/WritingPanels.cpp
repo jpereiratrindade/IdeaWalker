@@ -41,9 +41,9 @@ static TrajectoryStage getNextStage(TrajectoryStage current) {
 }
 
 void DrawTrajectoryPanel(AppState& state) {
-    if (!state.showTrajectoryPanel) return;
+    if (!state.ui.showTrajectoryPanel) return;
 
-    ImGui::Begin("Writing Trajectories", &state.showTrajectoryPanel);
+    ImGui::Begin("Writing Trajectories", &state.ui.showTrajectoryPanel);
 
     if (ImGui::Button("New Trajectory")) {
         ImGui::OpenPopup("CreateTrajectoryPopup");
@@ -56,9 +56,9 @@ void DrawTrajectoryPanel(AppState& state) {
         
         for (const auto& traj : trajectories) {
             std::string label = traj.getIntent().purpose + " (" + StageToString(traj.getStage()) + ")";
-            if (ImGui::Selectable(label.c_str(), state.activeTrajectoryId == traj.getId())) {
-                state.activeTrajectoryId = traj.getId();
-                state.showSegmentEditor = true;
+            if (ImGui::Selectable(label.c_str(), state.ui.activeTrajectoryId == traj.getId())) {
+                state.ui.activeTrajectoryId = traj.getId();
+                state.ui.showSegmentEditor = true;
             }
             if (ImGui::IsItemHovered()) {
                 ImGui::SetTooltip("Audience: %s\nClaim: %s", 
@@ -83,8 +83,8 @@ void DrawTrajectoryPanel(AppState& state) {
                 try {
                     std::string id = state.services.writingTrajectoryService->createTrajectory(
                         purposeBuf, audienceBuf, claimBuf, "");
-                    state.activeTrajectoryId = id;
-                    state.showSegmentEditor = true;
+                    state.ui.activeTrajectoryId = id;
+                    state.ui.showSegmentEditor = true;
                     
                     // Clear buffers
                     purposeBuf[0] = '\0';
@@ -117,10 +117,10 @@ void DrawTrajectoryPanel(AppState& state) {
 }
 
 void DrawSegmentEditorPanel(AppState& state) {
-    if (!state.showSegmentEditor) return;
-    if (state.activeTrajectoryId.empty()) return;
+    if (!state.ui.showSegmentEditor) return;
+    if (state.ui.activeTrajectoryId.empty()) return;
 
-    auto trajPtr = state.services.writingTrajectoryService->getTrajectory(state.activeTrajectoryId);
+    auto trajPtr = state.services.writingTrajectoryService->getTrajectory(state.ui.activeTrajectoryId);
     if (!trajPtr) {
         ImGui::Text("Error loading trajectory.");
         return;
@@ -128,7 +128,7 @@ void DrawSegmentEditorPanel(AppState& state) {
     const auto& traj = *trajPtr;
 
     ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
-    ImGui::Begin(("Editor: " + traj.getIntent().purpose).c_str(), &state.showSegmentEditor);
+    ImGui::Begin(("Editor: " + traj.getIntent().purpose).c_str(), &state.ui.showSegmentEditor);
 
     ImGui::Text("Stage: %s", StageToString(traj.getStage()).c_str());
     ImGui::SameLine();
@@ -137,7 +137,7 @@ void DrawSegmentEditorPanel(AppState& state) {
     if (tragectoryStageCanAdvance(traj.getStage())) {
         if (ImGui::Button("Advance Stage")) {
              TrajectoryStage next = getNextStage(traj.getStage());
-             state.services.writingTrajectoryService->advanceStage(state.activeTrajectoryId, next);
+             state.services.writingTrajectoryService->advanceStage(state.ui.activeTrajectoryId, next);
         }
     }
     ImGui::SameLine();
@@ -191,11 +191,11 @@ void DrawSegmentEditorPanel(AppState& state) {
             // --- Revision Quality Check ---
             // Real-time check or on button? Real-time is better for guidance.
             // Check only if content changed length significantly/heuristic to avoid spam
-            state.lastQualityReport = RevisionQualityService::analyze(seg.content, segmentContentBuf);
+            state.ui.lastQualityReport = RevisionQualityService::analyze(seg.content, segmentContentBuf);
             
-            if (!state.lastQualityReport.passed) {
+            if (!state.ui.lastQualityReport.passed) {
                 ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), "Quality Warnings:");
-                for (const auto& w : state.lastQualityReport.warnings) {
+                for (const auto& w : state.ui.lastQualityReport.warnings) {
                     ImGui::BulletText("%s", w.c_str());
                 }
             } else {
@@ -216,7 +216,7 @@ void DrawSegmentEditorPanel(AppState& state) {
                     // Save
                     RevisionOperation op = static_cast<RevisionOperation>(selectedOp);
                     state.services.writingTrajectoryService->reviseSegment(
-                        state.activeTrajectoryId, 
+                        state.ui.activeTrajectoryId, 
                         selectedSegmentId, 
                         segmentContentBuf, 
                         op, 
@@ -245,7 +245,7 @@ void DrawSegmentEditorPanel(AppState& state) {
         ImGui::InputText("Title", segmentTitleBuf, IM_ARRAYSIZE(segmentTitleBuf));
         if (ImGui::Button("Add", ImVec2(120, 0))) {
             try {
-                state.services.writingTrajectoryService->addSegment(state.activeTrajectoryId, segmentTitleBuf, "");
+                state.services.writingTrajectoryService->addSegment(state.ui.activeTrajectoryId, segmentTitleBuf, "");
                 ImGui::CloseCurrentPopup();
                 segmentTitleBuf[0] = '\0';
             } catch (const std::exception& e) {

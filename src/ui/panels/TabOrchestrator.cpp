@@ -23,7 +23,7 @@ void DrawWorkspace(AppState& app) {
     float availableHeight = ImGui::GetContentRegionAvail().y;
     float workspaceHeight = availableHeight;
 
-    if (app.showConversationPanel) {
+    if (app.ui.showConversation) {
         workspaceHeight = availableHeight - chatHeight - 4.0f; // 4px for splitter
         if (workspaceHeight < 150.0f) workspaceHeight = 150.0f; // Minimal workspace
     }
@@ -34,7 +34,7 @@ void DrawWorkspace(AppState& app) {
     ImGui::EndChild();
 
     // Splitter & Chat (Bottom)
-    if (app.showConversationPanel) {
+    if (app.ui.showConversation) {
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
         ImGui::Button("##Splitter", ImVec2(-1, 4.0f));
         ImGui::PopStyleColor();

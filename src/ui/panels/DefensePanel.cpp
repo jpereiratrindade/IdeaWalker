@@ -20,18 +20,18 @@ static std::string generateDefenseUUID() {
 }
 
 void DrawDefensePanel(AppState& state) {
-    if (!state.showDefensePanel) return;
+    if (!state.ui.showDefensePanel) return;
 
     ImGui::SetNextWindowSize(ImVec2(600, 500), ImGuiCond_FirstUseEver);
-    if (ImGui::Begin("Defense Mode", &state.showDefensePanel)) {
+    if (ImGui::Begin("Defense Mode", &state.ui.showDefensePanel)) {
         
-        if (state.activeTrajectoryId.empty()) {
+        if (state.ui.activeTrajectoryId.empty()) {
             ImGui::Text("No active trajectory selected.");
             ImGui::End();
             return;
         }
 
-        auto trajPtr = state.services.writingTrajectoryService->getTrajectory(state.activeTrajectoryId);
+        auto trajPtr = state.services.writingTrajectoryService->getTrajectory(state.ui.activeTrajectoryId);
         if (!trajPtr) {
             ImGui::Text("Trajectory not found.");
             ImGui::End();
@@ -43,12 +43,12 @@ void DrawDefensePanel(AppState& state) {
 
         // 0. Coherence Lens
         if (ImGui::Button("Run Coherence Lens")) {
-            state.coherenceIssues = CoherenceLensService::analyze(*trajPtr);
+            state.ui.coherenceIssues = CoherenceLensService::analyze(*trajPtr);
         }
         
-        if (!state.coherenceIssues.empty()) {
-            ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), "Coherence Issues Detected (%zu):", state.coherenceIssues.size());
-            for (const auto& issue : state.coherenceIssues) {
+        if (!state.ui.coherenceIssues.empty()) {
+            ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), "Coherence Issues Detected (%zu):", state.ui.coherenceIssues.size());
+            for (const auto& issue : state.ui.coherenceIssues) {
                 ImGui::BulletText("[%s] %s (%s)", issue.severity.c_str(), issue.description.c_str(), issue.type.c_str());
             }
             ImGui::Separator();
@@ -60,7 +60,7 @@ void DrawDefensePanel(AppState& state) {
             for (const auto& p : prompts) {
                 // Check if already exists? For MVP just add.
                 state.services.writingTrajectoryService->addDefenseCard(
-                    state.activeTrajectoryId, 
+                    state.ui.activeTrajectoryId, 
                     generateDefenseUUID(), 
                     p.segmentId, 
                     p.prompt, 
@@ -110,11 +110,11 @@ void DrawDefensePanel(AppState& state) {
                         ImGui::InputTextMultiline(("##response" + card.cardId).c_str(), defenseBuf, sizeof(defenseBuf), ImVec2(-FLT_MIN, 100));
                         
                         if (ImGui::Button("Mark Rehearsed")) {
-                            state.services.writingTrajectoryService->updateDefenseStatus(state.activeTrajectoryId, card.cardId, DefenseStatus::Rehearsed, defenseBuf);
+                            state.services.writingTrajectoryService->updateDefenseStatus(state.ui.activeTrajectoryId, card.cardId, DefenseStatus::Rehearsed, defenseBuf);
                         }
                         ImGui::SameLine();
                         if (ImGui::Button("Pass Defense")) {
-                            state.services.writingTrajectoryService->updateDefenseStatus(state.activeTrajectoryId, card.cardId, DefenseStatus::Passed, "Passed via UI");
+                            state.services.writingTrajectoryService->updateDefenseStatus(state.ui.activeTrajectoryId, card.cardId, DefenseStatus::Passed, "Passed via UI");
                         }
                     } else {
                         ImGui::TextWrapped("Defense Passed! (Locked)");
