@@ -5,6 +5,8 @@
 #include "../../domain/writing/services/CoherenceLensService.hpp"
 #include "imgui.h"
 #include <iostream>
+#include <random>
+#include <chrono>
 
 namespace ideawalker::ui {
 
@@ -13,9 +15,18 @@ using namespace ideawalker::domain::writing;
 // Helper to generate UUIDs (replicated for UI simplicity)
 static std::string generateDefenseUUID() {
     static const char alphanum[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    static thread_local std::mt19937 rng{
+        static_cast<unsigned int>(
+            std::chrono::high_resolution_clock::now().time_since_epoch().count()
+        )
+    };
+    std::uniform_int_distribution<size_t> dist(0, sizeof(alphanum) - 2);
+
     std::string s;
-    s.reserve(8);
-    for (int i = 0; i < 8; ++i) s += alphanum[rand() % (sizeof(alphanum) - 1)];
+    s.reserve(12);
+    for (int i = 0; i < 12; ++i) {
+        s += alphanum[dist(rng)];
+    }
     return s;
 }
 

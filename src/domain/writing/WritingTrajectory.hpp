@@ -10,6 +10,7 @@
 #include <map>
 #include <memory>
 #include <variant>
+#include <stdexcept>
 
 #include "value_objects/WritingIntent.hpp"
 #include "value_objects/TrajectoryStage.hpp"
@@ -130,6 +131,16 @@ public:
     
     // Advances stage
     void advanceStage(TrajectoryStage targetStage) {
+        if (stage == TrajectoryStage::Final) {
+            throw std::invalid_argument("Cannot advance stage from Final.");
+        }
+        if (!IsNextStage(stage, targetStage)) {
+            throw std::invalid_argument("Invalid stage transition.");
+        }
+        if (stage == TrajectoryStage::Intent && !intent.isValid()) {
+            throw std::invalid_argument("Cannot advance stage without a valid intent.");
+        }
+
         TrajectoryStage old = stage;
         stage = targetStage;
         
@@ -156,6 +167,7 @@ public:
         evt.segmentId = segmentId;
         evt.prompt = prompt;
         evt.expectedPoints = points;
+        evt.timestamp = std::chrono::system_clock::now();
         uncommittedEvents.push_back(evt);
     }
 
@@ -170,6 +182,7 @@ public:
                 evt.cardId = cardId;
                 evt.newStatus = (newStatus == DefenseStatus::Passed) ? "Passed" : "Rehearsed";
                 evt.response = response;
+                evt.timestamp = std::chrono::system_clock::now();
                 uncommittedEvents.push_back(evt);
                 break;
             }
@@ -217,9 +230,7 @@ public:
     void apply(const SegmentRevised& e) {
         auto it = segments.find(e.segmentId);
         if (it != segments.end()) {
-             SourceTag tag = SourceTag::Human;
-             // Parsing simplified
-             
+             SourceTag tag = SourceTagFromString(e.sourceTag);
              it->second.update(e.newContent, tag);
              
              RevisionDecision dec(e.decisionId, e.segmentId, e.operation, e.rationale);

@@ -28,6 +28,14 @@ inline std::string SourceTagToString(SourceTag tag) {
     }
 }
 
+inline SourceTag SourceTagFromString(const std::string& tag) {
+    if (tag == "ai_generated") return SourceTag::AiGenerated;
+    if (tag == "ai_assisted") return SourceTag::AiAssisted;
+    if (tag == "human_reviewed") return SourceTag::HumanReviewed;
+    if (tag == "human") return SourceTag::Human;
+    return SourceTag::Human;
+}
+
 /**
  * @class DraftSegment
  * @brief A section of the writing (paragraph, subsection, etc).

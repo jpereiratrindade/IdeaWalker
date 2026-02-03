@@ -10,7 +10,7 @@ The core logic is encapsulated in the `WritingTrajectory` Aggregate Root.
 
 *   **Aggregate Root**: `WritingTrajectory`
     *   Manages the lifecycle of a writing project from Intent to Final Draft.
-    *   Enforces invariants (e.g., "Cannot advance stage without Purpose").
+    *   Enforces invariants (e.g., "Cannot advance stage without Purpose" and only allows sequential stage transitions).
     *   Records all state changes as Domain Events.
 *   **Entities**:
     *   `DraftSegment`: Represents a section of text (Introduction, Argument, etc.). Traceable by ID and version.
@@ -26,6 +26,7 @@ Persistence is handled via a custom file-system-based Event Store.
 *   **Event Sourcing**:
     *   `WritingEventStoreFs`: Appends events to `.ndjson` files (`writing/trajectories/<uuid>/events.ndjson`).
     *   **Synchronous Storage**: Writes are performed synchronously to `std::ios::app` to ensure data integrity and prevent race conditions.
+    *   All domain events include timestamps to preserve ordering and enable audits.
 *   **Repository**:
     *   `WritingTrajectoryRepositoryFs`: Rehydrates `WritingTrajectory` objects by replaying stored events (`applyEvent`).
     *   Handles serialization/deserialization of polymorphic events (JSON).
@@ -37,6 +38,7 @@ Orchestrates the flow between UI and Domain.
     *   Exposes Use Cases: `createTrajectory`, `addSegment`, `reviseSegment`, `advanceStage`, `addDefenseCard`.
     *   **Caching**: Implements an eager read-through cache (`m_trajectoryCache`) to optimize UI rendering performance and minimize disk I/O.
     *   **Coherence Lens**: Integrates `CoherenceLensService` to analyze the trajectory for logical gaps.
+    *   **ID Generation**: Uses a random alphanumeric generator to avoid collisions without external UUID dependencies.
 
 ### UI Layer (`src/ui/panels`)
 ImGui-based panels for interaction.

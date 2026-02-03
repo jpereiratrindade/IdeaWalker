@@ -17,10 +17,10 @@ namespace fs = std::filesystem;
 WritingEventStoreFs::WritingEventStoreFs(std::string projectRoot, std::shared_ptr<PersistenceService> persistence)
     : m_projectRoot(std::move(projectRoot)), m_persistence(std::move(persistence)) {}
 
-std::string WritingEventStoreFs::getEventsFilePath(const std::string& trajectoryId) {
+std::string WritingEventStoreFs::getEventsFilePath(const std::string& trajectoryId, bool ensureDirectories) {
     // Structure: <root>/writing/trajectories/<id>/events.ndjson
     fs::path path = fs::path(m_projectRoot) / "writing" / "trajectories" / trajectoryId;
-    if (!fs::exists(path)) {
+    if (ensureDirectories && !fs::exists(path)) {
         fs::create_directories(path);
     }
     return (path / "events.ndjson").string();
@@ -29,7 +29,7 @@ std::string WritingEventStoreFs::getEventsFilePath(const std::string& trajectory
 void WritingEventStoreFs::append(const std::string& trajectoryId, const std::vector<StoredEvent>& events) {
     if (events.empty()) return;
 
-    std::string filepath = getEventsFilePath(trajectoryId);
+    std::string filepath = getEventsFilePath(trajectoryId, true);
     
 
     
@@ -55,7 +55,7 @@ void WritingEventStoreFs::append(const std::string& trajectoryId, const std::vec
 
 std::vector<StoredEvent> WritingEventStoreFs::readAll(const std::string& trajectoryId) {
     std::vector<StoredEvent> results;
-    std::string filepath = getEventsFilePath(trajectoryId);
+    std::string filepath = getEventsFilePath(trajectoryId, false);
     
     if (!fs::exists(filepath)) return results;
 

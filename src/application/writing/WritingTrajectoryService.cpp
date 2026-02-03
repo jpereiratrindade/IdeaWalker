@@ -6,6 +6,8 @@
 #include "WritingTrajectoryService.hpp"
 #include <iostream>
 #include <algorithm>
+#include <random>
+#include <chrono>
 // #include <uuid/uuid.h> // Dependency removed for portability
 
 namespace ideawalker::application::writing {
@@ -15,12 +17,19 @@ namespace ideawalker::application::writing {
 // Step 52 showed CMakeLists.txt: logic uses `nlohmann_json`, `httplib`, `SDL2`... 
 // It does NOT link libuuid. I should use a simple random string for now or add uuid to cmake.
 // For now, simple random string generator to avoid build issues.
-static std::string generateUUID() {
+static std::string generateId(size_t length = 20) {
     static const char alphanum[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    static thread_local std::mt19937 rng{
+        static_cast<unsigned int>(
+            std::chrono::high_resolution_clock::now().time_since_epoch().count()
+        )
+    };
+    std::uniform_int_distribution<size_t> dist(0, sizeof(alphanum) - 2);
+
     std::string s;
-    s.reserve(16);
-    for (int i = 0; i < 16; ++i) {
-        s += alphanum[rand() % (sizeof(alphanum) - 1)];
+    s.reserve(length);
+    for (size_t i = 0; i < length; ++i) {
+        s += alphanum[dist(rng)];
     }
     return s;
 }
@@ -32,7 +41,7 @@ std::string WritingTrajectoryService::createTrajectory(const std::string& purpos
                                                      const std::string& audience, 
                                                      const std::string& coreClaim, 
                                                      const std::string& constraints) {
-    std::string id = generateUUID();
+    std::string id = generateId();
     WritingIntent intent(purpose, audience, coreClaim, constraints);
     
     WritingTrajectory traj(id, intent);

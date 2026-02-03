@@ -38,7 +38,7 @@ private:
     std::string m_projectRoot;
     std::shared_ptr<PersistenceService> m_persistence;
     
-    std::string getEventsFilePath(const std::string& trajectoryId);
+    std::string getEventsFilePath(const std::string& trajectoryId, bool ensureDirectories);
 };
 
 } // namespace ideawalker::infrastructure::writing

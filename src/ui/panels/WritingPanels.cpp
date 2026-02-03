@@ -137,7 +137,11 @@ void DrawSegmentEditorPanel(AppState& state) {
     if (tragectoryStageCanAdvance(traj.getStage())) {
         if (ImGui::Button("Advance Stage")) {
              TrajectoryStage next = getNextStage(traj.getStage());
-             state.services.writingTrajectoryService->advanceStage(state.ui.activeTrajectoryId, next);
+             try {
+                 state.services.writingTrajectoryService->advanceStage(state.ui.activeTrajectoryId, next);
+             } catch (const std::exception& e) {
+                 state.AppendLog(std::string("Error advancing stage: ") + e.what() + "\n");
+             }
         }
     }
     ImGui::SameLine();

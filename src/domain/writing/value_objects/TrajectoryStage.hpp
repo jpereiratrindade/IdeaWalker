@@ -40,4 +40,27 @@ inline std::string StageToString(TrajectoryStage stage) {
     }
 }
 
+/**
+ * @brief Returns the next stage in the canonical sequence.
+ */
+inline TrajectoryStage NextStage(TrajectoryStage stage) {
+    switch (stage) {
+        case TrajectoryStage::Intent: return TrajectoryStage::Outline;
+        case TrajectoryStage::Outline: return TrajectoryStage::Drafting;
+        case TrajectoryStage::Drafting: return TrajectoryStage::Revising;
+        case TrajectoryStage::Revising: return TrajectoryStage::Consolidating;
+        case TrajectoryStage::Consolidating: return TrajectoryStage::ReadyForDefense;
+        case TrajectoryStage::ReadyForDefense: return TrajectoryStage::Final;
+        case TrajectoryStage::Final: return TrajectoryStage::Final;
+        default: return TrajectoryStage::Final;
+    }
+}
+
+/**
+ * @brief Checks if a target stage is the next valid stage.
+ */
+inline bool IsNextStage(TrajectoryStage current, TrajectoryStage target) {
+    return target == NextStage(current);
+}
+
 } // namespace ideawalker::domain::writing
