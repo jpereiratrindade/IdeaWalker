@@ -2,6 +2,17 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [v0.1.10-beta] - 2026-02-04
+### Adicionado
+- **Ponte de Ingestão Científica Limpa (Scientific Bridge)**: Refatoração completa da integração IdeaWalker -> SisterSTRATA.
+    - `ScientificIngestionService` agora expõe método público `ingestScientificBundle` para ingestão direta.
+    - Roteamento baseado em intenção (`Intent-Based Routing`) no `AIProcessingService`, eliminando acoplamento no repositório.
+    - Remoção de código legado ("spaghetti code") do `FileRepository.cpp`.
+- **Rigor Epistêmico (Prompt Engineering)**:
+    - O prompt do `ScientificObserver` foi blindado para gerar apenas **CANDIDATE BUNDLES**.
+    - Suporte explícito a `DiscursiveContext` com frames e `NarrativeObservation` com Temas dinâmicos mapeados para Eixos do STRATA.
+    - Output 100% compatível com o schema de consumo do SisterSTRATA (validado via exemplos `example_*.json`).
+
 ## [v0.1.9-beta] - 2026-02-03
 ### Adicionado
 - **Extração de Contexto Discursivo**: Nova camada na ingestão científica que captura *frames* discursivos, valência e retórica (`DiscursiveContext.json`), separada da narrativa factual.

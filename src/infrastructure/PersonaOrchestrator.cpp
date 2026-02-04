@@ -47,6 +47,10 @@ bool PersonaFromToken(const std::string& value, domain::AIPersona& outPersona) {
         outPersona = domain::AIPersona::SecretarioExecutivo;
         return true;
     }
+    if (token == "scientificobserver" || token == "cientista") {
+        outPersona = domain::AIPersona::ScientificObserver;
+        return true;
+    }
     return false;
 }
 
@@ -106,6 +110,11 @@ std::optional<domain::Insight> PersonaOrchestrator::Orchestrate(const std::strin
             if (res) {
                 snapshots.push_back(CreateSnapshot(persona, currentText, *res));
                 currentText = *res;
+                
+                // Tagging for Persistence Bridge
+                if (persona == domain::AIPersona::ScientificObserver) {
+                    tags.push_back("#ScientificObserver");
+                }
             } else {
                 snapshots.push_back(CreateSnapshot(persona, currentText, "[ERROR: Failed to generate]"));
             }

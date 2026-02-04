@@ -71,6 +71,8 @@ bool FileRepository::shouldProcess(const domain::RawThought& thought, const std:
 void FileRepository::saveInsight(const domain::Insight& insight) {
     std::string filename = "Nota_" + insight.getMetadata().id + ".md";
     fs::path outPath = fs::path(m_notesPath) / filename;
+
+
     
     // BACKUP LOGIC (Line of Life)
     if (fs::exists(outPath)) {

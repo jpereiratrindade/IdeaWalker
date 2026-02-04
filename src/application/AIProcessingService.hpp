@@ -15,6 +15,8 @@
 
 namespace ideawalker::application {
 
+namespace scientific { class ScientificIngestionService; }
+
 /**
  * @class AIProcessingService
  * @brief Orchestrates AI tasks and managed background execution via AsyncTaskManager.
@@ -24,7 +26,8 @@ public:
     AIProcessingService(KnowledgeService& knowledge,
                         std::shared_ptr<domain::AIService> ai,
                         std::shared_ptr<AsyncTaskManager> taskManager,
-                        std::unique_ptr<domain::TranscriptionService> transcriber);
+                        std::unique_ptr<domain::TranscriptionService> transcriber,
+                        std::shared_ptr<scientific::ScientificIngestionService> scientificService = nullptr);
 
     /** @brief Triggers background processing of the entire inbox. */
     void ProcessInboxAsync(bool force = false, bool fastMode = false);
@@ -46,6 +49,7 @@ private:
     std::shared_ptr<domain::AIService> m_ai;
     std::shared_ptr<AsyncTaskManager> m_taskManager;
     std::unique_ptr<domain::TranscriptionService> m_transcriber;
+    std::shared_ptr<scientific::ScientificIngestionService> m_scientificService;
 
     // Internal helpers
     static std::string NormalizeToId(const std::string& filename);

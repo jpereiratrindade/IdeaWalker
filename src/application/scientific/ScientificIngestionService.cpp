@@ -241,6 +241,59 @@ ScientificIngestionService::ScientificIngestionService(
     if (!fs::exists(m_consumablesPath)) {
         fs::create_directories(m_consumablesPath);
     }
+    if (!fs::exists(m_consumablesPath)) {
+        fs::create_directories(m_consumablesPath);
+    }
+}
+
+bool ScientificIngestionService::ingestScientificBundle(const std::string& jsonContent, const std::string& artifactId) {
+    nlohmann::json bundle;
+    try {
+        bundle = nlohmann::json::parse(jsonContent);
+    } catch (...) {
+        return false;
+    }
+
+    // Note: We skip SanitizeBundleAnchoring as we don't have the original raw text here easily,
+    // relying on the Rigorous Persona prompt integrity.
+
+    std::vector<std::string> validationErrors;
+    if (!validateBundleJson(bundle, validationErrors)) {
+         std::string saveError;
+         saveErrorPayload(artifactId, jsonContent, saveError);
+         return false;
+    }
+
+    // Minimal Source Metadata Injection if missing
+    if (!bundle.contains("source") || !bundle["source"].is_object()) {
+         bundle["source"] = {
+             {"artifactId", artifactId},
+             {"ingestedAt", ToIsoTimestamp(std::chrono::system_clock::now())},
+             {"model", "scientific-observer-persona"}
+         };
+    }
+
+    std::string saveError;
+    if (!saveRawBundle(bundle, artifactId, saveError)) return false;
+
+    EpistemicValidator validator;
+    auto validation = validator.Validate(bundle);
+    
+    std::string validationError;
+    fs::path validationDir = fs::path(m_observationsPath) / "validation";
+    if (!fs::exists(validationDir)) fs::create_directories(validationDir);
+    
+    WriteJsonFile(validationDir / (artifactId + ".json"), validation.report, validationError);
+
+    if (!validation.exportAllowed) return true; // Successfully processed, even if blocked
+
+    if (!exportConsumables(bundle, artifactId, saveError)) return false;
+
+    fs::path consumableDir = fs::path(m_consumablesPath) / artifactId;
+    WriteJsonFile(consumableDir / "EpistemicValidationReport.json", validation.report, saveError);
+    WriteJsonFile(consumableDir / "ExportSeal.json", validation.seal, saveError);
+
+    return true;
 }
 
 ScientificIngestionService::IngestionResult ScientificIngestionService::ingestPending(
@@ -720,7 +773,7 @@ bool ScientificIngestionService::exportConsumables(
             };
             stateCandidate["axes"] = { 
                 { 
-                    {"label", "extracted_theme"}, 
+                    {"label", obs.contains("theme") ? obs["theme"] : "extracted_theme"}, 
                     {"description", obs.contains("observation") ? obs["observation"] : ""}, 
                     {"level", 0} // 0 = Local
                 } 

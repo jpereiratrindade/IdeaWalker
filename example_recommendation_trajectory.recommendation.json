@@ -1,0 +1,49 @@
+{
+    "id": "REC-TRAJ-EMBRAPA-2025",
+    "metadata": {
+        "context": "Pós-seca",
+        "objective": "Recuperação de Campo Nativo"
+    },
+    "snapshots": [
+        {
+            "id": "REC-001",
+            "recommendationText": "Reduzir carga e permitir rebrote inicial. Quanto mais folha o campo produzir agora, mais forragem haverá no próximo ciclo.",
+            "contextConditions": [
+                "10-20 dias após retorno da umidade",
+                "Campo em fase de reorganização"
+            ],
+            "intendedAction": "Ajustar carga animal (manter moderada)",
+            "expectedOutcome": "Acúmulo de área foliar e recuperação da biomassa",
+            "sourceReference": {
+                "type": 3,
+                "sourceId": "GUIA-MANEJO-01",
+                "productionDate": "2025",
+                "author": "Embrapa Pecuária Sul"
+            },
+            "temporalContext": {
+                "category": 3,
+                "label": "Janela de Oportunidade Pós-seca"
+            }
+        },
+        {
+            "id": "REC-002",
+            "recommendationText": "Criar áreas de descanso temporário para fortalecer espécies desejáveis.",
+            "contextConditions": [
+                "Necessidade de fortalecer espécies de valor forrageiro",
+                "Risco de expansão de espécies oportunistas"
+            ],
+            "intendedAction": "Destinar partes do campo para repouso",
+            "expectedOutcome": "Reorganização do dossel e aumento da resiliência",
+            "sourceReference": {
+                "type": 3,
+                "sourceId": "GUIA-MANEJO-01",
+                "productionDate": "2025",
+                "author": "Embrapa Pecuária Sul"
+            },
+            "temporalContext": {
+                "category": 3,
+                "label": "Curto Prazo"
+            }
+        }
+    ]
+}

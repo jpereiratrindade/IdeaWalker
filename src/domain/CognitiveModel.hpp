@@ -17,7 +17,8 @@ enum class AIPersona {
     SecretarioExecutivo, ///< Concise, task-focused, summary.
     Brainstormer,        ///< Expansive, creative, divergent.
     Orquestrador,        ///< Meta-persona: diagnoses and sequences other personas.
-    Tecelao              ///< Connective: bridges notes and identifies emergent relationships.
+    Tecelao,             ///< Connective: bridges notes and identifies emergent relationships.
+    ScientificObserver   ///< Rigorous scientific extraction for SisterSTRATA.
 };
 
 /**

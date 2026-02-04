@@ -1,0 +1,48 @@
+{
+  "history": [
+    {
+      "id": "OBS-20260203-0001",
+      "source": {
+        "type": 3,
+        "sourceId": "WILMER-2020",
+        "productionDate": "2020-01-01",
+        "author": "Wilmer et al."
+      },
+      "temporalContext": {
+        "category": 3,
+        "label": "Contemporary"
+      },
+      "intent": {
+        "type": 0
+      },
+      "axes": [
+        {
+          "label": "Herbivoria",
+          "description": "Efeitos de grandes herbívoros na comunidade vegetal",
+          "level": 1
+        }
+      ],
+      "metadata": {
+        "schemaVersion": "4",
+        "artifactId": "20260203_172910_WILMER_2020.pdf",
+        "contentHash": "1232294_1770138016892454931",
+        "filename": "WILMER_2020_Assessing_large_herbivore_effects.pdf",
+        "ingestedAt": "2026-02-03T20:29:48Z",
+        "model": "qwen2.5:14b",
+        "path": "/path/to/inbox/scientific/WILMER_2020_Assessing_large_herbivore_effects.pdf",
+        "observation": "Redução de herbivoria favorece recuperação de biomassa.",
+        "context": "Pós-distúrbio com exclusão de pastoreio",
+        "limits": "Resultado observado em campo temperado específico",
+        "confidence": "medium",
+        "evidence": "direct",
+        "evidenceSnippet": "Exclusion of large herbivores led to biomass recovery within two seasons.",
+        "sourceSection": "Results",
+        "pageRange": "pp. 3-4",
+        "contextuality": "site-specific"
+      },
+      "spatialScope": {
+        "type": 0
+      }
+    }
+  ]
+}

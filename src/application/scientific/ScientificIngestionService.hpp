@@ -59,6 +59,14 @@ public:
                                const std::string& consumablesPath);
 
     /**
+     * @brief Ingests a direct JSON bundle (Candidate) from an external source (e.g. PersonaOrchestrator).
+     * @param jsonContent The raw JSON content of the bundle.
+     * @param artifactId The unique ID for this artifact/bundle.
+     * @return True if ingestion/validation was successful (even if export was blocked), False on critical error.
+     */
+    bool ingestScientificBundle(const std::string& jsonContent, const std::string& artifactId);
+
+    /**
      * @brief Scans and processes all pending scientific documents.
      * @param statusCallback Optional UI feedback callback.
      * @return Summary of the operation.

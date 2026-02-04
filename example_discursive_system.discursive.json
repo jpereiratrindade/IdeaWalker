@@ -1,0 +1,67 @@
+{
+  "systems": [
+    {
+      "id": "DS-EMBRAPA-2025",
+      "declaredProblems": [
+        {
+          "statement": "Seca prolongada"
+        },
+        {
+          "statement": "Baixa oferta de forragem"
+        },
+        {
+          "statement": "Solo instável"
+        }
+      ],
+      "declaredActions": [
+        {
+          "statement": "Reduzir carga animal (10-20 dias)"
+        },
+        {
+          "statement": "Criar áreas de descanso temporário"
+        },
+        {
+          "statement": "Priorizar áreas de solos profundos"
+        },
+        {
+          "statement": "Monitorar espécies oportunistas"
+        }
+      ],
+      "allegedMechanisms": [
+        {
+          "statement": "Rebrote de espécies de valor forrageiro"
+        },
+        {
+          "statement": "Ciclagem de nutrientes"
+        },
+        {
+          "statement": "Reorganização ecológica"
+        }
+      ],
+      "expectedEffects": [
+        {
+          "statement": "Recuperação da biomassa"
+        },
+        {
+          "statement": "Aumento da resiliência produtiva"
+        }
+      ],
+      "sourceReferences": [
+        {
+          "type": 3,
+          "sourceId": "GUIA-MANEJO-01",
+          "productionDate": "2025",
+          "author": "Embrapa Pecuária Sul"
+        }
+      ],
+      "temporalContext": {
+        "category": 3,
+        "label": "Pós-seca 2025"
+      },
+      "interpretationMetadata": {
+        "theme": "Resiliência",
+        "context": "Manejo Adaptativo"
+      }
+    }
+  ]
+}

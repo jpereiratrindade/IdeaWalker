@@ -4,6 +4,7 @@
  */
 
 #include "application/AIProcessingService.hpp"
+#include "application/scientific/ScientificIngestionService.hpp"
 #include <sstream>
 #include <iostream>
 
@@ -12,8 +13,9 @@ namespace ideawalker::application {
 AIProcessingService::AIProcessingService(KnowledgeService& knowledge,
                                          std::shared_ptr<domain::AIService> ai,
                                          std::shared_ptr<AsyncTaskManager> taskManager,
-                                         std::unique_ptr<domain::TranscriptionService> transcriber)
-    : m_knowledge(knowledge), m_ai(std::move(ai)), m_taskManager(std::move(taskManager)), m_transcriber(std::move(transcriber)) {}
+                                         std::unique_ptr<domain::TranscriptionService> transcriber,
+                                         std::shared_ptr<scientific::ScientificIngestionService> scientificService)
+    : m_knowledge(knowledge), m_ai(std::move(ai)), m_taskManager(std::move(taskManager)), m_transcriber(std::move(transcriber)), m_scientificService(std::move(scientificService)) {}
 
 std::string AIProcessingService::NormalizeToId(const std::string& filename) {
     std::string base = filename;
@@ -66,9 +68,22 @@ void AIProcessingService::ProcessInboxAsync(bool force, bool fastMode) {
 
             if (insight) {
                 auto meta = insight->getMetadata();
-                meta.id = insightId;
-                domain::Insight normalized(meta, insight->getContent());
-                m_knowledge.GetRepository().saveInsight(normalized);
+                
+                // INTENT ROUTING
+                bool isScientific = false;
+                for (const auto& tag : meta.tags) {
+                    if (tag == "#ScientificObserver") isScientific = true;
+                }
+
+                if (isScientific && m_scientificService) {
+                     // Intent: Scientific Ingestion (Candidate Bundle)
+                     m_scientificService->ingestScientificBundle(insight->getContent(), insightId);
+                } else {
+                    // Intent: Standard Note Persistence
+                    meta.id = insightId;
+                    domain::Insight normalized(meta, insight->getContent());
+                    m_knowledge.GetRepository().saveInsight(normalized);
+                }
             }
             status->progress = static_cast<float>(i + 1) / total;
         }
@@ -90,9 +105,22 @@ void AIProcessingService::ProcessItemAsync(const std::string& filename, bool for
                 auto insight = m_ai->processRawThought(thought.content, fastMode);
                 if (insight) {
                     auto meta = insight->getMetadata();
-                    meta.id = insightId;
-                    domain::Insight normalized(meta, insight->getContent());
-                    m_knowledge.GetRepository().saveInsight(normalized);
+                    
+                    // INTENT ROUTING
+                    bool isScientific = false;
+                    for (const auto& tag : meta.tags) {
+                        if (tag == "#ScientificObserver") isScientific = true;
+                    }
+
+                    if (isScientific && m_scientificService) {
+                         // Intent: Scientific Ingestion (Candidate Bundle)
+                         m_scientificService->ingestScientificBundle(insight->getContent(), insightId);
+                    } else {
+                        // Intent: Standard Note Persistence
+                        meta.id = insightId;
+                        domain::Insight normalized(meta, insight->getContent());
+                        m_knowledge.GetRepository().saveInsight(normalized);
+                    }
                 }
                 break;
             }

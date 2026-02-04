@@ -1,0 +1,34 @@
+{
+    "history": [
+        {
+            "id": "OBS-001",
+            "source": {
+                "type": 3,
+                "sourceId": "GUIA-MANEJO-01",
+                "productionDate": "2025",
+                "author": "Embrapa Pecuária Sul"
+            },
+            "temporalContext": {
+                "category": 3,
+                "label": "Janela de Oportunidade"
+            },
+            "intent": {
+                "type": 2
+            },
+            "axes": [
+                {
+                    "label": "Reorganização",
+                    "description": "Fase de reorganização típica de sistemas adaptativos",
+                    "level": 0
+                }
+            ],
+            "metadata": {
+                "quote": "A chuva não é um sinal para voltar ao normal."
+            },
+            "spatialScope": {
+                "type": 2,
+                "patchId": 42
+            }
+        }
+    ]
+}
