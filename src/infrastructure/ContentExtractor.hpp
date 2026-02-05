@@ -93,7 +93,27 @@ private:
         if (HasTool("ocrmypdf")) {
             if (statusCallback) statusCallback("[OCR] Detectado PDF de imagem. Iniciando leitura visual (CPU)...");
             
-            std::string tempPdf = GetTempFilePath(".pdf");
+            // Persistent OCR storage
+            std::filesystem::path inputPath(path);
+            std::filesystem::path ocrDir = inputPath.parent_path() / ".ocr";
+            if (!std::filesystem::exists(ocrDir)) {
+                std::filesystem::create_directories(ocrDir);
+            }
+            std::filesystem::path ocrPath = ocrDir / (inputPath.stem().string() + "_ocr.pdf");
+            std::string tempPdf = ocrPath.string();
+
+            // Check if already exists to skip re-processing (simple cache)
+            if (std::filesystem::exists(ocrPath)) {
+                 if (statusCallback) statusCallback("[OCR] Usando versão em cache (.ocr/)...");
+                 std::string ocrContent = RunCommand("pdftotext \"" + tempPdf + "\" - 2>/dev/null");
+                 if (IsValidContent(ocrContent)) {
+                     result.content = ocrContent;
+                     result.success = true;
+                     result.method = "ocr-cache";
+                     return result;
+                 }
+            }
+
             // Minimal flags as per user success
             // --jobs 4: safe parallelism
             // 2>&1: required for progress capture
@@ -112,7 +132,7 @@ private:
             
             if (ocrSuccess) {
                  std::string ocrContent = RunCommand("pdftotext \"" + tempPdf + "\" - 2>/dev/null");
-                 std::filesystem::remove(tempPdf);
+                 // std::filesystem::remove(tempPdf); // KEEP FILE PERSISTENT
                  
                  if (IsValidContent(ocrContent)) {
                      result.content = ocrContent;

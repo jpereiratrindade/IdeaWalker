@@ -108,8 +108,9 @@ void AIProcessingService::ProcessItemAsync(const std::string& filename, bool for
                 std::string processedContent = thought.content;
                 
                 if (observation && !observation->empty()) {
-                    std::cout << "[AI] Context FOUND (" << observation->size() << " bytes). Injecting..." << std::endl;
-                    processedContent += "\n\n[CONTEXTO PRE-EXISTENTE (Observação Narrativa)]\n" + *observation + "\n[FIM DO CONTEXTO]\n";
+                    std::cout << "[AI] Context FOUND (" << observation->size() << " bytes). Injecting at START..." << std::endl;
+                    // PREPEND context so it appears before the main content
+                    processedContent = "[CONTEXTO PRE-EXISTENTE (Observação Narrativa)]\n" + *observation + "\n[FIM DO CONTEXTO]\n\n" + processedContent;
                 } else {
                     std::cout << "[AI] No context found or empty." << std::endl;
                 }

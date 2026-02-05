@@ -14,6 +14,8 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
     - Adicionado `--fast` e `--jobs 4` para paralelismo.
     - Adicionado `--optimize 0` para pular recompressão de imagens (gargalo de CPU).
     - Removido `--force-ocr` para evitar re-rasterização desnecessária.
+    - **Persistência (.ocr cache)**: O output do OCR agora é salvo em `inbox/.ocr/` e reutilizado, evitando reprocessamento eterno e permitindo inspeção.
+- **Prioridade de Contexto**: A injeção de contexto (`[CONTEXTO PRE-EXISTENTE]`) agora é inserida no **início** do prompt para garantir que o modelo a considere antes de analisar o texto bruto.
 
 ### Corrigido
 - **Persistência de Modelo**: Corrigida a reinicialização da preferência de modelo (ex: `14b` voltando para `7b`). O `IdeaWalkerApp` agora carrega explicitamente o `settings.json` antes de inicializar o adaptador Ollama.
