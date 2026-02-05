@@ -20,7 +20,7 @@ public:
      * @param inboxPath Directory for incoming raw thoughts (.txt).
      * @param notesPath Directory for structured insights (.md).
      */
-    FileRepository(const std::string& inboxPath, const std::string& notesPath, const std::string& historyPath);
+    FileRepository(const std::string& inboxPath, const std::string& notesPath, const std::string& historyPath, const std::string& observationsPath);
 
     /** @brief Fetches .txt files from the inbox. @see domain::ThoughtRepository::fetchInbox */
     std::vector<domain::RawThought> fetchInbox() override;
@@ -52,10 +52,14 @@ public:
     /** @brief Reads content of a note file. @see domain::ThoughtRepository::getNoteContent */
     std::string getNoteContent(const std::string& filename) override;
 
+    /** @brief recursive search for observations. @see domain::ThoughtRepository::findObservationContent */
+    std::optional<std::string> findObservationContent(const std::string& filename) override;
+
 private:
     std::string m_inboxPath; ///< Path to inbox directory.
     std::string m_notesPath; ///< Path to notes directory.
     std::string m_historyPath; ///< Path to history/versioning directory.
+    std::string m_observationsPath; ///< Path to observations directory.
     void logActivity();        ///< Logs current date activity to persistent file.
 };
 

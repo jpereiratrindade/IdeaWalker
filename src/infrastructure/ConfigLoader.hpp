@@ -21,12 +21,17 @@ public:
      * @return std::optional<std::string> The driver name ("x11", "wayland") or nullopt.
      */
     static std::optional<std::string> GetVideoDriverPreference(const std::string& projectRoot);
+    static void SaveVideoDriverPreference(const std::string& projectRoot, const std::string& driver);
 
     /**
-     * @brief Saves the 'video_driver' key to settings.json, preserving other keys if possible.
-     * Note: Currently assumes simple JSON structure.
+     * @brief Reads the 'ai_model' key from settings.json.
      */
-    static void SaveVideoDriverPreference(const std::string& projectRoot, const std::string& driver);
+    static std::optional<std::string> GetAIModelPreference(const std::string& projectRoot);
+    
+    /**
+     * @brief Saves the 'ai_model' key to settings.json.
+     */
+    static void SaveAIModelPreference(const std::string& projectRoot, const std::string& modelName);
 };
 
 } // namespace ideawalker::infrastructure

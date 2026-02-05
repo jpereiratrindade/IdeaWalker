@@ -30,11 +30,43 @@ std::tm ToLocalTime(std::time_t tt) {
 
 } // namespace
 
-FileRepository::FileRepository(const std::string& inboxPath, const std::string& notesPath, const std::string& historyPath)
-    : m_inboxPath(inboxPath), m_notesPath(notesPath), m_historyPath(historyPath) {
+FileRepository::FileRepository(const std::string& inboxPath, const std::string& notesPath, const std::string& historyPath, const std::string& observationsPath)
+    : m_inboxPath(inboxPath), m_notesPath(notesPath), m_historyPath(historyPath), m_observationsPath(observationsPath) {
     if (!fs::exists(m_inboxPath)) fs::create_directories(m_inboxPath);
     if (!fs::exists(m_notesPath)) fs::create_directories(m_notesPath);
     if (!fs::exists(m_historyPath)) fs::create_directories(m_historyPath);
+    if (!fs::exists(m_observationsPath)) fs::create_directories(m_observationsPath);
+}
+
+std::optional<std::string> FileRepository::findObservationContent(const std::string& filename) {
+    if (!fs::exists(m_observationsPath)) {
+        std::cout << "[Repo] Obs path does not exist: " << m_observationsPath << std::endl;
+        return std::nullopt;
+    }
+
+    // Search pattern: *_{filename}.md (e.g. 20240205_120000_Article.pdf.md)
+    // Note: The ingestion service appends .md to the full filename (input.pdf -> ..._input.pdf.md)
+    std::string targetSuffix = "_" + filename + ".md";
+    std::cout << "[Repo] Looking for suffix: " << targetSuffix << " in " << m_observationsPath << std::endl;
+
+    for (const auto& entry : fs::directory_iterator(m_observationsPath)) {
+        if (entry.is_regular_file()) {
+            std::string fname = entry.path().filename().string();
+            // Check if ends with targetSuffix
+            if (fname.length() >= targetSuffix.length()) {
+                if (0 == fname.compare(fname.length() - targetSuffix.length(), targetSuffix.length(), targetSuffix)) {
+                     // Found match!
+                     std::cout << "[Repo] Match found: " << fname << std::endl;
+                     std::ifstream file(entry.path());
+                     std::stringstream buffer;
+                     buffer << file.rdbuf();
+                     return buffer.str();
+                }
+            }
+        }
+    }
+    std::cout << "[Repo] No observation match found for " << filename << std::endl;
+    return std::nullopt;
 }
 
 std::vector<domain::RawThought> FileRepository::fetchInbox() {
@@ -45,7 +77,8 @@ std::vector<domain::RawThought> FileRepository::fetchInbox() {
             std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c){ return std::tolower(c); });
             
             if (ext == ".txt" || ext == ".md" || ext == ".pdf" || ext == ".tex") {
-                std::string content = ContentExtractor::Extract(entry.path().string());
+                auto result = ContentExtractor::Extract(entry.path().string());
+                std::string content = result.content;
                 thoughts.push_back({entry.path().filename().string(), content});
             }
         }

@@ -25,7 +25,8 @@ public:
     /** @brief Sends a POST request to /api/chat. */
     std::optional<std::string> chat(const std::string& model, 
                                    const nlohmann::json& messages, 
-                                   bool stream = false);
+                                   bool stream = false,
+                                   bool forceJson = false);
 
     /** @brief Sends a POST request to /api/embeddings. */
     std::vector<float> getEmbedding(const std::string& model, const std::string& text);

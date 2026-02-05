@@ -32,6 +32,27 @@ std::optional<std::string> ConfigLoader::GetVideoDriverPreference(const std::str
     return std::nullopt;
 }
 
+std::optional<std::string> ConfigLoader::GetAIModelPreference(const std::string& projectRoot) {
+    std::filesystem::path configPath = std::filesystem::path(projectRoot) / "settings.json";
+    if (!std::filesystem::exists(configPath)) {
+        return std::nullopt;
+    }
+
+    try {
+        std::ifstream f(configPath);
+        nlohmann::json j;
+        f >> j;
+
+        if (j.contains("ai_model")) {
+            return j["ai_model"].get<std::string>();
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "[ConfigLoader] Error reading settings.json: " << e.what() << std::endl;
+    }
+
+    return std::nullopt;
+}
+
 void ConfigLoader::SaveVideoDriverPreference(const std::string& projectRoot, const std::string& driver) {
     std::filesystem::path configPath = std::filesystem::path(projectRoot) / "settings.json";
     nlohmann::json j;
@@ -47,6 +68,29 @@ void ConfigLoader::SaveVideoDriverPreference(const std::string& projectRoot, con
     }
 
     j["video_driver"] = driver;
+
+    try {
+        std::ofstream f(configPath);
+        f << j.dump(4);
+    } catch (const std::exception& e) {
+        std::cerr << "[ConfigLoader] Error writing settings.json: " << e.what() << std::endl;
+    }
+}
+
+void ConfigLoader::SaveAIModelPreference(const std::string& projectRoot, const std::string& modelName) {
+    std::filesystem::path configPath = std::filesystem::path(projectRoot) / "settings.json";
+    nlohmann::json j;
+
+    // Try to load existing to preserve other settings
+    if (std::filesystem::exists(configPath)) {
+        try {
+            std::ifstream f(configPath);
+            f >> j;
+        } catch (...) {
+        }
+    }
+
+    j["ai_model"] = modelName;
 
     try {
         std::ofstream f(configPath);

@@ -102,7 +102,19 @@ void AIProcessingService::ProcessItemAsync(const std::string& filename, bool for
                     return;
                 }
 
-                auto insight = m_ai->processRawThought(thought.content, fastMode);
+                // Injection: Check for existing Narrative Observation
+                std::cout << "[AI] Checking context for: " << thought.filename << std::endl;
+                auto observation = m_knowledge.GetObservationContent(thought.filename);
+                std::string processedContent = thought.content;
+                
+                if (observation && !observation->empty()) {
+                    std::cout << "[AI] Context FOUND (" << observation->size() << " bytes). Injecting..." << std::endl;
+                    processedContent += "\n\n[CONTEXTO PRE-EXISTENTE (Observação Narrativa)]\n" + *observation + "\n[FIM DO CONTEXTO]\n";
+                } else {
+                    std::cout << "[AI] No context found or empty." << std::endl;
+                }
+
+                auto insight = m_ai->processRawThought(processedContent, fastMode);
                 if (insight) {
                     auto meta = insight->getMetadata();
                     

@@ -47,7 +47,8 @@ std::optional<std::string> OllamaClient::generate(const std::string& model,
 
 std::optional<std::string> OllamaClient::chat(const std::string& model, 
                                            const nlohmann::json& messages, 
-                                           bool stream) {
+                                           bool stream,
+                                           bool forceJson) {
     httplib::Client cli(m_host, m_port);
     cli.set_read_timeout(600);
 
@@ -56,6 +57,9 @@ std::optional<std::string> OllamaClient::chat(const std::string& model,
         {"messages", messages},
         {"stream", stream}
     };
+    if (forceJson) {
+        requestData["format"] = "json";
+    }
 
     auto res = cli.Post("/api/chat", requestData.dump(), "application/json");
     if (res && res->status == 200) {

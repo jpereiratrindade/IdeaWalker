@@ -8,6 +8,7 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <optional>
 #include "Insight.hpp"
 
 namespace ideawalker::domain {
@@ -86,6 +87,13 @@ public:
      * @return The raw content.
      */
     virtual std::string getNoteContent(const std::string& filename) = 0;
+
+    /**
+     * @brief Tries to find a narrative observation for the given filename.
+     * @param filename The source filename (e.g. "Article.pdf").
+     * @return Content of the observation if found, or nullopt.
+     */
+    virtual std::optional<std::string> findObservationContent(const std::string& filename) = 0;
 };
 
 } // namespace ideawalker::domain

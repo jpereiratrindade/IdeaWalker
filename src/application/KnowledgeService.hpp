@@ -52,6 +52,9 @@ public:
     /** @brief Returns content of a specific note. */
     std::string GetNoteContent(const std::string& filename);
 
+    /** @brief Looks up a narrative observation for a source file. */
+    std::optional<std::string> GetObservationContent(const std::string& filename);
+
     /** @brief Provides access to the repository (legacy/internal use). */
     domain::ThoughtRepository& GetRepository() { return *m_repo; }
 

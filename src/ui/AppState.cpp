@@ -415,8 +415,11 @@ void AppState::LoadConfig() {
             std::string model = j["ai_model"];
             if (services.aiProcessingService && services.aiProcessingService->GetAI()) {
                  services.aiProcessingService->GetAI()->setModel(model);
-                 AppendLog("[Config] Modelo restaurado: " + model + "\n");
+                 AppendLog("[Config] Modelo restaurado (" + configPath.string() + "): " + model + "\n");
             }
+        } else {
+             // If no model in this project, try to keep current (if set) or warn
+             AppendLog("[Config] Nenhuma preferencia de IA encontrada em " + configPath.string() + ". Mantendo atual.\n");
         }
         
         if (j.contains("video_driver")) {
@@ -436,26 +439,9 @@ void AppState::SaveConfig() {
         infrastructure::ConfigLoader::SaveVideoDriverPreference(project.root, project.videoDriverPreference);
     }
 
-    // Persist AI Model (merging with existing file)
-    std::filesystem::path configPath = std::filesystem::path(project.root) / "settings.json";
-    nlohmann::json j;
-
-    if (std::filesystem::exists(configPath)) {
-        try {
-            std::ifstream f(configPath);
-            f >> j;
-        } catch (...) {}
-    }
-
+    // Persist AI Model
     if (services.aiProcessingService && services.aiProcessingService->GetAI()) {
-        j["ai_model"] = services.aiProcessingService->GetAI()->getCurrentModel();
-    }
-    
-    try {
-        std::ofstream f(configPath);
-        f << j.dump(4);
-    } catch (const std::exception& e) {
-        AppendLog(std::string("[AppState] Erro ao salvar config: ") + e.what() + "\n");
+        infrastructure::ConfigLoader::SaveAIModelPreference(project.root, services.aiProcessingService->GetAI()->getCurrentModel());
     }
 }
 

@@ -126,9 +126,18 @@ application::AppServices BuildServicesForRoot(const std::filesystem::path& root)
     auto repo = std::make_unique<infrastructure::FileRepository>(
         (root / "inbox").string(),
         (root / "notas").string(),
-        (root / ".history").string()
+        (root / ".history").string(),
+        (root / "observations").string()
     );
     auto sharedAi = std::make_shared<infrastructure::OllamaAdapter>();
+    
+    auto savedModel = infrastructure::ConfigLoader::GetAIModelPreference(root.string());
+    if (savedModel) {
+        std::cout << "[IdeaWalkerApp] Loading saved model preference: " << *savedModel << std::endl;
+        sharedAi->setModel(*savedModel);
+        // Skipping replacement for now, need to find usage first.
+    }
+
     sharedAi->initialize();
 
     auto taskManager = std::make_shared<application::AsyncTaskManager>();

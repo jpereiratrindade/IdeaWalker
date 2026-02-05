@@ -98,7 +98,8 @@ private:
     bool validateBundleJson(const nlohmann::json& bundle, std::vector<std::string>& errors) const;
     void attachSourceMetadata(nlohmann::json& bundle,
                               const domain::SourceArtifact& artifact,
-                              const std::string& artifactId) const;
+                              const std::string& artifactId,
+                              const std::string& method) const;
     bool saveRawBundle(const nlohmann::json& bundle, const std::string& artifactId, std::string& error) const;
     bool exportConsumables(const nlohmann::json& bundle, const std::string& artifactId, std::string& error) const;
     bool saveErrorPayload(const std::string& artifactId, const std::string& payload, std::string& error) const;

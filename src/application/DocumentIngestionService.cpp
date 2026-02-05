@@ -37,19 +37,36 @@ DocumentIngestionService::IngestionResult DocumentIngestionService::ingestPendin
         
         if (statusCallback) statusCallback("Processando: " + artifact.filename);
 
-        std::string content = infrastructure::ContentExtractor::Extract(artifact.path);
+        auto resultData = infrastructure::ContentExtractor::Extract(artifact.path, statusCallback);
 
+        if (!resultData.success || resultData.content.empty()) {
+             result.errors.push_back("Falha na extração de texto para " + artifact.filename + ": Conteúdo vazio (ignorado).");
+             continue;
+        }
+
+        if (statusCallback) {
+             statusCallback("Ingerindo " + artifact.filename + " (" + resultData.method + ")");
+        }
+
+        std::string content = resultData.content; 
         std::vector<domain::AIService::ChatMessage> history;
         domain::AIService::ChatMessage systemMsg;
         systemMsg.role = domain::AIService::ChatMessage::Role::System;
         systemMsg.content = generateObservationPrompt(artifact, content);
         history.push_back(systemMsg);
 
+        // Store extraction method for appending later
+        std::string extractionMethod = resultData.method;
+
         auto response = m_aiService->chat(history);
         if (response) {
             domain::ObservationRecord record;
             record.sourcePath = artifact.path;
             record.sourceHash = artifact.contentHash;
+            if (extractionMethod.find("ocr") != std::string::npos) {
+                *response += "\n\n---\n> **Nota de Sistema**: Conteúdo extraído via OCR (" + extractionMethod + "). A precisão pode variar.";
+            }
+
             record.content = *response;
             record.createdAt = std::chrono::system_clock::now();
             

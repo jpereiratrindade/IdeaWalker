@@ -2,6 +2,29 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [v0.1.12-beta] - 2026-02-05
+### Adicionado
+- **Injeção de Contexto (Memória de Curto Prazo)**: A IA agora consulta a pasta `observations` antes de gerar uma Nota Estruturada. Se uma "Observação Narrativa" (gerada via Sync Inbox) existir, ela é injetada no prompt como contexto, garantindo continuidade epistêmica.
+    - Implementado `findObservationContent` no repositório.
+    - `AIProcessingService` atualizado para fundir contexto prévio.
+- **Progresso de OCR em Tempo Real**: Implementada leitura de fluxo (`popen`) do `ocrmypdf`, permitindo que a barra de status exiba o progresso real ("Scanning...", "Page 1/X", "Optimizing") em vez de congelar.
+
+### Alterado
+- **Otimização de OCR**: Refinado o pipeline de ingestão de PDF para desempenho máximo.
+    - Adicionado `--fast` e `--jobs 4` para paralelismo.
+    - Adicionado `--optimize 0` para pular recompressão de imagens (gargalo de CPU).
+    - Removido `--force-ocr` para evitar re-rasterização desnecessária.
+
+### Corrigido
+- **Persistência de Modelo**: Corrigida a reinicialização da preferência de modelo (ex: `14b` voltando para `7b`). O `IdeaWalkerApp` agora carrega explicitamente o `settings.json` antes de inicializar o adaptador Ollama.
+
+## [v0.1.11-beta] - 2026-02-04
+### Corrigido
+- **Persistência de Modelo de IA**: Corrigido um bug na seleção de modelos onde o `ModelSelector` ignorava a preferência do usuário e a inicialização sobrescrevia a escolha salva.
+    - Centralizada a lógica em `ConfigLoader::GetAIModelPreference`.
+    - Garantido que `OllamaAdapter` respeita o modelo injetado antes da inicialização.
+- **Ingestão Científica (Qwen 2.5)**: Atualizado o método `generateJson` para utilizar a API de Chat (`/api/chat`) em vez de Completions. Isso resolve falhas de ingestão com modelos Instruct (como o 14b) que exigem templates de prompt rigorosos.
+
 ## [v0.1.10-beta] - 2026-02-04
 ### Adicionado
 - **Ponte de Ingestão Científica Limpa (Scientific Bridge)**: Refatoração completa da integração IdeaWalker -> SisterSTRATA.

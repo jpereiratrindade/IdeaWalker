@@ -22,6 +22,13 @@ public:
             return currentDefault;
         }
 
+        // 1. If the current model is available, KEEP IT.
+        for (const auto& model : availableModels) {
+            if (model == currentDefault) {
+                return currentDefault;
+            }
+        }
+
         const std::vector<std::string> priorities = {
             "qwen2.5:7b",
             "qwen2.5", 

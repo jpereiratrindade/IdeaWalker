@@ -22,6 +22,11 @@ void OllamaAdapter::initialize() {
 
     m_model = ModelSelector::SelectBest(availableModels, m_model);
     std::cout << "[OllamaAdapter] Auto-selected model: " << m_model << std::endl;
+    // START PATCH: Check if the selected model matches preference (if we had one)
+    // Actually, SelectBest already prioritizes m_model.
+    // If it returned something else, it means m_model wasn't in list.
+    // We should log this clearly.
+    // END PATCH
 }
 
 std::optional<domain::Insight> OllamaAdapter::processRawThought(const std::string& rawContent, bool fastMode, std::function<void(std::string)> statusCallback) {
@@ -40,7 +45,12 @@ std::optional<std::string> OllamaAdapter::chat(const std::vector<domain::AIServi
 }
 
 std::optional<std::string> OllamaAdapter::generateJson(const std::string& systemPrompt, const std::string& userPrompt) {
-    return m_client.generate(m_model, systemPrompt, userPrompt, true);
+    // Upgraded to use Chat API for better compatibility with Instruct models (like Qwen2.5)
+    json messages = json::array({
+        {{"role", "system"}, {"content", systemPrompt}},
+        {{"role", "user"}, {"content", userPrompt}}
+    });
+    return m_client.chat(m_model, messages, false, true);
 }
 
 std::optional<std::string> OllamaAdapter::consolidateTasks(const std::string& tasksMarkdown) {
@@ -56,7 +66,10 @@ std::vector<std::string> OllamaAdapter::getAvailableModels() {
 }
 
 void OllamaAdapter::setModel(const std::string& modelName) {
-    m_model = modelName;
+    if (m_model != modelName) {
+        std::cout << "[OllamaAdapter] Model changed manually to: " << modelName << std::endl;
+        m_model = modelName;
+    }
 }
 
 std::string OllamaAdapter::getCurrentModel() const {

@@ -311,8 +311,23 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::ingestPe
         }
         if (statusCallback) statusCallback("Processando artigo: " + artifact.filename);
 
-        std::string content = infrastructure::ContentExtractor::Extract(artifact.path);
+        auto resultData = infrastructure::ContentExtractor::Extract(artifact.path, statusCallback);
 
+        if (!resultData.success || resultData.content.empty()) {
+            std::string err = "Falha na extração de texto para " + artifact.filename + ": Conteúdo vazio ou ilegível.";
+            result.errors.push_back(err);
+            std::string saveError;
+            saveErrorPayload(buildArtifactId(artifact), err, saveError);
+            continue;
+        }
+
+        if (statusCallback) {
+             std::string msg = "Extraído via " + resultData.method;
+             if (!resultData.warnings.empty()) msg += " (com avisos)";
+             statusCallback(msg);
+        }
+
+        std::string content = resultData.content;
         const std::string systemPrompt = buildSystemPrompt();
         const std::string userPrompt = buildUserPrompt(artifact, content);
 
@@ -351,7 +366,7 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::ingestPe
             continue;
         }
 
-        attachSourceMetadata(bundle, artifact, artifactId);
+        attachSourceMetadata(bundle, artifact, artifactId, resultData.method);
 
         std::string saveError;
         if (!saveRawBundle(bundle, artifactId, saveError)) {
@@ -697,14 +712,16 @@ bool ScientificIngestionService::validateBundleJson(const nlohmann::json& bundle
 
 void ScientificIngestionService::attachSourceMetadata(nlohmann::json& bundle,
                                                       const domain::SourceArtifact& artifact,
-                                                      const std::string& artifactId) const {
+                                                      const std::string& artifactId,
+                                                      const std::string& method) const {
     nlohmann::json source = {
         {"artifactId", artifactId},
         {"path", artifact.path},
         {"filename", artifact.filename},
         {"contentHash", artifact.contentHash},
         {"ingestedAt", ToIsoTimestamp(std::chrono::system_clock::now())},
-        {"model", m_aiService ? m_aiService->getCurrentModel() : "unknown"}
+        {"model", m_aiService ? m_aiService->getCurrentModel() : "unknown"},
+        {"extractionMethod", method}
     };
     bundle["source"] = source;
 }

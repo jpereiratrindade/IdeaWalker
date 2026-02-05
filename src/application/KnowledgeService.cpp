@@ -71,4 +71,8 @@ std::string KnowledgeService::GetNoteContent(const std::string& filename) {
     return m_repo->getNoteContent(filename);
 }
 
+std::optional<std::string> KnowledgeService::GetObservationContent(const std::string& filename) {
+    return m_repo->findObservationContent(filename);
+}
+
 } // namespace ideawalker::application
