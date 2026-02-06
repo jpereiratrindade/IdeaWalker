@@ -16,8 +16,27 @@
 #include <cctype>
 #include <cstdlib>
 #include <chrono>
+#include <unordered_map>
+#include <sstream>
 
 namespace ideawalker::infrastructure {
+    
+namespace {
+    // Normalizes line for structural comparison (ignore digits, trim, lower)
+    std::string NormalizeStructuralLine(const std::string& line) {
+        std::string out;
+        out.reserve(line.size());
+        for (char c : line) {
+            if (std::isspace(static_cast<unsigned char>(c))) continue;
+            if (std::isdigit(static_cast<unsigned char>(c))) {
+                out.push_back('#'); // Mask digits
+            } else {
+                out.push_back(std::tolower(static_cast<unsigned char>(c)));
+            }
+        }
+        return out;
+    }
+}
 
 class ContentExtractor {
 public:
@@ -80,12 +99,72 @@ private:
         ExtractionResult result;
         
         // Tier 1: Try standard extraction (pdftotext)
-        std::string content = RunCommand("pdftotext \"" + path + "\" - 2>/dev/null");
+        std::string rawContent = RunCommand("pdftotext \"" + path + "\" - 2>/dev/null");
 
-        if (IsValidContent(content)) {
-            result.content = content;
+        if (IsValidContent(rawContent)) {
+             // Apply Structural Exclusion Rule
+             std::vector<std::string> pages;
+             std::string currentPage;
+             for (char c : rawContent) {
+                 if (c == '\f') { // Form Feed
+                     pages.push_back(currentPage);
+                     currentPage.clear();
+                 } else {
+                     currentPage.push_back(c);
+                 }
+             }
+             if (!currentPage.empty()) pages.push_back(currentPage);
+
+             // Build Frequency Map for Structural Zones (Top 3 / Bottom 3 lines)
+             std::unordered_map<std::string, int> structuralFreq;
+             int totalPages = pages.size();
+             int structuralThreshold = std::max(2, static_cast<int>(totalPages * 0.6)); // 60% recurrence
+             
+             // First pass: Count
+             for (const auto& pageStr : pages) {
+                 std::stringstream ss(pageStr);
+                 std::string line;
+                 std::vector<std::string> lines;
+                 while (std::getline(ss, line)) {
+                     if (!line.empty()) lines.push_back(line);
+                 }
+                 if (lines.empty()) continue;
+
+                 // Check Top 3
+                 for (size_t i = 0; i < std::min((size_t)3, lines.size()); ++i) {
+                     if (lines[i].length() <= 160) {
+                        structuralFreq[NormalizeStructuralLine(lines[i])]++;
+                     }
+                 }
+                 // Check Bottom 3
+                 if (lines.size() > 3) {
+                     for (size_t i = lines.size() - std::min((size_t)3, lines.size()); i < lines.size(); ++i) {
+                         if (lines[i].length() <= 160) {
+                            structuralFreq[NormalizeStructuralLine(lines[i])]++;
+                         }
+                     }
+                 }
+             }
+
+             // Second pass: Filter and Reassemble
+             std::ostringstream finalContent;
+             for (const auto& pageStr : pages) {
+                 std::stringstream ss(pageStr);
+                 std::string line;
+                 while (std::getline(ss, line)) {
+                     std::string norm = NormalizeStructuralLine(line);
+                     // If line is short, in freq map, and high frequency -> SKIP
+                     if (line.length() <= 160 && structuralFreq.count(norm) && structuralFreq[norm] >= structuralThreshold) {
+                         continue; // Structural Exclusion
+                     }
+                     finalContent << line << "\n";
+                 }
+                 finalContent << "\n"; // Preserve page separation loosely
+             }
+
+            result.content = finalContent.str();
             result.success = true;
-            result.method = "pdftotext";
+            result.method = "pdftotext (filtered)";
             return result;
         }
 

@@ -91,8 +91,11 @@ private:
     std::string m_observationsPath;
     std::string m_consumablesPath;
 
-    std::string buildSystemPrompt() const;
-    std::string buildUserPrompt(const domain::SourceArtifact& artifact, const std::string& content) const;
+    std::string buildNarrativeSystemPrompt() const;
+    std::string buildNarrativeUserPrompt(const domain::SourceArtifact& artifact, const std::string& content) const;
+    
+    std::string buildDiscursiveSystemPrompt() const;
+    std::string buildDiscursiveUserPrompt(const domain::SourceArtifact& artifact, const std::string& content) const;
     std::string buildArtifactId(const domain::SourceArtifact& artifact) const;
 
     bool validateBundleJson(const nlohmann::json& bundle, std::vector<std::string>& errors) const;

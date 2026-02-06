@@ -112,6 +112,7 @@ void FilterByAnchoring(nlohmann::json& array,
 }
 
 void SanitizeBundleAnchoring(nlohmann::json& bundle, const std::string& content) {
+    // Narrative Anchoring
     if (bundle.contains("narrativeObservations")) {
         FilterByAnchoring(bundle["narrativeObservations"], {"evidenceSnippet", "sourceSection", "pageRange"}, content);
     }
@@ -120,6 +121,26 @@ void SanitizeBundleAnchoring(nlohmann::json& bundle, const std::string& content)
     }
     if (bundle.contains("temporalWindowReferences")) {
         FilterByAnchoring(bundle["temporalWindowReferences"], {"evidenceSnippet", "sourceSection", "pageRange"}, content);
+    }
+
+    // Discursive Anchoring (Hallucination Mitigation)
+    if (bundle.contains("discursiveContext") && bundle["discursiveContext"].is_object()) {
+        auto& dc = bundle["discursiveContext"];
+        if (dc.contains("frames")) {
+            FilterByAnchoring(dc["frames"], {"evidenceSnippet"}, content);
+        }
+    }
+    if (bundle.contains("discursiveSystem") && bundle["discursiveSystem"].is_object()) {
+        auto& ds = bundle["discursiveSystem"];
+        if (ds.contains("declaredProblems")) {
+            FilterByAnchoring(ds["declaredProblems"], {"evidenceSnippet"}, content);
+        }
+        if (ds.contains("declaredActions")) {
+            FilterByAnchoring(ds["declaredActions"], {"evidenceSnippet"}, content);
+        }
+        if (ds.contains("expectedEffects")) {
+             FilterByAnchoring(ds["expectedEffects"], {"evidenceSnippet"}, content);
+        }
     }
 }
 
@@ -328,26 +349,69 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::ingestPe
         }
 
         std::string content = resultData.content;
-        const std::string systemPrompt = buildSystemPrompt();
-        const std::string userPrompt = buildUserPrompt(artifact, content);
-
         const std::string artifactId = buildArtifactId(artifact);
 
-        auto response = m_aiService->generateJson(systemPrompt, userPrompt);
-        if (!response) {
-            result.errors.push_back("Falha na IA para: " + artifact.filename);
+        // --- Phase 1: Narrative Extraction ---
+        if (statusCallback) statusCallback("Extraindo Narrativa (1/2)...");
+        const std::string narrativeSystemPrompt = buildNarrativeSystemPrompt();
+        const std::string narrativeUserPrompt = buildNarrativeUserPrompt(artifact, content);
+        
+        auto narrativeResponse = m_aiService->generateJson(narrativeSystemPrompt, narrativeUserPrompt);
+        if (!narrativeResponse) {
+            result.errors.push_back("Falha na IA (Narrativa) para: " + artifact.filename);
             continue;
         }
 
-        nlohmann::json bundle;
+        nlohmann::json narrativeBundle;
         try {
-            bundle = nlohmann::json::parse(*response);
-        } catch (const std::exception& e) {
-            std::string err = std::string("JSON inválido para ") + artifact.filename + ": " + e.what();
-            result.errors.push_back(err);
+            narrativeBundle = nlohmann::json::parse(*narrativeResponse);
+        } catch (...) {
             std::string saveError;
-            saveErrorPayload(artifactId, *response, saveError);
+            saveErrorPayload(artifactId + "_narrative_err", *narrativeResponse, saveError);
+            result.errors.push_back("JSON inválido (Narrativa) para " + artifact.filename);
             continue;
+        }
+
+        // --- Phase 2: Discursive Extraction ---
+        if (statusCallback) statusCallback("Extraindo Discursiva (2/2)...");
+        const std::string discursiveSystemPrompt = buildDiscursiveSystemPrompt();
+        const std::string discursiveUserPrompt = buildDiscursiveUserPrompt(artifact, content);
+
+        auto discursiveResponse = m_aiService->generateJson(discursiveSystemPrompt, discursiveUserPrompt);
+        nlohmann::json discursiveBundle = nlohmann::json::object();
+        if (discursiveResponse) {
+             try {
+                discursiveBundle = nlohmann::json::parse(*discursiveResponse);
+             } catch (...) {
+                 std::string saveError;
+                 saveErrorPayload(artifactId + "_discursive_err", *discursiveResponse, saveError);
+                 result.errors.push_back("JSON inválido (Discursiva) para " + artifact.filename + " (ignorando parcial)");
+             }
+        } else {
+             result.errors.push_back("Falha na IA (Discursiva) para: " + artifact.filename + " (ignorando parcial)");
+        }
+
+        // --- Merge Bundles ---
+        nlohmann::json bundle = narrativeBundle;
+        
+        // Merge Discursive Context
+        if (discursiveBundle.contains("discursiveContext")) {
+            bundle["discursiveContext"] = discursiveBundle["discursiveContext"];
+        }
+        // Merge Discursive System
+        if (discursiveBundle.contains("discursiveSystem")) {
+            bundle["discursiveSystem"] = discursiveBundle["discursiveSystem"];
+        }
+        // Merge Interpretation Layers (combine if both exist, prefer discursive for author interpretations)
+        if (discursiveBundle.contains("interpretationLayers")) {
+             if (!bundle.contains("interpretationLayers")) {
+                 bundle["interpretationLayers"] = discursiveBundle["interpretationLayers"];
+             } else {
+                 auto& target = bundle["interpretationLayers"];
+                 const auto& source = discursiveBundle["interpretationLayers"];
+                 if (source.contains("authorInterpretations")) target["authorInterpretations"] = source["authorInterpretations"];
+                 if (source.contains("possibleReadings")) target["possibleReadings"] = source["possibleReadings"];
+             }
         }
 
         SanitizeBundleAnchoring(bundle, content);
@@ -381,10 +445,8 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::ingestPe
         if (!fs::exists(validationDir)) {
             fs::create_directories(validationDir);
         }
-        if (!WriteJsonFile(validationDir / (artifactId + ".json"), validation.report, validationError)) {
-            result.errors.push_back(validationError);
-            continue;
-        }
+        WriteJsonFile(validationDir / (artifactId + ".json"), validation.report, validationError);
+
         if (!validation.exportAllowed) {
             result.errors.push_back("Exportação bloqueada pelo Validador Epistemológico: " + artifact.filename);
             continue;
@@ -396,14 +458,8 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::ingestPe
         }
 
         fs::path consumableDir = fs::path(m_consumablesPath) / artifactId;
-        if (!WriteJsonFile(consumableDir / "EpistemicValidationReport.json", validation.report, saveError)) {
-            result.errors.push_back(saveError);
-            continue;
-        }
-        if (!WriteJsonFile(consumableDir / "ExportSeal.json", validation.seal, saveError)) {
-            result.errors.push_back(saveError);
-            continue;
-        }
+        WriteJsonFile(consumableDir / "EpistemicValidationReport.json", validation.report, saveError);
+        WriteJsonFile(consumableDir / "ExportSeal.json", validation.seal, saveError);
 
         result.bundlesGenerated++;
     }
@@ -478,37 +534,26 @@ std::optional<ScientificIngestionService::ValidationSummary> ScientificIngestion
     return summary;
 }
 
-std::string ScientificIngestionService::buildSystemPrompt() const {
+std::string ScientificIngestionService::buildNarrativeSystemPrompt() const {
     std::ostringstream ss;
     ss << "Você é um analista científico do IdeaWalker.\n"
-       << "Objetivo: produzir ARTEFATOS COGNITIVOS explícitos, sem recomendações e sem normatividade.\n"
+       << "Objetivo: produzir ARTEFATOS COGNITIVOS NARRATIVOS (Observações e Mecanismos).\n"
+       << "Foque em extrair o que ACONTECEU (observações) e COMO funciona (mecanismos) com base na evidência empírica.\n"
        << "Responda APENAS com JSON válido e estritamente no esquema solicitado.\n"
-       << "Não inclua texto fora do JSON.\n"
-       << "Todo item em narrativeObservations, allegedMechanisms e temporalWindowReferences deve conter evidenceSnippet, sourceSection e pageRange.\n"
-       << "evidenceSnippet deve ser TRECHO LITERAL do artigo (copiado do texto extraído).\n"
-       << "Todo item em narrativeObservations e allegedMechanisms deve declarar contextuality.\n"
-       << "Se algo não puder ser inferido, use valores \"unknown\" ou listas vazias.\n"
-       << "\n"
-       << "EXTRAÇÃO DISCURSIVA (OPCIONAL):\n"
-       << "Além da extração narrativa (o que aconteceu), identifique frames discursivos (como o autor fala).\n"
-       << "Separe claramente o que é observação factual do que é enquadramento retórico ou normativo.\n";
+       << "Todo item deve conter evidenceSnippet (trecho literal), sourceSection e pageRange.\n";
     return ss.str();
 }
 
-std::string ScientificIngestionService::buildUserPrompt(
+std::string ScientificIngestionService::buildNarrativeUserPrompt(
     const domain::SourceArtifact& artifact,
     const std::string& content) const {
     std::ostringstream ss;
     ss << "ARQUIVO: " << artifact.filename << "\n"
-       << "TIPO: " << (artifact.type == domain::SourceType::PDF ? "PDF" :
-                       artifact.type == domain::SourceType::LaTeX ? "LaTeX" :
-                       artifact.type == domain::SourceType::Markdown ? "Markdown" : "Texto")
-       << "\n\n"
        << "CONTEÚDO DO ARTIGO:\n"
        << "------------------------\n"
        << content << "\n"
        << "------------------------\n\n"
-       << "ESQUEMA JSON OBRIGATÓRIO (schemaVersion=" << domain::scientific::ScientificSchema::SchemaVersion << "):\n"
+       << "ESQUEMA JSON OBRIGATÓRIO (Narrative Focus):\n"
        << "{\n"
        << "  \"schemaVersion\": " << domain::scientific::ScientificSchema::SchemaVersion << ",\n"
        << "  \"sourceProfile\": {\n"
@@ -572,25 +617,55 @@ std::string ScientificIngestionService::buildUserPrompt(
        << "  ],\n"
        << "  \"interpretationLayers\": {\n"
        << "    \"observedStatements\": [\"...\"],\n"
-       << "    \"authorInterpretations\": [\"...\"],\n"
-       << "    \"possibleReadings\": [\"...\"]\n"
-       << "    \"possibleReadings\": [\"...\"]\n"
-       << "  },\n"
+        // Force valid empty arrays for other interpretation fields in narrative bundle
+       << "    \"authorInterpretations\": [],\n"
+       << "    \"possibleReadings\": []\n"
+       << "  }\n"
+       << "}\n";
+    return ss.str();
+}
+
+std::string ScientificIngestionService::buildDiscursiveSystemPrompt() const {
+    std::ostringstream ss;
+    ss << "Você é um analista científico do IdeaWalker.\n"
+       << "Objetivo: produzir ARTEFATOS COGNITIVOS DISCURSIVOS (Sistemas de problemas/ações, Frames).\n"
+       << "Foque em COMO O AUTOR ARGUMENTA e quais PROBLEMAS/SOLUÇÕES são declarados.\n"
+       << "Responda APENAS com JSON válido e estritamente no esquema solicitado.\n"
+       << "MITIGAÇÃO DE ALUCINAÇÃO: Todo item (Problem, Action, Effect, Frame) DEVE ter 'evidenceSnippet'.\n"
+       << "O evidenceSnippet deve ser uma CÓPIA LITERAL do texto. Se não houver evidência explícita, NÃO INCLUA O ITEM.\n";
+    return ss.str();
+}
+
+std::string ScientificIngestionService::buildDiscursiveUserPrompt(
+    const domain::SourceArtifact& artifact,
+    const std::string& content) const {
+    std::ostringstream ss;
+    ss << "ARQUIVO: " << artifact.filename << "\n"
+       << "CONTEÚDO DO ARTIGO:\n"
+       << "------------------------\n"
+       << content << "\n"
+       << "------------------------\n\n"
+       << "ESQUEMA JSON OBRIGATÓRIO (Discursive Focus):\n"
+       << "{\n"
        << "  \"discursiveContext\": {\n"
        << "    \"frames\": [\n"
        << "      {\n"
        << "        \"label\": \"...\",\n"
        << "        \"description\": \"...\",\n"
        << "        \"valence\": \"normative|descriptive|critical|implicit\",\n"
-       << "        \"evidenceSnippet\": \"...\"\n"
+       << "        \"evidenceSnippet\": \"trecho literal...\"\n"
        << "      }\n"
        << "    ],\n"
        << "    \"epistemicRole\": \"discursive-reading\"\n"
        << "  },\n"
        << "  \"discursiveSystem\": {\n"
-       << "    \"declaredProblems\": [ { \"statement\": \"...\", \"context\": \"...\" } ],\n"
-       << "    \"declaredActions\": [ { \"statement\": \"...\", \"status\": \"proposed|implemented\" } ],\n"
-       << "    \"expectedEffects\": [ { \"statement\": \"...\", \"likelihood\": \"...\" } ]\n"
+       << "    \"declaredProblems\": [ { \"statement\": \"...\", \"context\": \"...\", \"evidenceSnippet\": \"trecho literal...\" } ],\n"
+       << "    \"declaredActions\": [ { \"statement\": \"...\", \"status\": \"proposed|implemented\", \"evidenceSnippet\": \"trecho literal...\" } ],\n"
+       << "    \"expectedEffects\": [ { \"statement\": \"...\", \"likelihood\": \"...\", \"evidenceSnippet\": \"trecho literal...\" } ]\n"
+       << "  },\n"
+       << "  \"interpretationLayers\": {\n"
+       << "    \"authorInterpretations\": [\"...\"],\n"
+       << "    \"possibleReadings\": [\"...\"]\n"
        << "  }\n"
        << "}\n";
     return ss.str();

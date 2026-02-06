@@ -2,6 +2,19 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [v0.1.13-beta] - 2026-02-06
+### Adicionado
+- **Regra de Exclusão Estrutural (ADR 001)**: Nova camada de pré-processamento no `ContentExtractor` que identifica e remove cabeçalhos e rodapés repetitivos (>60% das páginas). Isso limpa metadados editoriais (nomes de revista, paginação) do texto antes da ingestão.
+- **Mitigação de Alucinação (Discursive Anchoring)**:
+    - Ingestão Científica agora exige `evidenceSnippet` (cópia literal) para todo problema, ação e efeito discursivo.
+    - Itens sem âncora textual verificada são automaticamente descartados, prevenindo invenção de conceitos pelo modelo.
+
+### Alterado
+- **Ingestão Bifásica**: O processo de ingestão científica foi dividido em dois turnos cognitivos distintos:
+    1. **Narrativa**: Foco em observações factuais e teorias.
+    2. **Discursiva**: Foco em frames, retórica e sistemas de problemas.
+    - Isso resolve falhas de atenção onde modelos menores (7B) ignoravam instruções complexas combinadas.
+
 ## [v0.1.12-beta] - 2026-02-05
 ### Adicionado
 - **Injeção de Contexto (Memória de Curto Prazo)**: A IA agora consulta a pasta `observations` antes de gerar uma Nota Estruturada. Se uma "Observação Narrativa" (gerada via Sync Inbox) existir, ela é injetada no prompt como contexto, garantindo continuidade epistêmica.
