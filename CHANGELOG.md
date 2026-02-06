@@ -2,6 +2,12 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [v0.1.14-beta] - 2026-02-06
+### Adicionado
+- **Ancoragem Difusa (Fuzzy Match)**: O sistema de validação epistêmica agora utiliza um algoritmo de "Janela Deslizante baseada em Tokens" com tolerância a Levenshtein (distância de edição).
+    - Permite que snippets de evidência sejam aceitos mesmo com pequenos erros de OCR (ex: `infiltração` vs `infiltragao`) ou normalizações do modelo.
+    - Resolve o problema de esvaziamento do `DiscursiveContext` quando o modelo corrigia a ortografia da citação.
+
 ## [v0.1.13-beta] - 2026-02-06
 ### Adicionado
 - **Regra de Exclusão Estrutural (ADR 001)**: Nova camada de pré-processamento no `ContentExtractor` que identifica e remove cabeçalhos e rodapés repetitivos (>60% das páginas). Isso limpa metadados editoriais (nomes de revista, paginação) do texto antes da ingestão.

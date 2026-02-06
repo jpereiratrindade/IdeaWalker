@@ -13,6 +13,8 @@
 #include <iomanip>
 #include <sstream>
 #include <cctype>
+#include <numeric>
+#include <vector>
 
 #include "infrastructure/ContentExtractor.hpp"
 
@@ -80,11 +82,83 @@ std::string NormalizeForSearch(const std::string& input) {
     return out;
 }
 
+// Tokenizer helper
+std::vector<std::string> Tokenize(const std::string& input) {
+    std::vector<std::string> tokens;
+    std::string current;
+    for (char c : input) {
+        if (std::isspace(static_cast<unsigned char>(c))) {
+            if (!current.empty()) {
+                tokens.push_back(current);
+                current.clear();
+            }
+        } else {
+            current.push_back(std::tolower(static_cast<unsigned char>(c)));
+        }
+    }
+    if (!current.empty()) tokens.push_back(current);
+    return tokens;
+}
+
+// Levenshtein distance for tokens
+size_t LevenshteinDistance(const std::string& s1, const std::string& s2) {
+    const size_t m = s1.size();
+    const size_t n = s2.size();
+    if (m == 0) return n;
+    if (n == 0) return m;
+    std::vector<size_t> row(n + 1);
+    std::iota(row.begin(), row.end(), 0);
+    for (size_t i = 1; i <= m; ++i) {
+        row[0] = i;
+        size_t previous = i - 1;
+        for (size_t j = 1; j <= n; ++j) {
+            size_t old_row = row[j];
+            row[j] = std::min({old_row + 1, row[j - 1] + 1, previous + (s1[i - 1] == s2[j - 1] ? 0 : 1)});
+            previous = old_row;
+        }
+    }
+    return row[n];
+}
+
+bool IsTokenMatch(const std::string& t1, const std::string& t2) {
+    if (t1 == t2) return true;
+    if (t1.size() < 4 || t2.size() < 4) return false; // Strict for short words
+    size_t dist = LevenshteinDistance(t1, t2);
+    // Allow 1 edit for medium words, 2 for long
+    size_t threshold = (t1.size() > 6) ? 2 : 1;
+    return dist <= threshold;
+}
+
 bool SnippetAppearsInContent(const std::string& snippet, const std::string& content) {
     if (snippet.empty()) return false;
+    
+    // 1. Fast Path: Exact Substring Search (Normalized)
     const std::string normSnippet = NormalizeForSearch(snippet);
     const std::string normContent = NormalizeForSearch(content);
-    return normContent.find(normSnippet) != std::string::npos;
+    if (normContent.find(normSnippet) != std::string::npos) return true;
+
+    // 2. Robust Path: Token-Based Sliding Window
+    auto sTokens = Tokenize(normSnippet);
+    if (sTokens.empty()) return false;
+    auto cTokens = Tokenize(normContent);
+    if (cTokens.size() < sTokens.size()) return false;
+
+    // Sliding window
+    size_t windowSize = sTokens.size();
+    size_t maxErrors = std::max((size_t)1, windowSize / 4); // Allow 25% token mismatch
+    
+    for (size_t i = 0; i <= cTokens.size() - windowSize; ++i) {
+        size_t errors = 0;
+        for (size_t j = 0; j < windowSize; ++j) {
+            if (!IsTokenMatch(sTokens[j], cTokens[i + j])) {
+                errors++;
+                if (errors > maxErrors) break;
+            }
+        }
+        if (errors <= maxErrors) return true;
+    }
+
+    return false;
 }
 
 void FilterByAnchoring(nlohmann::json& array,
