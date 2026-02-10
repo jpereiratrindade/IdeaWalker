@@ -2,6 +2,11 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [v0.1.15-beta] - 2026-02-10
+### Consolidado
+- **Ingestão Científica & UI**: Integração final dos serviços de ingestão com o Dashboard, incluindo validação epistêmica e feedback visual de progresso.
+- **Estabilização do Repositório**: Sincronização de commits e limpeza de estado para release seguro.
+
 ## [v0.1.14-beta] - 2026-02-06
 ### Adicionado
 - **Ancoragem Difusa (Fuzzy Match)**: O sistema de validação epistêmica agora utiliza um algoritmo de "Janela Deslizante baseada em Tokens" com tolerância a Levenshtein (distância de edição).
