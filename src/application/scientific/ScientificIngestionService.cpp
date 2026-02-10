@@ -14,6 +14,8 @@
 #include <sstream>
 #include <cctype>
 #include <numeric>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "infrastructure/ContentExtractor.hpp"
@@ -55,6 +57,37 @@ bool WriteJsonFile(const fs::path& path, const nlohmann::json& payload, std::str
     return true;
 }
 
+const char* SourceTypeToString(domain::SourceType type) {
+    switch (type) {
+        case domain::SourceType::PlainText: return "text";
+        case domain::SourceType::Markdown: return "markdown";
+        case domain::SourceType::PDF: return "pdf";
+        case domain::SourceType::LaTeX: return "latex";
+        default: return "unknown";
+    }
+}
+
+bool EndsWith(const std::string& value, const std::string& suffix) {
+    if (suffix.size() > value.size()) return false;
+    return std::equal(suffix.rbegin(), suffix.rend(), value.rbegin());
+}
+
+std::string StripErrorSuffix(const std::string& artifactId) {
+    if (EndsWith(artifactId, "_narrative_err")) {
+        return artifactId.substr(0, artifactId.size() - std::string("_narrative_err").size());
+    }
+    if (EndsWith(artifactId, "_discursive_err")) {
+        return artifactId.substr(0, artifactId.size() - std::string("_discursive_err").size());
+    }
+    return artifactId;
+}
+
+std::string InferErrorStage(const std::string& artifactId) {
+    if (EndsWith(artifactId, "_narrative_err")) return "narrative_json_invalid";
+    if (EndsWith(artifactId, "_discursive_err")) return "discursive_json_invalid";
+    return "unknown";
+}
+
 bool HasAnchoredField(const nlohmann::json& obj, const char* key) {
     if (!obj.contains(key) || !obj[key].is_string()) return false;
     std::string value = obj[key].get<std::string>();
@@ -80,6 +113,189 @@ std::string NormalizeForSearch(const std::string& input) {
         lastWasSpace = false;
     }
     return out;
+}
+
+std::string TrimCopy(const std::string& input) {
+    if (input.empty()) return input;
+    size_t start = 0;
+    while (start < input.size() && std::isspace(static_cast<unsigned char>(input[start]))) {
+        ++start;
+    }
+    if (start == input.size()) return "";
+    size_t end = input.size() - 1;
+    while (end > start && std::isspace(static_cast<unsigned char>(input[end]))) {
+        --end;
+    }
+    return input.substr(start, end - start + 1);
+}
+
+std::string NormalizeEnumToken(const std::string& input) {
+    std::string trimmed = TrimCopy(input);
+    std::string out;
+    out.reserve(trimmed.size());
+    for (unsigned char c : trimmed) {
+        out.push_back(static_cast<char>(std::tolower(c)));
+    }
+    return out;
+}
+
+std::vector<std::string> SplitEnumTokens(const std::string& input) {
+    std::vector<std::string> out;
+    std::string token;
+    std::stringstream ss(input);
+    while (std::getline(ss, token, '|')) {
+        std::string norm = NormalizeEnumToken(token);
+        if (!norm.empty()) out.push_back(norm);
+    }
+    return out;
+}
+
+template <typename Container>
+nlohmann::json BuildEnumCandidates(const std::vector<std::string>& tokens, const Container& allowed) {
+    std::vector<std::string> unique;
+    for (const auto& token : tokens) {
+        if (!IsAllowedValue(token, allowed)) continue;
+        if (std::find(unique.begin(), unique.end(), token) == unique.end()) {
+            unique.push_back(token);
+        }
+    }
+    if (unique.empty()) return nlohmann::json();
+    const double confidence = 1.0 / static_cast<double>(unique.size());
+    nlohmann::json arr = nlohmann::json::array();
+    for (const auto& val : unique) {
+        arr.push_back({{"value", val}, {"confidence", confidence}});
+    }
+    return arr;
+}
+
+size_t CountArraySafe(const nlohmann::json& obj, const char* key) {
+    if (!obj.is_object()) return 0;
+    if (!obj.contains(key) || !obj[key].is_array()) return 0;
+    return obj[key].size();
+}
+
+void SanitizeSourceProfileKeys(nlohmann::json& bundle) {
+    if (!bundle.contains("sourceProfile") || !bundle["sourceProfile"].is_object()) return;
+    auto& profile = bundle["sourceProfile"];
+    std::unordered_set<std::string> allowed = {
+        "studyType",
+        "temporalScale",
+        "ecosystemType",
+        "evidenceType",
+        "transferability",
+        "contextNotes",
+        "limitations",
+        "studyTypeCandidates",
+        "temporalScaleCandidates",
+        "ecosystemTypeCandidates",
+        "evidenceTypeCandidates",
+        "transferabilityCandidates"
+    };
+    std::vector<std::string> toRemove;
+    for (auto it = profile.begin(); it != profile.end(); ++it) {
+        if (allowed.count(it.key()) == 0) {
+            toRemove.push_back(it.key());
+        }
+    }
+    for (const auto& key : toRemove) {
+        profile.erase(key);
+    }
+}
+
+std::string ExtractFocusedNarrativeText(const std::string& content) {
+    const std::string lower = NormalizeForSearch(content);
+    auto findSection = [&](const std::string& label) -> size_t {
+        return lower.find(label);
+    };
+    size_t start = std::string::npos;
+    size_t end = std::string::npos;
+
+    const std::vector<std::string> abstractLabels = {"abstract", "resumo"};
+    for (const auto& label : abstractLabels) {
+        start = findSection(label);
+        if (start != std::string::npos) break;
+    }
+    const std::vector<std::string> introLabels = {"introduction", "introducao", "introducción"};
+    for (const auto& label : introLabels) {
+        size_t pos = findSection(label);
+        if (pos != std::string::npos && (start == std::string::npos || pos < start)) {
+            start = pos;
+        }
+    }
+
+    const std::vector<std::string> endLabels = {
+        "methods", "materials", "method", "metodos", "métodos",
+        "results", "discussion", "conclusion", "conclusao", "conclusión"
+    };
+    if (start != std::string::npos) {
+        end = std::string::npos;
+        for (const auto& label : endLabels) {
+            size_t pos = lower.find(label, start + 1);
+            if (pos != std::string::npos) {
+                if (end == std::string::npos || pos < end) end = pos;
+            }
+        }
+    }
+
+    size_t sliceStart = (start != std::string::npos) ? start : 0;
+    size_t sliceEnd = (end != std::string::npos && end > sliceStart) ? end : std::min(lower.size(), sliceStart + 3500);
+    if (sliceEnd <= sliceStart || sliceEnd > content.size()) {
+        sliceEnd = std::min(content.size(), sliceStart + 3500);
+    }
+    std::string snippet = content.substr(sliceStart, sliceEnd - sliceStart);
+    if (snippet.size() < 800 && content.size() > snippet.size()) {
+        snippet = content.substr(0, std::min<size_t>(content.size(), 3500));
+    }
+    return snippet;
+}
+
+void NormalizeBundleEnums(nlohmann::json& bundle) {
+    auto sanitizeEnum = [](nlohmann::json& obj, const char* key, const auto& allowed) {
+        if (!obj.contains(key) || !obj[key].is_string()) return;
+        const std::string raw = obj[key].get<std::string>();
+        const bool hasPipe = raw.find('|') != std::string::npos;
+        const std::string normalized = NormalizeEnumToken(raw);
+        const std::string candidatesKey = std::string(key) + "Candidates";
+
+        if (hasPipe) {
+            const auto tokens = SplitEnumTokens(raw);
+            nlohmann::json candidates = BuildEnumCandidates(tokens, allowed);
+            if (!candidates.is_null() && !obj.contains(candidatesKey)) {
+                obj[candidatesKey] = candidates;
+            }
+            if (!candidates.is_null() && !candidates.empty() && candidates[0].contains("value")) {
+                obj[key] = candidates[0]["value"];
+                return;
+            }
+        }
+
+        if (IsAllowedValue(normalized, allowed)) {
+            obj[key] = normalized;
+            return;
+        }
+        // If still invalid, keep original (validator will catch it).
+    };
+
+    if (bundle.contains("sourceProfile") && bundle["sourceProfile"].is_object()) {
+        auto& p = bundle["sourceProfile"];
+        sanitizeEnum(p, "studyType", domain::scientific::ScientificSchema::StudyTypes);
+        sanitizeEnum(p, "temporalScale", domain::scientific::ScientificSchema::TemporalScales);
+        sanitizeEnum(p, "ecosystemType", domain::scientific::ScientificSchema::EcosystemTypes);
+        sanitizeEnum(p, "evidenceType", domain::scientific::ScientificSchema::EvidenceTypes);
+        sanitizeEnum(p, "transferability", domain::scientific::ScientificSchema::TransferabilityLevels);
+    }
+    if (bundle.contains("allegedMechanisms") && bundle["allegedMechanisms"].is_array()) {
+        for (auto& mech : bundle["allegedMechanisms"]) {
+            if (!mech.is_object()) continue;
+            sanitizeEnum(mech, "status", domain::scientific::ScientificSchema::MechanismStatus);
+        }
+    }
+    if (bundle.contains("baselineAssumptions") && bundle["baselineAssumptions"].is_array()) {
+        for (auto& base : bundle["baselineAssumptions"]) {
+            if (!base.is_object()) continue;
+            sanitizeEnum(base, "baselineType", domain::scientific::ScientificSchema::BaselineTypes);
+        }
+    }
 }
 
 // Tokenizer helper
@@ -188,13 +404,13 @@ void FilterByAnchoring(nlohmann::json& array,
 void SanitizeBundleAnchoring(nlohmann::json& bundle, const std::string& content) {
     // Narrative Anchoring
     if (bundle.contains("narrativeObservations")) {
-        FilterByAnchoring(bundle["narrativeObservations"], {"evidenceSnippet", "sourceSection", "pageRange"}, content);
+        FilterByAnchoring(bundle["narrativeObservations"], {"evidenceSnippet"}, content);
     }
     if (bundle.contains("allegedMechanisms")) {
-        FilterByAnchoring(bundle["allegedMechanisms"], {"evidenceSnippet", "sourceSection", "pageRange"}, content);
+        FilterByAnchoring(bundle["allegedMechanisms"], {"evidenceSnippet"}, content);
     }
     if (bundle.contains("temporalWindowReferences")) {
-        FilterByAnchoring(bundle["temporalWindowReferences"], {"evidenceSnippet", "sourceSection", "pageRange"}, content);
+        FilterByAnchoring(bundle["temporalWindowReferences"], {"evidenceSnippet"}, content);
     }
 
     // Discursive Anchoring (Hallucination Mitigation)
@@ -349,6 +565,8 @@ bool ScientificIngestionService::ingestScientificBundle(const std::string& jsonC
         return false;
     }
 
+    NormalizeBundleEnums(bundle);
+
     // Note: We skip SanitizeBundleAnchoring as we don't have the original raw text here easily,
     // relying on the Rigorous Persona prompt integrity.
 
@@ -393,11 +611,47 @@ bool ScientificIngestionService::ingestScientificBundle(const std::string& jsonC
 
 ScientificIngestionService::IngestionResult ScientificIngestionService::ingestPending(
     std::function<void(std::string)> statusCallback) {
-    IngestionResult result{0, 0, {}};
-
     if (statusCallback) statusCallback("Varrendo inbox científica...");
     auto artifacts = m_scanner->scan();
+    return processArtifacts(artifacts, false, statusCallback);
+}
+
+std::vector<domain::SourceArtifact> ScientificIngestionService::listInboxArtifacts() {
+    if (!m_scanner) return {};
+    auto artifacts = m_scanner->scan();
+    std::sort(artifacts.begin(), artifacts.end(), [](const auto& a, const auto& b) {
+        return a.filename < b.filename;
+    });
+    return artifacts;
+}
+
+ScientificIngestionService::IngestionResult ScientificIngestionService::ingestSelected(
+    const std::vector<domain::SourceArtifact>& artifacts,
+    bool purgeExisting,
+    std::function<void(std::string)> statusCallback) {
+    return processArtifacts(artifacts, purgeExisting, statusCallback);
+}
+
+ScientificIngestionService::IngestionResult ScientificIngestionService::processArtifacts(
+    const std::vector<domain::SourceArtifact>& artifacts,
+    bool purgeExisting,
+    std::function<void(std::string)> statusCallback) {
+    IngestionResult result{0, 0, {}};
     result.artifactsDetected = static_cast<int>(artifacts.size());
+
+    bool purgePerformed = false;
+    if (purgeExisting) {
+        for (const auto& artifact : artifacts) {
+            std::string purgeError;
+            if (!purgeExistingArtifacts(artifact.filename, purgeError)) {
+                if (!purgeError.empty()) {
+                    result.errors.push_back(purgeError);
+                }
+            } else {
+                purgePerformed = true;
+            }
+        }
+    }
 
     for (const auto& artifact : artifacts) {
         if (!m_aiService) {
@@ -445,6 +699,31 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::ingestPe
             result.errors.push_back("JSON inválido (Narrativa) para " + artifact.filename);
             continue;
         }
+        SanitizeSourceProfileKeys(narrativeBundle);
+
+        // Quick anchoring check to decide fallback
+        nlohmann::json narrativeProbe = narrativeBundle;
+        SanitizeBundleAnchoring(narrativeProbe, content);
+        size_t probeObs = CountArraySafe(narrativeProbe, "narrativeObservations");
+        size_t probeMech = CountArraySafe(narrativeProbe, "allegedMechanisms");
+        if (probeObs == 0 || probeMech == 0) {
+            if (statusCallback) statusCallback("Narrativa vazia após ancoragem. Tentando fallback (Abstract/Introduction)...");
+            const std::string focusedContent = ExtractFocusedNarrativeText(content);
+            std::string fallbackSystem = buildNarrativeSystemPrompt();
+            fallbackSystem += "FOCO: você está vendo apenas um recorte (Abstract/Introduction). Use apenas trechos literais.\n";
+            const std::string fallbackUser = buildNarrativeUserPrompt(artifact, focusedContent);
+            auto fallbackResponse = m_aiService->generateJson(fallbackSystem, fallbackUser);
+            if (fallbackResponse) {
+                try {
+                    narrativeBundle = nlohmann::json::parse(*fallbackResponse);
+                    SanitizeSourceProfileKeys(narrativeBundle);
+                } catch (...) {
+                    std::string saveError;
+                    saveErrorPayload(artifactId + "_narrative_err", *fallbackResponse, saveError);
+                    result.errors.push_back("JSON inválido (Narrativa Fallback) para " + artifact.filename);
+                }
+            }
+        }
 
         // --- Phase 2: Discursive Extraction ---
         if (statusCallback) statusCallback("Extraindo Discursiva (2/2)...");
@@ -463,6 +742,36 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::ingestPe
              }
         } else {
              result.errors.push_back("Falha na IA (Discursiva) para: " + artifact.filename + " (ignorando parcial)");
+        }
+
+        // Discursive fallback when everything is empty after anchoring
+        nlohmann::json discursiveProbe = discursiveBundle;
+        SanitizeBundleAnchoring(discursiveProbe, content);
+        size_t probeFrames = 0, probeProb = 0, probeAct = 0, probeEff = 0;
+        if (discursiveProbe.contains("discursiveContext") && discursiveProbe["discursiveContext"].is_object()) {
+            probeFrames = CountArraySafe(discursiveProbe["discursiveContext"], "frames");
+        }
+        if (discursiveProbe.contains("discursiveSystem") && discursiveProbe["discursiveSystem"].is_object()) {
+            probeProb = CountArraySafe(discursiveProbe["discursiveSystem"], "declaredProblems");
+            probeAct = CountArraySafe(discursiveProbe["discursiveSystem"], "declaredActions");
+            probeEff = CountArraySafe(discursiveProbe["discursiveSystem"], "expectedEffects");
+        }
+        if (probeFrames + probeProb + probeAct + probeEff == 0) {
+            if (statusCallback) statusCallback("Discursiva vazia após ancoragem. Tentando fallback (Abstract/Introduction)...");
+            const std::string focusedContent = ExtractFocusedNarrativeText(content);
+            std::string fallbackSystem = buildDiscursiveSystemPrompt();
+            fallbackSystem += "FOCO: você está vendo apenas um recorte (Abstract/Introduction). Use apenas trechos literais.\n";
+            const std::string fallbackUser = buildDiscursiveUserPrompt(artifact, focusedContent);
+            auto fallbackResponse = m_aiService->generateJson(fallbackSystem, fallbackUser);
+            if (fallbackResponse) {
+                try {
+                    discursiveBundle = nlohmann::json::parse(*fallbackResponse);
+                } catch (...) {
+                    std::string saveError;
+                    saveErrorPayload(artifactId + "_discursive_err", *fallbackResponse, saveError);
+                    result.errors.push_back("JSON inválido (Discursiva Fallback) para " + artifact.filename + " (ignorando parcial)");
+                }
+            }
         }
 
         // --- Merge Bundles ---
@@ -488,7 +797,58 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::ingestPe
              }
         }
 
+        if (discursiveBundle.contains("interpretationLayers")) {
+             if (!bundle.contains("interpretationLayers")) {
+                 bundle["interpretationLayers"] = discursiveBundle["interpretationLayers"];
+             } else {
+                 auto& target = bundle["interpretationLayers"];
+                 const auto& source = discursiveBundle["interpretationLayers"];
+                 if (source.contains("authorInterpretations")) target["authorInterpretations"] = source["authorInterpretations"];
+                 if (source.contains("possibleReadings")) target["possibleReadings"] = source["possibleReadings"];
+             }
+        }
+
+        NormalizeBundleEnums(bundle);
+        SanitizeSourceProfileKeys(bundle);
+
+        size_t preNarr = CountArraySafe(bundle, "narrativeObservations");
+        size_t preMech = CountArraySafe(bundle, "allegedMechanisms");
+        size_t preTemp = CountArraySafe(bundle, "temporalWindowReferences");
+        size_t preFrames = 0, preProb = 0, preAct = 0, preEff = 0;
+        if (bundle.contains("discursiveContext") && bundle["discursiveContext"].is_object()) {
+            preFrames = CountArraySafe(bundle["discursiveContext"], "frames");
+        }
+        if (bundle.contains("discursiveSystem") && bundle["discursiveSystem"].is_object()) {
+            preProb = CountArraySafe(bundle["discursiveSystem"], "declaredProblems");
+            preAct = CountArraySafe(bundle["discursiveSystem"], "declaredActions");
+            preEff = CountArraySafe(bundle["discursiveSystem"], "expectedEffects");
+        }
+
         SanitizeBundleAnchoring(bundle, content);
+
+        size_t postNarr = CountArraySafe(bundle, "narrativeObservations");
+        size_t postMech = CountArraySafe(bundle, "allegedMechanisms");
+        size_t postTemp = CountArraySafe(bundle, "temporalWindowReferences");
+        size_t postFrames = 0, postProb = 0, postAct = 0, postEff = 0;
+        if (bundle.contains("discursiveContext") && bundle["discursiveContext"].is_object()) {
+            postFrames = CountArraySafe(bundle["discursiveContext"], "frames");
+        }
+        if (bundle.contains("discursiveSystem") && bundle["discursiveSystem"].is_object()) {
+            postProb = CountArraySafe(bundle["discursiveSystem"], "declaredProblems");
+            postAct = CountArraySafe(bundle["discursiveSystem"], "declaredActions");
+            postEff = CountArraySafe(bundle["discursiveSystem"], "expectedEffects");
+        }
+        if (statusCallback) {
+            std::ostringstream oss;
+            oss << "Anchoring: narr " << preNarr << "->" << postNarr
+                << " | mech " << preMech << "->" << postMech
+                << " | temp " << preTemp << "->" << postTemp
+                << " | frames " << preFrames << "->" << postFrames
+                << " | problems " << preProb << "->" << postProb
+                << " | actions " << preAct << "->" << postAct
+                << " | effects " << preEff << "->" << postEff;
+            statusCallback(oss.str());
+        }
 
         std::vector<std::string> validationErrors;
         if (!validateBundleJson(bundle, validationErrors)) {
@@ -504,7 +864,7 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::ingestPe
             continue;
         }
 
-        attachSourceMetadata(bundle, artifact, artifactId, resultData.method);
+        attachSourceMetadata(bundle, artifact, artifactId, resultData.method, resultData.sourceSha256);
 
         std::string saveError;
         if (!saveRawBundle(bundle, artifactId, saveError)) {
@@ -538,7 +898,77 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::ingestPe
         result.bundlesGenerated++;
     }
 
+    if (result.bundlesGenerated > 0 || purgePerformed) {
+        generateIngestionReport();
+    }
+
     return result;
+}
+
+bool ScientificIngestionService::purgeExistingArtifacts(const std::string& filename, std::string& error) const {
+    bool removed = false;
+    std::string suffix = "_" + filename;
+
+    auto removeFileIfMatch = [&](const fs::path& path) {
+        if (!path.has_filename()) return;
+        const std::string stem = path.stem().string();
+        const std::string base = StripErrorSuffix(stem);
+        if (EndsWith(base, suffix)) {
+            std::error_code ec;
+            fs::remove(path, ec);
+            if (ec) {
+                if (!error.empty()) error += "; ";
+                error += "Falha ao remover " + path.string() + ": " + ec.message();
+            } else {
+                removed = true;
+            }
+        }
+    };
+
+    fs::path obsDir = fs::path(m_observationsPath);
+    if (fs::exists(obsDir)) {
+        for (const auto& entry : fs::directory_iterator(obsDir)) {
+            if (entry.is_regular_file() && entry.path().extension() == ".json") {
+                removeFileIfMatch(entry.path());
+            }
+        }
+        fs::path validationDir = obsDir / "validation";
+        if (fs::exists(validationDir)) {
+            for (const auto& entry : fs::directory_iterator(validationDir)) {
+                if (entry.is_regular_file() && entry.path().extension() == ".json") {
+                    removeFileIfMatch(entry.path());
+                }
+            }
+        }
+        fs::path errorDir = obsDir / "errors";
+        if (fs::exists(errorDir)) {
+            for (const auto& entry : fs::directory_iterator(errorDir)) {
+                if (entry.is_regular_file() && entry.path().extension() == ".json") {
+                    removeFileIfMatch(entry.path());
+                }
+            }
+        }
+    }
+
+    fs::path consDir = fs::path(m_consumablesPath);
+    if (fs::exists(consDir)) {
+        for (const auto& entry : fs::directory_iterator(consDir)) {
+            if (!entry.is_directory()) continue;
+            const std::string dirName = entry.path().filename().string();
+            if (EndsWith(dirName, suffix)) {
+                std::error_code ec;
+                fs::remove_all(entry.path(), ec);
+                if (ec) {
+                    if (!error.empty()) error += "; ";
+                    error += "Falha ao remover " + entry.path().string() + ": " + ec.message();
+                } else {
+                    removed = true;
+                }
+            }
+        }
+    }
+
+    return removed;
 }
 
 size_t ScientificIngestionService::getBundlesCount() const {
@@ -614,6 +1044,10 @@ std::string ScientificIngestionService::buildNarrativeSystemPrompt() const {
        << "Objetivo: produzir ARTEFATOS COGNITIVOS NARRATIVOS (Observações e Mecanismos).\n"
        << "Foque em extrair o que ACONTECEU (observações) e COMO funciona (mecanismos) com base na evidência empírica.\n"
        << "Responda APENAS com JSON válido e estritamente no esquema solicitado.\n"
+       << "Campos categóricos DEVEM ter exatamente UM valor permitido. Nunca combine valores com '|'.\n"
+       << "Se houver ambiguidade, use 'unknown' e, opcionalmente, inclua <campo>Candidates com {value, confidence 0-1}.\n"
+       << "Se o texto contiver evidência explícita no Abstract/Introduction/Methods/Results, não deixe os arrays vazios.\n"
+       << "Inclua pelo menos 1 narrativeObservation e 1 allegedMechanism quando houver evidência textual clara.\n"
        << "Todo item deve conter evidenceSnippet (trecho literal), sourceSection e pageRange.\n";
     return ss.str();
 }
@@ -628,14 +1062,33 @@ std::string ScientificIngestionService::buildNarrativeUserPrompt(
        << content << "\n"
        << "------------------------\n\n"
        << "ESQUEMA JSON OBRIGATÓRIO (Narrative Focus):\n"
+       << "VALORES PERMITIDOS (campos categóricos):\n"
+       << "sourceProfile:\n"
+       << "- studyType: experimental|observational|review|theoretical|simulation|mixed|unknown\n"
+       << "- temporalScale: short|medium|long|multi|unknown\n"
+       << "- ecosystemType: terrestrial|aquatic|urban|agro|industrial|social|digital|mixed|unknown\n"
+       << "- evidenceType: empirical|theoretical|mixed|unknown\n"
+       << "- transferability: high|medium|low|contextual|unknown\n"
+       << "narrativeObservations:\n"
+       << "- confidence: low|medium|high|unknown\n"
+       << "- evidence: direct|inferred|unknown\n"
+       << "- contextuality: site-specific|conditional|comparative|non-universal\n"
+       << "allegedMechanisms:\n"
+       << "- status: tested|inferred|speculative|unknown\n"
+       << "baselineAssumptions:\n"
+       << "- baselineType: fixed|dynamic|multiple|none|unknown\n"
+       << "Regra: escolha exatamente UM valor. Nunca combine com '|'.\n"
+       << "Se houver ambiguidade, use 'unknown' e (opcional) inclua <campo>Candidates com {value, confidence}.\n"
+       << "Obrigatório: se houver evidência explícita no Abstract/Introduction/Methods/Results, gere pelo menos 1 narrativeObservation e 1 allegedMechanism.\n"
        << "{\n"
        << "  \"schemaVersion\": " << domain::scientific::ScientificSchema::SchemaVersion << ",\n"
        << "  \"sourceProfile\": {\n"
-       << "    \"studyType\": \"experimental|observational|review|theoretical|simulation|mixed|unknown\",\n"
-       << "    \"temporalScale\": \"short|medium|long|multi|unknown\",\n"
-       << "    \"ecosystemType\": \"terrestrial|aquatic|urban|agro|industrial|social|digital|mixed|unknown\",\n"
-       << "    \"evidenceType\": \"empirical|theoretical|mixed|unknown\",\n"
-       << "    \"transferability\": \"high|medium|low|contextual|unknown\",\n"
+       << "    \"studyType\": \"theoretical\",\n"
+       << "    \"studyTypeCandidates\": [ { \"value\": \"theoretical\", \"confidence\": 0.7 }, { \"value\": \"simulation\", \"confidence\": 0.3 } ],\n"
+       << "    \"temporalScale\": \"short\",\n"
+       << "    \"ecosystemType\": \"terrestrial\",\n"
+       << "    \"evidenceType\": \"theoretical\",\n"
+       << "    \"transferability\": \"contextual\",\n"
        << "    \"contextNotes\": \"texto curto ou unknown\",\n"
        << "    \"limitations\": \"texto curto ou unknown\"\n"
        << "  },\n"
@@ -644,24 +1097,24 @@ std::string ScientificIngestionService::buildNarrativeUserPrompt(
        << "      \"observation\": \"...\",\n"
        << "      \"context\": \"...\",\n"
        << "      \"limits\": \"...\",\n"
-       << "      \"confidence\": \"low|medium|high|unknown\",\n"
-       << "      \"evidence\": \"direct|inferred|unknown\",\n"
+       << "      \"confidence\": \"medium\",\n"
+       << "      \"evidence\": \"direct\",\n"
        << "      \"evidenceSnippet\": \"trecho curto do artigo\",\n"
-       << "      \"sourceSection\": \"Results|Discussion|Methods|Unknown\",\n"
+       << "      \"sourceSection\": \"Results\",\n"
        << "      \"pageRange\": \"pp. 3-4\",\n"
-       << "      \"contextuality\": \"site-specific|conditional|comparative|non-universal\" \n"
+       << "      \"contextuality\": \"site-specific\" \n"
        << "    }\n"
        << "  ],\n"
        << "  \"allegedMechanisms\": [\n"
        << "    {\n"
        << "      \"mechanism\": \"...\",\n"
-       << "      \"status\": \"tested|inferred|speculative|unknown\",\n"
+       << "      \"status\": \"inferred\",\n"
        << "      \"context\": \"...\",\n"
        << "      \"limitations\": \"...\",\n"
        << "      \"evidenceSnippet\": \"trecho curto do artigo\",\n"
-       << "      \"sourceSection\": \"Results|Discussion|Methods|Unknown\",\n"
+       << "      \"sourceSection\": \"Discussion\",\n"
        << "      \"pageRange\": \"pp. 5-6\",\n"
-       << "      \"contextuality\": \"site-specific|conditional|comparative|non-universal\" \n"
+       << "      \"contextuality\": \"conditional\" \n"
        << "    }\n"
        << "  ],\n"
        << "  \"temporalWindowReferences\": [\n"
@@ -671,13 +1124,13 @@ std::string ScientificIngestionService::buildNarrativeUserPrompt(
        << "      \"delaysOrHysteresis\": \"...\",\n"
        << "      \"context\": \"...\",\n"
        << "      \"evidenceSnippet\": \"trecho curto do artigo\",\n"
-       << "      \"sourceSection\": \"Results|Discussion|Methods|Unknown\",\n"
+       << "      \"sourceSection\": \"Methods\",\n"
        << "      \"pageRange\": \"pp. 7-9\" \n"
        << "    }\n"
        << "  ],\n"
        << "  \"baselineAssumptions\": [\n"
        << "    {\n"
-       << "      \"baselineType\": \"fixed|dynamic|multiple|none|unknown\",\n"
+       << "      \"baselineType\": \"dynamic\",\n"
        << "      \"description\": \"...\",\n"
        << "      \"context\": \"...\"\n"
        << "    }\n"
@@ -705,6 +1158,8 @@ std::string ScientificIngestionService::buildDiscursiveSystemPrompt() const {
        << "Objetivo: produzir ARTEFATOS COGNITIVOS DISCURSIVOS (Sistemas de problemas/ações, Frames).\n"
        << "Foque em COMO O AUTOR ARGUMENTA e quais PROBLEMAS/SOLUÇÕES são declarados.\n"
        << "Responda APENAS com JSON válido e estritamente no esquema solicitado.\n"
+       << "Campos categóricos DEVEM ter exatamente UM valor permitido. Nunca combine valores com '|'.\n"
+       << "Se houver ambiguidade, use 'unknown' e, opcionalmente, inclua <campo>Candidates com {value, confidence 0-1}.\n"
        << "MITIGAÇÃO DE ALUCINAÇÃO: Todo item (Problem, Action, Effect, Frame) DEVE ter 'evidenceSnippet'.\n"
        << "O evidenceSnippet deve ser uma CÓPIA LITERAL do texto. Se não houver evidência explícita, NÃO INCLUA O ITEM.\n";
     return ss.str();
@@ -720,13 +1175,19 @@ std::string ScientificIngestionService::buildDiscursiveUserPrompt(
        << content << "\n"
        << "------------------------\n\n"
        << "ESQUEMA JSON OBRIGATÓRIO (Discursive Focus):\n"
+       << "VALORES PERMITIDOS (campos categóricos):\n"
+       << "- valence: normative|descriptive|critical|implicit|unknown\n"
+       << "- status (declaredActions): proposed|implemented|unknown\n"
+       << "Regra: escolha exatamente UM valor. Nunca combine com '|'.\n"
+       << "Se houver ambiguidade, use 'unknown' e (opcional) inclua <campo>Candidates com {value, confidence}.\n"
        << "{\n"
        << "  \"discursiveContext\": {\n"
        << "    \"frames\": [\n"
        << "      {\n"
        << "        \"label\": \"...\",\n"
        << "        \"description\": \"...\",\n"
-       << "        \"valence\": \"normative|descriptive|critical|implicit\",\n"
+       << "        \"valence\": \"descriptive\",\n"
+       << "        \"valenceCandidates\": [ { \"value\": \"descriptive\", \"confidence\": 0.8 }, { \"value\": \"critical\", \"confidence\": 0.2 } ],\n"
        << "        \"evidenceSnippet\": \"trecho literal...\"\n"
        << "      }\n"
        << "    ],\n"
@@ -734,7 +1195,7 @@ std::string ScientificIngestionService::buildDiscursiveUserPrompt(
        << "  },\n"
        << "  \"discursiveSystem\": {\n"
        << "    \"declaredProblems\": [ { \"statement\": \"...\", \"context\": \"...\", \"evidenceSnippet\": \"trecho literal...\" } ],\n"
-       << "    \"declaredActions\": [ { \"statement\": \"...\", \"status\": \"proposed|implemented\", \"evidenceSnippet\": \"trecho literal...\" } ],\n"
+       << "    \"declaredActions\": [ { \"statement\": \"...\", \"status\": \"proposed\", \"evidenceSnippet\": \"trecho literal...\" } ],\n"
        << "    \"expectedEffects\": [ { \"statement\": \"...\", \"likelihood\": \"...\", \"evidenceSnippet\": \"trecho literal...\" } ]\n"
        << "  },\n"
        << "  \"interpretationLayers\": {\n"
@@ -862,7 +1323,8 @@ bool ScientificIngestionService::validateBundleJson(const nlohmann::json& bundle
 void ScientificIngestionService::attachSourceMetadata(nlohmann::json& bundle,
                                                       const domain::SourceArtifact& artifact,
                                                       const std::string& artifactId,
-                                                      const std::string& method) const {
+                                                      const std::string& method,
+                                                      const std::string& sha256) const {
     nlohmann::json source = {
         {"artifactId", artifactId},
         {"path", artifact.path},
@@ -870,8 +1332,14 @@ void ScientificIngestionService::attachSourceMetadata(nlohmann::json& bundle,
         {"contentHash", artifact.contentHash},
         {"ingestedAt", ToIsoTimestamp(std::chrono::system_clock::now())},
         {"model", m_aiService ? m_aiService->getCurrentModel() : "unknown"},
-        {"extractionMethod", method}
+        {"extractionMethod", method},
+        {"sourceType", SourceTypeToString(artifact.type)},
+        {"sizeBytes", artifact.sizeBytes},
+        {"lastModified", ToIsoTimestamp(artifact.lastModified)}
     };
+    if (!sha256.empty()) {
+        source["sourceSha256"] = sha256;
+    }
     bundle["source"] = source;
 }
 
@@ -905,6 +1373,27 @@ bool ScientificIngestionService::exportConsumables(
     nlohmann::json sourceProfile = baseEnvelope;
     sourceProfile["sourceProfile"] = bundle["sourceProfile"];
     if (!WriteJsonFile(baseDir / "SourceProfile.json", sourceProfile, error)) return false;
+    if (!WriteJsonFile(baseDir / "IWBundle.json", bundle, error)) return false;
+
+    nlohmann::json allegedMechanisms = baseEnvelope;
+    allegedMechanisms["allegedMechanisms"] = bundle["allegedMechanisms"];
+    if (!WriteJsonFile(baseDir / "AllegedMechanisms.json", allegedMechanisms, error)) return false;
+
+    nlohmann::json temporalWindows = baseEnvelope;
+    temporalWindows["temporalWindowReferences"] = bundle["temporalWindowReferences"];
+    if (!WriteJsonFile(baseDir / "TemporalWindowReference.json", temporalWindows, error)) return false;
+
+    nlohmann::json baselineAssumptions = baseEnvelope;
+    baselineAssumptions["baselineAssumptions"] = bundle["baselineAssumptions"];
+    if (!WriteJsonFile(baseDir / "BaselineAssumptions.json", baselineAssumptions, error)) return false;
+
+    nlohmann::json trajectoryAnalogies = baseEnvelope;
+    trajectoryAnalogies["trajectoryAnalogies"] = bundle["trajectoryAnalogies"];
+    if (!WriteJsonFile(baseDir / "TrajectoryAnalogies.json", trajectoryAnalogies, error)) return false;
+
+    nlohmann::json interpretationLayers = baseEnvelope;
+    interpretationLayers["interpretationLayers"] = bundle["interpretationLayers"];
+    if (!WriteJsonFile(baseDir / "InterpretationLayers.json", interpretationLayers, error)) return false;
 
     // Export NarrativeState Candidate Objects
     if (bundle.contains("narrativeObservations")) {
@@ -1087,6 +1576,7 @@ bool ScientificIngestionService::exportConsumables(
     nlohmann::json manifest = baseEnvelope;
     std::vector<std::string> files = {
         "SourceProfile.json",
+        "IWBundle.json",
         "AllegedMechanisms.json",
         "TemporalWindowReference.json",
         "BaselineAssumptions.json",
@@ -1103,7 +1593,35 @@ bool ScientificIngestionService::exportConsumables(
     if (fs::exists(baseDir / "DiscursiveSystem.json")) {
         files.push_back("DiscursiveSystem.json");
     }
+    // Light metadata for quick indexing
+    if (bundle.contains("source") && bundle["source"].is_object()) {
+        const auto& src = bundle["source"];
+        if (src.contains("artifactId")) manifest["artifactId"] = src["artifactId"];
+        if (src.contains("filename")) manifest["filename"] = src["filename"];
+        if (src.contains("path")) manifest["sourcePath"] = src["path"];
+        if (src.contains("contentHash")) manifest["contentHash"] = src["contentHash"];
+        if (src.contains("ingestedAt")) manifest["ingestedAt"] = src["ingestedAt"];
+        if (src.contains("model")) manifest["model"] = src["model"];
+        if (src.contains("extractionMethod")) manifest["extractionMethod"] = src["extractionMethod"];
+        if (src.contains("sourceType")) manifest["sourceType"] = src["sourceType"];
+        if (src.contains("sizeBytes")) manifest["sizeBytes"] = src["sizeBytes"];
+        if (src.contains("lastModified")) manifest["lastModified"] = src["lastModified"];
+        if (src.contains("sourceSha256")) manifest["sourceSha256"] = src["sourceSha256"];
+    }
     manifest["files"] = files;
+    nlohmann::json fileIndex = nlohmann::json::array();
+    for (const auto& name : files) {
+        nlohmann::json entry;
+        entry["name"] = name;
+        entry["path"] = "./" + name;
+        fs::path p = baseDir / name;
+        entry["exists"] = fs::exists(p);
+        if (fs::exists(p)) {
+            entry["sizeBytes"] = static_cast<long long>(fs::file_size(p));
+        }
+        fileIndex.push_back(entry);
+    }
+    manifest["file_index"] = fileIndex;
     if (!WriteJsonFile(baseDir / "Manifest.json", manifest, error)) return false;
 
     return true;
@@ -1117,14 +1635,229 @@ bool ScientificIngestionService::saveErrorPayload(
     if (!fs::exists(errorDir)) {
         fs::create_directories(errorDir);
     }
-    fs::path outPath = errorDir / (artifactId + ".txt");
-    std::ofstream file(outPath);
-    if (!file.is_open()) {
-        error = "Falha ao salvar payload de erro: " + outPath.string();
-        return false;
+    fs::path outPath = errorDir / (artifactId + ".json");
+
+    nlohmann::json envelope;
+    envelope["schemaVersion"] = domain::scientific::ScientificSchema::SchemaVersion;
+    envelope["artifactId"] = artifactId;
+    envelope["artifactIdBase"] = StripErrorSuffix(artifactId);
+    envelope["stage"] = InferErrorStage(artifactId);
+    envelope["createdAt"] = ToIsoTimestamp(std::chrono::system_clock::now());
+
+    try {
+        nlohmann::json parsed = nlohmann::json::parse(payload);
+        envelope["payloadType"] = "json";
+        envelope["payload"] = parsed;
+    } catch (...) {
+        envelope["payloadType"] = "text";
+        envelope["payload"] = payload;
     }
-    file << payload;
-    return true;
+
+    return WriteJsonFile(outPath, envelope, error);
+}
+
+
+void ScientificIngestionService::generateIngestionReport() const {
+    if (!fs::exists(m_consumablesPath)) return;
+
+    nlohmann::json manifest;
+    auto now = std::chrono::system_clock::now();
+    const std::string nowIso = ToIsoTimestamp(now);
+    manifest["project_ingestion_id"] = nowIso;
+    manifest["generatedAt"] = nowIso;
+    manifest["schema_version"] = domain::scientific::ScientificSchema::SchemaVersion;
+    manifest["schemaVersion"] = domain::scientific::ScientificSchema::SchemaVersion;
+
+    nlohmann::json layout;
+    layout["consumables_root"] = fs::path(m_consumablesPath).string();
+    layout["observations_root"] = fs::path(m_observationsPath).string();
+    layout["errors_root"] = (fs::path(m_observationsPath) / "errors").string();
+    layout["validation_root"] = (fs::path(m_observationsPath) / "validation").string();
+    layout["article_dir_pattern"] = "<artifactId>/";
+    layout["per_article_files"] = {
+        {"required", {
+            "SourceProfile.json",
+            "IWBundle.json",
+            "AllegedMechanisms.json",
+            "TemporalWindowReference.json",
+            "BaselineAssumptions.json",
+            "TrajectoryAnalogies.json",
+            "InterpretationLayers.json",
+            "Manifest.json"
+        }},
+        {"optional", {
+            "NarrativeObservation.json",
+            "DiscursiveContext.json",
+            "DiscursiveSystem.json",
+            "EpistemicValidationReport.json",
+            "ExportSeal.json"
+        }}
+    };
+    manifest["layout"] = layout;
+
+    // Collect error payloads (observations/scientific/errors)
+    std::unordered_map<std::string, nlohmann::json> errorsByArtifact;
+    nlohmann::json allErrors = nlohmann::json::array();
+    fs::path errorDir = fs::path(m_observationsPath) / "errors";
+    if (fs::exists(errorDir)) {
+        for (const auto& entry : fs::directory_iterator(errorDir)) {
+            if (!entry.is_regular_file()) continue;
+            const std::string filename = entry.path().filename().string();
+            const std::string errId = entry.path().stem().string();
+            const std::string baseId = StripErrorSuffix(errId);
+
+            nlohmann::json err;
+            err["artifactId"] = errId;
+            err["artifactIdBase"] = baseId;
+            err["stage"] = InferErrorStage(errId);
+            err["path"] = entry.path().string();
+
+            try {
+                std::ifstream ef(entry.path());
+                nlohmann::json ej;
+                ef >> ej;
+                if (ej.contains("createdAt")) err["createdAt"] = ej["createdAt"];
+                if (ej.contains("payloadType")) err["payloadType"] = ej["payloadType"];
+            } catch (...) {
+                err["payloadType"] = "unknown";
+            }
+
+            allErrors.push_back(err);
+            auto& arr = errorsByArtifact[baseId];
+            if (!arr.is_array()) arr = nlohmann::json::array();
+            arr.push_back(err);
+        }
+    }
+    manifest["errors"] = allErrors;
+    
+    nlohmann::json articles = nlohmann::json::array();
+    
+    for (const auto& entry : fs::directory_iterator(m_consumablesPath)) {
+        if (!entry.is_directory()) continue;
+        
+        fs::path dir = entry.path();
+        fs::path manifestPath = dir / "Manifest.json";
+        
+        if (!fs::exists(manifestPath)) continue;
+
+        std::ifstream mf(manifestPath);
+        if (!mf.is_open()) continue;
+        nlohmann::json artManifest;
+        try {
+            mf >> artManifest;
+        } catch (...) { continue; }
+
+        nlohmann::json articleEntry;
+        const std::string dirName = dir.filename().string();
+        std::string artifactId = dirName;
+        if (artManifest.contains("artifactId") && artManifest["artifactId"].is_string()) {
+            artifactId = artManifest["artifactId"].get<std::string>();
+        } else if (artManifest.contains("source") && artManifest["source"].is_object()) {
+            const auto& src = artManifest["source"];
+            if (src.contains("artifactId") && src["artifactId"].is_string()) {
+                artifactId = src["artifactId"].get<std::string>();
+            }
+        }
+
+        articleEntry["artifactId"] = artifactId;
+        articleEntry["relative_path"] = "./" + dirName + "/";
+        articleEntry["manifest_path"] = "./" + dirName + "/Manifest.json";
+
+        if (artManifest.contains("files")) articleEntry["files"] = artManifest["files"];
+        if (artManifest.contains("file_index")) articleEntry["file_index"] = artManifest["file_index"];
+        if (artManifest.contains("source") && artManifest["source"].is_object()) {
+            articleEntry["source"] = artManifest["source"];
+            if (artManifest["source"].contains("filename")) {
+                articleEntry["filename"] = artManifest["source"]["filename"];
+            }
+        }
+        if (artManifest.contains("filename")) articleEntry["filename"] = artManifest["filename"];
+
+        // Enrich from SourceProfile.json (nested schema)
+        fs::path sourceProfilePath = dir / "SourceProfile.json";
+        if (fs::exists(sourceProfilePath)) {
+            try {
+                std::ifstream spf(sourceProfilePath);
+                nlohmann::json sourceProfile;
+                spf >> sourceProfile;
+
+                if (!articleEntry.contains("source") && sourceProfile.contains("source") && sourceProfile["source"].is_object()) {
+                    articleEntry["source"] = sourceProfile["source"];
+                    if (sourceProfile["source"].contains("filename")) {
+                        articleEntry["filename"] = sourceProfile["source"]["filename"];
+                    }
+                }
+
+                if (sourceProfile.contains("sourceProfile") && sourceProfile["sourceProfile"].is_object()) {
+                    const auto& sp = sourceProfile["sourceProfile"];
+                    if (sp.contains("studyType")) articleEntry["studyType"] = sp["studyType"];
+                    if (sp.contains("temporalScale")) articleEntry["temporalScale"] = sp["temporalScale"];
+                    if (sp.contains("ecosystemType")) articleEntry["ecosystemType"] = sp["ecosystemType"];
+                    if (sp.contains("evidenceType")) articleEntry["evidenceType"] = sp["evidenceType"];
+                    if (sp.contains("transferability")) articleEntry["transferability"] = sp["transferability"];
+                }
+            } catch (...) {}
+        }
+
+        // Validation Status + Export Seal
+        fs::path validationPath = dir / "EpistemicValidationReport.json";
+        if (fs::exists(validationPath)) {
+            try {
+                std::ifstream vf(validationPath);
+                nlohmann::json validation;
+                vf >> validation;
+                if (validation.contains("status")) {
+                    articleEntry["validationStatus"] = validation["status"];
+                } else {
+                    articleEntry["validationStatus"] = "unknown";
+                }
+                articleEntry["validationReportPath"] = "./" + dirName + "/EpistemicValidationReport.json";
+            } catch (...) {
+                articleEntry["validationStatus"] = "error";
+            }
+        } else {
+            articleEntry["validationStatus"] = "pending";
+        }
+
+        fs::path sealPath = dir / "ExportSeal.json";
+        if (fs::exists(sealPath)) {
+            try {
+                std::ifstream sf(sealPath);
+                nlohmann::json seal;
+                sf >> seal;
+                if (seal.contains("exportAllowed")) articleEntry["exportAllowed"] = seal["exportAllowed"];
+                articleEntry["exportSealPath"] = "./" + dirName + "/ExportSeal.json";
+            } catch (...) {}
+        }
+
+        // Observation bundle + validation paths (if present)
+        fs::path rawBundlePath = fs::path(m_observationsPath) / (artifactId + ".json");
+        if (fs::exists(rawBundlePath)) {
+            articleEntry["rawBundlePath"] = rawBundlePath.string();
+        }
+        fs::path obsValidationPath = fs::path(m_observationsPath) / "validation" / (artifactId + ".json");
+        if (fs::exists(obsValidationPath)) {
+            articleEntry["rawValidationPath"] = obsValidationPath.string();
+        }
+
+        // Attach error payloads if any
+        auto it = errorsByArtifact.find(artifactId);
+        if (it != errorsByArtifact.end()) {
+            articleEntry["errors"] = it->second;
+        }
+
+        articles.push_back(articleEntry);
+    }
+    
+    manifest["total_articles"] = articles.size();
+    manifest["articles"] = articles;
+    
+    // Write STRATA_Manifest.json
+    fs::path outPath = fs::path(m_consumablesPath) / "STRATA_Manifest.json";
+    std::ofstream outFile(outPath);
+    if (outFile.is_open()) {
+        outFile << manifest.dump(4);
+    }
 }
 
 } // namespace ideawalker::application::scientific

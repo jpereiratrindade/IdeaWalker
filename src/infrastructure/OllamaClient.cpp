@@ -6,6 +6,12 @@ namespace ideawalker::infrastructure {
 
 using json = nlohmann::json;
 
+namespace {
+constexpr double kDeterministicTemperature = 0.0;
+constexpr double kDeterministicTopP = 1.0;
+constexpr int kDeterministicSeed = 42;
+}
+
 OllamaClient::OllamaClient(const std::string& host, int port)
     : m_host(host), m_port(port) {}
 
@@ -19,7 +25,12 @@ std::optional<std::string> OllamaClient::generate(const std::string& model,
     json requestData = {
         {"model", model},
         {"prompt", system + "\n\nTexto:\n" + prompt},
-        {"stream", false}
+        {"stream", false},
+        {"options", {
+            {"temperature", kDeterministicTemperature},
+            {"top_p", kDeterministicTopP},
+            {"seed", kDeterministicSeed}
+        }}
     };
     if (forceJson) {
         requestData["format"] = "json";
@@ -55,7 +66,12 @@ std::optional<std::string> OllamaClient::chat(const std::string& model,
     json requestData = {
         {"model", model},
         {"messages", messages},
-        {"stream", stream}
+        {"stream", stream},
+        {"options", {
+            {"temperature", kDeterministicTemperature},
+            {"top_p", kDeterministicTopP},
+            {"seed", kDeterministicSeed}
+        }}
     };
     if (forceJson) {
         requestData["format"] = "json";

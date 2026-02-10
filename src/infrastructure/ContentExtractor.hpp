@@ -10,12 +10,16 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <array>
 #include <cstdio>
+#include <cstdint>
+#include <cstring>
 #include <vector>
 #include <functional>
 #include <cctype>
 #include <cstdlib>
 #include <chrono>
+#include <iomanip>
 #include <unordered_map>
 #include <sstream>
 
@@ -45,21 +49,281 @@ public:
         bool success = false;
         std::string method; // "pdftotext", "ocrmypdf", "tesseract", "text-read"
         std::vector<std::string> warnings;
+        std::string sourceSha256;
     };
 
     static ExtractionResult Extract(const std::string& path, std::function<void(std::string)> statusCallback = nullptr) {
         std::filesystem::path p(path);
         std::string ext = p.extension().string();
         std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c){ return std::tolower(c); });
+        std::string sha256 = ComputeFileSha256(path);
 
         if (ext == ".pdf") {
-            return ExtractPdf(path, statusCallback);
+            return ExtractPdf(path, sha256, statusCallback);
         } else {
-            return ExtractText(path);
+            return ExtractText(path, sha256);
         }
     }
 
 private:
+    class Sha256 {
+    public:
+        Sha256() { Init(); }
+
+        void Update(const unsigned char* data, size_t len) {
+            for (size_t i = 0; i < len; ++i) {
+                m_data[m_datalen] = data[i];
+                m_datalen++;
+                if (m_datalen == 64) {
+                    Transform();
+                    m_bitlen += 512;
+                    m_datalen = 0;
+                }
+            }
+        }
+
+        void Final(unsigned char hash[32]) {
+            size_t i = m_datalen;
+
+            if (m_datalen < 56) {
+                m_data[i++] = 0x80;
+                while (i < 56) m_data[i++] = 0x00;
+            } else {
+                m_data[i++] = 0x80;
+                while (i < 64) m_data[i++] = 0x00;
+                Transform();
+                std::memset(m_data, 0, 56);
+            }
+
+            m_bitlen += m_datalen * 8;
+            m_data[63] = static_cast<unsigned char>(m_bitlen);
+            m_data[62] = static_cast<unsigned char>(m_bitlen >> 8);
+            m_data[61] = static_cast<unsigned char>(m_bitlen >> 16);
+            m_data[60] = static_cast<unsigned char>(m_bitlen >> 24);
+            m_data[59] = static_cast<unsigned char>(m_bitlen >> 32);
+            m_data[58] = static_cast<unsigned char>(m_bitlen >> 40);
+            m_data[57] = static_cast<unsigned char>(m_bitlen >> 48);
+            m_data[56] = static_cast<unsigned char>(m_bitlen >> 56);
+            Transform();
+
+            for (i = 0; i < 4; ++i) {
+                hash[i]      = (m_state[0] >> (24 - i * 8)) & 0x000000ff;
+                hash[i + 4]  = (m_state[1] >> (24 - i * 8)) & 0x000000ff;
+                hash[i + 8]  = (m_state[2] >> (24 - i * 8)) & 0x000000ff;
+                hash[i + 12] = (m_state[3] >> (24 - i * 8)) & 0x000000ff;
+                hash[i + 16] = (m_state[4] >> (24 - i * 8)) & 0x000000ff;
+                hash[i + 20] = (m_state[5] >> (24 - i * 8)) & 0x000000ff;
+                hash[i + 24] = (m_state[6] >> (24 - i * 8)) & 0x000000ff;
+                hash[i + 28] = (m_state[7] >> (24 - i * 8)) & 0x000000ff;
+            }
+        }
+
+    private:
+        uint32_t m_state[8];
+        uint64_t m_bitlen = 0;
+        unsigned char m_data[64];
+        size_t m_datalen = 0;
+
+        static constexpr std::array<uint32_t, 64> k = {
+            0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+            0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+            0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+            0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+            0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+            0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+            0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+            0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+        };
+
+        static uint32_t RotateRight(uint32_t x, uint32_t n) {
+            return (x >> n) | (x << (32 - n));
+        }
+
+        static uint32_t Choose(uint32_t e, uint32_t f, uint32_t g) {
+            return (e & f) ^ (~e & g);
+        }
+
+        static uint32_t Majority(uint32_t a, uint32_t b, uint32_t c) {
+            return (a & b) ^ (a & c) ^ (b & c);
+        }
+
+        static uint32_t Sig0(uint32_t x) {
+            return RotateRight(x, 2) ^ RotateRight(x, 13) ^ RotateRight(x, 22);
+        }
+
+        static uint32_t Sig1(uint32_t x) {
+            return RotateRight(x, 6) ^ RotateRight(x, 11) ^ RotateRight(x, 25);
+        }
+
+        static uint32_t Theta0(uint32_t x) {
+            return RotateRight(x, 7) ^ RotateRight(x, 18) ^ (x >> 3);
+        }
+
+        static uint32_t Theta1(uint32_t x) {
+            return RotateRight(x, 17) ^ RotateRight(x, 19) ^ (x >> 10);
+        }
+
+        void Init() {
+            m_state[0] = 0x6a09e667;
+            m_state[1] = 0xbb67ae85;
+            m_state[2] = 0x3c6ef372;
+            m_state[3] = 0xa54ff53a;
+            m_state[4] = 0x510e527f;
+            m_state[5] = 0x9b05688c;
+            m_state[6] = 0x1f83d9ab;
+            m_state[7] = 0x5be0cd19;
+        }
+
+        void Transform() {
+            uint32_t m[64];
+            for (uint32_t i = 0, j = 0; i < 16; ++i, j += 4) {
+                m[i] = (static_cast<uint32_t>(m_data[j]) << 24) |
+                       (static_cast<uint32_t>(m_data[j + 1]) << 16) |
+                       (static_cast<uint32_t>(m_data[j + 2]) << 8) |
+                        static_cast<uint32_t>(m_data[j + 3]);
+            }
+            for (uint32_t i = 16; i < 64; ++i) {
+                m[i] = Theta1(m[i - 2]) + m[i - 7] + Theta0(m[i - 15]) + m[i - 16];
+            }
+
+            uint32_t a = m_state[0];
+            uint32_t b = m_state[1];
+            uint32_t c = m_state[2];
+            uint32_t d = m_state[3];
+            uint32_t e = m_state[4];
+            uint32_t f = m_state[5];
+            uint32_t g = m_state[6];
+            uint32_t h = m_state[7];
+
+            for (uint32_t i = 0; i < 64; ++i) {
+                uint32_t t1 = h + Sig1(e) + Choose(e, f, g) + k[i] + m[i];
+                uint32_t t2 = Sig0(a) + Majority(a, b, c);
+                h = g;
+                g = f;
+                f = e;
+                e = d + t1;
+                d = c;
+                c = b;
+                b = a;
+                a = t1 + t2;
+            }
+
+            m_state[0] += a;
+            m_state[1] += b;
+            m_state[2] += c;
+            m_state[3] += d;
+            m_state[4] += e;
+            m_state[5] += f;
+            m_state[6] += g;
+            m_state[7] += h;
+        }
+    };
+
+    static std::string ComputeFileSha256(const std::string& path) {
+        std::ifstream file(path, std::ios::binary);
+        if (!file.is_open()) return "";
+        Sha256 sha;
+        std::array<char, 8192> buffer{};
+        while (file.good()) {
+            file.read(buffer.data(), buffer.size());
+            std::streamsize count = file.gcount();
+            if (count > 0) {
+                sha.Update(reinterpret_cast<const unsigned char*>(buffer.data()), static_cast<size_t>(count));
+            }
+        }
+        unsigned char hash[32];
+        sha.Final(hash);
+        std::ostringstream oss;
+        oss << std::hex << std::setfill('0');
+        for (unsigned char c : hash) {
+            oss << std::setw(2) << static_cast<int>(c);
+        }
+        return oss.str();
+    }
+
+    static std::string NowIso() {
+        auto now = std::chrono::system_clock::now();
+        std::time_t tt = std::chrono::system_clock::to_time_t(now);
+        std::tm tm = {};
+#if defined(_WIN32)
+        gmtime_s(&tm, &tt);
+#else
+        gmtime_r(&tt, &tm);
+#endif
+        std::ostringstream oss;
+        oss << std::put_time(&tm, "%Y-%m-%dT%H:%M:%SZ");
+        return oss.str();
+    }
+
+    static std::filesystem::path InferProjectRoot(const std::filesystem::path& filePath) {
+        std::filesystem::path cur = filePath.parent_path();
+        for (int i = 0; i < 6 && !cur.empty(); ++i) {
+            if (std::filesystem::exists(cur / "inbox") &&
+                std::filesystem::exists(cur / "observations")) {
+                return cur;
+            }
+            cur = cur.parent_path();
+        }
+        return filePath.parent_path();
+    }
+
+    static std::filesystem::path GetTextCacheDir(const std::filesystem::path& filePath) {
+        std::filesystem::path root = InferProjectRoot(filePath);
+        return root / ".iwcache" / "text";
+    }
+
+    static bool TryLoadTextCache(const std::filesystem::path& filePath,
+                                 const std::string& sha256,
+                                 ExtractionResult& result,
+                                 std::function<void(std::string)> statusCallback) {
+        if (sha256.empty()) return false;
+        std::filesystem::path cacheDir = GetTextCacheDir(filePath);
+        std::filesystem::path cacheTxt = cacheDir / (sha256 + ".txt");
+        if (!std::filesystem::exists(cacheTxt)) return false;
+        std::ifstream file(cacheTxt);
+        if (!file.is_open()) return false;
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        const std::string content = buffer.str();
+        if (!IsValidContent(content)) return false;
+        result.content = content;
+        result.success = true;
+        result.method = "text-cache";
+        result.sourceSha256 = sha256;
+        if (statusCallback) statusCallback("[CACHE] Usando texto extraído previamente (SHA-256).");
+        return true;
+    }
+
+    static void SaveTextCache(const std::filesystem::path& filePath,
+                              const std::string& sha256,
+                              const std::string& content,
+                              const std::string& method) {
+        if (sha256.empty()) return;
+        std::filesystem::path cacheDir = GetTextCacheDir(filePath);
+        if (!std::filesystem::exists(cacheDir)) {
+            std::filesystem::create_directories(cacheDir);
+        }
+        std::filesystem::path cacheTxt = cacheDir / (sha256 + ".txt");
+        if (!std::filesystem::exists(cacheTxt)) {
+            std::ofstream out(cacheTxt);
+            if (out.is_open()) {
+                out << content;
+            }
+        }
+        std::filesystem::path metaPath = cacheDir / (sha256 + ".meta.json");
+        if (!std::filesystem::exists(metaPath)) {
+            std::ofstream meta(metaPath);
+            if (meta.is_open()) {
+                meta << "{\n"
+                     << "  \"sha256\": \"" << sha256 << "\",\n"
+                     << "  \"sourcePath\": \"" << filePath.string() << "\",\n"
+                     << "  \"method\": \"" << method << "\",\n"
+                     << "  \"extractedAt\": \"" << NowIso() << "\"\n"
+                     << "}\n";
+            }
+        }
+    }
+
     static std::string RunCommand(const std::string& cmd) {
         std::string output;
         FILE* pipe = popen(cmd.c_str(), "r");
@@ -95,8 +359,15 @@ private:
         return false;
     }
 
-    static ExtractionResult ExtractPdf(const std::string& path, std::function<void(std::string)> statusCallback) {
+    static ExtractionResult ExtractPdf(const std::string& path,
+                                       const std::string& sha256,
+                                       std::function<void(std::string)> statusCallback) {
         ExtractionResult result;
+        result.sourceSha256 = sha256;
+
+        if (TryLoadTextCache(path, sha256, result, statusCallback)) {
+            return result;
+        }
         
         // Tier 1: Try standard extraction (pdftotext)
         std::string rawContent = RunCommand("pdftotext \"" + path + "\" - 2>/dev/null");
@@ -165,6 +436,7 @@ private:
             result.content = finalContent.str();
             result.success = true;
             result.method = "pdftotext (filtered)";
+            SaveTextCache(path, sha256, result.content, result.method);
             return result;
         }
 
@@ -189,6 +461,7 @@ private:
                      result.content = ocrContent;
                      result.success = true;
                      result.method = "ocr-cache";
+                     SaveTextCache(path, sha256, result.content, result.method);
                      return result;
                  }
             }
@@ -218,6 +491,7 @@ private:
                      result.success = true;
                      result.method = "ocr-hybrid (ocrmypdf)";
                      result.warnings.push_back("Content extracted via OCR hybrid pipeline. Formatting preserved but errors possible.");
+                     SaveTextCache(path, sha256, result.content, result.method);
                      return result;
                  }
             } else {
@@ -236,6 +510,7 @@ private:
                  result.success = true;
                  result.method = "ocr-raw (tesseract)";
                  result.warnings.push_back("Content extracted via raw OCR. Layout lost, high error rate possible.");
+                 SaveTextCache(path, sha256, result.content, result.method);
                  return result;
              }
         }
@@ -267,8 +542,9 @@ private:
         return (returnCode == 0);
     }
 
-    static ExtractionResult ExtractText(const std::string& path) {
+    static ExtractionResult ExtractText(const std::string& path, const std::string& sha256) {
         ExtractionResult result;
+        result.sourceSha256 = sha256;
         std::ifstream file(path);
         if (!file.is_open()) {
             result.success = false;

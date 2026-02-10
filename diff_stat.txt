@@ -1,0 +1,8 @@
+ docs/SCIENTIFIC_INGESTION_CONTEXT.md               |  21 +-
+ .../scientific/ScientificIngestionService.cpp      | 795 ++++++++++++++++++++-
+ .../scientific/ScientificIngestionService.hpp      |  25 +-
+ src/infrastructure/ContentExtractor.hpp            | 284 +++++++-
+ src/infrastructure/OllamaClient.cpp                |  20 +-
+ src/ui/AppState.hpp                                |   4 +
+ src/ui/panels/DashboardPanel.cpp                   | 122 +++-
+ 7 files changed, 1231 insertions(+), 40 deletions(-)

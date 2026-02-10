@@ -1,0 +1,14 @@
+## main...origin/main [ahead 2]
+ M docs/SCIENTIFIC_INGESTION_CONTEXT.md
+ M src/application/scientific/ScientificIngestionService.cpp
+ M src/application/scientific/ScientificIngestionService.hpp
+ M src/infrastructure/ContentExtractor.hpp
+ M src/infrastructure/OllamaClient.cpp
+ M src/ui/AppState.hpp
+ M src/ui/panels/DashboardPanel.cpp
+?? .iwcache/
+?? Embrapa/
+?? docs/IW_Methodological_Foundations.tex
+?? iw_epistemic_contract_fixes.md
+?? status_log.txt
+?? "\360\237\221\211 IW_Implementation_Guidelines_Post_Methodology.md"

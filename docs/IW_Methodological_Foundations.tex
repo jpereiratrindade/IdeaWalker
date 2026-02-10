@@ -1,0 +1,153 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{hyperref}
+
+\geometry{margin=2.5cm}
+\onehalfspacing
+
+\title{Document-Driven Development, Domain-Driven Design\\
+e o Papel da Narrativa no IdeaWalker}
+\author{Projeto IdeaWalker}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introdução}
+
+O projeto \textit{IdeaWalker (IW)} nasce da necessidade de apoiar processos
+de investigação, escrita e análise científica em contextos fortemente
+documentais, exploratórios e humano--IA.
+Desde sua concepção, tornou-se evidente que abordagens tradicionais de
+engenharia de software --- centradas em bancos de dados, estados internos
+ou modelos rígidos --- não eram adequadas para a natureza epistemológica
+do problema.
+
+Este documento formaliza as decisões metodológicas que orientam o IW,
+em especial:
+\begin{itemize}
+    \item a adoção do \textit{Document-Driven Development} como fundamento,
+    \item o uso do \textit{Domain-Driven Design} como mecanismo de governança,
+    \item e o papel da \textbf{Narrativa} como contexto de aplicação das
+    análises discursivas.
+\end{itemize}
+
+\section{Document-Driven Development como Fundamento}
+
+No IdeaWalker, documentos não são meros artefatos auxiliares,
+mas constituem a \textbf{fonte primária de verdade} do sistema.
+
+Notas em Markdown e dados estruturados em JSON representam estados
+persistentes, auditáveis e interoperáveis do conhecimento produzido.
+Essa escolha garante:
+\begin{itemize}
+    \item transparência epistemológica,
+    \item longevidade dos dados independentemente do software,
+    \item interação direta entre humanos e sistemas de IA,
+    \item rastreabilidade de processos cognitivos.
+\end{itemize}
+
+Nesse sentido, o \textit{Document-Driven Development} governa
+\textbf{como o conhecimento existe} no sistema.
+
+\section{Domain-Driven Design como Governança Semântica}
+
+À medida que o sistema cresce, surge o risco de entropia conceitual:
+documentos passam a acumular significados ambíguos, interpretações
+inconsistentes e inferências indevidas.
+
+O \textit{Domain-Driven Design (DDD)} é introduzido não como dogma técnico,
+mas como mecanismo de \textbf{governança semântica}.
+Seu papel no IW é:
+\begin{itemize}
+    \item definir vocabulário ubíquo,
+    \item explicitar limites de interpretação,
+    \item proteger invariantes epistemológicas,
+    \item impedir que decisões conceituais sejam tomadas implicitamente.
+\end{itemize}
+
+No IW, o DDD não modela dados,
+mas o \textbf{direito de interpretar dados}.
+
+\section{Separação entre Contexto Epistemológico e Contexto Computacional}
+
+O projeto reconhece explicitamente dois contextos distintos e hierárquicos:
+
+\subsection{Contexto Epistemológico}
+
+Responsável por definir:
+\begin{itemize}
+    \item fundamentos teóricos,
+    \item pressupostos metodológicos,
+    \item limites éticos e científicos,
+    \item aquilo que pode ou não ser inferido.
+\end{itemize}
+
+Este contexto é expresso primariamente em documentos
+e não possui caráter executável.
+
+\subsection{Contexto Computacional}
+
+Responsável por:
+\begin{itemize}
+    \item implementar estruturas de domínio,
+    \item garantir invariantes em tempo de execução,
+    \item orquestrar fluxos de processamento,
+    \item fazer cumprir, em código, as decisões epistemológicas.
+\end{itemize}
+
+O contexto computacional não redefine teoria;
+ele a \textbf{operacionaliza e protege}.
+
+\section{Narrativa como Contexto de Aplicação da Análise Discursiva}
+
+No IdeaWalker, a narrativa não é tratada como simples conteúdo textual,
+mas como \textbf{infraestrutura pragmática de sentido}.
+
+A narrativa define o \textit{Contexto de Aplicação} da análise discursiva,
+estabelecendo:
+\begin{itemize}
+    \item intencionalidade do texto,
+    \item enquadramento temporal,
+    \item estatuto dos enunciados,
+    \item limites interpretativos válidos.
+\end{itemize}
+
+Assim, o mesmo elemento sintático pode assumir significados distintos
+conforme a narrativa na qual está inserido.
+A narrativa não decide resultados nem produz inferências,
+mas \textbf{condiciona as regras sob as quais a interpretação é válida}.
+
+\section{Limites Epistemológicos da Inferência}
+
+Um princípio central do IW é a distinção entre:
+\begin{itemize}
+    \item causalidade inferida pelo sistema,
+    \item e causalidade declarada no discurso analisado.
+\end{itemize}
+
+O sistema observa, registra e estrutura como relações causais,
+motivações ou julgamentos são \textbf{enunciados},
+sem transformá-los automaticamente em verdades ontológicas.
+
+\section{Conclusão}
+
+O IdeaWalker assume explicitamente que:
+\begin{itemize}
+    \item é \textbf{Document-Driven por natureza},
+    \item é \textbf{governado por Domain-Driven Design},
+    \item e utiliza a \textbf{Narrativa} como chave para a aplicação
+    responsável de análises discursivas.
+\end{itemize}
+
+Essa combinação permite preservar plasticidade cognitiva,
+rigor metodológico e coerência técnica,
+sem sacrificar a natureza exploratória do trabalho científico.
+
+\end{document}

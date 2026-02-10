@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 4,
+  "source": {
+    "artifactId": "20260206_102633_trindade2025arte-e-ciencia-no-manejo.pdf",
+    "contentHash": "34013220_1770379489239662388",
+    "extractionMethod": "pdftotext",
+    "filename": "trindade2025arte-e-ciencia-no-manejo.pdf",
+    "ingestedAt": "2026-02-06T13:27:17Z",
+    "model": "qwen2.5:7b",
+    "path": "/run/media/jpereiratrindade/labeco10T/Teste/Embrapa/inbox/scientific/trindade2025arte-e-ciencia-no-manejo.pdf"
+  },
+  "sourceProfile": {
+    "contextNotes": "The narrative focuses on general principles and practices applicable to different agro-ecosystems, particularly in the context of water management in livestock production.",
+    "ecosystemType": "agro",
+    "evidenceType": "theoretical",
+    "limitations": "Limited to theoretical concepts without specific empirical evidence.",
+    "studyType": "theoretical",
+    "temporalScale": "medium",
+    "transferability": "high"
+  }
+}

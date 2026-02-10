@@ -1,0 +1,2 @@
+aab999f feat: implement fuzzy match anchoring for scientific ingestion (v0.1.14-beta)
+75eac8f feat: split scientific ingestion, structural exclusion, and discursive grounding (v0.1.13-beta)

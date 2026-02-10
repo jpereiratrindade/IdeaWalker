@@ -154,6 +154,16 @@ void DrawDashboardTab(AppState& app) {
             ImGui::Separator();
             ImGui::Text("%s", label("🧪 Ingestão Científica (STRATA)", "Scientific Ingestion (STRATA)"));
             if (app.services.scientificIngestionService) {
+                if (!app.ui.scientificInboxLoaded) {
+                    app.ui.scientificInboxArtifacts = app.services.scientificIngestionService->listInboxArtifacts();
+                    app.ui.scientificInboxSelected.clear();
+                    app.ui.scientificInboxLoaded = true;
+                }
+
+                const bool hasScientificSelection = !app.ui.scientificInboxSelected.empty();
+                if (hasScientificSelection) {
+                    ImGui::BeginDisabled();
+                }
                 if (ImGui::Button("Processar Inbox Científica & Gerar Consumíveis")) {
                     app.AppendLog("[SYSTEM] Starting scientific ingestion...\n");
                     app.services.taskManager->SubmitTask(application::TaskType::Indexing, "Ingestão Científica", [&app](std::shared_ptr<application::TaskStatus> status) {
@@ -167,15 +177,125 @@ void DrawDashboardTab(AppState& app) {
                         app.ui.pendingRefresh.store(true);
                     });
                 }
+                if (hasScientificSelection) {
+                    ImGui::EndDisabled();
+                }
                 ImGui::SameLine();
                 if (ImGui::IsItemHovered()) {
-                    ImGui::SetTooltip("Processa arquivos em /inbox/scientific e exporta consumíveis em /strata/consumables.");
+                    ImGui::SetTooltip("Processa todos os arquivos em /inbox/scientific. Se houver seleção ativa, use os botões abaixo.");
                 }
 
                 ImGui::Text("Bundles científicos gerados: %zu", app.services.scientificIngestionService->getBundlesCount());
                 if (ImGui::IsItemHovered()) {
                     ImGui::SetTooltip("Total de bundles científicos salvos em /observations/scientific.");
                 }
+
+                ImGui::Separator();
+                ImGui::Text("%s", label("Inbox Científica (Seleção)", "Scientific Inbox (Selection)"));
+                if (ImGui::Button("Atualizar Lista")) {
+                    app.ui.scientificInboxArtifacts = app.services.scientificIngestionService->listInboxArtifacts();
+                    app.ui.scientificInboxSelected.clear();
+                    app.ui.scientificInboxLoaded = true;
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Selecionar Todos")) {
+                    app.ui.scientificInboxSelected.clear();
+                    for (const auto& artifact : app.ui.scientificInboxArtifacts) {
+                        app.ui.scientificInboxSelected.insert(artifact.path);
+                    }
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Limpar Seleção")) {
+                    app.ui.scientificInboxSelected.clear();
+                }
+                ImGui::SameLine();
+                ImGui::Text("Selecionados: %zu", app.ui.scientificInboxSelected.size());
+                if (hasScientificSelection) {
+                    ImGui::SameLine();
+                    ImGui::TextDisabled("(Seleção ativa)");
+                }
+
+                if (app.ui.scientificInboxSelected.empty()) {
+                    ImGui::BeginDisabled();
+                }
+                if (ImGui::Button("Processar Selecionados")) {
+                    std::vector<domain::SourceArtifact> selected;
+                    for (const auto& artifact : app.ui.scientificInboxArtifacts) {
+                        if (app.ui.scientificInboxSelected.count(artifact.path) > 0) {
+                            selected.push_back(artifact);
+                        }
+                    }
+                    if (selected.empty()) {
+                        app.AppendLog("[SCIENTIFIC] Nenhum arquivo selecionado.\n");
+                    } else {
+                        app.AppendLog("[SCIENTIFIC] Selecionados: " + std::to_string(selected.size()) + "\n");
+                        for (const auto& art : selected) {
+                            app.AppendLog("[SCIENTIFIC] - " + art.filename + "\n");
+                        }
+                        app.AppendLog("[SYSTEM] Starting selected scientific ingestion...\n");
+                        app.services.taskManager->SubmitTask(application::TaskType::Indexing, "Ingestão Científica (Selecionados)", [selected, &app](std::shared_ptr<application::TaskStatus> status) {
+                            auto result = app.services.scientificIngestionService->ingestSelected(selected, false, [&app, status](const std::string& s) {
+                                app.SetProcessingStatus(s);
+                                app.AppendLog("[SCIENTIFIC] " + s + "\n");
+                            });
+                            for (const auto& err : result.errors) {
+                                app.AppendLog("[SCIENTIFIC][ERRO] " + err + "\n");
+                            }
+                            app.ui.pendingRefresh.store(true);
+                        });
+                    }
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Refazer Selecionados (Limpar)")) {
+                    std::vector<domain::SourceArtifact> selected;
+                    for (const auto& artifact : app.ui.scientificInboxArtifacts) {
+                        if (app.ui.scientificInboxSelected.count(artifact.path) > 0) {
+                            selected.push_back(artifact);
+                        }
+                    }
+                    if (selected.empty()) {
+                        app.AppendLog("[SCIENTIFIC] Nenhum arquivo selecionado.\n");
+                    } else {
+                        app.AppendLog("[SCIENTIFIC] Selecionados (refazer): " + std::to_string(selected.size()) + "\n");
+                        for (const auto& art : selected) {
+                            app.AppendLog("[SCIENTIFIC] - " + art.filename + "\n");
+                        }
+                        app.AppendLog("[SYSTEM] Reprocessing selected scientific artifacts (purge)...\n");
+                        app.services.taskManager->SubmitTask(application::TaskType::Indexing, "Ingestão Científica (Refazer)", [selected, &app](std::shared_ptr<application::TaskStatus> status) {
+                            auto result = app.services.scientificIngestionService->ingestSelected(selected, true, [&app, status](const std::string& s) {
+                                app.SetProcessingStatus(s);
+                                app.AppendLog("[SCIENTIFIC] " + s + "\n");
+                            });
+                            for (const auto& err : result.errors) {
+                                app.AppendLog("[SCIENTIFIC][ERRO] " + err + "\n");
+                            }
+                            app.ui.pendingRefresh.store(true);
+                        });
+                    }
+                }
+                if (app.ui.scientificInboxSelected.empty()) {
+                    ImGui::EndDisabled();
+                }
+
+                ImGui::BeginChild("ScientificInboxList", ImVec2(0, 140), true);
+                for (const auto& artifact : app.ui.scientificInboxArtifacts) {
+                    bool selected = app.ui.scientificInboxSelected.count(artifact.path) > 0;
+                    ImGui::PushID(artifact.path.c_str());
+                    if (ImGui::Checkbox("##scientific_select", &selected)) {
+                        if (selected) {
+                            app.ui.scientificInboxSelected.insert(artifact.path);
+                        } else {
+                            app.ui.scientificInboxSelected.erase(artifact.path);
+                        }
+                    }
+                    ImGui::SameLine();
+                    ImGui::TextUnformatted(artifact.filename.c_str());
+                    if (ImGui::IsItemHovered()) {
+                        ImGui::SetTooltip("%s", artifact.path.c_str());
+                    }
+                    ImGui::PopID();
+                }
+                ImGui::EndChild();
 
                 if (auto summary = app.services.scientificIngestionService->getLatestValidationSummary()) {
                     ImGui::Text("Última validação: %s | exportAllowed=%s",

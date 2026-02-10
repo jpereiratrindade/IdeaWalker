@@ -1,0 +1,2221 @@
+Resiliência Produtiva e SocioEcológica em SAIT
+
+José Pedro Trindade
+Leandro Volk
+
+
+Capa: “Campo do Devir” — Paisagem digital generativa (2025).
+Pintura digital em tons verdes, ocres e azuis, com luz âmbar central simbolizando
+a Resiliência (R) como quarta dimensão emergente da interação
+Ecológica (E), Produtiva (P) e Social (S).
+
+
+Resiliência Produtiva e SocioEcológica em SAIT
+José Pedro Trindade
+
+Leandro Volk
+
+18 de novembro de 2025
+
+3
+
+
+Sumário
+
+1.1
+
+1 INTRODUÇÃO GERAL . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Resiliência como prática epistemológica e estética do conhecimento . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+7
+9
+
+2.1
+2.1.1
+2.1.2
+2.1.3
+2.1.4
+2.2
+2.2.1
+2.2.2
+2.2.3
+2.2.4
+2.2.5
+2.2.6
+2.2.7
+2.2.8
+2.3
+2.3.1
+2.3.2
+
+2 FUNDAMENTOS TEÓRICOS E EPISTEMOLÓGICOS DA RESILIÊNCIA SOCIOECOLÓGICA . . . . . . . . .
+Ontologias da Relação e da Vida . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+A Ontologia Socioecológica e Antropológica Contemporânea . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+A passagem da estabilidade à resiliência . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+A Complexidade como Paradigma da Resiliência . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+O tempo das coisas e a desaceleração da ciência . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Sistemas, Ciclos e Processos Adaptativos . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Sistemas Socioecológicos e Ciclo Adaptativo . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Os “Mitos da Natureza” em Holling e as Ontologias do Manejo . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+A Ecologia do Reconhecer: fundamento da gestão adaptativa . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+A contra-corrente do reconhecer: crítica da impotência e da lógica do ter . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+A ecologia da ação e a gestão adaptativa . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Contraste entre pensamento complexo e metodologias de gestão adaptativa . . . . . . . . . . . . . . . . . . . . . . . . . .
+Conexões entre Complexidade, Panarquia e a Modelagem da Resiliência . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Kolmogorov e a Arquitetura da Incerteza . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Paisagem, Tempo e Habitar . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+A Temporalidade da Paisagem e a Ecologia do Tempo nos SAIT . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Para além da auto-organização: ecologias do habitar e do comum . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+11
+13
+13
+14
+16
+17
+19
+19
+19
+24
+25
+28
+29
+30
+33
+35
+36
+39
+
+
+2.3.3
+2.3.4
+2.3.5
+2.3.6
+2.4
+2.4.1
+2.4.2
+2.4.3
+2.5
+2.5.1
+2.5.2
+2.5.3
+2.5.4
+2.6
+2.6.1
+
+A Resiliência como Princípio Ontoepistêmico e Territorial . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 44
+A Auto-organização como Fundamento do Vivo . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 44
+A Memória Biocultural como Autopoiese do Território . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 48
+A Expressão Operacional da Resiliência . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 52
+O Corpo, o Sensível e a Extensão . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 54
+O Princípio Sensível da Resiliência: Corpo, Meio e Conhecimento . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 54
+A Álgebra da Extensão e o Campo da Resiliência . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 56
+Do Sensível ao Relacional: a ponte Serres–Grassmann . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 59
+O Campo Socioecológico: Comunidade, Solo Vivo e Relações . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 59
+Ecologia de Comunidades: vida como trama . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 60
+O Campo como Meio Vivo: habitar e co-existência . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 61
+O Solo como Sistema Vivo: base material da reorganização . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 62
+O Entrelaçamento E–P–S como Fonte de Emergência . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 63
+Resiliência como Quarta Dimensão . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 65
+Extensão e Resistência: a geometria do gesto territorial . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 69
+
+3.1
+3.2
+3.2.1
+3.2.2
+3.3
+3.3.1
+3.3.2
+3.4
+
+3 ARTE, CIÊNCIA E RESILIÊNCIA NO MANEJO DO CAMPO NATIVO . . . . . . . . . . . . . . . . . . . . . . .
+Introdução: Manejar é Conhecer . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+O Manejo como Forma de Conhecimento . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+A prática como gesto epistemológico . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+O manejo como leitura do território . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+O Solo como Memória Sensível do Território . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Solo como suporte e como arquivo . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Solo, manejo e resiliência . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+A Estética da Prática: Corpo, Tempo e Paisagem . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+72
+73
+74
+74
+74
+76
+76
+77
+78
+
+
+3.4.1
+3.4.2
+3.4.3
+3.5
+3.6
+3.6.1
+3.6.2
+3.7
+3.8
+
+Corpo como instrumento e como medida . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Tempo como matéria do manejo . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Paisagem como processo, não como fundo . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Extensão, Ecologia e Devir: um Olhar Grassmanniano . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Conservação do Solo como Continuidade Ecológica . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Cuidar da pele da terra . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Erosão como perda de memória . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Para uma Gramática do Manejo Resiliente . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Considerações Finais . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+78
+78
+79
+80
+81
+81
+81
+83
+84
+
+4.1
+4.1.1
+4.1.2
+4.2
+4.3
+4.4
+4.5
+4.6
+4.7
+
+4 O TERRITÓRIO COMO SISTEMA SOCIOECOLÓGICO: A ABORDAGEM SAIT . . . . . . . . . . . . . . . . .
+O diferencial poderá estar no como: integração como inovação institucional e metodológica . . . . . . . . . . . .
+Do território como objeto ao território como sujeito . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+A integração como prática de governança adaptativa . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Sistemas Agroalimentares de Identidade Territorial . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+A territorialização das políticas e a multifuncionalidade da agricultura familiar . . . . . . . . . . . . . . . . . . . .
+SAIT como unidade meso da Panarquia . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Sistemas Agroalimentares e vulnerabilidade climática . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Redes, governança e aprendizagem social . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+Áreas de Reforma Agrária e vulnerabilidade . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+85
+86
+87
+87
+89
+90
+91
+92
+94
+95
+
+REFERÊNCIAS . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+97
+
+
+Capítulo 1
+Introdução Geral
+A noção de Resiliência Produtiva e Socioecológica em SAIT emerge do encontro entre teoria e território. Mais do que um conceito técnico,
+ela constitui um modo de pensar e habitar o mundo: uma prática cognitiva que se reorganiza continuamente, tal como os sistemas vivos
+que busca compreender. Ao situar a resiliência no campo dos Sistemas Agroalimentares de Identidade Territorial (SAIT), desloca-se o olhar da
+estabilidade para a convivência com a mudança — do controle à coevolução.
+Essa formulação traduz o princípio dinâmico da resiliência, concebida por Holling (1973) e ampliada por Berkes, Colding e Folke (2003), em um
+horizonte territorial de aplicação, no qual sustentabilidade e conhecimento se tornam inseparáveis. O manejo agropecuário, nessa perspectiva,
+deixa de ser apenas técnica e torna-se um gesto de reorganização contínua — um aprender coletivo que envolve ecossistemas, comunidades e
+instituições.
+• Produtiva: sustentação do sistema agropecuário em sua eficiência ecológica e econômica;
+• Socioecológica: articulação entre processos sociais (organização, governança, inovação) e ecológicos (ciclos da água, vegetação, clima);
+
+
+• Territorial (SAIT): espaço de coevolução entre práticas produtivas, identidades culturais e vínculos comunitários.
+Com isso, a Resiliência Produtiva e Socioecológica em SAIT torna-se uma aplicação territorializada da teoria dos sistemas socioecológicos: não
+um modelo estático, mas um processo vivo de reorganização que une ciência, sensibilidade e prática.
+—
+
+
+1.1
+
+Resiliência como prática epistemológica e estética do conhecimento
+
+Este volume propõe um gesto epistemológico: pensar a resiliência não apenas como propriedade mensurável, mas como forma de conhecimento
+encarnado — uma prática estética do compreender. A resiliência, aqui, é uma atitude de escuta: um modo de coexistir com a complexidade.
+Autores como Holling (1973), Ostrom (1990), Morin (1977), Maturana e Varela (1980), Ingold (1993), Serres (1985) e Stengers (2018) formam o
+campo relacional dessa abordagem. Cada um amplia o horizonte de sentido: Holling e Berkes fundam o pensamento adaptativo; Ostrom
+revela a auto-organização dos comuns; Morin e Maturana & Varela mostram que conhecer é viver; Ingold inscreve o tempo na paisagem;
+Serres devolve o corpo ao conhecimento; e Stengers lembra que toda ciência é também um gesto ético de demora e cuidado.
+A escrita assume, portanto, uma função ecológica: reorganiza o pensamento no próprio ato de narrar. Assim como o ecossistema se refaz após
+a perturbação, o texto se recompõe no diálogo entre teoria e território. Não se trata de convencer, mas de criar um campo de presença em que
+o leitor possa experimentar, em si, o movimento da resiliência — o de persistir mudando.
+—
+Nota epistemológica
+Pensar a Resiliência Produtiva e Socioecológica em SAIT é praticá-la. Cada conceito apresentado é um organismo vivo: nasce do contato
+entre o rigor da ciência e a experiência sensível dos territórios. A leitura é convidada a operar como ecossistema de pensamento, no
+qual ordem, desordem e reorganização coexistem como dimensões de um mesmo gesto cognitivo.
+Ao convocar autores de diferentes campos — da ecologia à filosofia, da antropologia à teoria da complexidade —, este texto busca
+criar um espaço de convivência entre razão e sensibilidade. Ele não descreve apenas sistemas socioecológicos: ele habita o seu ritmo,
+abrindo-se às perturbações e aos silêncios que produzem conhecimento.
+Assumindo o caráter público e ético da pesquisa, o trabalho propõe que teoria e intervenção não se separem. Compreender torna-se,
+assim, um ato de cuidado: reorganizar o pensamento para reorganizar o mundo. O território é aqui mais do que um cenário — é o
+próprio corpo do pensamento.
+
+
+Figura 1 – Ecologia Cognitiva da Resiliência em SAIT — síntese visual da Introdução Geral.
+
+
+Capítulo 2
+Fundamentos Teóricos e Epistemológicos da Resiliência Socioecológica
+A abordagem da resiliência socioecológica emerge como uma ruptura epistemológica frente aos paradigmas clássicos de estabilidade e controle
+que dominaram a gestão ambiental e os modelos de desenvolvimento agrícola no século XX. Essa mudança de perspectiva não se limita a
+uma reformulação conceitual: representa a passagem de uma visão mecanicista, que concebia os sistemas naturais e sociais como entidades
+previsíveis e governáveis, para uma racionalidade complexa, que reconhece a incerteza, a variabilidade e a coevolução como propriedades
+estruturais dos sistemas vivos e das sociedades humanas (HOLLING, 1973; BERKES; COLDING; FOLKE, 2003; MORIN, 1977).
+A resiliência, nesse sentido, não é apenas uma propriedade dos sistemas, mas um modo de compreender o mundo e de atuar sobre ele. Ela
+supõe a substituição do ideal de controle pela lógica da aprendizagem e da adaptação contínua — o que implica uma profunda reinterpretação
+das relações entre conhecimento, ação e transformação.
+Como observam Berkes, Colding e Folke (2003), ao sintetizar o diagnóstico de Jasanoff et al. (1997, apud Berkes et al., 2003), os próprios
+
+
+cientistas reconhecem que os desafios contemporâneos enfrentados pela ciência e pela sociedade “parecem ter ultrapassado radicalmente
+seus enquadramentos conceituais previamente aceitos”. Essa constatação reforça a necessidade de novas molduras teóricas e práticas, capazes
+de integrar dimensões ecológicas, sociais e institucionais na compreensão da mudança. A proposta de resiliência socioecológica nasce,
+portanto, dessa insuficiência do paradigma disciplinar moderno e da urgência de uma ciência que aprenda a lidar com sistemas abertos,
+interdependentes e incertos.
+Essa crise de enquadramento não é exclusiva das ciências da sustentabilidade. Já em 1990, Ostrom (1990) apontava que “we do not yet have the
+necessary intellectual tools or models to understand the array of problems associated with governing and managing natural resource systems and the
+reasons why some institutions seem to work in some settings and not others” (p. 14). A autora demonstrou, a partir de inúmeros casos empíricos,
+que nem o Estado nem o mercado são capazes de assegurar sozinhos a sustentabilidade de recursos de uso comum, e que comunidades locais
+constroem arranjos institucionais híbridos e adaptativos — formas de governança dos comuns que desafiam os paradigmas centralizadores.
+Essa perspectiva antecipa a visão de Berkes et al. (2003) sobre sistemas socioecológicos como redes de interdependência entre natureza e
+sociedade, reforçando a necessidade de novas ferramentas conceituais e práticas de co-gestão adaptativa.
+
+A dialógica da complexidade em Morin.
+
+Diferentemente da dialética hegeliana ou marxiana, a dialógica em Edgar Morin não busca sínteses, mas mantém vivo o diálogo entre
+contrários. Ela opera como princípio de complexidade, acolhendo a tensão permanente entre ordem, desordem e organização, e reconhecendo
+a incerteza como componente constitutivo do real. Essa perspectiva inspira a leitura da resiliência não como estabilidade recuperável, mas
+como capacidade de aprender e reorganizar-se diante do inesperado. Mais adiante, essa dialógica servirá de base para a formulação do modelo
+analítico de resiliência socioecológica, no qual se traduzirá como articulação dinâmica entre as dimensões ecológica, produtiva e social — um
+campo de coaprendizagem onde o conhecimento técnico e o saber local se retroalimentam.
+
+
+2.1
+
+Ontologias da Relação e da Vida
+
+2.1.1
+
+A Ontologia Socioecológica e Antropológica Contemporânea
+
+A reflexão sobre a dialógica da complexidade conduz naturalmente a uma questão mais profunda: se a resiliência é um modo de compreender
+e agir sobre sistemas vivos e sociais, que concepção de “vida”, de “natureza” e de “humano” sustenta essa compreensão? Em outras palavras,
+qual é a ontologia implícita nas práticas e teorias da resiliência?
+Responder a essa questão implica reconhecer que toda epistemologia — inclusive a da complexidade — repousa sobre uma determinada
+ontologia, isto é, sobre uma imagem do real e das relações que o constituem. No caso da resiliência socioecológica, trata-se de uma ontologia
+relacional, na qual seres humanos e não humanos coemergem em redes de interdependência. Essa inflexão ontológica é decisiva porque
+desloca o foco do conhecimento sobre o mundo para o viver no mundo, colocando a experiência e as práticas de manejo no centro da produção
+de sentido.
+Nas ciências sociais e ambientais contemporâneas, esse movimento de reaproximação entre ontologia e ecologia tem sido aprofundado
+por autores como Descola (2005), Latour (1994) e Ingold (2011). Eles propõem compreender a ontologia não como um conjunto abstrato de
+princípios metafísicos, mas como um modo de ser, perceber e interagir com o mundo, próprio de cada coletividade. Cada sociedade habita uma
+ontologia distinta — animista, naturalista, totêmica ou analogista — que define as formas de coexistência entre humanos e não humanos.
+Trata-se, portanto, de uma ontologia vivida, que se expressa nas práticas, nos mitos, nas tecnologias e nas formas de manejo da natureza.
+No campo socioecológico, compreender essas ontologias de manejo significa compreender as cosmopolíticas da vida — os regimes de coexistência
+que articulam seres humanos e não humanos em um mesmo campo de experiência. Como argumentam Berkes, Colding e Folke (2003) e
+Ostrom (1990), os sistemas de manejo e as instituições comunitárias não são apenas estruturas de governança, mas expressões culturais e
+ecológicas de modos de habitar o mundo. Dessa forma, cada ontologia de manejo traduz uma visão de natureza e de sociedade, e constitui a
+base sobre a qual se erguem os arranjos institucionais e as práticas adaptativas que conferem resiliência aos sistemas socioecológicos.
+
+
+Ontologia e Epistemologia da Relação.
+
+A ontologia socioecológica propõe, assim, um modo de ser em relação — um real composto por interações e coemergências entre humanos e
+não humanos. Essa concepção relacional encontra ressonância na epistemologia da complexidade formulada por Edgar Morin (1977), para
+quem todo conhecimento é inseparável do ato que o produz. Se a ontologia define as formas de coexistência entre os seres, a epistemologia da
+complexidade define as formas de conhecer essas coexistências. Ambas convergem na ideia de que conhecer é habitar: não há observador
+externo, mas sistemas em contínua co-produção de si e do mundo. É dessa circularidade — entre ser e saber, entre ontologia e epistemologia —
+que emerge o paradigma da resiliência socioecológica.
+
+2.1.2
+
+A passagem da estabilidade à resiliência
+
+A passagem da estabilidade à resiliência não é apenas um deslocamento conceitual dentro da ecologia, mas uma inflexão epistemológica mais
+ampla no modo de compreender a relação entre ordem, desordem e organização nos sistemas vivos — aquilo que Morin (1977) denomina
+passagem da racionalidade disjuntiva da modernidade para um pensamento complexo, capaz de integrar antagonismos e incertezas como
+fontes de organização. O colapso dos paradigmas baseados na previsibilidade e no controle (HOLLING, 1973; GUNDERSON; HOLLING, 2002)
+abriu espaço para uma ciência dos sistemas abertos, em que a instabilidade e a incerteza deixam de ser anomalias e passam a ser reconhecidas
+como motores da auto-organização e da aprendizagem. Essa mudança paradigmática redefine a própria ideia de sustentabilidade, deslocando
+o foco do controle para a capacidade adaptativa e do equilíbrio para a coevolução entre sistemas humanos e naturais. Nesse horizonte
+conceitual inscreve-se a proposta de Resiliência Produtiva Territorial (RPT), inspirada na resiliência ecológica de (HOLLING, 1973) e na
+sua expansão socioecológica proposta por (BERKES; COLDING; FOLKE, 2003), que compreende a permanência não como imobilidade, mas
+como capacidade de transformação dentro dos limites da identidade do sistema.
+
+
+Termos e distinções conceituais.
+Chamamos de resiliência socioecológica a capacidade de sistemas acoplados sociedade–natureza de absorver choques, reorganizar-se e
+manter funções essenciais em múltiplas escalas. Por resiliência produtiva territorial (RPT) entendemos uma aplicação dessa moldura ao
+domínio agroalimentar territorializado: manter produção, recursos ecossistêmicos críticos e modos de vida locais sem perder identidade e
+autonomia territorial. A RPT é, portanto, um recorte operativo da resiliência socioecológica, focado em SAIT.
+Nos Sistemas Agroalimentares de Identidade Territorial (SAIT), a abordagem territorial desloca o foco do setor para o território
+(SCHNEIDER, 2004a), articulando usos da terra, saberes locais e redes organizativas. Assim, choques climáticos ameaçam, ao mesmo tempo, a
+base biofísica e os fundamentos socioculturais que sustentam a identidade territorial. Esta seção fundamenta a opção por três dimensões
+E, P, S (ecológica, produtiva e social/institucional) que, combinadas, operacionalizam a RPT ao longo do texto.
+O ponto de inflexão dessa transformação conceitual é o trabalho Holling (1973), que propôs a distinção entre estabilidade e resiliência. A
+estabilidade, associada à tradição da ecologia de equilíbrio, refere-se à capacidade de um sistema retornar rapidamente ao seu estado anterior
+após uma perturbação. Essa visão supõe a existência de um único ponto de equilíbrio, a linearidade das relações de causa e efeito e a
+previsibilidade das respostas do sistema — um conjunto de pressupostos que se alinham à racionalidade mecanicista da modernidade.
+Holling demonstrou, entretanto, que muitos sistemas ecológicos exibem comportamentos não lineares e múltiplos regimes de estabilidade.
+Neles, a variabilidade não é sinal de fragilidade, mas de vitalidade. A resiliência passa, então, a designar a capacidade do sistema de absorver
+choques, reorganizar-se e manter suas funções essenciais, mesmo atravessando transições de regime. Essa concepção desloca o foco analítico
+do retorno ao equilíbrio para a persistência através da mudança — uma inflexão que, quando transposta ao campo das ciências sociais,
+redefine o próprio sentido de desenvolvimento e sustentabilidade.
+Essa mudança conceitual abre caminho para compreender a resiliência como processo evolutivo e relacional, conectando o funcionamento dos
+sistemas ecológicos às dinâmicas sociais e institucionais.
+
+
+2.1.3
+
+A Complexidade como Paradigma da Resiliência
+
+A resiliência socioecológica emerge como uma tradução operacional do paradigma da complexidade, ao articular os processos de autoorganização e de adaptação nos sistemas vivos e sociais. Para Morin (1977), compreender a natureza requer ultrapassar o paradigma da
+simplificação — fundado na separação entre ordem e desordem — e adotar uma lógica dialógica, em que ordem, desordem e organização
+se coproduzem. A complexidade é, portanto, um princípio epistemológico: não é a negação da ordem, mas a integração das incertezas e
+interdependências que constituem o real.
+Holling (1973) e Berkes, Colding e Folke (2003) transladam essa visão para a ecologia, propondo uma ciência dos sistemas abertos e adaptativos.
+Em vez de buscar estabilidade, os sistemas socioecológicos são vistos como complexos adaptativos — dinâmicos, não lineares e propensos a
+múltiplos estados de equilíbrio — um comportamento que a teoria da panarquia (GUNDERSON; HOLLING, 2002) formaliza, ao descrever a
+interação entre escalas e as fases de crescimento, colapso e reorganização que estruturam a dinâmica de longo prazo dos sistemas vivos.
+Essa virada paradigmática desloca a busca por leis universais e previsibilidade para a compreensão das dinâmicas de coevolução entre
+sociedade e natureza.
+A consolidação dessa abordagem levou à formulação de princípios operacionais da resiliência, sintetizados por Biggs et al. (2012), Biggs,
+Schlüter e Schoon (2015) e posteriormente revistos por Baird et al. (2024). Esses sete princípios — (1) manter diversidade e redundância; (2)
+gerir conectividade; (3) gerir variáveis lentas e retroalimentações; (4) fomentar o pensamento em sistemas complexos adaptativos; (5) encorajar
+o aprendizado; (6) ampliar a participação; e (7) promover governança policêntrica — representam um esforço de tradução entre epistemologia
+e prática, transformando a complexidade em guia para a gestão de sistemas socioecológicos.
+A revisão de Baird et al. (2024) evidencia que, embora amplamente citados, esses princípios ainda são pouco operacionalizados — apenas
+23 estudos os aplicaram empiricamente de modo sistemático. Essa constatação reforça a necessidade de articular dimensões teóricas e
+mensuráveis da resiliência, desenvolvendo indicadores contextualizados capazes de refletir as propriedades emergentes e multiescalares dos
+sistemas.
+Dessa forma, a complexidade deixa de ser apenas uma categoria epistemológica para se tornar um paradigma operativo. A própria abordagem
+
+
+da resiliência socioecológica — entendida como modelo científico de sistemas adaptativos complexos — encarna o que Morin (1977, p. 210)
+chama de “organização regenerada e generativa”, uma lógica de sistemas que aprendem, se reorganizam e se transformam. Assim, o estudo da
+resiliência passa a integrar, simultaneamente, os domínios do ser, do saber e do fazer: uma verdadeira epistemologia da interdependência.
+
+2.1.4
+
+O tempo das coisas e a desaceleração da ciência
+“As coisas também envelhecem, mas
+não segundo o nosso tempo: o
+tempo delas é o de sua
+metamorfose.”
+Michel Serres, Les Cinq Sens
+(1985, tradução livre)
+
+O tempo da pesquisa raramente coincide com o tempo dos processos. Enquanto a ciência moderna mediu o tempo para controlar os fenômenos,
+os sistemas vivos e sociais operam segundo ritmos múltiplos e interdependentes — ciclos lentos de regeneração e ciclos rápidos de adaptação
+(HOLLING, 1973; BERKES; COLDING; FOLKE, 2003). Essa desincronia entre o tempo da observação e o tempo da vida torna visível o limite de
+uma racionalidade que busca previsibilidade em mundos que se movem por emergência e coevolução.
+Como lembra Serres (1985), as coisas possuem um tempo próprio, um devir que resiste à pressa do olhar humano. Escutar o tempo das coisas
+é, portanto, reconhecer o direito dos processos vivos a seus próprios ritmos de transformação. Trata-se de uma atitude epistemológica e ética:
+uma disposição para aprender com os ritmos do mundo em vez de impor-lhes o compasso do laboratório.
+Em consonância, Stengers (2018) propõe uma “ciência desacelerada” — um modo de conhecer que se deixa afetar pelo tempo do mundo,
+que espera as respostas dos fenômenos antes de transformá-los em dados. Essa desaceleração não é inércia, mas uma forma de coevolução
+
+
+epistemológica: a ciência aprende a acompanhar, e não a antecipar, o tempo dos processos. Ela reconhece, como observa Ingold (1993), que a
+paisagem e os seres não “existem” em um presente estático, mas acontecem continuamente.
+Ao incorporar essa sensibilidade temporal, a resiliência socioecológica deixa de ser apenas uma métrica de estabilidade para tornar-se uma
+arte do tempo: a capacidade de permanecer no mundo enquanto o mundo muda — no compasso do campo, da água, do clima e da vida.
+
+
+2.2
+
+Sistemas, Ciclos e Processos Adaptativos
+
+2.2.1
+
+Sistemas Socioecológicos e Ciclo Adaptativo
+
+Ao longo das décadas seguintes, a obra de Holling foi expandida por diversos autores que buscaram integrar as dimensões ecológicas e
+sociais dos processos de mudança. Berkes, Colding e Folke (2003) propuseram o conceito de sistemas socioecológicos (SSE) para designar
+a inseparabilidade entre natureza e sociedade. Um SSE é um sistema adaptativo complexo no qual componentes biofísicos, econômicos,
+culturais e institucionais interagem em múltiplas escalas, formando uma teia de retroalimentações positivas e negativas.
+Holling também formulou o modelo do ciclo adaptativo, composto pelas fases de exploração (r), conservação (K ), liberação (Ω) e reorganização
+(α). Esse ciclo descreve o processo de acumulação e renovação de capital natural, social e institucional nos sistemas complexos. A noção
+de panarquia amplia o modelo ao reconhecer que os ciclos adaptativos ocorrem de maneira interligada em diferentes escalas temporais e
+espaciais: as dinâmicas rápidas dos sistemas locais podem desencadear transições em escalas mais amplas (revolt), enquanto os níveis mais
+lentos conferem memória e estabilidade às fases de reorganização (remember).
+Essa abordagem multiescalar prepara o terreno para compreender as distintas ontologias de manejo, expressas nos “mitos da natureza”, que
+traduzem modos de pensar e agir sobre sistemas complexos.
+
+2.2.2
+
+Os “Mitos da Natureza” em Holling e as Ontologias do Manejo
+
+O modelo conceitual proposto por Holling, Gunderson e Ludwig em Panarchy 2002 amplia a teoria da resiliência ao identificar diferentes
+visões de natureza — ou “mitos de natureza” — que orientam políticas e práticas de manejo. Esses arquétipos descrevem modos contrastantes
+de compreender a relação entre sociedade e ambiente, expressando não apenas perspectivas científicas, mas também pressupostos culturais e
+epistemológicos sobre controle, estabilidade e mudança.
+A formulação parte da constatação de que os sistemas socioecológicos são constantemente moldados por imagens mentais do que se entende
+
+
+por “natureza”: se ela é previsível ou caótica, se reage ou não às ações humanas, se pode ou não ser controlada. Cada mito, portanto, expressa
+uma ontologia de manejo, isto é, uma maneira de perceber e intervir nos sistemas vivos.
+
+Nature Flat — a natureza plana.
+
+Nesta visão, a natureza é percebida como um plano sem resistência, onde não há forças restauradoras nem retroalimentações significativas.
+O ser humano aparece como agente totalmente capaz de controlar o meio, bastando aplicar a técnica e o tempo corretos. É a ontologia da
+dominação e linearidade, típica da agricultura industrial e de políticas de controle técnico absoluto (por exemplo, adubação corretiva, irrigação
+intensiva, controle químico de pragas). Trata-se de uma natureza infinitamente maleável, mas que, ao ignorar retroalimentações ecológicas,
+produz rigidez e perda de resiliência no longo prazo.
+
+Nature Balanced — a natureza em equilíbrio.
+
+Corresponde à tradição da ecologia de equilíbrio: a natureza é autorregulada e tende sempre a retornar ao ponto ótimo. O manejo visa
+“corrigir desvios”, mantendo o sistema dentro de um domínio estável. É a racionalidade da otimização e controle homeostático, predominante
+em políticas de conservação clássica ou em manejos agrícolas que buscam “níveis ótimos” de insumos e de carga animal. A estabilidade
+aparente, contudo, mascara a vulnerabilidade a choques inesperados.
+
+Nature Anarchic — a natureza caótica.
+
+Aqui, a natureza é tida como imprevisível, sujeita a forças incontroláveis. A resposta humana é a precaução extrema: minimizar qualquer
+intervenção e preservar o estado existente. Políticas de proibição total de uso ou conservação rígida se alinham a essa visão. O risco é a
+paralisia adaptativa: ao eliminar o distúrbio, bloqueia-se a renovação e a aprendizagem.
+
+
+Nature Resilient — a natureza múltipla e adaptativa.
+
+A natureza é reconhecida como sistema complexo e não linear, dotado de múltiplos estados estáveis. O manejo adaptativo busca conservar a
+variabilidade e aprender com as perturbações. É a lógica da gestão da diversidade e da reorganização, onde o distúrbio é visto como parte do
+ciclo de renovação. Práticas agroecológicas, mosaicos de uso e manejo participativo refletem essa ontologia.
+
+Nature Evolving — a natureza coevolutiva.
+A forma mais abrangente proposta por Holling e colaboradores considera a natureza e a sociedade como sistemas coevolutivos, em constante
+transformação e aprendizagem. A estabilidade não é um ponto fixo, mas uma paisagem mutante de interações entre escalas. Políticas
+flexíveis e experimentais substituem o controle rígido. É a visão panárquica: natureza e cultura evoluem juntas, trocando energia, informação
+e significado.
+
+Conexões com Elinor Ostrom e outras abordagens.
+
+As proposições de Elinor Ostrom 1990 sobre a governança dos comuns convergem profundamente com a teoria de Holling. Enquanto
+este descreve a auto-organização de sistemas ecológicos por meio de ciclos adaptativos e panarquias multiescalares, Ostrom demonstra
+empiricamente que comunidades humanas também constroem arranjos aninhados de regras e instituições capazes de manter recursos comuns
+sem autoridade central. Sua estrutura de regras operacionais, de escolha coletiva e constitucionais corresponde, no plano institucional, às
+escalas rápida, intermediária e lenta da panarquia. Assim, a governança policêntrica dos comuns pode ser vista como a expressão social
+da resiliência ecológica: ambos os modelos descrevem sistemas complexos que aprendem, inovam e se reorganizam diante da incerteza,
+articulando memória e transformação. Essa convergência sustenta a leitura dos Sistemas Agroalimentares de Identidade Territorial (SAIT)
+como comuns territoriais, onde natureza, instituições e saberes locais evoluem conjuntamente.
+
+
+Os “mitos da natureza” formulados por Holling e colaboradores também encontram paralelos nas leituras de Berkes, Colding e Folke 2003,
+que interpretam os sistemas socioecológicos como arenas de aprendizagem e co-gestão, onde distintas visões de natureza coexistem e se
+confrontam. Autores como Schneider e Niederle, ao discutir o desenvolvimento territorial e os SAIT, deslocam esses debates para o campo das
+políticas públicas, mostrando como cada ontologia de manejo se expressa em práticas institucionais e trajetórias de governança. Por sua
+vez, a epistemologia da complexidade de Edgar Morin 1977 fornece a moldura filosófica dessa multiplicidade: a natureza e a sociedade são
+concebidas como sistemas auto-eco-organizadores, nos quais ordem e desordem interagem criativamente. Assim, o debate inaugurado por
+Holling em torno da resiliência ecológica desdobra-se em uma verdadeira epistemologia da coevolução, que articula ecologia, sociedade e
+conhecimento.
+
+Síntese comparativa.
+
+As cinco ontologias podem ser organizadas conforme o Quadro 1, que resume seus pressupostos e implicações para o manejo socioecológico.
+Tabela 1 – Mitos da natureza em Holling e ontologias do manejo socioecológico.
+Mito / Visão de
+Natureza
+Nature Flat
+
+Premissa Ontológica
+
+Natureza passiva, sem feedbacks;
+controle técnico total possível.
+Nature Balan- Natureza homeostática, busca reced
+torno ao equilíbrio.
+Nature Anar- Natureza caótica e imprevisível; o
+chic
+controle é ilusório.
+Nature Resili- Natureza complexa, múltiplos estaent
+dos estáveis.
+
+Tipo de Estabili- Estratégia de Manejo
+dade
+Nenhuma.
+
+Risco Principal
+
+Controle linear, maximização, tec- Degradação invisível e
+nificação.
+perda de resiliência.
+Estável em um Otimização e correção de desvios. Colapso súbito por rigiponto único.
+dez excessiva.
+Instável, imprevi- Precaução máxima, imobilismo.
+Estagnação e perda de
+sível.
+inovação.
+Múltiplas bacias Manejo adaptativo, valorização da Surpresas estruturais
+de estabilidade.
+variabilidade.
+inevitáveis.
+
+
+Mito / Visão de
+Natureza
+Nature
+ving
+
+Premissa Ontológica
+
+Tipo de Estabili- Estratégia de Manejo
+dade
+
+Evol- Natureza e sociedade coevolutivas; Paisagem dinâ- Aprendizagem contínua, políticas
+panarquia multiescalar.
+mica e mutante. flexíveis.
+
+Risco Principal
+
+Incerteza
+criativa
+e necessidade de
+governança reflexiva.
+
+Implicações para a resiliência produtiva em SAIT.
+Esses “mitos” podem ser interpretados como camadas de racionalidade que coexistem nos territórios. Práticas agrícolas, políticas públicas
+e arranjos institucionais são moldados por diferentes visões de natureza — muitas vezes de forma contraditória. A análise dos Sistemas
+Agroalimentares de Identidade Territorial (SAIT) sob essa lente permite reconhecer quais ontologias predominam em cada contexto e como elas
+influenciam a capacidade adaptativa. Em síntese, o paradigma da Natureza Resiliente e Evolutiva oferece a base epistemológica para a
+gestão territorial proposta neste trabalho: uma ciência do manejo coevolutivo, que reconhece a incerteza, valoriza a diversidade e aprende
+com o próprio processo de transformação.
+Em síntese, os “mitos da natureza” sintetizam a trajetória epistemológica do capítulo: da crença no controle e equilíbrio à compreensão da natureza
+e da sociedade como sistemas coevolutivos e auto-organizadores. Essa passagem corresponde, no plano institucional, à transição da governança
+centralizada para a governança policêntrica e adaptativa, fundamento da abordagem territorial proposta neste trabalho.
+
+
+2.2.3
+
+A Ecologia do Reconhecer: fundamento da gestão adaptativa
+“A atenção é a forma mais profunda
+de cuidado: aquilo que tocamos
+com atenção, vive.”
+Tim Ingold (paráfrase
+interpretativa)
+
+A noção de ecologia do reconhecer desloca o conhecer de um ato de apreensão para um gesto de participação. Reconhecer não é dominar,
+ordenar ou capturar; é abrir espaço para que o território se reorganize a partir de suas próprias potências. Nesse movimento, o território deixa
+de ser objeto de intervenção e passa a ser co-presença: uma trama viva de relações que respondem, aprendem e se recompõem conforme são
+reconhecidas.
+O gesto do reconhecer opera uma inversão crucial. O olhar não controla, acompanha; não impõe, acolhe; não separa, compõe. A transformação
+deixa de ser efeito de uma vontade externa e passa a emergir do modo como a vida territorial se reabre ao possível — num movimento que
+inclui humanos, práticas, instituições, saberes e materialidades.
+Essa abordagem aproxima-se da ecologia das práticas de ??) e do habitar relacional de Ingold (1993), ao compreender que conhecer é estar-com:
+participar das variações, escutar as inflexões, acompanhar os ritmos. Do mesmo modo, a sensibilidade encarnada descrita por Serres (1985)
+torna-se aqui condição de reorganização: é pelo sentir que o território sinaliza tensões e possibilidades.
+Reconhecer, portanto, não é estabilizar o mundo — é deixar que ele mostre seus modos próprios de se reorganizar. E é justamente desse
+gesto que emerge uma concepção de (re)conhecer resiliente: um modo de conhecer que não busca fixar, mas cultivar a abertura; não delimita
+respostas, mas sustenta condições para que novos caminhos se tornem habitáveis.
+
+
+Do reconhecer à gestão adaptativa
+
+A gestão adaptativa, entendida nesse horizonte, não se reduz a técnicas de ajuste contínuo. Ela se fundamenta numa disposição ontológica:
+reconhecer que os sistemas socioecológicos se transformam enquanto são habitados, e que a intervenção eficaz deriva da capacidade de
+acompanhar essas transformações com atenção, reciprocidade e cuidado.
+Assim, a ecologia do reconhecer oferece o solo conceitual sobre o qual a gestão adaptativa se enraíza. Gestão, aqui, não é controle, mas
+composição; não é correção, mas orientação situacional; não é comando, mas participação. Abrir-se ao reconhecimento é abrir-se ao devir do
+território — e é nesse devir que as possibilidades de reorganização, inovação e resiliência se tornam visíveis e praticáveis.
+Essa transição marca o ponto exato onde a resiliência produtiva e socioecológica se torna prática territorial: uma arte de acompanhar processos
+vivos, fomentar potências locais e criar condições para que o território invente suas próprias formas de continuar.
+
+2.2.4
+
+A contra-corrente do reconhecer: crítica da impotência e da lógica do ter
+“Há gestos que paralisam, e há
+gestos que abrem passagem. O
+desafio é não confundir conforto
+com impossibilidade.”
+Inspiração contemporânea
+
+O gesto de reconhecer, tal como proposto na seção anterior, não se desenvolve em terreno neutro. Ele avança contra forças que, de modo
+explícito ou subterrâneo, produzem fechamento: narrativas que paralisam, deslocam ou esvaziam a abertura necessária à co-presença. Entre
+essas forças, duas se mostram especialmente persistentes na vida cotidiana e institucional: a desculpa da impotência e a redução do valor ao
+
+
+ter. Ambas encontram expressão contundente na crítica cultural contemporânea — como na música de Marcelo D2 — que torna audível a
+renúncia ao agir e o deslocamento do sentido da existência para o acúmulo.
+A desculpa da impotência é, antes de tudo, um modo de não-relação. Quando alguém afirma que “não adianta fazer” ou que “tudo já está dado”,
+o território deixa de ser acompanhado como processo vivo e passa a ser tratado como cenário inerte. Esse gesto suspende a possibilidade de
+resposta: a vida deixa de ser presença compartilhada e torna-se objeto distante, como se o mundo não respondesse, não aprendesse, não se
+reorganizasse. É a interrupção do vínculo que sustenta a atenção.
+A segunda forma de fechamento emerge quando o valor é deslocado do gesto para o acúmulo. A máxima segundo a qual “o que importa é o
+que se tem, e não o que se faz” converte relações em inventário e reduz a potência à posse. Nesse regime, o território deixa de ser campo de
+invenção e torna-se vitrine: não importa o que se compõe com o mundo, mas o que se apresenta ao mundo. Essa economia moral da existência
+— frequentemente denunciada pela arte — esvazia a emergência, pois bloqueia a abertura necessária para que algo novo possa acontecer.
+A ecologia do reconhecer caminha em direção oposta. Reconhecer não é impor ação, mas recusar a paralisia como horizonte. É um gesto de
+reabertura: aceitar que algo sempre pode emergir não porque o território depende exclusivamente da ação humana, mas porque a vida nunca
+está completamente determinada. A possibilidade é condição da existência, não consequência da intervenção.
+Nesse movimento, o valor desloca-se do acúmulo para o fazer-com. Potência não é propriedade, mas relação. Ela não se estabiliza em objetos
+ou posições, mas se atualiza na capacidade de gerar condições para que novas formas de vida territorial possam se compor. O que se faz — e o
+modo como se faz — importa mais que o que se possui. O valor emerge da reciprocidade, não da exibição.
+Por isso, o (re)conhecer resiliente exige mais do que observar ou interpretar: ele envolve assumir o compromisso de tornar possível o próprio
+reconhecimento. Isso implica cultivar condições de presença, atenção, coabitação e abertura; manter fértil o campo onde as potências podem
+emergir. Quem propõe o reconhecer assume consigo a tarefa de sustentar o espaço relacional que permite que o território responda.
+As críticas que denunciam a paralisia e a lógica do ter não são desvios estéticos, mas diagnósticos éticos das forças que bloqueiam a emergência.
+Elas indicam o que o reconhecer precisa evitar: a abdicação da relação e a hierarquia do objeto sobre o gesto. Reconhecer é, portanto, tanto
+gesto quanto compromisso: uma forma de estar que abre espaço e, simultaneamente, uma responsabilidade de mantê-lo habitável. É nesse
+
+
+terreno que o (re)conhecer se torna prática resiliente e que a gestão adaptativa encontra sua raiz mais profunda.
+A figura a seguir sintetiza o movimento discutido nesta subseção: as forças de fechamento que comprimem o gesto de reconhecer e o modo
+como a ecologia do reconhecer opera como abertura — não apenas superando tais bloqueios, mas convertendo-os em condição de emergência.
+O diagrama mostra que a gestão adaptativa não nasce de uma técnica, mas do próprio gesto de reabertura que sustenta o (re)conhecer
+resiliente.
+
+Figura 2 – Forças de fechamento e o gesto de abertura que sustenta o (re)conhecer resiliente na transição para a gestão adaptativa.
+
+
+Descrição da imagem: Diagrama em formato 16:9 mostrando dois blocos à esquerda — “Desculpa da impotência” e “Lógica do ter” — com
+setas convergindo para o centro. No centro, o bloco “Ecologia do reconhecer” recebe essas forças e delas produz um vetor de abertura
+(vertical) e outro de transição (horizontal), que conduz ao bloco “Gestão adaptativa” à direita.
+
+As duas saídas representadas no modelo não são efeitos paralelos, mas expressões complementares do próprio gesto de reconhecer. A seta
+vertical indica a abertura, isto é, o plano onde emergem as potências que o território manifesta quando não é reduzido àquilo que já está posto.
+Trata-se do movimento ontológico do (re)conhecer: sustentar um campo fértil no qual o possível pode tomar forma.
+A seta horizontal representa a transição para a gestão adaptativa, mostrando que a ação territorial não decorre de técnica ou prescrição, mas
+da própria relação que o reconhecer reconfigura. É o plano operativo: o momento em que a abertura se traduz em prática situada, orientando
+modos de acompanhar, aprender e compor com o território. Assim, as duas saídas expressam dimensões inseparáveis de um mesmo processo:
+abrir-se ao que emerge e agir a partir dessa abertura.
+
+2.2.5
+
+A ecologia da ação e a gestão adaptativa
+
+A reflexão de Edgar Morin (MORIN, 1977) amplia a compreensão epistemológica da resiliência ao introduzir o conceito de ecologia da ação.
+Em sistemas complexos, toda ação se insere em um ambiente que a transforma; os efeitos de uma intervenção nunca são completamente
+previsíveis, pois retroagem sobre o próprio processo que os gerou. Essa visão implica uma ética da incerteza e da responsabilidade, na qual o
+conhecimento deve ser constantemente reexaminado à luz de seus efeitos.
+A gestão adaptativa traduz essa filosofia em prática: trata políticas e estratégias como experimentos em andamento, ajustados continuamente a
+partir do aprendizado coletivo. A resiliência, sob essa ótica, não é apenas uma condição do sistema, mas um processo cognitivo e organizacional
+— a capacidade de aprender com a mudança. Essa dimensão reflexiva conecta a resiliência socioecológica à governança territorial e às práticas
+de inovação social, preparando o terreno para a abordagem dos Sistemas Agroalimentares de Identidade Territorial (SAIT) na seção seguinte.
+
+
+Essa reflexão conduz naturalmente à discussão sobre o modo como a integração entre atores e instituições se torna, ela própria, uma prática de
+resiliência.
+
+2.2.6
+
+Contraste entre pensamento complexo e metodologias de gestão adaptativa
+
+O quadro a seguir sintetiza as principais diferenças entre o campo epistemológico do pensamento complexo — representado por Holling,
+Morin, Maturana e Stengers — e as metodologias contemporâneas de “autogestão” e “liderança distribuída” (O2, Dragon Dreaming,
+organização de centro vazio, etc.). Mais do que oposição, o contraste revela níveis distintos de abordagem: de um lado, a ontologia e a
+epistemologia dos sistemas vivos; de outro, a tradução instrumental dessas ideias em estratégias organizacionais.
+
+Pensamento complexo (Holling, Morin, Maturana, Stengers)
+
+Estratégias de gestão adaptativa (O2, Dragon Dreaming, Centro Vazio)
+
+Natureza epistemológica: Campo ontológico e reflexivo; busca
+compreender os modos de existência, aprendizagem e coevolução
+dos sistemas vivos.
+
+Natureza metodológica: Campo operacional; propõe práticas e
+frameworks aplicáveis à gestão de pessoas e organizações.
+
+Organização viva: Emergente, autopoiética e recursiva — a forma
+nasce das relações e retroalimentações internas.
+
+Organização desenhada: Estrutura prescrita de papéis, círculos e
+rituais de decisão; pretende emular a auto-organização por design.
+
+Propósito: Emergente e contingente; deriva das interações entre
+agentes e meio.
+
+Propósito: Elemento central e pré-definido; atua como eixo simbólico de coesão e motivação.
+
+Resiliência: Capacidade de absorver perturbações e reorganizar-se
+mantendo identidade e função; inclui colapsos e transformações.
+
+Adaptabilidade organizacional: Reatividade controlada a mudanças; prioriza eficiência e continuidade.
+
+
+Complexidade: Condição do real — ordem, desordem e organização
+coexistem em dialógica permanente.
+
+Complexidade: Metáfora inspiradora; convertida em método ou
+atributo desejável de inovação.
+
+Conhecimento: Processo relacional e recursivo; sujeito e objeto
+coemergem no ato de conhecer.
+
+Conhecimento: Recurso gerencial; busca “boas práticas” e replicabilidade.
+
+Poder e conflito: Componentes constitutivos do sistema; a tensão
+é fonte de aprendizado e reorganização.
+
+Poder e conflito: Tratados como disfunções a serem harmonizadas
+por facilitação e propósito comum.
+
+Racionalidade: Ecológica e dialógica; aceita incerteza, ambiguidade
+e não-linearidade.
+
+Racionalidade: Instrumental e pragmática; busca estabilidade operacional sob aparência de flexibilidade.
+
+Finalidade: Compreender e cuidar da vida em sua interdependência.
+
+Finalidade: Otimizar processos colaborativos e engajamento humano no trabalho.
+
+Comentário crítico. As metodologias contemporâneas de autogestão constituem traduções operacionais de conceitos originalmente
+concebidos para descrever sistemas vivos complexos. Aparentemente inspiradas por Holling, Morin, Maturana e Stengers, elas reintroduzem,
+sob nova estética, a racionalidade instrumental que tais autores problematizam. Reconhecer esse descompasso é essencial para proteger a
+potência reflexiva do pensamento complexo e para evitar sua captura pelo discurso performativo da gestão.
+
+2.2.7
+
+Conexões entre Complexidade, Panarquia e a Modelagem da Resiliência
+
+A formulação do modelo de resiliência socioecológica encontra sua coerência final na integração entre os referenciais da complexidade (Morin),
+da resiliência (Holling) e da panarquia (Gunderson e Holling). Essas três perspectivas convergem para uma mesma lógica organizadora: os
+sistemas vivos e sociais mantêm-se por meio de ciclos de destruição e reorganização, nos quais a desordem torna-se fonte de inovação e
+aprendizagem. A resiliência, nesse sentido, é a expressão operacional do princípio moriniano de organização regenerada e generativa, enquanto
+a panarquia traduz, em linguagem ecológica, a ideia de auto-eco-organização em múltiplas escalas.
+
+
+Da complexidade à panarquia.
+
+Em Morin, a complexidade é definida pela coexistência de ordem, desordem e organização — uma dialógica que reconhece a instabilidade
+como condição da vida. Em Holling, essa dialógica se manifesta no ciclo adaptativo (r–K–Ω–α), que descreve a alternância entre acumulação,
+colapso e renovação. Ambas as formulações rejeitam a linearidade e o determinismo, enfatizando que a permanência de um sistema depende
+de sua capacidade de se transformar. A panarquia amplia essa concepção ao articular múltiplos ciclos adaptativos em diferentes escalas
+temporais e espaciais — do ecossistema à instituição —, reconhecendo que a resiliência emerge da interação entre níveis rápidos e lentos,
+locais e globais.
+
+Governança e aprendizagem como expressão da resiliência.
+
+A transposição dessa lógica para os sistemas sociais é formulada por Berkes, Colding e Folke (2003) e Ostrom (1990), ao descreverem a
+governança policêntrica e a co-gestão adaptativa como modos de organização que aprendem com a mudança. Em tais arranjos, comunidades,
+instituições e ecossistemas formam redes de retroalimentação nas quais a aprendizagem coletiva cumpre o mesmo papel que a sucessão
+ecológica nos sistemas naturais: regenerar a estrutura sem perder identidade. Assim, a resiliência torna-se também um atributo institucional,
+dependente da diversidade de atores, da conectividade entre escalas e da capacidade de revisar continuamente suas próprias regras.
+
+O território como escala meso da resiliência.
+
+Na integração entre esses referenciais, o território aparece como a escala meso da panarquia — o ponto de articulação entre as dinâmicas
+ecológicas locais e os sistemas institucionais regionais. É nesse nível que a resiliência pode ser observada, avaliada e fortalecida por meio de
+políticas públicas e de instrumentos de gestão. Os Sistemas Agroalimentares de Identidade Territorial (SAIT) são, portanto, expressões empíricas
+dessa lógica: sistemas híbridos em que natureza, produção e organização social se retroalimentam, produzindo identidades e capacidades
+adaptativas específicas.
+
+
+Síntese: da resiliência como paradigma à resiliência como método.
+
+A convergência entre complexidade, panarquia e governança adaptativa define o núcleo epistemológico do modelo proposto. Ela permite
+compreender a resiliência não apenas como propriedade dos sistemas, mas como método de gestão do real — um modo de conhecer,
+agir e reorganizar continuamente o território diante da incerteza. Ao transformar os princípios da auto-organização e da aprendizagem em
+parâmetros observáveis, o modelo de análise de riscos à resiliência produtiva realiza a passagem da resiliência como paradigma à resiliência
+como método.
+“Compreender é unir, reunir, religar: é construir a unidade complexa da diversidade.”
+(MORIN, 1977)
+Com esta síntese, conclui-se o percurso teórico que fundamenta o conceito de resiliência socioecológica. O próximo capítulo transpõe essas
+bases para o plano territorial, apresentando o Modelo de Análise de Riscos à Resiliência Produtiva em SAIT como instrumento operativo dessa
+racionalidade complexa.
+
+Em síntese, o percurso teórico desenvolvido neste capítulo configura uma ontologia da resiliência fundada na temporalidade do habitar e
+na complexidade dos sistemas vivos. A panarquia, ao integrar diferentes escalas e ritmos de transformação, oferece o quadro dinâmico no
+qual a ação humana, o conhecimento e os processos ecológicos se entrelaçam. Essa articulação estabelece o fundamento epistemológico
+para o Modelo de Resiliência Produtiva e Socioecológica, permitindo que os SAIT sejam compreendidos como taskscapes em permanente
+co-evolução entre natureza, técnica e cultura. A partir daqui, a análise desloca-se do plano conceitual para o plano metodológico, onde a
+resiliência torna-se mensurável e situada nas práticas concretas de manejo e gestão adaptativa dos territórios.
+
+
+2.2.8
+
+Kolmogorov e a Arquitetura da Incerteza
+“O acaso não é ausência de ordem; é
+a ordem do ainda não acontecido.”
+Leitura interpretativa à luz de
+A. N. Kolmogorov
+
+A incorporação da incerteza ao pensamento ecológico não é uma concessão metodológica, mas um reconhecimento ontológico: sistemas
+vivos não se comportam — eles variam. Ao longo deste capítulo, vimos que a resiliência socioecológica depende da dinâmica entre múltiplas
+escalas, do entrelaçamento de processos lentos e rápidos, e da capacidade de reorganizar trajetórias diante de distúrbios inesperados. Faltava,
+contudo, um fundamento matemático que desse forma a essa variabilidade sem reduzi-la à desordem. É precisamente aqui que a contribuição
+de Andrei Kolmogorov (1933) ilumina o coração do problema.
+A obra de Kolmogorov funda a teoria moderna das probabilidades ao estabelecer que o incerto não é o contrário do conhecimento, mas uma
+maneira rigorosa de descrevê-lo. Ao definir a probabilidade como medida sobre um espaço de possibilidades, Kolmogorov desloca a discussão
+do domínio das frequências empíricas para uma arquitetura conceitual mais profunda: a incerteza torna-se estrutura. Com isso, podemos
+compreender dinâmicas ecológicas, produtivas e sociais não como irregularidades a serem corrigidas, mas como campos de variabilidade que
+expressam modos distintos de habitar o mundo.
+Três deslocamentos decisivos emergem dessa leitura.
+1. O sistema deixa de ser um estado e passa a ser uma distribuição. A dimensão ecológica (E), produtiva (P ) e social (S) deixam de
+ser valores fixos para se tornarem conjuntos de possibilidades com pesos distintos. A paisagem não é uma fotografia, mas um campo de
+trajetórias prováveis.
+2. A resiliência torna-se capacidade de manter coerência sob variação. A equação R = E ∧ P ∧ S deixa de expressar apenas uma
+
+
+articulação estrutural e passa a representar também a estabilidade de relações diante das flutuações. A resiliência emerge quando o
+sistema preserva orientações mesmo quando os valores se movem.
+3. O devir ganha gramática. Enquanto Grassmann oferece o espaço relacional das extensões, Kolmogorov oferece a sintaxe dos possíveis:
+transições estocásticas, processos de difusão, ruídos estruturados, dinâmicas Markovianas que descrevem como um sistema pode mudar
+sem perder completamente sua identidade.
+
+Esses elementos dialogam diretamente com a ecologia dos ciclos adaptativos de Holling, com a coevolução socioecológica discutida por Berkes
+e Folke, e com a noção de habitar proposta por Ingold. A variabilidade climática, os ciclos hidrológicos irregulares, as oscilações produtivas e as
+reorganizações comunitárias não são ruídos periféricos, mas expressões vivas da historicidade dos territórios. Ao formalizar matematicamente
+a coerência do incerto, Kolmogorov permite compreender que o mundo não precisa “colaborar” para ser inteligível.
+Se a álgebra de Grassmann nos ofereceu um modo de pensar as relações que constituem o território, Kolmogorov nos oferece um modo de
+pensar como essas relações se movem quando o território é atravessado pela variação. É nesse ponto que a resiliência deixa de ser apenas
+uma qualidade dos sistemas e passa a ser uma ecologia do possível: o modo como sociedades, ecossistemas e práticas produtivas aprendem a
+reorganizar-se num mundo que não se repete.
+
+As conexões aqui estabelecidas entre Kolmogorov, Holling, Ingold e Grassmann não são históricas, mas heurísticas. Mais que reconstruir
+uma gênese, trata-se de dispor uma gramática conceitual para pensar a resiliência como ecologia do possível — um espaço onde
+relações, variações e trajetórias se entrelaçam.
+
+
+2.3
+
+Paisagem, Tempo e Habitar
+
+Figura 3 – Paisagem simbólica da ecologia do tempo: coexistência entre temporalidades ecológicas, técnicas e sociais. Imagem gerada por
+inteligência artificial (OpenAI DALL·E, 2025), sob curadoria do autor.
+A cena mostra, em um mesmo campo, o agricultor em ação (tempo técnico), o gado em pastoreio e a vegetação em regeneração (tempo
+ecológico), e a residência ao fundo (tempo social - habitar). A luz suave articula esses ritmos em um mesmo fluxo de vida, ilustrando a noção
+de taskscape como campo de interações.
+
+
+2.3.1
+
+A Temporalidade da Paisagem e a Ecologia do Tempo nos SAIT
+“O tempo não é algo que flui, mas
+algo em que habitamos — o meio
+através do qual a vida se desenrola.”
+Tim Ingold, The Temporality of
+the Landscape (1993, p. 162)
+
+A abordagem proposta por Ingold (1993) introduz uma inflexão fundamental na forma de compreender a relação entre tempo, espaço e vida.
+Ao definir a paisagem não como um cenário ou suporte para a ação, mas como um registro vivo do habitar, Ingold concebe o tempo não como
+um fluxo externo, mas como uma propriedade emergente da própria prática de viver. Nesse sentido, a paisagem é simultaneamente processo
+e memória: um tecido contínuo de trajetórias, gestos e marcas que compõem o que o autor denomina taskscape — a textura rítmica das
+atividades humanas e não humanas no mundo.
+
+“The landscape is constituted as an enduring record of — and testimony to — the lives and works of past generations who have
+dwelt within it.” (INGOLD, 1993, p. 152)
+O conceito de taskscape desloca o tempo de uma métrica abstrata para uma dimensão incorporada nas práticas cotidianas de co-habitação.
+Cada atividade — o pastoreio, o plantio, o descanso, o deslocamento — traz consigo um ritmo e uma duração específicos que, em conjunto,
+constituem uma verdadeira ecologia do tempo. Essa leitura dialoga diretamente com a proposta de Farina (2006), para quem o solo e a paisagem
+devem ser compreendidos como sistemas vivos, portadores de memórias biofísicas e culturais. O solo é, assim, uma “estratigrafia do habitar”,
+materialização dos fluxos, ciclos e interações entre organismos, clima e cultura — um sistema edáfico dotado de temporalidade própria.
+A partir dessa perspectiva, o tempo deixa de ser uma linha para tornar-se um campo de interações, onde coexistem temporalidades ecológicas,
+técnicas e sociais. O tempo ecológico se expressa nos processos lentos — decomposição, regeneração, sucessão vegetal —; o tempo técnico
+
+
+manifesta-se nos ritmos de manejo e trabalho; e o tempo social revela-se nas estações, festas, mercados e narrativas que ordenam a vida
+coletiva. Trata-se, portanto, de um sistema de tempos em constante negociação, cuja harmonia ou descompasso define, em grande medida, a
+resiliência de um território, conforme representado na Figura 4.
+
+Tempo
+
+Tempo Ecológico
+
+Campo de interações
+
+Espaço
+
+Tempo Técnico
+Tempo Social
+Harmonia / Descompasso ⇒ Resiliência
+
+Figura 4 – Campo de temporalidades socioecológicas: interações entre tempos ecológico, técnico e social.
+Essa multiplicidade de ritmos pode também ser percebida visualmente na Figura 3, que ilustra uma paisagem rural como campo de interações
+entre natureza, técnica e cultura. A imagem expressa, de forma simbólica, o entrelaçamento das temporalidades ecológica, técnica e social que
+compõem a ecologia do tempo nos Sistemas Agroalimentares de Identidade Territorial.
+Essa concepção encontra correspondência direta nas formulações de Biggs et al. (2012), Biggs, Schlüter e Schoon (2015), posteriormente
+revisitadas por Baird et al. (2024), ao proporem os sete princípios de construção da resiliência em sistemas socioecológicos. A ênfase na
+aprendizagem, na diversidade e na gestão de feedbacks lentos reforça a ideia de que a resiliência não é a mera capacidade de retornar a um
+
+
+estado anterior, mas a habilidade de reorganizar-se e transformar-se ao longo do tempo — aquilo que Morin (1977) descreveria como uma
+organização generativa.
+“A organização regenerada e generativa é uma lógica de sistemas que aprendem, se reorganizam e se transformam.” (MORIN,
+1977, p. 210)
+
+Nessa chave, a resiliência produtiva e socioecológica pode ser compreendida como a capacidade de sincronizar temporalidades heterogêneas
+— as do solo, das espécies, dos ciclos econômicos e dos modos de habitar. Nos Sistemas Agroalimentares de Identidade Territorial (SAIT), essa
+sincronização se manifesta na articulação entre os ritmos ecológicos do campo nativo, os calendários produtivos e as dinâmicas sociais e
+culturais que constituem o território. A taskscape territorial, portanto, é o espaço-tempo da coevolução entre natureza, técnica e cultura — o
+cenário vivo onde se negocia a continuidade e a transformação das práticas produtivas.
+“A resiliência produtiva territorial emerge da capacidade de sincronizar temporalidades heterogêneas — as do solo, das espécies, dos ciclos
+econômicos e dos modos de habitar — compondo uma taskscape socioecológica em contínua regeneração.”
+Essa leitura amplia a compreensão da resiliência como fenômeno complexo, inserindo-a numa ontologia do habitar e numa ecologia do tempo.
+Mais do que um conceito operacional, a resiliência torna-se, assim, uma forma de conhecimento situada — um modo de viver e de perceber os
+ritmos que sustentam a vida nos territórios.
+A partir dessa compreensão da paisagem como tecido temporal do habitar, torna-se possível reinterpretar os princípios operacionais da
+resiliência não apenas como instrumentos de gestão, mas como modos de sincronização entre processos ecológicos, produtivos e sociais.
+Nesse sentido, o campo conceitual delineado por Ingold (1993), Farina (2006) e Morin (1977) oferece a base ontológica para compreender os
+sete princípios formulados por Biggs et al. (2012), Biggs, Schlüter e Schoon (2015). Eles passam a ser vistos, assim, como expressões concretas
+da co-temporalidade que sustenta a resiliência produtiva e socioecológica nos territórios.
+
+
+2.3.2
+
+Para além da auto-organização: ecologias do habitar e do comum
+
+A genealogia da resiliência socioecológica, formulada a partir de Morin, Maturana, Varela e Holling, revela o princípio comum da autoorganização adaptativa — a capacidade de persistir mudando. Mas, à medida que a resiliência se torna também um campo de práticas
+e de experimentação territorial, essa concepção precisa ser reaberta para outras ontologias do viver e do conhecer. É nesse ponto que as
+contribuições de Stengers, Ingold, Serres e Latour ampliam e deslocam o horizonte epistemológico da resiliência: de uma teoria dos sistemas
+vivos para uma ecologia das práticas vivas.
+
+Stengers: da epistemologia operacional à ecologia das práticas
+Para Stengers (2018), a ciência deve aprender a desacelerar para tornar-se capaz de escutar o mundo que pretende compreender. Em lugar de
+uma racionalidade que aplica princípios universais, Stengers propõe uma ecologia das práticas, na qual cada modo de conhecer emerge de
+um encontro situado, não generalizável, entre humanos e não-humanos. A operacionalização dos princípios da resiliência — diversidade,
+conectividade, aprendizagem, governança — deve assim ser entendida menos como aplicação e mais como experimentação, no sentido forte do
+termo: uma produção de conhecimento que transforma simultaneamente o pesquisador e o território. Desse modo, a resiliência deixa de ser
+apenas um conjunto de propriedades mensuráveis e se torna um gesto ético-político de cohabitação e cuidado.
+
+Ingold: tempo vivido e paisagens habitadas
+A inflexão de Ingold (1993) desloca a resiliência do campo dos sistemas para o campo do habitar. Ao compreender a paisagem como um
+registro vivo do viver, Ingold dissolve a oposição entre natureza e cultura, mostrando que o tempo não é algo que flui, mas o meio em que a
+vida se desenrola. A resiliência, sob essa perspectiva, é a capacidade de habitar o tempo — de tecer continuamente relações que conferem
+espessura histórica e sensível aos territórios. Nos Sistemas Agroalimentares de Identidade Territorial (SAIT), essa ideia adquire forma concreta:
+o campo não é um cenário de práticas produtivas, mas uma trama de trajetórias humanas e não-humanas que se regeneram mutuamente.
+
+
+“O tempo não é algo que flui, mas algo em que habitamos — o meio através do qual a vida se desenrola.”
+Tim Ingold, The Temporality of the Landscape (1993, p. 162)
+
+Serres: as passagens e a comunicação dos mundos
+A obra de Serres (1985) introduz o tema da comunicação dos heterogêneos. A complexidade, nesse sentido, não é apenas a coexistência de
+partes diversas, mas a turbulência das suas passagens: os fluxos de energia, de matéria e de sentido que fazem coexistir o ruído e a ordem.
+Serres nos lembra que a resiliência não está nas estruturas estáveis, mas nos interstícios que permitem a circulação — nas pontes que religam
+domínios aparentemente incomunicáveis. Assim, a diversidade e a conectividade, princípios fundadores da resiliência, devem ser lidos também
+como comunicação e metamorfose: a resiliência é um modo de tradução contínua entre mundos.
+
+Latour e Ostrom: o comum como composição
+Por fim, LATOUR (2004) e Ostrom (1990) convergem ao propor que a governança não se define pela centralidade de um Estado nem pela
+liberdade de um mercado, mas pela capacidade de compor mundos comuns. O comum não é uma substância anterior às relações, mas o
+resultado sempre provisório da ação coletiva. Latour fala em uma política das associações, na qual humanos e não-humanos coproduzem as
+regras que sustentam a vida em comum; Ostrom demonstra empiricamente que comunidades podem gerir recursos compartilhados de modo
+sustentável, desde que possuam mecanismos de deliberação e monitoramento recíprocos. Ambos antecipam a noção de commoning como
+prática de resiliência: processos institucionais que aprendem com a experiência e se reorganizam sem perder identidade.
+
+Síntese
+O encontro entre esses autores permite reescrever a resiliência socioecológica em quatro chaves complementares:
+1. Epistemológica (Stengers): a resiliência como ecologia das práticas e das situações;
+
+
+2. Ontológica (Ingold): a resiliência como continuidade do habitar e das temporalidades vivas;
+3. Fenomenológica (Serres): a resiliência como comunicação dos heterogêneos e metamorfose contínua;
+4. Política (Latour & Ostrom): a resiliência como prática de composição dos comuns.
+Em conjunto, essas perspectivas deslocam o eixo da auto-organização para o da co-habitação. A resiliência deixa de ser apenas uma propriedade
+dos sistemas e torna-se um modo de existir: uma arte de viver entre tempos, práticas e mundos diversos. Mais do que estabilidade ou retorno,
+ela expressa o gesto contínuo de compor e recompor o comum — aquilo que nos permite, como diria Morin, “persistir mudando”.
+A partir desse conjunto de deslocamentos — da ecologia das práticas (Stengers), da ontologia do habitar (Ingold), da comunicação dos
+heterogêneos (Serres) e da política das associações (Latour) — o trabalho de Elinor Ostrom pode ser novamente situado. Ele deixa de aparecer
+como teoria institucional dos recursos comuns e passa a ser lido como um modo de atenção: uma ecologia do comum que se faz na fricção
+cotidiana entre pessoas, coisas, territórios e ritmos.
+
+“O comum não é um dado, mas um fazer — uma prática de coordenação sensível que tece o social no ecológico.”
+
+Em vez de partir da tragédia, Ostrom convida a observar os gestos silenciosos que permitem a continuidade: os acordos improvisados, a
+confiança construída a passos curtos, a leitura atenta dos sinais do ambiente. O commoning não é um método de gestão, mas uma maneira de
+habitar um território que responde — uma prática que aprende com a mudança e reorganiza, a cada ciclo, as relações que sustentam a vida
+em comum.
+Nesse horizonte, a resiliência deixa de ser atributo dos sistemas e torna-se presença coletiva: a inteligência que emerge quando os atores se
+reconhecem como parte de um mesmo campo socioecológico. O comum não é o que sobra fora do Estado ou do mercado; é o que se tece no
+intervalo entre regras e gestos, no cuidado mútuo, na vigilância recíproca, na flexibilidade necessária para que o mundo continue respirando.
+O commoning aparece, assim, como gesto de reorganização contínua — uma forma de decidir junto que não depende da unanimidade, mas
+da capacidade de escutar. Os princípios que Ostrom identificou não funcionam como fórmulas: são padrões de convivência observados em
+
+
+sistemas que persistem porque se permitem corrigir, experimentar, hesitar. Eles encarnam a mesma ética de cuidado que Stengers chamaria
+de “experimentação lenta”, e o mesmo mover-se no mundo que Ingold reconhece como habitar.
+Desse ponto de vista, a pergunta de Ostrom nunca foi “como gerir recursos comuns?”, mas como criar condições para que o comum possa
+emergir: como preparar o terreno onde a confiança cresce, onde o conflito pode ser negociado, onde diferentes escalas de decisão se
+correspondem sem apagar a textura local. O comum, então, deixa de ser substantivo e passa a verbo — um modo de estar no mundo que se
+repete no desenho de uma regra, na deliberação de uma assembleia, ou na simples escuta de uma nascente que começa a baixar.
+Essa leitura expande a própria ideia de resiliência socioecológica. O comum não é apenas algo a proteger, mas aquilo que se produz na
+convivência — o campo vivo onde ecologia, técnica e vida social se reorganizam. Nessa chave, o commoning torna-se ponte entre a ontologia
+do habitar e as práticas de governança adaptativa, abrindo caminho para compreender a resiliência como princípio ontoepistêmico na seção
+seguinte.
+Descrição da imagem. A cena mostra quatro pessoas reunidas à beira de um curso d’água, numa paisagem que parece respirar. O horizonte
+é amplo e silencioso; a luz dourada do fim da tarde dissolve o contorno das colinas e mistura céu e terra numa mesma vibração tranquila. A
+vegetação rasteira se alonga em tons de verde e ocre, sugerindo um território habitado pelo tempo lento.
+No primeiro plano, duas figuras — um homem e uma mulher — estendem as mãos uma à outra. Não há objeto sendo trocado: o que circula é o
+gesto. O encontro das mãos revela uma forma de acordo que não precisa de assinatura — uma confiança construída no corpo, na proximidade,
+no toque que é também pacto e cuidado.
+Atrás deles, outras duas pessoas observam. Uma delas segura um papel — talvez um mapa, uma regra, um aviso — mas a atenção do grupo
+não está no documento; está no espaço entre as mãos que se buscam. O papel é registro; o gesto é mundo.
+A composição pictórica enfatiza isso: todas as linhas convergem para o centro vazio entre as mãos estendidas, como se o comum estivesse
+sendo produzido exatamente ali, não como coisa, mas como acontecimento. O rio que serpenteia ao fundo reforça o movimento: um fluxo
+contínuo, nunca o mesmo, sempre recompondo suas margens.
+
+
+Figura 5 – O gesto do comum. A cena representa o commoning como prática viva de coordenação sensível entre pessoas e território. A
+imagem foi gerada por inteligência artificial (OpenAI DALL·E, 2025) sob curadoria do autor.
+Interpretação conceitual. A imagem encena o commoning como prática viva: o comum não aparece como recurso a ser administrado, mas
+como relação que se faz no entre. As mãos que se aproximam simbolizam a confiança e a reciprocidade descritas por Ostrom; o corpo que
+
+
+observa revela a vigilância compartilhada; o papel ao fundo sugere regras que existem, mas não comandam — apenas acompanham.
+O território aparece como terceira presença, testemunha silenciosa daquilo que o grupo tece. A luz suave, que percorre as figuras e a paisagem,
+expressa o princípio central: o comum é aquilo que se produz juntos — gesto, tempo e lugar são indissociáveis. Nesse sentido, a cena funciona
+como síntese visual da resiliência socioecológica enquanto prática de composição e reorganização compartilhada.
+
+2.3.3
+
+A Resiliência como Princípio Ontoepistêmico e Territorial
+
+A resiliência, mais que uma propriedade ecológica ou uma estratégia de gestão, constitui um princípio ontoepistêmico — uma maneira de
+compreender a vida como processo de auto-organização e regeneração contínua. Esse princípio opera em múltiplas escalas: no organismo
+vivo, no ecossistema e no território habitado. Ao longo das décadas de 1970, autores provenientes da filosofia da complexidade, da biologia
+teórica e da ecologia de sistemas convergiram nesse entendimento, formulando linguagens distintas para descrever o mesmo fenômeno da
+vida que persiste mudando.
+
+2.3.4
+
+A Auto-organização como Fundamento do Vivo
+
+O intervalo entre 1970 e 1977 constitui um momento de condensação paradigmática na teoria dos sistemas vivos e complexos, culminando
+entre 1972 e 1977 com a formulação dos conceitos de autopoiesis, auto-organização e resiliência. Nesse período, três tradições distintas —
+a filosofia da complexidade, a biologia teórica e a ecologia de sistemas — convergiram em torno de um mesmo princípio ontológico: o da
+auto-organização.
+Entre 1973 e 1977, Maturana e Varela, na biologia, e Morin, na filosofia da complexidade, publicam independentemente obras que convergem
+no mesmo princípio de auto-produção, enquanto Holling, em 1973, formalizava a resiliência como capacidade de reorganização nos sistemas
+ecológicos. Esse sincronismo indica um verdadeiro momento epistemológico: diferentes campos — filosofia, biologia e ecologia — articulam a
+ideia de sistemas dinâmicos capazes de se regenerar, isto é, de persistir mudando.
+
+
+Tabela 3 – Convergência epistemológica no “momento 1970–1977”.
+Obra
+
+Autor(es)
+
+Núcleo conceitual
+
+Resilience and Stability of Eco- C. S. Holling
+logical Systems (1973)
+
+Define resilience como a capacidade de
+um sistema ecológico absorver perturbações e reorganizar-se mantendo sua
+identidade funcional.
+De máquinas y seres vivos Humberto Matu- Primeira formulação pública do con(1973)
+rana e Francisco ceito de autopoiesis: uma rede de proVarela
+cessos de produção que gera os próprios componentes que, por sua vez,
+mantêm essa mesma rede.
+La Méthode 1: La Nature de la Edgar Morin
+Formula a forma genésica e generativa
+Nature (1977)
+— a organização que se produz e se
+reorganiza continuamente; introduz o
+conceito de organização regenerada e
+generativa.
+
+A poiesis em Morin.
+
+Na seção “VI — A forma genésica e generativa”, Morin (1977, p. 210–211) escreve:
+
+“A generatividade é, efetivamente, uma gênese indefinidamente recomeçada, organizada e regulada. [...] E os processos de gênese prosseguem,
+mas transformados em poiesis e produção, nestas e por estas organizações-máquinas.”
+
+Essa passagem é decisiva. Morin desloca o foco da gênese (um começo) para a poiesis (um processo de auto-criação), introduzindo o termo
+grego no vocabulário da teoria da complexidade. Ele concebe as organizações vivas como organizações-máquinas que se autoproduzem —
+
+
+organizações cujo produto é a sua própria organização. Trata-se, portanto, de uma formulação filosófica do mesmo princípio que, poucos anos
+antes, Maturana e Varela haviam desenvolvido em chave biológica.
+
+A autopoiesis em Maturana e Varela.
+
+Maturana e Varela (1973, p. 78)1 definem uma máquina autopoiética como:
+
+“Uma máquina organizada como uma rede de processos de produção que, através das interações desses processos, produz os próprios
+componentes que constituem essa rede.”
+
+Comparando: Morin descreve organizações-máquinas que produzem sua própria forma através de poiesis; Maturana e Varela formalizam
+essa ideia em termos biológicos, denominando-a autopoiesis (auto-produção). Ambos rejeitam o mecanicismo linear e afirmam a existência
+de sistemas recursivos, reflexivos e regenerativos. A diferença é de escopo: Morin formula uma ontologia da complexidade (física–biologia–
+antropossociologia), enquanto Maturana e Varela descrevem um mecanismo operacional da vida. Mas epistemologicamente, poiesis e
+autopoiesis são duas expressões do mesmo princípio: a produção de si por si mesmo.
+De autopoiesis à resiliência
+Quando Holling (1973, p. 17) define resilience, sua preocupação é ecológica e funcional:
+“Resilience determines the persistence of relationships within a system and is a measure of the ability of these systems to absorb changes of
+state variables and still persist.”
+1
+
+O conceito foi originalmente formulado em 1972 no manuscrito Autopoietic Systems, sendo publicado em 1973 em espanhol e traduzido para o inglês em 1977 sob o
+título Autopoiesis and Cognition: The Realization of the Living.
+
+
+Apesar da diferença de linguagem, o núcleo é comum: a capacidade de um sistema absorver perturbações e reorganizar-se mantendo sua
+identidade funcional. A diferença é apenas de domínio:
+• Morin fala em gênese indefinidamente recomeçada;
+• Maturana e Varela, em auto-produção da organização;
+• Holling, em auto-reorganização diante da perturbação.
+Todos descrevem sistemas capazes de se regenerar sem perder identidade — a essência tanto da vida quanto da resiliência.
+
+Síntese.
+Morin fala em gênese indefinidamente recomeçada; Maturana e Varela, em auto-produção da organização; Holling, em auto-reorganização diante
+da perturbação. Todos descrevem sistemas capazes de regenerar-se sem perder identidade — a essência tanto da vida quanto da resiliência.
+A vida — e, por extensão, os sistemas socioecológicos — mantém sua identidade precisamente porque é capaz de se reorganizar.
+Nesse sentido, a resiliência socioecológica pode ser entendida como a tradução contemporânea e operacional da auto-organização moriniana,
+incorporando, em escala territorial e institucional, o mesmo movimento de gênese indefinidamente recomeçada que caracteriza o vivo. Ela
+expressa o paradigma da complexidade em ação: sistemas que aprendem, regeneram-se e se transformam, sem perder a continuidade de sua
+organização.
+
+
+Tabela 4 – Três formulações de um mesmo princípio de auto-organização adaptativa.
+Dimensão
+Objeto
+
+Morin (1977)
+
+Natureza e organização
+da vida e do conhecimento
+Conceito central Auto-organização generativa (poiesis)
+Lógica interna
+Círculo produtivo: desordem → ordem → organização → reorganização
+Grau de abertura Aberto à energia e à informação
+Significado co- Persistir mudando
+mum
+
+2.3.5
+
+Maturana & Varela
+(1973)
+
+Holling (1973)
+
+Sistemas vivos (biolo- Ecossistemas (ecologia)
+gia)
+Auto-produção (autopoiesis)
+Rede de processos que
+produzem seus próprios
+componentes
+
+Auto-reorganização
+(resilience)
+Feedbacks que mantêm funções essenciais após perturbações
+Fechado na organiza- Aberto a distúrbios e
+ção, aberto na estrutura trocas ambientais
+Manter identidade na Persistir sob perturmudança
+bação
+
+A Memória Biocultural como Autopoiese do Território
+“Viver é conhecer.”
+Humberto Maturana &
+Francisco Varela, Autopoiesis and
+Cognition (1980)
+
+A noção de autopoiese, formulada por Maturana e Varela (1980), descreve a capacidade dos sistemas vivos de se produzirem continuamente a
+partir das relações que mantêm entre seus próprios componentes. Viver, nesse sentido, é manter uma organização que se conserva precisamente
+
+
+através da mudança — uma dinâmica recursiva em que cada ato de existência é também um ato de reconfiguração. A vida não é algo que se
+tem, mas algo que se refaz incessantemente.
+Ao transpor esse princípio ao domínio coletivo e territorial, a memória biocultural deixa de ser entendida como um arquivo de saberes e
+passa a ser reconhecida como o próprio processo de autoprodução do território. As práticas, narrativas, rituais e técnicas de manejo configuram
+o metabolismo simbólico e ecológico pelo qual comunidades camponesas, indígenas e locais mantêm sua identidade e a vitalidade dos
+ecossistemas que habitam. O território torna-se, assim, uma unidade autopoiética ampliada: um sistema vivo que se reconhece e se reorganiza
+pela interação entre seres humanos, outros vivos e os fluxos materiais e imateriais que os atravessam.
+Para Morin (1977), toda organização viva opera como um anel de retroações entre parte e todo, em que o produto retroage sobre aquilo que o
+produz. A memória biocultural é precisamente esse circuito de recursividade: nela, o passado não é um depósito, mas uma força organizadora
+que age sobre o presente e possibilita o futuro. Trata-se de uma memória organizacional da complexidade, em que os elementos materiais (solo,
+água, sementes) e os imateriais (mitos, gestos, valores) coevoluem como dimensões inseparáveis de uma mesma ecologia.
+Sob essa perspectiva, a paisagem deixa de ser um cenário e torna-se, como propõe Ingold (1993), um registro vivo do habitar. Cada caminho,
+cada gesto de manejo ou de colheita, é uma linha no tecido temporal do território. A temporalidade da paisagem é também a do aprendizado:
+o tempo lento das práticas reiteradas, da observação sensível e da transmissão intergeracional. Conhecer é prolongar esse movimento de
+co-presença, é habitar o tempo dos outros — humanos e não humanos — que constituem o mesmo campo de vida.
+A esse respeito, Serres (1985) e Stengers (2018) convergem ao afirmar que o conhecimento é sempre um ato de relação. Serres recorda que “a
+pele pensa”: o saber nasce do contato, do atrito e da vulnerabilidade que nos liga ao mundo. Stengers, por sua vez, insiste que toda prática de
+conhecimento é situada e relacional, uma ecologia do saber que envolve corpos, afetos e territórios. Assim, conhecer é participar dos processos
+de produção da vida — é uma forma de cuidado.
+Dessa leitura emerge o conceito de Resiliência Biocultural Territorial, definido como a capacidade de um território de manter sua vitalidade
+ecológica e cultural através da regeneração contínua de suas práticas de conhecimento, manejo e convivência. Ela opera simultaneamente na
+matéria e na memória, nos fluxos ecológicos e nas narrativas, e apoia-se em três fundamentos interdependentes:
+
+
+• Diversidade interdependente — a variedade de espécies, línguas, práticas e afetos assegura múltiplas vias de reorganização e inovação,
+funcionando como uma redundância vital diante da mudança;
+• Continuidade ritual e pedagógica — a transmissão intergeracional dos modos de fazer e de sentir sustenta a coesão comunitária e a
+aprendizagem social, mantendo viva a experiência territorial;
+• Commoning e governança viva — a gestão coletiva dos bens comuns renova as alianças entre humanos e não humanos, configurando
+uma política da coabitação e da reciprocidade.
+A memória biocultural, concebida dessa forma, é menos uma herança do passado e mais uma força de regeneração que assegura a continuidade
+do viver. Ela é o modo pelo qual o território se autoproduz como corpo sensível e coletivo — uma autopoiese que pensa, sente e age no tempo.
+
+
+Continuidade ritual e pedagógica
+
+Diversidade interdependente
+
+Transmissão intergeracional dos modos
+de fazer e de sentir
+
+Variedade de espécies,
+línguas, práticas e afetos
+
+UNIDADE AUTOPOIÉTICA AMPLIADA
+Práticas, Narrativas,
+Rituais e Técnicas de Manejo
+
+Commoning e
+governança viva
+Gestão coletiva
+dos bens comuns
+
+Figura 6 – Representação conceitual da Memória Biocultural como Autopoiese do Território.
+
+
+2.3.6
+
+A Expressão Operacional da Resiliência
+
+A tradução operativa desse princípio ontológico se materializa em sete princípios sistematizados por Biggs et al. (2012), Biggs, Schlüter e
+Schoon (2015) e revisitados por Baird et al. (2024). Eles representam as expressões empíricas da auto-organização adaptativa em sistemas
+socioecológicos:
+1. Diversidade e Redundância (E): variedade biológica, funcional, cultural e institucional como fonte de respostas diante de perturbações;
+2. Conectividade (E ↔ P): modulação dos fluxos de matéria, energia, informação e cooperação;
+3. Variáveis Lentas e Retroalimentações (E, P): identificação de processos lentos e feedbacks críticos que determinavam as trajetórias
+de mudança;
+4. Pensamento em Sistemas Complexos (E + P + S): abandono da razão simplificante em favor da incerteza e da coevolução (MORIN,
+1977; FOLKE, 2006);
+5. Aprendizagem e Experimentação (P): processos reflexivos que transformam perturbações em oportunidades (GUNDERSON;
+HOLLING, 2002);
+6. Participação Ampliada (S): inclusão cognitiva e política de múltiplos atores (BERKES; COLDING; FOLKE, 2003; BIGGS; SCHLüTER;
+SCHOON, 2015);
+7. Governança Policêntrica (S): distribuição de autoridade e inovação institucional (OSTROM, 1990; BAIRD et al., 2024).
+Esses princípios constituem a ponte entre teoria e indicadores — a base da Resiliência Produtiva Territorial (RPT) em três dimensões interdependentes:
+• Ecológica (E): estoques e fluxos biofísicos, variáveis lentas e diversidade;
+
+
+Tabela 5 – Síntese dos princípios e dimensões da resiliência socioecológica.
+Princípio
+
+Núcleo de Resiliência
+
+Dimensão predominante
+
+Diversidade e Redundância
+Conectividade
+Variáveis lentas e feedbacks
+Pensamento em sistemas
+complexos
+Aprendizagem e experimentação
+Participação ampliada
+Governança policêntrica
+
+Capacidade de absorção
+Modulação de fluxos
+Estabilidade adaptativa
+Reflexividade
+
+Ecológica (E)
+Ecológico-produtiva (E ↔ P)
+Ecológica/produtiva
+Integrada (E + P + S)
+
+Reorganização adaptativa
+
+Produtiva (P)
+
+Capital social e confiança
+Auto-organização coletiva
+
+Social/institucional (S)
+Social/institucional (S)
+
+• Produtiva (P): processos de manejo adaptativo e aprendizagem prática;
+• Social/Institucional (S): governança, redes de cooperação e ação coletiva.
+Ao operacionalizar esses princípios sob as três dimensões, a complexidade moriniana torna-se um paradigma operativo de resiliência, no qual
+teoria e prática se co-produzem em ciclos contínuos de aprendizado e reorganização.
+
+
+2.4
+
+O Corpo, o Sensível e a Extensão
+
+2.4.1
+
+O Princípio Sensível da Resiliência: Corpo, Meio e Conhecimento
+“A pele pensa.”
+Michel Serres, Les Cinq Sens 1985
+
+A partir da ecologia do habitar proposta por Ingold (1993), o passo seguinte é reconhecer que a própria percepção — o sentir — constitui o
+primeiro gesto de reorganização. É nesse ponto que o pensamento de Serres (1985) ilumina a resiliência como experiência sensível: antes de
+ser conceito ou modelo, ela é um modo de existência que se produz pelo contato e pela escuta.
+A obra de Serres (1985) propõe uma reintegração radical entre corpo e pensamento. Em vez de tratar o conhecimento como abstração distante,
+Serres o compreende como experiência encarnada: um saber que nasce do contato, da fricção e da vulnerabilidade. Em Les Cinq Sens, cada
+sensação é um modo de conhecer e um modo de habitar o mundo; o corpo torna-se o mediador entre as forças do meio e a consciência que
+delas emerge. O princípio sensível, nesse sentido, não é apenas origem do saber, mas força de reorganização — uma potência de transformação
+que se manifesta na passagem entre caos e forma, dor e descoberta, crise e criação.
+No capítulo Naissance, Serres descreve o corpo expulso pelo fogo, nascendo entre o ardor e o frio, reaprendendo a respirar dentro da fumaça.
+Trata-se de uma metáfora vital para compreender a resiliência: a vida que ressurge a partir da perturbação, o sistema que se refaz quando
+o equilíbrio se rompe. Assim como o marinheiro aprende a dominar o fogo pelo corpo, os sistemas socioecológicos aprendem a viver nas
+fronteiras do risco — não pela negação do distúrbio, mas pela incorporação de suas lições. A crise territorial, nesse sentido, torna-se experiência
+estética: o instante em que o território reaprende o mundo pelo sentir.
+Mais do que a capacidade de reorganizar-se, a resiliência passa a ser compreendida como a faculdade de sentir o mundo e responder às suas
+variações. A vida resiste não apenas porque se adapta, mas porque escuta, percebe e compõe com as forças que a atravessam. Serres desloca o
+
+
+foco da estrutura para o meio (milieu): o espaço entre corpos, onde o calor, o som, o vento e o toque produzem conhecimento. Nesse sentido, o
+corpo não é um observador externo, mas um nó de comunicações — uma topologia de fluxos em permanente reconfiguração. Conhecer é
+sempre participar; sentir é já compreender.
+“O conhecimento nasce do contato, não da distância.”
+(SERRES, 1985, p. 56)
+
+A resiliência sensível manifesta-se, assim, como a arte de compor com o instável. O ritmo, a temperatura e o som do mundo tornam-se
+medidas de sua transformação. Ao contrário da visão mecanicista que busca estabilidade, o sensível serresiano revela que a permanência da
+vida depende de sua vulnerabilidade às variações do meio. O corpo aprende porque é atravessado por ondas, ventos, fluxos — porque está
+exposto.
+Essa ontologia tátil do conhecimento aproxima-se da paisagem habitada de Ingold (1993), onde viver é participar do mesmo movimento da
+terra e do tempo. Enquanto Ingold descreve a paisagem como registro vivo do habitar, Serres mostra que o próprio ato de sentir é o que funda
+a paisagem: ela existe enquanto superfície de trocas entre corpos e elementos.
+Nos Sistemas Agroalimentares de Identidade Territorial (SAIT), essa dimensão sensível da resiliência manifesta-se no corpo coletivo dos
+territórios: nas mãos que manejam o campo, nas decisões partilhadas, nos saberes que conjugam prudência e improviso. A resiliência produtiva
+não é apenas uma resposta técnica às perturbações, mas uma forma de percepção — uma estética do viver em transformação. Como em
+Serres, a sobrevivência não se faz pela distância, mas pela escuta: uma escuta do mundo em sua temperatura, textura e ritmo. É preciso sentir
+o vento, o solo, o rumor do rebanho e o silêncio das águas. É nesse entrelaçamento de sentidos, corpos e paisagens que a resiliência se torna
+sensível — e, portanto, verdadeiramente viva.
+Em síntese, a contribuição de Serres amplia a resiliência para além de sua função adaptativa: ela torna-se uma estética da coexistência e uma
+ética do cuidado. Ao reconhecer o conhecimento como efeito de contato e a vida como vibração partilhada, Serres prepara a passagem natural
+para a ecologia da ação de Morin (1977), na qual todo gesto, uma vez lançado no mundo, entra em relação com múltiplos efeitos imprevisíveis.
+
+
+Transição: da ecologia do sentir à ecologia da ação.
+
+2.4.2
+
+A Álgebra da Extensão e o Campo da Resiliência
+“O espaço não é dado: é construído
+pela extensão das relações que o
+pensamento reconhece.”
+Hermann Grassmann, Die
+Lineale Ausdehnungslehre (1844)
+
+A formulação de Hermann Günther Grassmann (1809–1877) da Teoria da Extensão Linear (Ausdehnungslehre) representa uma das mais profundas
+inflexões na história do pensamento matemático. Muito além de uma inovação técnica, sua obra antecipa uma ontologia relacional do
+espaço: toda forma, linha ou volume é expressão de uma relação de extensão entre entidades elementares. Em vez de conceber o espaço como
+recipiente, Grassmann o compreende como tecido de relações orientadas, cujo sentido emerge das combinações e interações entre suas partes.
+Essa concepção de espaço como campo relacional oferece uma chave potente para reinterpretar a Resiliência Produtiva e Socioecológica
+em SAIT. A resiliência, entendida como capacidade de reorganização diante da mudança (HOLLING, 1973), pode ser pensada, em termos
+grassmannianos, como a coerência das extensões — a manutenção de relações estruturantes mesmo quando as formas se transformam.
+Assim como em Grassmann o vetor não é uma entidade isolada, mas uma relação de extensão entre pontos, também no território
+o que persiste não são os objetos (propriedades, unidades de produção, atores sociais), mas as relações que os articulam no campo
+socioecológico.
+
+Nessa leitura, cada dimensão do sistema — ecológica (E), produtiva (P ) e social (S) — pode ser tratada como um vetor de extensão no campo
+territorial. A resiliência produtiva emerge do produto exterior entre essas dimensões, isto é, da sua coextensão:
+
+
+R=E∧P ∧S
+onde R representa o campo de resiliência, não como soma de componentes, mas como uma superfície de coerência emergente do entrelaçamento
+das extensões ecológica, produtiva e social.
+A partir dessa leitura, o território se revela como um campo vetorial vivo, no qual fluxos de energia, saber, matéria e valor se propagam segundo
+orientações múltiplas. O manejo agropecuário sustentável pode então ser compreendido como uma prática de orientação e reequilíbrio das
+extensões — uma geometria viva da adaptação.
+Produtiva (P )
+
+R=E∧P ∧S
+Ecológica (E)
+
+Social (S)
+Figura 7 – Campo de Resiliência como produto exterior entre as dimensões ecológica (E), produtiva (P ) e social (S).
+Fonte: elaborado pelo autor a partir de princípios da álgebra exterior de Grassmann (1844).
+
+O diagrama acima representa o território como um espaço de extensões vetoriais interdependentes. A intersecção entre os planos (E, P , S)
+simboliza as zonas de coerência adaptativa, onde a resiliência não é atributo de uma parte, mas propriedade emergente das relações.
+
+
+Nota epistemológica
+O impacto da álgebra da extensão na arquitetura teórica do volume
+A introdução de Hermann Grassmann e Ubiratan D’Ambrosio neste capítulo não acrescenta um novo tema — reorganiza o campo
+inteiro da resiliência. Ao articular a álgebra da extensão com a etnomatemática, o texto fecha o arco iniciado com Holling e Morin e
+abre o eixo matemático-operacional que conduzirá à modelagem da resiliência produtiva nos SAIT.
+Em termos estruturais, a Seção ?? cumpre a função de ponto de inflexão entre duas dimensões complementares: a resiliência sensível,
+de matriz fenomenológica (Serres, Ingold), e a resiliência operativa, de matriz epistemológica e territorial (Morin, Holling). Nessa
+passagem, a matemática reaparece não como instrumento de cálculo, mas como ontologia da relação: o espaço e o conhecimento são
+compreendidos como extensões que se produzem mutuamente.
+Tabela 6 – Transformações epistemológicas decorrentes da inclusão de Grassmann e D’Ambrosio.
+Nível
+
+Antes
+
+Após inclusão
+
+Ontológico
+Serres (corpo–meio)
+Grassmann (relação–espaço)
+Epistemológico Morin (complexidade) D’Ambrosio (etnomatemática)
+Operacional
+Holling (resiliência)
+R = E ∧ P ∧ S (coextensão)
+O quadro acima não deve ser lido como uma sucessão linear, mas como um movimento de composição. Cada linha representa uma
+transdução de sentido — uma passagem entre campos que se interpenetram e se reorganizam mutuamente.
+No nível ontológico, a passagem de Serres a Grassmann desloca o eixo do corpo sensível para a relação espacial. Em Serres, o
+conhecimento emerge do contato entre corpo e meio: a pele pensa porque o mundo toca. Em Grassmann, essa pele ganha forma
+algébrica — o espaço deixa de ser receptáculo e torna-se uma rede de extensões. O sensível e o geométrico se reencontram: ambos
+descrevem um real tecido de relações.
+No nível epistemológico, o contraste entre Morin e D’Ambrosio evidencia o alargamento do paradigma da complexidade. Morin
+formula a dialógica entre ordem e desordem; D’Ambrosio reinscreve essa dialógica na pluralidade cultural do conhecimento. A
+
+
+Etnomatemática é, nesse sentido, uma complexidade situada: reconhece que toda forma de cálculo é também uma forma de cultura,
+e que o pensamento matemático é inseparável dos modos de vida que o produzem.
+No nível operacional, a transição de Holling à expressão R = E ∧ P ∧ S marca a passagem do modelo ecológico ao campo relacional
+da coextensão. Holling descreve a resiliência como capacidade de reorganização; o produto exterior de Grassmann traduz essa
+reorganização em linguagem de vetores: o sistema não apenas reage, mas se recompõe nas interseções entre dimensões ecológicas
+(E), produtivas (P ) e sociais (S). A equação não representa um cálculo, mas uma imagem de coerência: a forma simbólica daquilo que,
+no território, se refaz pela relação.
+Essas três transduções — do corpo ao espaço, da complexidade à cultura, do sistema ao campo — revelam a natureza estrutural da
+inclusão de Grassmann e D’Ambrosio. Ela não soma novas referências, mas reconfigura o próprio modo de pensar a resiliência: de um
+conceito descritivo para uma gramática das relações, em que o viver, o conhecer e o habitar obedecem à mesma lógica de extensão.
+Assim, o produto exterior R = E ∧ P ∧ S torna-se mais do que uma fórmula. Ele é o signo de uma ontologia comum entre o
+matemático e o ecológico — a de que tudo o que persiste o faz porque se refaz. Nessa coerência que se renova, pensamento e território
+partilham a mesma lei da resiliência: persistir mudando.
+
+2.4.3
+
+Do Sensível ao Relacional: a ponte Serres–Grassmann
+
+2.5
+
+O Campo Socioecológico: Comunidade, Solo Vivo e Relações
+
+
+2.5.1
+
+Ecologia de Comunidades: vida como trama
+“A vida não se distribui em partes,
+mas em relações.”
+Ecologia de Comunidades
+
+Quando se caminha pelas coxilhas após uma chuva fina, o campo do Pampa parece vibrar em pequenas conexões: brotos que despontam,
+insetos que retomam seus trajetos, fungos que abrem redes invisíveis sob o solo. É difícil dizer onde começa uma espécie e termina outra. O
+que se vê — ou melhor, o que se sente — é um contínuo feito de presenças que se tocam.
+A ecologia de comunidades oferece um primeiro deslocamento fundamental para compreender essa paisagem como sistema vivo. Mais
+do que descrever conjuntos de espécies, ela revela a vida como trama: um tecido de interações, fluxos e co-dependências que sustenta a
+possibilidade mesma de reorganização. Diversidade, conectividade e redundância funcional deixam de ser atributos isolados e passam a
+constituir capacidades relacionais — modos pelos quais os sistemas mantêm aberto o campo de respostas possíveis.
+É nesse ponto que o conceito ecológico de campo adquire força renovada. O campo não é apenas espacialidade; é um modo de existência. É o
+meio onde plantas, animais, solo, água e práticas de manejo se enredam em ritmos compartilhados, compondo o que Ingold (1993) descreve
+como um habitar mútuo. O campo torna-se, assim, a superfície sensível do encontro entre dimensões ecológicas, produtivas e sociais — o lugar
+onde o operador R = E ∧ P ∧ S ganha corpo e densidade.
+Por fim, ao compreender o solo como sistema vivo, a resiliência territorial ganha profundidade material. O solo deixa de ser mero suporte para
+tornar-se coprodutor: memória biogeoquímica, comunidade subterrânea e infraestrutura orgânica da produção. A vitalidade dos processos
+pedológicos — infiltração, ciclagem de nutrientes, atividade microbiana — condiciona tanto a produtividade quanto a capacidade do sistema
+de absorver, transformar e responder ao distúrbio.
+Nesse entrelaçamento entre comunidade, campo e solo vivo, a resiliência não aparece como propriedade de um elemento isolado, mas
+como emergência relacional: aquilo que irrompe quando as dimensões ecológica (E), produtiva (P ) e social (S) se encontram em regime de
+
+
+co-dependência dinâmica. A equação R = E ∧ P ∧ S torna-se, assim, menos uma fórmula e mais uma descrição de mundo — o gesto pelo
+qual o território se reorganiza, continuamente, diante do inesperado.
+É a partir desse gesto que o campo se revela como meio vivo.
+
+2.5.2
+
+O Campo como Meio Vivo: habitar e co-existência
+
+Ao amanhecer, o campo não “está lá”: ele acontece. A luz não ilumina uma superfície; ela desperta movimentos. É o respirar conjunto entre
+vento, solo úmido, insetos, plantas e práticas humanas que faz do campo um meio vivo, não um cenário.
+Seguindo INGOLD (2011), o campo não é onde a vida ocorre, mas a própria tessitura das relações que tornam a vida possível. Habitar, aqui,
+não é ocupar um espaço, mas participar de seus fluxos. Tropas em movimento, enxames de pequenos vertebrados, raízes explorando poros do
+solo, famílias manejando o gado — cada gesto prolonga os outros.
+No contexto dos SAIT, essa concepção retira o campo do plano meramente produtivo e o reinscreve como infraestrutura ecossocial: um meio
+onde técnicas, saberes, espécies e ritmos se co-produzem. Ele é, simultaneamente:
+- arquivo de memória (rastros de uso, de seca, de cuidado); - meio de passagem (água, vento, matéria orgânica); - lugar de negociação entre
+espécies e práticas.
+O campo torna-se vivo porque está sempre por fazer — é resultado contínuo de interação, não antecedente estático.
+O campo vive porque é habitado; e é habitado porque se deixa modificar.
+
+
+2.5.3
+
+O Solo como Sistema Vivo: base material da reorganização
+
+Caixa Teórica
+Arenização: laboratório natural de resiliência no Pampa A região Sudoeste do Rio Grande do Sul oferece um dos mais expressivos casos de
+interação entre solo, vegetação e manejo: os areais. Essas manchas de solo arenoso exposto — núcleos de erosão que avançam sobre a
+vegetação campestre — constituem um laboratório natural para observar a reorganização de sistemas socioecológicos em tempo real.
+Estudos de Trindade, Quadros e Pillar (2008) mostram que a estrutura da vegetação do entorno dos areais responde de maneira
+extremamente sensível ao regime de pastejo. Comunidades sob pastejo intenso apresentam até 62,5% de substrato exposto, redução da
+diversidade e dominância de espécies tolerantes ao distúrbio, como Elionurus sp. e Axonopus pressus. Na exclusão do pastejo, ao contrário,
+a vegetação recompõe a cobertura, retoma processos sucessionais e reduz o risco de avanço da arenização.
+Esse contraste revela que a arenização não é apenas um fenômeno geomorfológico, mas um evento socioecológico: emerge da interação
+entre fragilidade pedológica, plasticidade da vegetação campestre e decisões humanas de manejo. O que está em jogo não é apenas a
+erosão do solo, mas a erosão das relações que mantêm o campo vivo.
+Nesse sentido, os areais operam como demonstração concreta da equação R = E ∧ P ∧ S. A dimensão ecológica (E) aparece na dinâmica
+das comunidades vegetais; a produtiva (P ), nas intensidades e estratégias de pastejo; e a social (S), nas práticas e nos pactos territoriais
+que moldam o uso do campo.
+A resiliência emerge, assim, do encontro entre essas dimensões: não como resistência estática, mas como capacidade de reorganizar
+trajetórias ecológicas na borda móvel entre vegetação e areia. Os dados mostram que, quando cessam as pressões excessivas, o campo
+“lembra-se” de si: a sucessão reinicia, espécies forrageiras reaparecem e o solo "volta a vida".
+Em escala territorial, os areais tornam-se um espelho do que o sistema é capaz de fazer quando pode — e do que deixa de fazer quando se
+rompe o entrelaçamento E–P–S. Não são desertos: são mensageiros.
+Se o campo é o meio vivo da co-existência, o solo é seu organismo profundo. Sob a superfície visível, estende-se uma ecologia de ritmos lentos
+— fungos que tecem hifas em direção aos nutrientes, bactérias que aceleram ciclos, raízes que exsudam compostos, fragmentos orgânicos que
+se transformam em húmus.
+
+
+A pedologia contemporânea — de Jenny (1941) a Six et al. (2004) — mostra que o solo não é depósito, mas processo: um sistema aberto cujas
+estruturas emergem de milhões de interações microscópicas. Sua fertilidade não é estoque, mas fluxo; e sua capacidade de reorganização é
+inseparável da vida que nele pulsa.
+Para os SAIT, compreender o solo como sistema vivo significa reconhecer que:
+- cada prática de manejo reorganiza redes ecológicas subterrâneas; - a resiliência produtiva depende da integridade biológica do solo; - a
+memória do território está inscrita na matéria orgânica e nos microporos; - recuperar o solo é recuperar a possibilidade de futuro.
+Assim, o solo vivo não é apenas base material da produção, mas condição de possibilidade da resiliência.
+No solo, a vida aprende a persistir.
+
+2.5.4
+
+O Entrelaçamento E–P–S como Fonte de Emergência
+
+A vida territorial raramente se organiza em dimensões separadas. No manejo do campo nativo, o que é ecológico é também produtivo e, ao
+mesmo tempo, social. As decisões sobre carga animal, as estações de uso, a manutenção de áreas úmidas, os pactos comunitários e as práticas
+de cuidado — tudo repercute, simultaneamente, na biodiversidade, na produtividade e na coesão social.
+É nesse ponto que a formulação grassmanniana se torna mais do que uma metáfora. Se cada dimensão do sistema territorial é um vetor de
+extensão — E, P e S —, a resiliência emerge de seu produto exterior:
+
+R=E∧P ∧S
+O operador ∧ não combina elementos: ele gera uma nova entidade, um volume relacional que não existia antes do encontro. A resiliência
+irrompe, assim, como quarta dimensão — campo de reorganização onde o território aprende com suas perturbações.
+
+
+Trata-se de uma emergência ecológica e social: não se localiza em um elemento, mas no padrão dinâmico de suas interações. Por isso, R não
+está “dentro” de E, P ou S, mas no entre — nesse espaço relacional onde novas possibilidades surgem.
+A resiliência é, assim, o devir do território.
+
+
+2.6
+
+Resiliência como Quarta Dimensão
+“O mundo não é o que é, mas o que
+acontece — um contínuo tecer de
+relações que se refazem no tempo.”
+Tim Ingold, Being Alive 2011
+
+A concepção de Resiliência Produtiva e Socioecológica ganha densidade ontológica quando reconhecida como uma quarta dimensão do
+sistema territorial. Não se trata de uma variável adicional ou de uma propriedade adaptativa, mas de uma dimensão emergente que surge
+no entre das três extensões fundamentais — ecológica (E), produtiva (P ) e social (S).
+Matematicamente, a formulação grassmanniana
+R=E∧P ∧S
+não representa uma simples combinação de componentes, mas a geração de uma entidade de ordem superior. O produto exterior, em sua
+essência, é um gesto de emergência: ele cria o espaço do que ainda não é, mas pode vir a ser. Nesse sentido, R não é uma soma, mas um
+campo de possibilidade — o hipervolume do devir.
+A resiliência é o que se ergue quando o sistema começa a lembrar-se de si.
+Ontologicamente, essa quarta dimensão expressa a passagem da extensão à emergência. Enquanto E, P e S descrevem a estrutura
+tridimensional do território — energia, forma e sociabilidade —, R designa o tempo vivo que pulsa através delas: o campo de reorganização,
+aprendizagem e coevolução. Trata-se de uma dimensão processual, não espacial; o território não a contém, mas é por ela continuamente
+reconstruído.
+
+
+Tabela 7 – A resiliência como quarta dimensão emergente do sistema territorial
+Dimensão
+
+Natureza
+
+Expressão sim- Sentido emergente
+bólica
+
+1ª
+
+Extensão ecológica
+
+E
+
+2ª
+
+Extensão produtiva
+
+E∧P
+
+3ª
+
+Extensão social
+
+E∧P ∧S
+
+4ª
+
+Extensão processual
+
+R=E∧P ∧S
+
+Fluxos de energia e matéria.
+Formas técnicas e circuitos
+de produção.
+Sistemas territoriais e redes de interação.
+Resiliência
+viva
+—
+campo do devir.
+
+Assim compreendida, a resiliência não é uma resposta do sistema, mas o meio pelo qual ele continua a acontecer. É o tempo próprio da vida
+territorial — o intervalo sensível entre colapso e reorganização, onde o aprender e o lembrar se confundem. A ontologia relacional torna-se,
+portanto, uma ontologia do tempo habitado: o território não é o espaço onde a vida ocorre, mas o próprio acontecimento da vida que se
+prolonga em suas extensões.
+Resiliência é a quarta dimensão do habitar — o campo invisível em que o território se refaz ao lembrar-se de si mesmo.
+
+
+Figura 8 – O Campo do Devir — ilustração simbólica da quarta dimensão da resiliência: o tempo habitado que emerge entre as extensões
+ecológica, produtiva e social.
+
+“A luz não revela o mundo — ela o
+faz acontecer.”
+Tim Ingold, Being Alive 2011
+
+
+A imagem O Campo do Devir não pretende representar a quarta dimensão, mas evocá-la. Nela, três planos translúcidos — verde-musgo,
+ocre-terra e azul-acinzentado — interpenetram-se como lâminas de um mesmo respirar. No espaço em que se cruzam, uma luminosidade
+âmbar-dourada emerge: não é foco nem objeto, mas acontecimento. A luz não ocupa o campo; ela o produz. O olhar é convidado não a
+compreender, mas a sentir o instante em que o território se refaz.
+Os planos sugerem as dimensões Ecológica (E), Produtiva (P) e Social (S). Cada um mantém sua cor, mas apenas na medida em que se
+mistura aos demais. A interseção luminosa simboliza a Resiliência (R), a quarta dimensão que não está representada — mas presente como
+vibração. É o entre que pulsa, o ponto em que a extensão se transforma em emergência.
+O Campo do Devir é menos uma imagem do mundo e mais uma imagem do acontecimento. Aqui, a forma cede lugar à respiração: o
+sistema não é visto, mas sentido enquanto se reorganiza.
+A atmosfera difusa, quase táctil, expressa a natureza processual dessa dimensão. Não há horizonte definido, nem delimitação espacial. A
+paisagem dissolve-se em tempo, e o tempo torna-se matéria visível. Essa dissolução traduz a ideia de INGOLD (2011): habitar o mundo não é
+ocupar um espaço, mas participar do seu devir. A resiliência aparece, assim, como campo de aprendizagem, memória e reorganização — o
+tempo vivo que sustenta as extensões.
+O brilho central, de tonalidade âmbar-dourada, é o símbolo do instante criador: a convergência entre energia ecológica, gesto produtivo e
+relação social. Não há hierarquia entre as dimensões — todas coexistem num mesmo campo respirável, em permanente reconfiguração. A cor
+torna-se aqui linguagem ontológica: o verde traz o sopro da matéria viva; o ocre, a densidade do trabalho; o azul, a vibração da convivência; o
+dourado, o tempo que atravessa tudo.
+O Campo do Devir é o retrato sensível do que não se fixa — a imagem da resiliência como acontecimento, do território enquanto gesto
+contínuo de recomposição.
+Ficha técnica: Pintura digital (abstração geométrica translúcida), 2025. Dimensões 1792×1024 px. Cores dominantes: verde-musgo, ocre-terra,
+azul-acinzentado e âmbar-dourado. Obra conceptual: Pedro / IA generativa.
+
+
+2.6.1
+
+Extensão e Resistência: a geometria do gesto territorial
+“A extensão não é um recipiente,
+mas um gesto que se desdobra.”
+Hermann Grassmann,
+Ausdehnungslehre (1844)
+
+O campo que se vê do alto da Serra do Sudeste — mosaico de coxilhas, manchas de campo nativo, clareiras úmidas, capões e corredores de
+vento — não é superfície estática. É tecido vivo, atravessado por memórias de seca, pelas águas lentas do inverno, pelas rotas de sombra
+escolhidas a cada verão por rebanhos e famílias. Nesse gesto de ver, há também o gesto de habitar: o olhar não mede, estende-se. A paisagem
+aparece como feixe de relações que se prolongam umas nas outras.
+É nesse movimento que a geometria de Grassmann revela sua força. Em sua Ausdehnungslehre, Grassmann parte não do ponto, mas da
+diferença. Toda forma — linha, plano, volume — é gerada por um ato de extensão entre entidades que se distinguem. O espaço não é um
+continente, mas uma trama de relações orientadas, cujo sentido emerge de seus entrelaçamentos. O que existe, portanto, não são coisas em si,
+mas a coerência das relações que as fazem aparecer.
+Essa ontologia da extensão encontra ressonância clara nos Sistemas Agroalimentares de Identidade Territorial (SAIT). O que sustenta um
+SAIT não é a permanência das práticas, mas sua capacidade de se reabrirem em novas extensões — ajustar a carga animal diante da estiagem,
+deslocar o manejo para baixadas úmidas, reativar trocas de sementes, reorganizar calendários produtivos. O sistema não colapsa: ele muda de
+base, tal como um conjunto de vetores que gera outro espaço sem perder coerência.
+A resiliência, nessa chave, não é propriedade interna, mas uma capacidade de diferenciação ativa. Em Grassmann, o que permanece não é o
+objeto, mas a lei de sua geração; nos SAIT, o que permanece não é a técnica isolada, mas o modo como práticas, saberes e vínculos podem ser
+reextendidos sem romper sua identidade territorial.
+Assim, a identidade não é essência fixa, mas forma extensiva: um padrão que retorna com variação, como o campo nativo que se recompõe
+
+
+após cada ciclo de uso, ou como a feira local que mantém sua fisionomia variando os atores, os produtos, as histórias. A consistência do SAIT
+não é estabilidade, mas elasticidade dos seus entrelaçamentos.
+Há, portanto, uma ética da extensão: resistir é permanecer aberto ao entre. Não se trata de endurecer fronteiras, mas de manter vivo o poder
+de ser atravessado — pelo clima, pela alteridade, pelos ritmos do território. A resiliência é esse movimento de dobra: o sistema se mantém não
+porque se fecha, mas porque sabe reestender-se.
+Grassmann oferece, assim, uma métrica sensível ao campo socioecológico: a vida dos territórios se mede não pela rigidez de suas formas,
+mas pela capacidade de reorganizar a direção de suas extensões. Cada lavoura, cada invernada, cada feira de troca funciona como vetor em
+um espaço de extensão cuja dimensão última é o cuidado — esse gesto que mantém a trama viva o bastante para que tudo possa, de novo,
+começar.
+“O que resiste não é o capim, nem o campo,
+mas o gesto que os estende um ao outro.”
+
+
+Figura 9 – O gesto mínimo da extensão. Dois vetores emergem do solo e, ao se orientarem em direções distintas, geram o plano translúcido
+que os envolve. A forma não preexiste: ela nasce da relação entre as direções.
+
+A imagem representa um trecho de campo aberto do Pampa, onde dois vetores irrompem do solo a partir de um mesmo ponto. A abertura
+entre seus gestos faz surgir um plano translúcido, sugerindo que, em Grassmann, a forma não é algo dado, mas o resultado da relação entre
+direções que se diferenciam. Assim como dois vetores bastam para gerar uma superfície na teoria da extensão, práticas, ritmos e decisões que
+se abrem umas às outras produzem novas extensões no território. A cena torna visível que o espaço socioecológico não é recipiente, mas
+campo de relações — um tecido dinâmico que se faz no próprio movimento de se estender.
+
+
+Capítulo 3
+Arte, Ciência e Resiliência no Manejo do Campo Nativo
+
+“A paisagem não é o cenário da vida:
+é o meio pelo qual a vida se
+conduz.”
+Tim Ingold, 1993
+
+
+3.1
+
+Introdução: Manejar é Conhecer
+
+O manejo do campo nativo — tal como sistematizado em Arte e Ciência no Manejo de Campo Nativo — revela uma característica fundamental:
+manejar é uma forma de (re)conhecer. Trata-se de perceber a dinâmica da vegetação campestre, compreender o funcionamento do sistema
+edáfico natural e, a partir disso, ajustar práticas que respeitam os limites locais e potencializam o conjunto de funções ecossistêmicas.
+Essa concepção aproxima-se diretamente do que aqui denominamos Resiliência Produtiva e Socioecológica. O manejo não opera como
+intervenção externa, mas como processo de escuta e acompanhamento dos ciclos ecológicos. O conhecimento emerge dos gestos técnicos,
+da experiência acumulada e das respostas do ecossistema às práticas adotadas. Nesse sentido, manejar o campo nativo é participar de sua
+reorganização contínua.
+Assim, o que a literatura descreve como dinâmica do campo — variações temporais na composição de espécies, relações solo-planta-animal,
+ritmos de crescimento e repouso — constitui o mesmo terreno conceitual em que se inscreve a resiliência. Ambos tratam de processos vivos,
+dependentes de escalas, interações e memória ecológica.
+Este capítulo busca articular essas duas perspectivas. Não se trata de sobrepor teoria à prática, mas de mostrar como a prática orienta a
+teoria, e como a teoria devolve à prática uma gramática mais ampla: a resiliência como ecologia do possível.
+
+
+3.2
+
+O Manejo como Forma de Conhecimento
+
+3.2.1
+
+A prática como gesto epistemológico
+
+A leitura atenta das experiências de manejo revela que os conhecimentos que orientam a abertura de um potreiro, o descanso de uma área, a
+roçada leve ou a decisão de não intervir não pertencem ao domínio abstrato: eles surgem do corpo, do tempo passado na campereada, da
+escuta dos sinais da paisagem.
+Essa observação ecoa a epistemologia sensível proposta por Serres (1985), na qual o corpo é órgão de conhecimento e o mundo é percebido por
+contato e fricção, não apenas por representação.
+Assim, manejar o campo nativo é participar de um processo de dupla inscrição:
+
+• o território deixa marcas no corpo (percepções, memórias, sinais);
+• o corpo deixa marcas no território (rastros, manejo, intervenções mínimas).
+
+Manejo e conhecimento constituem, portanto, um sistema de extensões mútuas.
+
+3.2.2
+
+O manejo como leitura do território
+
+Para o produtor, o campo revela sua condição não por indicadores abstratos, mas por:
+
+• o cheiro da terra após a chuva;
+• o comportamento dos animais nos períodos secos;
+
+
+• a cor das folhas na mudança das estações;
+• o desenho das touceiras de capim;
+• os caminhos de escoamento superficial após tormentas.
+
+Esses sinais são equivalentes, na prática, aos indicadores operacionais da resiliência que formalizamos nos capítulos anteriores. Eles constituem
+o que Ingold (1993) chamaria de tarefa-relacional: atividade que emerge de uma atenção contínua às linhas de vida que compõem a paisagem.
+O produtor não mede o campo — ele lê o campo. E toda leitura produz novas possibilidades de ação, não como controle, mas como
+acompanhamento dos processos ecológicos.
+
+
+3.3
+
+O Solo como Memória Sensível do Território
+“O solo é o arquivo onde a vida
+escreve sua própria história.”
+Michel Serres
+
+A ampliação temática para incluir conservação do solo não é um acréscimo, mas a explicitação de algo já presente na prática de manejo: o
+solo é o corpo silencioso que sustenta o campo nativo e registra, em suas camadas, a memória dos usos, das chuvas e dos ciclos da vegetação.
+
+3.3.1
+
+Solo como suporte e como arquivo
+
+No âmbito da resiliência socioecológica, o solo funciona simultaneamente como:
+• suporte ecológico, mantendo ciclagem de nutrientes, infiltração e regulação hídrica;
+• arquivo, registrando perturbações, degradações e processos de regeneração;
+• sensível, pois sua estrutura responde com rapidez a práticas inadequadas;
+• mediador, conectando sistema produtivo e sistema ecológico.
+A conservação do solo, portanto, não é tratada aqui como “técnica de proteção”, mas como condição de possibilidade da própria vida do
+território. Um território só é resiliente se sua pele — o solo — é cuidada.
+
+
+3.3.2
+
+Solo, manejo e resiliência
+
+A relação entre solo e resiliência pode ser formalizada a partir da equação fundamental:
+
+R = E ∧ P ∧ S,
+onde a dimensão ecológica (E) incorpora diretamente processos edáficos: infiltração, estabilidade de agregados, dinâmica da matéria orgânica,
+cobertura vegetal e erosão.
+Mas, para além da formalização, é no cotidiano que essa relação se confirma: em cada escolha de pisoteio controlado, descanso, ajuste de
+carga animal ou manutenção da cobertura viva.
+Assim, o solo se torna expressão viva da capacidade do sistema de reorganizar-se após perturbações — condição central da resiliência.
+
+
+3.4
+
+A Estética da Prática: Corpo, Tempo e Paisagem
+
+3.4.1
+
+Corpo como instrumento e como medida
+
+O corpo do trabalhador rural é o primeiro instrumento do manejo:
+
+• sente a firmeza do chão;
+• percebe a abundância ou escassez de umidade;
+• acompanha o ritmo dos animais;
+• interpreta texturas, cores e temperaturas.
+
+Esse corpo opera como unidade empírica, anterior a qualquer métrica formal. Quando incorporamos essa dimensão sensível à resiliência,
+reconhecemos que toda modelagem depende, em última instância, de um regime de percepção que antecede os dados.
+
+3.4.2
+
+Tempo como matéria do manejo
+
+No campo, o tempo não é relógio: é duração. É ritmo das estações, intervalo entre duas chuvas, período de repouso de um potreiro, ciclo de
+maturação de uma gramínea.
+A temporalidade da paisagem — conforme propõe Ingold (1993) — torna-se fundamental para o entendimento da resiliência. Não há
+reorganização abrupta: há condução, espera, acompanhamento.
+
+
+3.4.3
+
+Paisagem como processo, não como fundo
+
+A paisagem não é um cenário para o manejo, mas o próprio processo de habitar. Ao caminhar pelo campo, o produtor não observa uma
+superfície externa: ele participa de uma trama de relações em curso. Essa visão dissolve a oposição natureza–técnica e reconecta manejo e
+ecologia numa mesma textura.
+
+
+3.5
+
+Extensão, Ecologia e Devir: um Olhar Grassmanniano
+
+A álgebra da extensão de Grassmann (1862) oferece uma metáfora potente para compreender a emergência da resiliência: cada dimensão —
+ecológica (E), produtiva (P ) e social (S) — é vetor que se prolonga sobre o território, e a resiliência surge como dimensão emergente, fruto da
+multiplicação relacional desses vetores.
+Assim:
+
+• o campo nativo é extensão do corpo;
+• o solo é extensão da memória ecológica;
+• o manejo é extensão do conhecimento;
+• a resiliência é extensão do devir.
+
+O território, visto por essa lente, não é coleção de partes, mas campo contínuo de relações em transformação.
+
+
+3.6
+
+Conservação do Solo como Continuidade Ecológica
+
+3.6.1
+
+Cuidar da pele da terra
+
+Se o solo é pele do território, como sugere a estética sensível de Serres, então sua conservação é gesto de cuidado. Esse cuidado se manifesta
+por decisões aparentemente simples:
+
+• manter cobertura viva;
+• evitar revolvimento excessivo;
+• conduzir a carga animal com atenção;
+• permitir períodos de repouso;
+• reconhecer sinais precoces de degradação.
+
+Aqui, técnica e ética se confundem: não há manejo produtivo sem cuidado estético; não há conservação sem sensibilidade.
+
+3.6.2
+
+Erosão como perda de memória
+
+A erosão, mais do que perda de solo, é perda de história. Cada centímetro de terra arrastada pela enxurrada leva consigo:
+
+• nutrientes;
+• sementes;
+
+
+• formas de vida;
+• registros de ciclos ecológicos.
+
+Prevenir erosão é manter a capacidade do território de lembrar-se de si — fundamento da resiliência.
+
+
+3.7
+
+Para uma Gramática do Manejo Resiliente
+
+A partir desse diálogo entre arte, ciência, manejo e resiliência, podemos esboçar uma gramática que unifique prática e teoria:
+Escuta: o manejo começa por perceber, não por intervir.
+Continuidade: cada ação deve reforçar, não romper, a textura ecológica.
+Modulação: o manejo não controla — ele ajusta, acompanha, conduz.
+Memória: o solo e o campo nativo guardam traços que orientam o futuro.
+Devir: a resiliência não é estado, mas processo em movimento.
+Esta gramática não pretende regular a prática, mas descrever o modo como territórios vivos sustentam sua própria capacidade de existir.
+
+
+3.8
+
+Considerações Finais
+
+O livro Arte e Ciência no Manejo do Campo Nativo introduz, na prática, o que esta obra busca formalizar: uma concepção de manejo que é,
+ao mesmo tempo, ecológica, produtiva, sensível e relacional. Ao aproximar essas experiências da arquitetura teórica da resiliência, torna-se
+possível compor uma leitura mais rica do território — uma leitura que incorpora corpo, solo, paisagem, tempo e prática numa unidade
+dinâmica.
+Assim, este capítulo serve como ponte entre teoria e campo, entre formalização e experiência, e entre ciência e arte. É nesse entrelaçamento
+que a resiliência revela sua natureza: uma ecologia do possível.
+
+
+Capítulo 4
+O Território como Sistema Socioecológico: A Abordagem SAIT
+O conceito de Sistemas Agroalimentares de Identidade Territorial (SAIT) oferece uma tradução empírica e territorializada das ideias de resiliência
+socioecológica. Os SAIT representam arenas nas quais se articulam processos ecológicos, econômicos e culturais, enraizados em paisagens
+específicas e mediados por redes de atores locais. Assim, eles constituem a escala intermediária — ou mesoescala — da panarquia: o nível em
+que a interação entre sistemas ecológicos locais e instituições sociais regionais se torna visível e passível de gestão.
+
+
+4.1
+
+O diferencial poderá estar no como: integração como inovação institucional e metodológica
+
+Nos processos contemporâneos de desenvolvimento territorial e de construção de resiliência em sistemas socioecológicos, a inovação raramente
+reside na criação de novos conceitos ou na formulação de princípios inéditos (BAIRD et al., 2024). Ao contrário, ela se manifesta, cada vez mais,
+na capacidade de articular, de modo coerente e adaptativo, conhecimentos, instrumentos e instituições existentes para responder a
+realidades complexas e dinâmicas. Esse é precisamente o diferencial do trabalho desenvolvido no âmbito da parceria entre a COPTiL, o
+Ministério da Integração e do Desenvolvimento Regional (MIDR) e a Embrapa, no contexto do Termo de Execução Descentralizada
+(TED).
+O que distingue esta iniciativa não é a originalidade das premissas — agroecologia, territorialidade, sustentabilidade, multifuncionalidade,
+governança —, todas já consolidadas em diferentes campos de conhecimento e ação pública. O que se apresenta como inovação é o modo
+como essas dimensões são integradas em um arranjo metodológico e institucional capaz de produzir efeitos sinérgicos, operando
+transversalmente entre escalas, atores e saberes. Trata-se de uma inovação de segunda ordem (second-order innovation), no sentido proposto
+por Berkes, Colding e Folke (2003), na qual o valor está na integração adaptativa — a capacidade de navegar sistemas complexos e transformar
+o próprio modo de produzir conhecimento e decisão.
+Essa abordagem desloca o foco da inovação tecnológica ou conceitual para a inovação processual. Como sugerem Holling (1973) e
+Gallopín (2006), a resiliência de um sistema não depende apenas de seus componentes estruturais, mas de como eles interagem em ciclos de
+retroalimentação capazes de absorver perturbações, reorganizar-se e continuar a se desenvolver. O mesmo vale para sistemas institucionais e
+territoriais: não é o desenho formal de uma política, mas o modo como ela é praticada, articulada e apropriada socialmente que define sua
+capacidade adaptativa.
+
+
+4.1.1
+
+Do território como objeto ao território como sujeito
+
+O diferencial do TED COPTiL/MIDR–Embrapa está, portanto, em assumir explicitamente que o território não é um objeto de planejamento,
+mas um sujeito coletivo e relacional, que se (re)configura pela interação entre políticas, instituições e comunidades. Essa visão converge
+com a abordagem de Schneider (2004b) e Niederle (2014), segundo os quais o desenvolvimento rural e territorial depende da coexistência de
+referenciais setoriais e territoriais, mas sua potência emerge da transição entre ambos — quando o território passa de unidade de intervenção
+a espaço de mediação e aprendizagem. Assim, o papel da Embrapa e de seus parceiros não é o de executor técnico de políticas, mas de
+articulador de processos de co-produção de conhecimento e de governança adaptativa, em consonância com o que Berkes, Colding e
+Folke (2003) definem como adaptive co-management.
+Ao trabalhar com os Sistemas Agroalimentares de Identidade Territorial (SAIT) e com o conceito de Resiliência Produtiva, o projeto
+explicita essa inflexão metodológica. A proposta não pretende substituir modelos de desenvolvimento, mas sincronizar dimensões
+ecológicas, produtivas e sociais (E–P–S) num mesmo dispositivo analítico e operativo. O enfoque não está na definição de novas métricas
+ou indicadores, mas no como esses indicadores são produzidos, interpretados e utilizados pelos próprios atores territoriais. Essa
+integração é o que permite passar de uma política de fomento fragmentada a uma política de aprendizagem coletiva, na qual o conhecimento
+técnico-científico e o conhecimento local se retroalimentam.
+
+4.1.2
+
+A integração como prática de governança adaptativa
+
+Essa concepção dialoga com práticas históricas desenvolvidas na Serra do Sudeste e nos Campos Sul-Brasileiros, onde a ecologização da
+pecuária familiar (??) e, mais recentemente, a abordagem de arte e ciência no manejo do campo nativo (??) demonstram que o diferencial dos
+sistemas sustentáveis não está na imposição de técnicas, mas na reconexão entre saberes e ecossistemas, na “ativação” do território como
+patrimônio coletivo. Trata-se de uma inovação que se dá pela forma como se constrói o diálogo, e não pelo conteúdo isolado de cada prática.
+Do ponto de vista institucional, o “como” também se expressa no desenho da governança do projeto. A integração entre COPTiL, MIDR e
+Embrapa não se limita à execução compartilhada de ações, mas opera como um laboratório de coordenação interinstitucional, no qual
+
+
+se testam novos arranjos de colaboração entre Estado, ciência e sociedade. Essa integração de esferas é, em si, uma resposta adaptativa à
+fragmentação das políticas públicas e à necessidade de construir infraestruturas de resiliência institucional.
+
+
+4.2
+
+Sistemas Agroalimentares de Identidade Territorial
+
+Os SAIT se fundamentam na valorização da origem, da qualidade e da singularidade dos produtos e serviços agroalimentares, vinculando-os
+ao território e à cultura que os produzem. Segundo Schneider (SCHNEIDER, 2004b), essa abordagem desloca o foco das políticas rurais do
+setor produtivo isolado para a totalidade das relações territoriais que sustentam o desenvolvimento. Niederle (NIEDERLE, 2014) acrescenta
+que os SAIT expressam um referencial territorial de desenvolvimento, centrado na redução das desigualdades e no fortalecimento das redes
+locais, em contraste com o referencial setorial das políticas agrícolas tradicionais.
+Na literatura recente sobre sistemas agroalimentares locais (NIEDERLE, 2014), observa-se que esses arranjos se baseiam na proximidade
+geográfica e social entre produtores e consumidores, na diversificação produtiva e na reconstrução de laços de confiança. Tais características
+não são apenas econômicas, mas ecológicas e culturais: constituem a base da resiliência territorial, ao reforçar a coesão social, a diversidade
+funcional e a capacidade de inovação.
+
+
+4.3
+
+A territorialização das políticas e a multifuncionalidade da agricultura familiar
+
+A abordagem territorial implica reconhecer que o rural não é apenas um espaço de produção, mas um sistema complexo de funções sociais,
+ecológicas e simbólicas. Como argumenta Schneider (SCHNEIDER, 2004b), o desenvolvimento rural contemporâneo resulta da interação entre
+políticas descentralizadas, redes locais e dinâmicas globais de reestruturação produtiva. Nesse contexto, a agricultura familiar desempenha
+papel central, pois combina produção de alimentos, conservação ambiental, reprodução cultural e coesão comunitária.
+Niederle (NIEDERLE, 2014) destaca que a agricultura familiar se situa entre dois referenciais: o setorial, que a trata como unidade produtiva
+subordinada ao mercado, e o territorial, que a reconhece como vetor de desenvolvimento sustentável e multifuncional. Essa segunda perspectiva
+aproxima-se da noção de sistemas socioecológicos, ao compreender o agricultor como agente de manejo adaptativo do território — um
+manejador de processos, não apenas de produtos.
+
+
+4.4
+
+SAIT como unidade meso da Panarquia
+
+Ao serem entendidos como sistemas socioecológicos, os SAIT ocupam o nível meso na hierarquia da panarquia. Nessa posição intermediária,
+eles articulam os fluxos de energia, matéria e informação entre as escalas locais (unidades produtivas, ecossistemas) e as escalas institucionais
+(políticas públicas, mercados, redes de governança). Essa visão multiescalar permite interpretar a resiliência produtiva e socioecológica
+como um processo de acoplamento entre dinâmicas rápidas e lentas, onde os eventos climáticos, as decisões produtivas e as transformações
+institucionais se retroalimentam continuamente.
+Compreender o SAIT como unidade meso da panarquia significa, portanto, dotar o conceito de uma função analítica: ele é o espaço onde a
+resiliência pode ser observada, medida e gerida. É nesse nível que o Modelo de Análise de Riscos à Resiliência Produtiva encontra seu campo de
+aplicação, traduzindo as interações entre variabilidade climática, desempenho produtivo e capacidade social de reorganização.
+
+
+4.5
+
+Sistemas Agroalimentares e vulnerabilidade climática
+
+Os Sistemas Agroalimentares de Identidade Territorial (SAIT) configuram-se como arranjos socioprodutivos enraizados em territórios
+específicos, nos quais práticas agrícolas e pecuárias, saberes locais e identidades culturais se articulam de forma indissociável. Mais do
+que unidades produtivas, constituem expressões da relação histórica entre comunidades e seus ecossistemas, em que o alimento é também
+portador de valores simbólicos, culturais e políticos. Exemplos podem ser encontrados na vitivinicultura da Serra Gaúcha, na produção de
+queijo serrano nos campos de altitude ou na pecuária familiar do Bioma Pampa.
+A literatura sobre Sistemas Agroalimentares Localizados (SIAL) reforça esse entendimento ao destacar como a produção de base familiar, quando
+organizada em torno de identidades territoriais, potencializa a diversificação produtiva, agroindustrial e turística, ampliando alternativas
+econômicas ao êxodo rural e fortalecendo a coesão social (MORAES, 2016; SOUZA; FORNAZIER; DELGROSSI, 2020). Como enfatiza
+(SCHNEIDER, 2004a), a abordagem territorial desloca o enfoque da região para o território, incorporando dimensões sociais, culturais, políticas
+e institucionais que dão sentido coletivo às práticas produtivas. Nesse mesmo caminho, (NIEDERLE, 2014) demonstra como a agricultura
+familiar precisa ser compreendida não apenas por sua função setorial produtiva, mas principalmente pelo seu forte enraizamento territorial,
+onde as políticas e práticas se reapropriam de acordo com estratégias locais de reprodução social.
+Nesses sistemas, a agroecologia assume papel estratégico. Como defendem (SILVEIRA; FERRAZ; BASSAN, 2006) e a coletânea organizada
+pela Embrapa e ABA (GOMES; ASSIS, 2013), a agroecologia atua como elemento catalisador da produção familiar e como ferramenta de
+ordenamento territorial, assegurando identidades gastronômicas, preservando saberes tradicionais e ampliando a resiliência diante de choques
+externos. Tais práticas, como o uso de sementes crioulas, a diversificação de cultivos, a integração lavoura-pecuária e o manejo sustentável dos
+recursos naturais, não apenas asseguram a reprodução social e cultural, mas também ampliam a capacidade de resposta a eventos climáticos
+extremos.
+Entretanto, os SAIT permanecem particularmente vulneráveis às alterações climáticas. Estiagens prolongadas, enchentes ou mudanças
+abruptas de temperatura afetam diretamente cultivos tradicionais, pastagens e rebanhos, comprometendo não só a base econômica, mas
+também os fundamentos simbólicos e organizativos que sustentam a identidade territorial. Sob essa perspectiva, a vulnerabilidade climática
+
+
+extrapola as perdas produtivas e envolve riscos à continuidade das práticas sociais e culturais que dão coesão ao território.
+A incorporação dos SAIT em modelos de alerta amplia a leitura dos impactos dos eventos climáticos extremos. Mais do que sinais de risco
+físico-natural, os alertas podem ser interpretados como indicadores de ameaça à identidade territorial, à soberania alimentar e à resiliência
+sociocultural. Dessa forma, oferecem subsídios para políticas de mitigação e adaptação mais alinhadas às realidades locais e para a construção
+de estratégias de desenvolvimento territorial que valorizem a multifuncionalidade da agricultura familiar.
+
+
+4.6
+
+Redes, governança e aprendizagem social
+
+A resiliência dos SAIT depende não apenas de sua base ecológica, mas também da qualidade das redes sociais e institucionais que os sustentam.
+Berkes e Folke (BERKES; COLDING; FOLKE, 2003) identificam quatro pilares da resiliência em sistemas socioecológicos: diversidade,
+conectividade, retroalimentação e aprendizagem. Esses elementos se manifestam no território por meio das redes de cooperação, da partilha
+de conhecimento e da governança policêntrica — isto é, múltiplos centros de decisão e ação coordenados por princípios de reciprocidade e
+confiança.
+A aprendizagem social, nesse contexto, é o processo pelo qual comunidades e instituições ajustam suas práticas a partir da experiência e da
+experimentação coletiva. Trata-se de um componente essencial da gestão adaptativa, permitindo que os SAIT evoluam diante das perturbações
+e inovações. Assim, o território deixa de ser apenas uma base geográfica e torna-se um sistema cognitivo coletivo — um espaço de coevolução
+entre natureza, produção e sociedade.
+
+
+4.7
+
+Áreas de Reforma Agrária e vulnerabilidade
+
+Os assentamentos da reforma agrária configuram-se como territórios singulares no contexto rural brasileiro e, em especial, no Rio Grande
+do Sul. Mais do que unidades produtivas, constituem espaços de reorganização social e política, onde famílias agricultoras, historicamente
+excluídas, constroem novas formas de inserção produtiva e identitária. Como observa (SCHNEIDER, 2004a), a abordagem territorial do
+desenvolvimento exige considerar arranjos criados pela ação do Estado em articulação com movimentos sociais, o que se expressa de maneira
+clara nas áreas resultantes da reforma agrária.
+Do ponto de vista socioecológico, os assentamentos apresentam uma condição ambivalente. Por um lado, estão entre os territórios mais
+vulneráveis a choques climáticos, devido às limitações de infraestrutura, ao acesso precário a recursos produtivos e ao fato de muitas vezes
+serem implantados em áreas ambientalmente frágeis ou degradadas. Por outro lado, a literatura destaca seu papel estratégico como espaços
+de experimentação agroecológica. Diversos estudos apontam que a reforma agrária esteve historicamente associada à difusão de práticas
+sustentáveis, ao fortalecimento da agrobiodiversidade e à multiplicação de sementes crioulas, em grande medida pela articulação com
+organizações da sociedade civil e movimentos sociais ligados à agroecologia (SILVEIRA; FERRAZ; BASSAN, 2006; GOMES; ASSIS, 2013).
+Nesse sentido, os assentamentos devem ser compreendidos como parte constitutiva dos Sistemas Agroalimentares de Identidade Territorial
+(SAIT), mas que demandam uma atenção complementar. Como argumenta (NIEDERLE, 2014), a agricultura familiar precisa ser analisada
+não apenas por sua função setorial produtiva, mas também pelo seu enraizamento territorial. No caso das áreas de reforma agrária, esse
+enraizamento envolve tanto fragilidades socioeconômicas quanto um potencial de resiliência baseado na diversidade produtiva e na inovação
+sociotécnica. Assim, a vulnerabilidade climática desses territórios não se resume a perdas econômicas: implica também riscos para experiências
+sociais de construção de autonomia, identidade territorial e soberania alimentar.
+A incorporação das áreas da reforma agrária em um modelo de alerta agroecológico, portanto, é fundamental. Elas representam não apenas
+territórios expostos, mas também laboratórios de práticas de adaptação e mitigação que podem iluminar caminhos para a resiliência produtiva
+no Bioma Pampa e em outros contextos rurais brasileiros.
+
+
+Gancho operacional no modelo.
+A condição ambivalente dos assentamentos (vulnerabilidade + inovação agroecológica) justifica sua inclusão explícita na priorização territorial.
+Operacionalmente, usamos um fator multiplicativo:
+Πh = 1 + ρRA 1RA (h) + ρoutros 1outros (h),
+onde 1RA (h) indica hexágonos com assentamentos (base INCRA/MDA ou cadastro validado localmente) e ρRA ≥ 0 calibra a prioridade. Essa
+escolha garante que os produtos (mapas, boletins) evidenciem territórios estratégicos sem distorcer a comparação entre hexágonos vizinhos.
+
+
+Referências
+BAIRD, J.; BLYTHE, J. L.; MURGU, C.; PLUMMER, R. A scoping review of how the seven principles for building social-ecological
+resilience have been operationalized. Ecology and Society, The Resilience Alliance, v. 29, n. 2, 2024. Disponível em: <https:
+//www.ecologyandsociety.org/vol29/iss2/art20>.
+BERKES, F.; COLDING, J.; FOLKE, C. Navigating Social-Ecological Systems: Building Resilience for Complexity and Change. [S.l.]:
+Cambridge University Press, 2003.
+BIGGS, R.; SCHLüTER, M.; BIGGS, D.; BOHENSKY, E. L.; CUNDILL, G.; DAKOS, V.; DAW, T. M.; EVANS, L. S.; KOTSCHY, K.; LEITCH, A. M.;
+MEEK, C.; QUINLAN, A.; RAUDSEPP-HEARNE, C.; ROBARDS, M. D.; SCHOON, M. L.; SCHULTZ, L.; WEST, P. C. Toward principles for
+enhancing the resilience of ecosystem services. Annual Review of Environment and Resources, v. 37, p. 421–448, 2012.
+BIGGS, R.; SCHLüTER, M.; SCHOON, M. L. Principles for Building Resilience: Sustaining Ecosystem Services in Social-Ecological
+Systems. Cambridge: Cambridge University Press, 2015.
+DESCOLA, P. Par-delà nature et culture. Paris: Gallimard, 2005. Tradução brasileira: Além da natureza e da cultura. São Paulo: Cosac Naify,
+2016.
+FARINA, A. Principles and methods in landscape ecology: Towards a science of landascape. London: Springer, 2006. v. 3.
+FOLKE, C. Resilience: The emergence of a perspective for social–ecological systems analyses. Global Environmental Change, v. 16, n. 3, p.
+253–267, 2006.
+
+
+GALLOPíN, G. C. Linkages between vulnerability, resilience, and adaptive capacity. Global Environmental Change, v. 16, n. 3, p. 293–303,
+2006.
+GOMES, J. C. C.; ASSIS, W. S. d. (Ed.). Agroecologia: princípios e reflexões conceituais. Brasília, DF: Embrapa Informação Tecnológica,
+2013. v. 1. (Coleção Transição Agroecológica, v. 1). ISBN 978-85-7035-257-6.
+GRASSMANN, H. Die Ausdehnungslehre. Berlin: Th. Chr. Fr. Enslin, 1862.
+GUNDERSON, L. H.; HOLLING, C. S. (Ed.). Panarchy: Understanding Transformations in Human and Natural Systems. Washington,
+DC: Island Press, 2002. ISBN 978-1-55963-857-9. Disponível em: <https://islandpress.org/books/panarchy>.
+HOLLING, C. S. Resilience and Stability of Ecological Systems. [S.l.]: Annual Review of Ecology and Systematics, 1973. v. 4. 1–23 p.
+INGOLD, T. The temporality of the landscape. World Archaeology, v. 25, n. 2, p. 152–174, 1993.
+INGOLD, T. Being Alive: Essays on Movement, Knowledge and Description. London: Routledge, 2011. Explora a ontologia relacional e a
+ecologia da percepção.
+INGOLD, T. Being Alive: Essays on Movement, Knowledge and Description. London; New York: Routledge, 2011. 1st ed. ISBN
+978-0-415-58455-9.
+JENNY, H. Factors of Soil Formation: A System of Quantitative Pedology. New York: McGraw-Hill, 1941.
+LATOUR, B. Jamais fomos modernos: ensaio de antropologia simétrica. São Paulo: Editora 34, 1994. Original: Nous n’avons jamais été
+modernes. Paris: La Découverte, 1991.
+LATOUR, B. Políticas da natureza: como fazer ciência na democracia. São Paulo: Editora 34, 2004. Tradução de Carlos Aurélio Mota de
+Souza.
+MATURANA, H. R.; VARELA, F. J. Autopoiesis and Cognition: The Realization of the Living. Dordrecht: D. Reidel Publishing Company,
+1980. v. 42. (Boston Studies in the Philosophy of Science, v. 42). ISBN 978-90-277-1015-2.
+MORAES, M. O. Agricultura familiar e sistemas agroalimentares localizados (sial): reflexões sobre desenvolvimento rural. In: Agricultura
+Familiar e Desenvolvimento Rural: desafios e perspectivas. [S.l.]: EdUFV, 2016. p. 55–78.
+
+
+MORIN, E. O Método 1: A Natureza da Natureza. Mem Martins: Publicações Europa-América, 1977. Tradução de Maria Gabriela de
+Bragança. Obra original: La Méthode 1: La Nature de la Nature.
+NIEDERLE, P. A. A agricultura familiar entre o setorial e o territorial? novos referenciais para as políticas de desenvolvimento rural no brasil.
+Perspectivas Rurales, v. 12, n. 24, p. 11–31, 2014.
+OSTROM, E. Governing the Commons: The Evolution of Institutions for Collective Action. Cambridge: Cambridge University Press,
+1990. Obra seminal sobre a governança de recursos comuns e os limites dos modelos baseados exclusivamente no Estado ou no mercado.
+SCHNEIDER, S. A abordagem territorial do desenvolvimento rural e suas articulações externas. Sociologias, Universidade Federal do Rio
+Grande do Sul, v. 6, n. 11, p. 88–125, 2004.
+SCHNEIDER, S. A abordagem territorial do desenvolvimento rural e suas articulações externas. Sociologias, v. 6, n. 11, p. 88–125, 2004.
+Disponível em: <https://seer.ufrgs.br/index.php/sociologias/article/view/5446>.
+SERRES, M. Les Cinq Sens: Philosophie des corps mêlés. Paris: Grasset, 1985. Passagens sobre o tempo e a metamorfose das coisas; base
+de citações traduzidas como “O tempo das coisas”.
+SILVEIRA, M. A. d.; FERRAZ, J. M. G.; BASSAN, M. A. Agroecologia e desenvolvimento territorial. Cadernos de Ciência & Tecnologia,
+Embrapa, v. 23, n. 2, p. 379–395, 2006.
+SIX, J.; PAUSTIAN, S. O.; PAUSTIAN, K.; ELLIOTT, E. Sources and composition of soil organic matter and their roles in soil aggregation. Plant
+and Soil, v. 279, p. 319–338, 2004.
+SOUZA, D. R. D. d.; FORNAZIER, A.; DELGROSSI, M. E. Sistemas agroalimentares locais e circuitos curtos de comercialização: aproximações e
+desafios. Revista de Economia e Sociologia Rural, v. 58, n. 4, p. 1–20, 2020.
+STENGERS, I. Uma outra ciência é possível: Manifesto por uma desaceleração das ciências. Rio de Janeiro: Bazar do Tempo, 2018.
+Tradução de: Another Science is Possible: A Manifesto for Slow Science. ISBN 978-85-94168-35-3.
+TRINDADE, J. P. P.; QUADROS, F. L. F. d.; PILLAR, V. D. Vegetação campestre de areais do Sudoeste do Rio Grande do Sul sob pastejo e com
+exclusão do pastejo. Pesquisa Agropecuária Brasileira, v. 43, p. 771–779, 2008. 6.
+
+

@@ -125,8 +125,14 @@ Fluxo:
 }
 ```
 
+**Extensões opcionais (vetores/candidatos)**  
+Para campos categóricos, o IW pode incluir um vetor opcional com probabilidades:
+- `<campo>Candidates`: `[ { "value": "...", "confidence": 0.0-1.0 } ]`  
+Ex.: `studyTypeCandidates`, `temporalScaleCandidates`, `baselineTypeCandidates`, `valenceCandidates`.
+
 **Consumíveis STRATA (exportados em `strata/consumables/<artifactId>/`):**
 - `SourceProfile.json`
+- `IWBundle.json` (bundle completo para consumidores avançados)
 - `NarrativeObservation.json`
 - `AllegedMechanisms.json`
 - `TemporalWindowReference.json`
@@ -140,10 +146,23 @@ Opcional (se houver conteúdo):
 
 Todos os consumíveis incluem:
 - `schemaVersion`
-- `source` (com `artifactId`, `path`, `contentHash`, `ingestedAt`, `model`)
+- `source` (com `artifactId`, `path`, `contentHash`, `sourceSha256`, `ingestedAt`, `model`)
 
 Observação:
 - `NarrativeObservation.json` e `DiscursiveSystem.json` só são gerados quando houver conteúdo (não são emitidos vazios).
+
+**Manifest.json (por artigo)**  
+Resumo autocontido do diretório de consumíveis, incluindo:
+- Metadados da fonte (`source`) e campos de atalho (`artifactId`, `filename`, `sourcePath`, `contentHash`, `ingestedAt`, `model`, `extractionMethod`, `sourceType`, `sizeBytes`, `lastModified`)
+- `files` (lista de arquivos)  
+- `file_index` (lista com `name`, `path`, `exists`, `sizeBytes`)
+
+**STRATA_Manifest.json (global, em `strata/consumables/`)**  
+Índice geral da ingestão, contendo:
+- `project_ingestion_id`, `generatedAt`, `schemaVersion`
+- `layout` (raízes de pastas e padrão de diretório por artigo)
+- `errors` (payloads de erro detectados)
+- `articles` (lista com `artifactId`, `filename`, `source`, `files`, `validationStatus`, paths úteis)
 
 ### 4.1 Regra de ancoragem (obrigatória)
 Os itens de `narrativeObservations`, `allegedMechanisms` e `temporalWindowReferences`

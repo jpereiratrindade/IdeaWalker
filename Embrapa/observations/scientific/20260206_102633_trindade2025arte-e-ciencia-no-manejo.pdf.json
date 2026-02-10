@@ -1,0 +1,61 @@
+{
+  "allegedMechanisms": [],
+  "baselineAssumptions": [
+    {
+      "baselineType": "fixed",
+      "context": "General principles of water management in livestock production",
+      "description": "The baseline assumption is that water availability and quality are consistent across different agro-ecosystems."
+    }
+  ],
+  "discursiveContext": {
+    "epistemicRole": "discursive-reading",
+    "frames": []
+  },
+  "discursiveSystem": {
+    "declaredActions": [],
+    "declaredProblems": [],
+    "expectedEffects": []
+  },
+  "interpretationLayers": {
+    "authorInterpretations": [
+      "'O conhecimento científico sobre hidrologia é essencial para um manejo sustentável da água na pecuária.'",
+      "'Implementar práticas agronômicas eficientes pode melhorar significativamente a gestão do recurso hídrico em propriedades pecuárias.'"
+    ],
+    "observedStatements": [
+      "Water availability is critical for animal health and productivity in agricultural ecosystems.",
+      "The amount of water required by livestock varies depending on factors such as species, age, weight, and environmental conditions."
+    ],
+    "possibleReadings": [
+      "'A importância dos princípios científicos no manejo de água na pecuária deve ser priorizada para garantir sua sustentabilidade e eficiência.'",
+      "'Práticas agronômicas aplicadas corretamente podem resultar em um uso mais racional da água, beneficiando tanto o produtor quanto o meio ambiente.'"
+    ]
+  },
+  "narrativeObservations": [],
+  "schemaVersion": 4,
+  "source": {
+    "artifactId": "20260206_102633_trindade2025arte-e-ciencia-no-manejo.pdf",
+    "contentHash": "34013220_1770379489239662388",
+    "extractionMethod": "pdftotext",
+    "filename": "trindade2025arte-e-ciencia-no-manejo.pdf",
+    "ingestedAt": "2026-02-06T13:27:17Z",
+    "model": "qwen2.5:7b",
+    "path": "/run/media/jpereiratrindade/labeco10T/Teste/Embrapa/inbox/scientific/trindade2025arte-e-ciencia-no-manejo.pdf"
+  },
+  "sourceProfile": {
+    "contextNotes": "The narrative focuses on general principles and practices applicable to different agro-ecosystems, particularly in the context of water management in livestock production.",
+    "ecosystemType": "agro",
+    "evidenceType": "theoretical",
+    "limitations": "Limited to theoretical concepts without specific empirical evidence.",
+    "studyType": "theoretical",
+    "temporalScale": "medium",
+    "transferability": "high"
+  },
+  "temporalWindowReferences": [],
+  "trajectoryAnalogies": [
+    {
+      "analogy": "Water management strategies for livestock can be compared to irrigation practices in crop cultivation, both requiring careful planning and execution to optimize resource use efficiency.",
+      "justification": "Both livestock production and agriculture depend on water availability and require similar principles of sustainable management.",
+      "scope": "Cross-sectoral application"
+    }
+  ]
+}

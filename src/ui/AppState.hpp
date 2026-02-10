@@ -19,6 +19,7 @@
 #include "domain/ThoughtRepository.hpp"
 #include "domain/AIService.hpp"
 #include "domain/Suggestion.hpp"
+#include "domain/SourceArtifact.hpp"
 #include "domain/writing/MermaidGraph.hpp"
 #include "domain/writing/services/CoherenceLensService.hpp"
 #include "domain/writing/services/RevisionQualityService.hpp"
@@ -147,6 +148,9 @@ namespace ideawalker::ui {
         // Suggestions
         std::vector<domain::Suggestion> currentSuggestions;
         std::vector<std::string> currentBacklinks;
+        std::vector<domain::SourceArtifact> scientificInboxArtifacts;
+        std::unordered_set<std::string> scientificInboxSelected;
+        bool scientificInboxLoaded = false;
 
         // Async status (Atomic)
         std::atomic<bool> isProcessing{false};

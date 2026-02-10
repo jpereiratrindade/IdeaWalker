@@ -1,0 +1,15 @@
+{
+  "checks": {
+    "baseline": "ok",
+    "contextuality": "ok",
+    "language": "ok",
+    "layer": "ok",
+    "mechanisms": "ok",
+    "temporal": "warning"
+  },
+  "errors": [],
+  "status": "pass-with-warnings",
+  "warnings": [
+    "temporalWindowReferences ausente (Validation Relaxed)."
+  ]
+}

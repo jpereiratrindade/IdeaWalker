@@ -74,6 +74,23 @@ public:
     IngestionResult ingestPending(std::function<void(std::string)> statusCallback = nullptr);
 
     /**
+     * @brief Lists artifacts currently available in the scientific inbox.
+     * @return Vector of detected artifacts.
+     */
+    std::vector<domain::SourceArtifact> listInboxArtifacts();
+
+    /**
+     * @brief Processes a specific list of scientific artifacts.
+     * @param artifacts List of artifacts to process.
+     * @param purgeExisting Whether to remove previous outputs for the same filenames.
+     * @param statusCallback Optional UI feedback callback.
+     * @return Summary of the operation.
+     */
+    IngestionResult ingestSelected(const std::vector<domain::SourceArtifact>& artifacts,
+                                   bool purgeExisting,
+                                   std::function<void(std::string)> statusCallback = nullptr);
+
+    /**
      * @brief Counts stored scientific bundles.
      * @return Number of raw scientific bundle files on disk.
      */
@@ -99,10 +116,16 @@ private:
     std::string buildArtifactId(const domain::SourceArtifact& artifact) const;
 
     bool validateBundleJson(const nlohmann::json& bundle, std::vector<std::string>& errors) const;
+    IngestionResult processArtifacts(const std::vector<domain::SourceArtifact>& artifacts,
+                                     bool purgeExisting,
+                                     std::function<void(std::string)> statusCallback);
+    bool purgeExistingArtifacts(const std::string& filename, std::string& error) const;
+    void generateIngestionReport() const; // New method for Global Manifest
     void attachSourceMetadata(nlohmann::json& bundle,
                               const domain::SourceArtifact& artifact,
                               const std::string& artifactId,
-                              const std::string& method) const;
+                              const std::string& method,
+                              const std::string& sha256) const;
     bool saveRawBundle(const nlohmann::json& bundle, const std::string& artifactId, std::string& error) const;
     bool exportConsumables(const nlohmann::json& bundle, const std::string& artifactId, std::string& error) const;
     bool saveErrorPayload(const std::string& artifactId, const std::string& payload, std::string& error) const;
