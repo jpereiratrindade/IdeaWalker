@@ -2,6 +2,12 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [Unreleased]
+### Alterado
+- **UI Refactor**: Extração da interface de Ingestão Científica do `DashboardPanel` para um novo painel dedicado (`ScientificPanel`).
+- **Navegação**: Nova aba "Scientific" (🧪) adicionada à barra de guias principal.
+- **Layout**: Implementação de visualização dividida (Split View) para a aba Científica (Lista de Arquivos vs Detalhes/Validação).
+
 ## [v0.1.15-beta] - 2026-02-10
 ### Consolidado
 - **Ingestão Científica & UI**: Integração final dos serviços de ingestão com o Dashboard, incluindo validação epistêmica e feedback visual de progresso.

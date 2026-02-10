@@ -10,6 +10,7 @@ void DrawMainTabs(AppState& app) {
         DrawKnowledgeTab(app);
         DrawExecutionTab(app);
         DrawGraphTab(app);
+        DrawScientificTab(app);
         DrawExternalFilesTab(app);
         ImGui::EndTabBar();
     }

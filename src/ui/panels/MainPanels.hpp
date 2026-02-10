@@ -10,6 +10,7 @@ void DrawKnowledgeTab(AppState& app);
 void DrawExecutionTab(AppState& app);
 void DrawGraphTab(AppState& app);
 void DrawExternalFilesTab(AppState& app);
+void DrawScientificTab(AppState& app);
 
 // Components
 void DrawNodeGraph(AppState& app);
