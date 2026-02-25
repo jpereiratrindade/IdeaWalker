@@ -3,10 +3,27 @@
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
 ## [Unreleased]
-### Alterado
-- **UI Refactor**: Extração da interface de Ingestão Científica do `DashboardPanel` para um novo painel dedicado (`ScientificPanel`).
-- **Navegação**: Nova aba "Scientific" (🧪) adicionada à barra de guias principal.
-- **Layout**: Implementação de visualização dividida (Split View) para a aba Científica (Lista de Arquivos vs Detalhes/Validação).
+
+## [v0.1.16-beta] - 2026-02-25
+### Governança — F0 Concluído / F1 Iniciado
+- **ADR-000**: Governance Model Overview criado (arquivo faltava no disco)
+- **ADR-007 a ADR-011**: Decisões arquiteturais implementadas formalizadas como ADRs
+  - ADR-007: Bifásic Scientific Ingestion Pipeline
+  - ADR-008: Structural Exclusion Rule
+  - ADR-009: Autonomous Cognitive Orchestrator
+  - ADR-010: Async Task Manager
+  - ADR-011: Contextual RAG Architecture
+- **ADR_INDEX.md**: Reformatado com tabela markdown consistente
+- **IW_MATURITY_MODEL.md**: Modelo formal F0→F2 com critérios verificáveis (F0=concluído, F1=iniciado, F2=bloqueado)
+- **CI (F1.D1/D4)**: GitHub Actions workflow com 3 jobs: invariant-audit, build-tests, run-tests
+- **scripts/audit_adr_index.sh**: Auditoria automática de consistência do ADR_INDEX
+
+### F1 Hardening — Enforcement Estrutural (iniciado)
+- **F1.B1**: `STRUCTURAL_EXCLUSION_THRESHOLD = 0.60f` declarado como constante nomeada em `ContentExtractor.hpp` (ADR-008)
+- **F1.B4**: `AnalyzeSuggestions()` e `CheckForUpdates()` migrados de `std::thread` direto para `AsyncTaskManager` em `AppState.cpp` (ADR-010)
+
+### UI
+- **Refactor**: Extração da interface de Ingestão Científica para `ScientificPanel` dedicado
 
 ## [v0.1.15-beta] - 2026-02-10
 ### Consolidado
