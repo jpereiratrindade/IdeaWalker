@@ -31,6 +31,7 @@ Este documento cataloga todos os Architecture Decision Records (ADR) ativos do I
 | ADR-009 | Autonomous Cognitive Orchestrator | Accepted | `ADR-009_Autonomous_Cognitive_Orchestrator.md` |
 | ADR-010 | Async Task Manager | Accepted | `ADR-010_Async_Task_Manager.md` |
 | ADR-011 | Contextual RAG Architecture | Accepted | `ADR-011_Contextual_RAG_Architecture.md` |
+| ADR-012 | Semantic States & Contracts | Accepted | `ADR-012_Semantic_States_and_Contracts.md` |
 
 ---
 

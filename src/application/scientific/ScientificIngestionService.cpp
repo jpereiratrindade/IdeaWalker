@@ -688,6 +688,7 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::processA
                 logFile << "=== IdeaWalker Structural Exclusion Audit Log ===\n";
                 logFile << "Artifact ID: " << artifactId << "\n";
                 logFile << "Timestamp: " << ToIsoTimestamp(std::chrono::system_clock::now()) << "\n";
+                logFile << "Classification: Local Audit Artifact (LAA) — ADR-012\n";
                 logFile << "Rule: Recurrence > " << (STRUCTURAL_EXCLUSION_THRESHOLD * 100) << "% in Top/Bottom 3 lines\n\n";
                 logFile << "Excluded Lines (" << resultData.structuralExclusions.size() << "):\n";
                 for (const auto& line : resultData.structuralExclusions) {
@@ -797,10 +798,8 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::processA
 
         // --- Merge Bundles ---
         nlohmann::json bundle = narrativeBundle;
-        if (discursiveFailed) {
-            bundle["partialExtraction"] = true;
-            bundle["extractionStatus"] = "narrative_only";
-        }
+        std::string extractionStatus = discursiveFailed ? "partial-narrative" : "complete";
+        bool isPartial = discursiveFailed;
         
         // Merge Discursive Context
         if (discursiveBundle.contains("discursiveContext")) {
@@ -889,7 +888,7 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::processA
             continue;
         }
 
-        attachSourceMetadata(bundle, artifact, artifactId, resultData.method, resultData.sourceSha256);
+        attachSourceMetadata(bundle, artifact, artifactId, resultData.method, resultData.sourceSha256, extractionStatus, isPartial);
 
         std::string saveError;
         if (!saveRawBundle(bundle, artifactId, saveError)) {
@@ -1349,7 +1348,9 @@ void ScientificIngestionService::attachSourceMetadata(nlohmann::json& bundle,
                                                       const domain::SourceArtifact& artifact,
                                                       const std::string& artifactId,
                                                       const std::string& method,
-                                                      const std::string& sha256) const {
+                                                      const std::string& sha256,
+                                                      const std::string& extractionStatus,
+                                                      bool isPartial) const {
     nlohmann::json source = {
         {"artifactId", artifactId},
         {"path", artifact.path},
@@ -1360,7 +1361,9 @@ void ScientificIngestionService::attachSourceMetadata(nlohmann::json& bundle,
         {"extractionMethod", method},
         {"sourceType", SourceTypeToString(artifact.type)},
         {"sizeBytes", artifact.sizeBytes},
-        {"lastModified", ToIsoTimestamp(artifact.lastModified)}
+        {"lastModified", ToIsoTimestamp(artifact.lastModified)},
+        {"extractionStatus", extractionStatus},
+        {"isPartial", isPartial}
     };
     if (!sha256.empty()) {
         source["sourceSha256"] = sha256;

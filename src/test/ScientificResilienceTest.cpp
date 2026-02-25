@@ -164,9 +164,12 @@ bool Test_F1_C2_DiscursiveFailureNotBlocking() {
         if (entry.path().extension() == ".json") {
             std::ifstream bf(entry.path());
             nlohmann::json j = nlohmann::json::parse(bf);
-            if (j.contains("partialExtraction") && j["partialExtraction"].get<bool>() == true) {
-                foundPartial = true;
-                IW_ASSERT(j["extractionStatus"] == "narrative_only", "Status de extração correto");
+            if (j.contains("source") && j["source"].is_object()) {
+                const auto& src = j["source"];
+                if (src.contains("isPartial") && src["isPartial"].get<bool>() == true) {
+                    foundPartial = true;
+                    IW_ASSERT(src["extractionStatus"] == "partial-narrative", "Status de extração correto (partial-narrative)");
+                }
             }
         }
     }

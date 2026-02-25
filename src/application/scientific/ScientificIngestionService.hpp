@@ -125,7 +125,9 @@ private:
                               const domain::SourceArtifact& artifact,
                               const std::string& artifactId,
                               const std::string& method,
-                              const std::string& sha256) const;
+                              const std::string& sha256,
+                              const std::string& extractionStatus,
+                              bool isPartial) const;
     bool saveRawBundle(const nlohmann::json& bundle, const std::string& artifactId, std::string& error) const;
     bool exportConsumables(const nlohmann::json& bundle, const std::string& artifactId, std::string& error) const;
     bool saveErrorPayload(const std::string& artifactId, const std::string& payload, std::string& error) const;
