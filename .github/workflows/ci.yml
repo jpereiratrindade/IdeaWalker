@@ -1,0 +1,126 @@
+name: IdeaWalker CI — F1 Hardening
+
+on:
+  push:
+    branches: ["main", "develop", "f1-hardening"]
+  pull_request:
+    branches: ["main", "develop"]
+
+jobs:
+  # ─────────────────────────────────────────────────
+  # JOB 1: Invariant Audit (fast — no compilation)
+  # Enforces F1.D3 and F1.D4
+  # ─────────────────────────────────────────────────
+  invariant-audit:
+    name: "Invariant Audit"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: "[F1.D3] Audit — No direct std::thread in application or ui layers"
+        run: |
+          echo "Checking for direct std::thread usage in src/application and src/ui..."
+          # AsyncTaskManager itself is the legitimate owner of std::thread internals.
+          # ConversationService and AppState are violations — they must use AsyncTaskManager.
+          VIOLATIONS=$(grep -rn "std::thread" src/application src/ui \
+            --include="*.cpp" --include="*.hpp" \
+            | grep -v "AsyncTaskManager" \
+            | grep -v "test/" \
+            | grep -v "#include <thread>" \
+            | grep -v "std::thread::hardware_concurrency" \
+            || true)
+          if [ -n "$VIOLATIONS" ]; then
+            echo "❌ FAIL: Direct std::thread usage found outside AsyncTaskManager:"
+            echo "$VIOLATIONS"
+            echo ""
+            echo "→ These must be migrated to AsyncTaskManager (ADR-010)"
+            exit 1
+          fi
+          echo "✅ PASS: No violating std::thread usage found."
+
+      - name: "[F1.D4] Audit — ADR_INDEX consistency with adr/ directory"
+        run: |
+          bash scripts/audit_adr_index.sh
+
+      - name: "[F1.B1] Audit — STRUCTURAL_EXCLUSION_THRESHOLD is a named constant"
+        run: |
+          echo "Checking for named STRUCTURAL_EXCLUSION_THRESHOLD constant..."
+          if ! grep -rn "STRUCTURAL_EXCLUSION_THRESHOLD" src/ --include="*.cpp" --include="*.hpp" > /dev/null 2>&1; then
+            echo "❌ FAIL: STRUCTURAL_EXCLUSION_THRESHOLD not found as a named constant."
+            echo "→ The threshold must not be a magic number (ADR-008)"
+            exit 1
+          fi
+          echo "✅ PASS: STRUCTURAL_EXCLUSION_THRESHOLD is declared."
+
+  # ─────────────────────────────────────────────────
+  # JOB 2: Build headless test targets
+  # Only compiles test executables — avoids SDL2/ImGui/Whisper
+  # ─────────────────────────────────────────────────
+  build-tests:
+    name: "Build Headless Tests"
+    runs-on: ubuntu-latest
+    needs: invariant-audit
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y --no-install-recommends \
+            cmake \
+            build-essential \
+            ninja-build \
+            libssl-dev
+
+      - name: Configure CMake (test targets only)
+        run: |
+          cmake -B build-ci \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DFETCHCONTENT_UPDATES_DISCONNECTED=ON
+
+      - name: Build ideawalker_test
+        run: cmake --build build-ci --target ideawalker_test --parallel
+
+      - name: Build ideawalker_writing_test
+        run: cmake --build build-ci --target ideawalker_writing_test --parallel
+
+      - name: Upload test binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-binaries
+          path: |
+            build-ci/ideawalker_test
+            build-ci/ideawalker_writing_test
+          retention-days: 1
+
+  # ─────────────────────────────────────────────────
+  # JOB 3: Run tests
+  # ─────────────────────────────────────────────────
+  run-tests:
+    name: "Run Tests"
+    runs-on: ubuntu-latest
+    needs: build-tests
+    steps:
+      - name: Download test binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: test-binaries
+          path: bin/
+
+      - name: Make binaries executable
+        run: chmod +x bin/ideawalker_test bin/ideawalker_writing_test
+
+      - name: "[F1] Run ConcurrencyTest"
+        run: |
+          echo "Running ConcurrencyTest..."
+          ./bin/ideawalker_test
+          echo "✅ ConcurrencyTest completed."
+
+      - name: "[F1] Run WritingTrajectoryRoundTripTest"
+        run: |
+          echo "Running WritingTrajectoryRoundTripTest..."
+          ./bin/ideawalker_writing_test
+          echo "✅ WritingTrajectoryRoundTripTest completed."
