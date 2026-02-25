@@ -102,6 +102,19 @@ public:
      */
     std::optional<ValidationSummary> getLatestValidationSummary() const;
 
+    /**
+     * @brief Writes the structural exclusion audit log for a processed artifact.
+     * @param observationsPath Base path for scientific observation artifacts.
+     * @param artifactId Stable artifact identifier.
+     * @param structuralExclusions Extracted lines classified as structural noise.
+     * @param error Optional output message on failure.
+     * @return True when log is written (or no exclusions exist); false only on write failure.
+     */
+    static bool WriteStructuralExclusionAuditLog(const std::string& observationsPath,
+                                                 const std::string& artifactId,
+                                                 const std::vector<std::string>& structuralExclusions,
+                                                 std::string* error = nullptr);
+
 private:
     std::unique_ptr<infrastructure::FileSystemArtifactScanner> m_scanner;
     std::shared_ptr<domain::AIService> m_aiService;

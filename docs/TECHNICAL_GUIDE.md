@@ -41,9 +41,10 @@ Este documento descreve o fluxo de dados, os principais componentes e como o pro
 - **Auditoria de consistência**: `bash scripts/audit_adr_index.sh`.
 - **Catálogo ADR gerado**: `python3 scripts/build_adr_catalog.py` -> `reports/architecture/ArchitectureDecisionIndex.latest.{json,md}`.
 - **CI (F1 Hardening)**: workflow em `.github/workflows/ci.yml` com gates de invariantes, build headless e execução dos 4 binários de teste.
+- **Estado atual de maturidade**: F1 concluído (critérios A/B/C/D satisfeitos).
 
 ---
-*Versão do Documento: v0.1.17-beta*
+*Versão do Documento: v0.1.18-beta*
 
 ## Licença
 

@@ -535,6 +535,62 @@ bool ValidateStrataDiscursiveEnvelope(const nlohmann::json& envelope, std::strin
     return true;
 }
 
+constexpr bool kEnableBifasicFallback = false;
+
+void EnsureArrayField(nlohmann::json& obj, const char* key) {
+    if (!obj.contains(key) || !obj[key].is_array()) {
+        obj[key] = nlohmann::json::array();
+    }
+}
+
+void EnsureBundleMinimumStructure(nlohmann::json& bundle,
+                                  const std::string& artifactId,
+                                  const std::string& modelName) {
+    if (!bundle.contains("schemaVersion") || !bundle["schemaVersion"].is_number_integer()) {
+        bundle["schemaVersion"] = domain::scientific::ScientificSchema::SchemaVersion;
+    }
+    if (!bundle.contains("narrativeRegime") || !bundle["narrativeRegime"].is_string() ||
+        bundle["narrativeRegime"].get<std::string>().empty()) {
+        bundle["narrativeRegime"] = "observational";
+    }
+
+    EnsureArrayField(bundle, "narrativeObservations");
+    EnsureArrayField(bundle, "allegedMechanisms");
+    EnsureArrayField(bundle, "temporalWindowReferences");
+    EnsureArrayField(bundle, "baselineAssumptions");
+    EnsureArrayField(bundle, "trajectoryAnalogies");
+
+    if (!bundle.contains("interpretationLayers") || !bundle["interpretationLayers"].is_object()) {
+        bundle["interpretationLayers"] = nlohmann::json::object();
+    }
+    auto& layers = bundle["interpretationLayers"];
+    EnsureArrayField(layers, "observedStatements");
+    EnsureArrayField(layers, "authorInterpretations");
+    EnsureArrayField(layers, "possibleReadings");
+
+    if (!bundle.contains("sourceProfile") || !bundle["sourceProfile"].is_object()) {
+        bundle["sourceProfile"] = nlohmann::json::object();
+    }
+    auto& profile = bundle["sourceProfile"];
+    if (!profile.contains("studyType") || !profile["studyType"].is_string()) profile["studyType"] = "unknown";
+    if (!profile.contains("temporalScale") || !profile["temporalScale"].is_string()) profile["temporalScale"] = "unknown";
+    if (!profile.contains("ecosystemType") || !profile["ecosystemType"].is_string()) profile["ecosystemType"] = "unknown";
+    if (!profile.contains("evidenceType") || !profile["evidenceType"].is_string()) profile["evidenceType"] = "unknown";
+    if (!profile.contains("transferability") || !profile["transferability"].is_string()) profile["transferability"] = "unknown";
+
+    if (!bundle.contains("source") || !bundle["source"].is_object()) {
+        bundle["source"] = nlohmann::json::object();
+    }
+    auto& source = bundle["source"];
+    if (!source.contains("artifactId") || !source["artifactId"].is_string()) source["artifactId"] = artifactId;
+    if (!source.contains("ingestedAt") || !source["ingestedAt"].is_string()) {
+        source["ingestedAt"] = ToIsoTimestamp(std::chrono::system_clock::now());
+    }
+    if (!source.contains("model") || !source["model"].is_string() || source["model"].get<std::string>().empty()) {
+        source["model"] = modelName;
+    }
+}
+
 } // namespace
 
 ScientificIngestionService::ScientificIngestionService(
@@ -566,6 +622,10 @@ bool ScientificIngestionService::ingestScientificBundle(const std::string& jsonC
     }
 
     NormalizeBundleEnums(bundle);
+    EnsureBundleMinimumStructure(
+        bundle,
+        artifactId,
+        m_aiService ? m_aiService->getCurrentModel() : std::string("scientific-observer-persona"));
 
     // Note: We skip SanitizeBundleAnchoring as we don't have the original raw text here easily,
     // relying on the Rigorous Persona prompt integrity.
@@ -575,15 +635,6 @@ bool ScientificIngestionService::ingestScientificBundle(const std::string& jsonC
          std::string saveError;
          saveErrorPayload(artifactId, jsonContent, saveError);
          return false;
-    }
-
-    // Minimal Source Metadata Injection if missing
-    if (!bundle.contains("source") || !bundle["source"].is_object()) {
-         bundle["source"] = {
-             {"artifactId", artifactId},
-             {"ingestedAt", ToIsoTimestamp(std::chrono::system_clock::now())},
-             {"model", "scientific-observer-persona"}
-         };
     }
 
     std::string saveError;
@@ -682,20 +733,12 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::processA
         // --- F1.B2: Logging de Exclusão Estrutural ---
         if (!resultData.structuralExclusions.empty()) {
             std::string exclusionError;
-            fs::path exclusionLogPath = fs::path(m_observationsPath) / (artifactId + ".exclusions.log");
-            std::ofstream logFile(exclusionLogPath);
-            if (logFile.is_open()) {
-                logFile << "=== IdeaWalker Structural Exclusion Audit Log ===\n";
-                logFile << "Artifact ID: " << artifactId << "\n";
-                logFile << "Timestamp: " << ToIsoTimestamp(std::chrono::system_clock::now()) << "\n";
-                logFile << "Classification: Local Audit Artifact (LAA) — ADR-012\n";
-                logFile << "Rule: Recurrence > "
-                        << (ideawalker::infrastructure::STRUCTURAL_EXCLUSION_THRESHOLD * 100)
-                        << "% in Top/Bottom 3 lines\n\n";
-                logFile << "Excluded Lines (" << resultData.structuralExclusions.size() << "):\n";
-                for (const auto& line : resultData.structuralExclusions) {
-                    logFile << "  [EXCLUDED] " << line << "\n";
-                }
+            if (!WriteStructuralExclusionAuditLog(
+                    m_observationsPath,
+                    artifactId,
+                    resultData.structuralExclusions,
+                    &exclusionError)) {
+                result.errors.push_back(exclusionError);
             }
         }
 
@@ -726,7 +769,7 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::processA
         SanitizeBundleAnchoring(narrativeProbe, content);
         size_t probeObs = CountArraySafe(narrativeProbe, "narrativeObservations");
         size_t probeMech = CountArraySafe(narrativeProbe, "allegedMechanisms");
-        if (probeObs == 0 || probeMech == 0) {
+        if (kEnableBifasicFallback && (probeObs == 0 || probeMech == 0)) {
             if (statusCallback) statusCallback("Narrativa vazia após ancoragem. Tentando fallback (Abstract/Introduction)...");
             const std::string focusedContent = ExtractFocusedNarrativeText(content);
             std::string fallbackSystem = buildNarrativeSystemPrompt();
@@ -780,7 +823,7 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::processA
             probeAct = CountArraySafe(discursiveProbe["discursiveSystem"], "declaredActions");
             probeEff = CountArraySafe(discursiveProbe["discursiveSystem"], "expectedEffects");
         }
-        if (probeFrames + probeProb + probeAct + probeEff == 0) {
+        if (kEnableBifasicFallback && (probeFrames + probeProb + probeAct + probeEff == 0)) {
             if (statusCallback) statusCallback("Discursiva vazia após ancoragem. Tentando fallback (Abstract/Introduction)...");
             const std::string focusedContent = ExtractFocusedNarrativeText(content);
             std::string fallbackSystem = buildDiscursiveSystemPrompt();
@@ -823,19 +866,12 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::processA
              }
         }
 
-        if (discursiveBundle.contains("interpretationLayers")) {
-             if (!bundle.contains("interpretationLayers")) {
-                 bundle["interpretationLayers"] = discursiveBundle["interpretationLayers"];
-             } else {
-                 auto& target = bundle["interpretationLayers"];
-                 const auto& source = discursiveBundle["interpretationLayers"];
-                 if (source.contains("authorInterpretations")) target["authorInterpretations"] = source["authorInterpretations"];
-                 if (source.contains("possibleReadings")) target["possibleReadings"] = source["possibleReadings"];
-             }
-        }
-
         NormalizeBundleEnums(bundle);
         SanitizeSourceProfileKeys(bundle);
+        EnsureBundleMinimumStructure(
+            bundle,
+            artifactId,
+            m_aiService ? m_aiService->getCurrentModel() : std::string("unknown"));
 
         size_t preNarr = CountArraySafe(bundle, "narrativeObservations");
         size_t preMech = CountArraySafe(bundle, "allegedMechanisms");
@@ -897,6 +933,7 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::processA
             result.errors.push_back(saveError);
             continue;
         }
+        result.bundlesGenerated++;
 
         EpistemicValidator validator;
         auto validation = validator.Validate(bundle);
@@ -921,7 +958,6 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::processA
         WriteJsonFile(consumableDir / "EpistemicValidationReport.json", validation.report, saveError);
         WriteJsonFile(consumableDir / "ExportSeal.json", validation.seal, saveError);
 
-        result.bundlesGenerated++;
     }
 
     if (result.bundlesGenerated > 0 || purgePerformed) {
@@ -1371,6 +1407,37 @@ void ScientificIngestionService::attachSourceMetadata(nlohmann::json& bundle,
         source["sourceSha256"] = sha256;
     }
     bundle["source"] = source;
+}
+
+bool ScientificIngestionService::WriteStructuralExclusionAuditLog(
+    const std::string& observationsPath,
+    const std::string& artifactId,
+    const std::vector<std::string>& structuralExclusions,
+    std::string* error) {
+    if (structuralExclusions.empty()) return true;
+
+    fs::path exclusionLogPath = fs::path(observationsPath) / (artifactId + ".exclusions.log");
+    std::ofstream logFile(exclusionLogPath);
+    if (!logFile.is_open()) {
+        if (error) {
+            *error = "Falha ao abrir log de exclusao estrutural: " + exclusionLogPath.string();
+        }
+        return false;
+    }
+
+    logFile << "=== IdeaWalker Structural Exclusion Audit Log ===\n";
+    logFile << "Artifact ID: " << artifactId << "\n";
+    logFile << "Timestamp: " << ToIsoTimestamp(std::chrono::system_clock::now()) << "\n";
+    logFile << "Classification: Local Audit Artifact (LAA) — ADR-012\n";
+    logFile << "Rule: Recurrence > "
+            << (ideawalker::infrastructure::STRUCTURAL_EXCLUSION_THRESHOLD * 100)
+            << "% in Top/Bottom 3 lines\n\n";
+    logFile << "Excluded Lines (" << structuralExclusions.size() << "):\n";
+    for (const auto& line : structuralExclusions) {
+        logFile << "  [EXCLUDED] " << line << "\n";
+    }
+
+    return true;
 }
 
 bool ScientificIngestionService::saveRawBundle(

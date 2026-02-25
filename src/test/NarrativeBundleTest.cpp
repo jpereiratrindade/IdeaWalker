@@ -106,6 +106,71 @@ static std::string MakeDiscursiveResponse() {
     return j.dump();
 }
 
+/// Retorna um bundle completo e exportável para testes de consumíveis.
+static std::string MakeExportableBundle() {
+    nlohmann::json j;
+    j["schemaVersion"] = domain::scientific::ScientificSchema::SchemaVersion;
+    j["narrativeRegime"] = "observational";
+    j["narrativeObservations"] = nlohmann::json::array({
+        {
+            {"theme", "resilience"},
+            {"observation", "Observed structural pattern in sampled system."},
+            {"contextuality", "site-specific"},
+            {"evidenceSnippet", "sampled system"}
+        }
+    });
+    j["allegedMechanisms"] = nlohmann::json::array();
+    j["temporalWindowReferences"] = nlohmann::json::array({
+        {
+            {"timeWindow", "2020-2024"},
+            {"changeRhythm", "gradual"},
+            {"delaysOrHysteresis", "none"},
+            {"evidenceSnippet", "sampled system"}
+        }
+    });
+    j["baselineAssumptions"] = nlohmann::json::array({
+        {
+            {"baselineType", "dynamic"},
+            {"assumption", "Reference baseline adapts over time."}
+        }
+    });
+    j["trajectoryAnalogies"] = nlohmann::json::array();
+    j["interpretationLayers"] = {
+        {"observedStatements", nlohmann::json::array()},
+        {"authorInterpretations", nlohmann::json::array()},
+        {"possibleReadings", nlohmann::json::array()}
+    };
+    j["sourceProfile"] = {
+        {"studyType", "observational"},
+        {"temporalScale", "long"},
+        {"ecosystemType", "terrestrial"},
+        {"evidenceType", "empirical"},
+        {"transferability", "medium"}
+    };
+    j["source"] = {
+        {"artifactId", "test_exportable"},
+        {"ingestedAt", "2026-02-25T00:00:00Z"},
+        {"model", "mock-model-v1"},
+        {"sha256", "deadbeef"},
+        {"sourceType", "pdf"},
+        {"method", "bifasic"}
+    };
+    j["discursiveContext"] = {
+        {"frames", nlohmann::json::array({
+            {
+                {"frame", "governance"},
+                {"evidenceSnippet", "sampled system"}
+            }
+        })}
+    };
+    j["discursiveSystem"] = {
+        {"declaredProblems", nlohmann::json::array()},
+        {"declaredActions", nlohmann::json::array()},
+        {"expectedEffects", nlohmann::json::array()}
+    };
+    return j.dump();
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock AI Service
 // ─────────────────────────────────────────────────────────────────────────────
@@ -371,6 +436,67 @@ bool Test_F1_A1_BundleWithoutSchemaVersionRejected() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Test: F1.A4 — Exportação ocorre via NarrativeBundle estruturado
+// ─────────────────────────────────────────────────────────────────────────────
+bool Test_F1_A4_ExportOnlyStructuredBundleArtifacts() {
+    TestFixture fx;
+    auto ai      = fx.makeMockAI();
+    auto service = fx.makeService(ai);
+
+    bool ok = service->ingestScientificBundle(MakeExportableBundle(), "test_artifact_a4");
+    IW_ASSERT(ok, "F1.A4: ingestScientificBundle retorna true para bundle exportável");
+
+    fs::path outDir = fx.consumablesPath / "test_artifact_a4";
+    IW_ASSERT(fs::exists(outDir), "F1.A4: diretório de consumíveis criado");
+    IW_ASSERT(fs::exists(outDir / "IWBundle.json"), "F1.A4: IWBundle.json presente como envelope canônico");
+
+    size_t fileCount = 0;
+    for (const auto& entry : fs::directory_iterator(outDir)) {
+        if (!entry.is_regular_file()) continue;
+        ++fileCount;
+        IW_ASSERT(entry.path().extension() == ".json",
+                  "F1.A4: artefatos exportados são estruturados em JSON");
+    }
+    IW_ASSERT(fileCount > 0, "F1.A4: ao menos um artefato estruturado foi exportado");
+    IW_ASSERT(!fs::exists(outDir / "NarrativeVectorDTO.txt"),
+              "F1.A4: nenhum DTO cru em formato texto foi exportado");
+
+    return true;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Test: F1.C3 — Artefatos narrativo e discursivo exportados separadamente
+// ─────────────────────────────────────────────────────────────────────────────
+bool Test_F1_C3_NarrativeAndDiscursiveArtifactsSeparated() {
+    TestFixture fx;
+    auto ai      = fx.makeMockAI();
+    auto service = fx.makeService(ai);
+
+    bool ok = service->ingestScientificBundle(MakeExportableBundle(), "test_artifact_c3");
+    IW_ASSERT(ok, "F1.C3: ingestScientificBundle retorna true");
+
+    fs::path outDir = fx.consumablesPath / "test_artifact_c3";
+    fs::path narrativePath = outDir / "NarrativeObservation.json";
+    fs::path discursivePath = outDir / "DiscursiveContext.json";
+
+    IW_ASSERT(fs::exists(narrativePath), "F1.C3: NarrativeObservation.json exportado");
+    IW_ASSERT(fs::exists(discursivePath), "F1.C3: DiscursiveContext.json exportado");
+    IW_ASSERT(narrativePath != discursivePath, "F1.C3: artefatos narrativo e discursivo são distintos");
+
+    std::ifstream narrativeFile(narrativePath);
+    nlohmann::json narrative = nlohmann::json::parse(narrativeFile);
+    IW_ASSERT(narrative.contains("history") && narrative["history"].is_array(),
+              "F1.C3: NarrativeObservation mantém envelope de história");
+
+    std::ifstream discursiveFile(discursivePath);
+    nlohmann::json discursive = nlohmann::json::parse(discursiveFile);
+    IW_ASSERT(discursive.contains("discursiveContext") && discursive["discursiveContext"].is_object(),
+              "F1.C3: DiscursiveContext mantém envelope discursivo");
+
+    return true;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Main
 // ─────────────────────────────────────────────────────────────────────────────
 int main() {
@@ -383,6 +509,8 @@ int main() {
     RUN_TEST(Test_F1_C1_BifasicTwoCallsPerDocument);
     RUN_TEST(Test_F1_C1_TwoDocumentsFourCalls);
     RUN_TEST(Test_F1_A1_BundleWithoutSchemaVersionRejected);
+    RUN_TEST(Test_F1_A4_ExportOnlyStructuredBundleArtifacts);
+    RUN_TEST(Test_F1_C3_NarrativeAndDiscursiveArtifactsSeparated);
 
     std::cout << "\n=== Results: " << g_passed << " passed, " << g_failed << " failed ===\n";
     return (g_failed == 0) ? 0 : 1;

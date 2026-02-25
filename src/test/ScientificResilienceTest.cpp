@@ -15,6 +15,7 @@
 #include <iostream>
 #include <memory>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <atomic>
@@ -182,21 +183,36 @@ bool Test_F1_C2_DiscursiveFailureNotBlocking() {
 // Test: F1.B2 — Structural exclusion logging (Simulated)
 // ─────────────────────────────────────────────────────────────────────────────
 bool Test_F1_B2_ExclusionLogging() {
-    // Note: To test this properly, we need a PDF or to mock ExtractPdf.
-    // Since ExtractPdf call pdftotext, we can't easily unit test it here.
-    // However, we can verify that IF exclusions are present in ExtractionResult, 
-    // the service writes the log.
-    
-    // We already implemented the logic in ScientificIngestionService.cpp.
-    // Let's verify that the log file is created in a integration-like test if we had a PDF.
-    // Since we are in a headless environment, we'll skip the actual PDF run 
-    // and assume the unit logic for WriteJsonFile/ofstream is solid if the others pass.
-    
-    // BUT, I can test the presence of the log if I find a way to trigger structuralExclusions.
-    // Optimization: I'll trust the code added to ScientificIngestionService.cpp for now 
-    // as it's a simple ofstream write if !structuralExclusions.empty().
-    
-    std::cout << "[INFO] F1.B2: Verificação manual ou via PDF real recomendada para auditoria completa.\n";
+    TestFixture fx;
+    const std::string artifactId = "b2_exclusion_logging";
+    const std::vector<std::string> exclusions = {
+        "Journal Header 2026",
+        "Page 1 of 12"
+    };
+
+    std::string error;
+    bool ok = application::scientific::ScientificIngestionService::WriteStructuralExclusionAuditLog(
+        fx.observationsPath.string(),
+        artifactId,
+        exclusions,
+        &error);
+
+    IW_ASSERT(ok, "F1.B2: escrita do log de exclusão estrutural");
+    IW_ASSERT(error.empty(), "F1.B2: sem erro na escrita do log");
+
+    fs::path logPath = fx.observationsPath / (artifactId + ".exclusions.log");
+    IW_ASSERT(fs::exists(logPath), "F1.B2: arquivo .exclusions.log foi criado");
+
+    std::ifstream logFile(logPath);
+    std::stringstream buffer;
+    buffer << logFile.rdbuf();
+    const std::string content = buffer.str();
+
+    IW_ASSERT(content.find("Local Audit Artifact (LAA)") != std::string::npos,
+              "F1.B2: classificação LAA registrada no log");
+    IW_ASSERT(content.find("Journal Header 2026") != std::string::npos,
+              "F1.B2: linha excluída registrada no log");
+
     return true;
 }
 

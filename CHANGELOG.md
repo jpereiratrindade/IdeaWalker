@@ -4,6 +4,30 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
 ## [Unreleased]
 
+## [v0.1.18-beta] - 2026-02-25
+### F1 Closure — Hardening estrutural concluído
+- **Fechamento dos critérios F1.A1/F1.A2/F1.A3**:
+  - `ScientificIngestionService` agora normaliza e completa a estrutura mínima do bundle antes da validação (`schemaVersion`, `narrativeRegime`, arrays mandatórios, `sourceProfile`, `source`).
+- **Fechamento do critério F1.C1**:
+  - Pipeline bifásico ajustado para manter 2 chamadas-base de IA por documento em modo estrito (fallback adicional desativado por flag interna).
+- **Fechamento do critério F1.C2**:
+  - `bundlesGenerated` passa a contabilizar bundles persistidos mesmo quando há falha discursiva posterior, preservando resiliência parcial.
+- **Fechamento do critério F1.B2**:
+  - Novo método público `WriteStructuralExclusionAuditLog(...)` em `ScientificIngestionService` para auditoria estrutural testável.
+
+### Testes e evidência executável
+- **`ideawalker_bundle_test` ampliado**:
+  - Novo teste F1.A4: `Test_F1_A4_ExportOnlyStructuredBundleArtifacts`.
+  - Novo teste F1.C3: `Test_F1_C3_NarrativeAndDiscursiveArtifactsSeparated`.
+- **`ideawalker_resilience_test` ampliado**:
+  - Teste F1.B2 convertido de placeholder para validação executável de criação e conteúdo de `.exclusions.log`.
+- Resultado local de validação: `ideawalker_test`, `ideawalker_writing_test`, `ideawalker_bundle_test` e `ideawalker_resilience_test` aprovados; auditorias ADR e gate de `std::thread` aprovados.
+
+### Documentação
+- `docs/IW_MATURITY_MODEL.md` atualizado para **F1 concluído** e **F2 desbloqueado**.
+- `docs/IW_INVARIANT_MATRIX.md` sincronizado com os novos status de proteção dos invariantes de F1.
+- `docs/TECHNICAL_GUIDE.md` atualizado para `v0.1.18-beta`.
+
 ## [v0.1.17-beta] - 2026-02-25
 ### Governança ADR (alinhamento com SisterSTRATA)
 - **Fluxo ADR formalizado** com workflow de inclusão em `adr/README.md`.

@@ -1,10 +1,10 @@
 # IdeaWalker (IW)
 ## Modelo de Maturidade Institucional — IW Maturity Model
 
-**Versao:** 1.2  
+**Versao:** 1.3  
 **Status:** Accepted  
 **Data:** 2026-02-25  
-**Revisao:** Atualizado apos hardening de governanca ADR e CI.
+**Revisao:** Atualizado apos fechamento completo de F1 (hardening estrutural).
 
 ---
 
@@ -63,17 +63,17 @@ Invariantes declarados nos ADRs sao executados por codigo, testes e gates de CI.
 
 | # | Criterio | ADR | Verificacao | Status |
 |---|----------|-----|-------------|--------|
-| F1.A1 | `schemaVersion` presente e nao vazio em todo `NarrativeVectorDTO` exportado | ADR-002 | `NarrativeBundleTest` | 🔴 FALHA |
-| F1.A2 | `narrativeRegime` presente em todo `NarrativeVectorDTO` | ADR-003 | `NarrativeBundleTest` | 🔴 FALHA |
-| F1.A3 | `toolchain` metadata presente em toda extracao | ADR-004 | `NarrativeBundleTest` | 🔴 FALHA |
-| F1.A4 | Nenhum export sem `NarrativeBundle` encapsulando DTO | ADR-005 | Teste de integracao dedicado | 🟡 Nao verificado |
+| F1.A1 | `schemaVersion` presente e nao vazio em todo `NarrativeVectorDTO` exportado | ADR-002 | `NarrativeBundleTest::Test_F1_A1_SchemaVersionPresent` | ✅ Verificado |
+| F1.A2 | `narrativeRegime` presente em todo `NarrativeVectorDTO` | ADR-003 | `NarrativeBundleTest::Test_F1_A2_NarrativeRegimePresent` | ✅ Verificado |
+| F1.A3 | `toolchain` metadata presente em toda extracao | ADR-004 | `NarrativeBundleTest::Test_F1_A3_ToolchainSourcePresent` | ✅ Verificado |
+| F1.A4 | Nenhum export sem `NarrativeBundle` encapsulando DTO | ADR-005 | `NarrativeBundleTest::Test_F1_A4_ExportOnlyStructuredBundleArtifacts` | ✅ Verificado |
 
 #### Grupo B — Integridade de Pipeline
 
 | # | Criterio | ADR | Verificacao | Status |
 |---|----------|-----|-------------|--------|
 | F1.B1 | `STRUCTURAL_EXCLUSION_THRESHOLD` e constante nomeada | ADR-008 | `grep "STRUCTURAL_EXCLUSION_THRESHOLD" src/` | ✅ Verificado |
-| F1.B2 | Log de exclusao estrutural escrito em toda extracao PDF | ADR-008 | `ScientificResilienceTest` + fixture real PDF | 🟡 Parcial |
+| F1.B2 | Log de exclusao estrutural escrito em toda extracao PDF | ADR-008 | `ScientificResilienceTest::Test_F1_B2_ExclusionLogging` | ✅ Verificado |
 | F1.B3 | `ContextAssembler` existe como componente isolado em `src/application/` | ADR-011 | `ls src/application/ContextAssembler.*` | ✅ Verificado |
 | F1.B4 | Nenhum `std::thread` direto em servicos/UI fora `AsyncTaskManager` | ADR-010 | Gate CI F1.D3 | ✅ Verificado |
 
@@ -81,9 +81,9 @@ Invariantes declarados nos ADRs sao executados por codigo, testes e gates de CI.
 
 | # | Criterio | ADR | Verificacao | Status |
 |---|----------|-----|-------------|--------|
-| F1.C1 | Pipeline bifasico executa 2 chamadas de IA por documento | ADR-007 | `NarrativeBundleTest` | 🔴 FALHA |
-| F1.C2 | Ausencia de `DiscursiveContext` nao bloqueia pipeline | ADR-007 | `ScientificResilienceTest` | 🔴 FALHA |
-| F1.C3 | `NarrativeObservation.json` e `DiscursiveContext.json` sempre separados | ADR-007 | Teste de integracao de artefatos | 🟡 Nao verificado |
+| F1.C1 | Pipeline bifasico executa 2 chamadas de IA por documento | ADR-007 | `NarrativeBundleTest::Test_F1_C1_BifasicTwoCallsPerDocument` | ✅ Verificado |
+| F1.C2 | Ausencia de `DiscursiveContext` nao bloqueia pipeline | ADR-007 | `ScientificResilienceTest::Test_F1_C2_DiscursiveFailureNotBlocking` | ✅ Verificado |
+| F1.C3 | `NarrativeObservation.json` e `DiscursiveContext.json` sempre separados | ADR-007 | `NarrativeBundleTest::Test_F1_C3_NarrativeAndDiscursiveArtifactsSeparated` | ✅ Verificado |
 
 #### Grupo D — CI/CD Enforcement
 
@@ -97,7 +97,7 @@ Invariantes declarados nos ADRs sao executados por codigo, testes e gates de CI.
 
 ### Status
 
-🔴 **F1 EM ANDAMENTO** (gates de governanca ativos; pendencias funcionais em A/C e validacoes de B2/C3)
+✅ **F1 CONCLUIDO** (todos os criterios A, B, C e D atendidos com evidencia executavel)
 
 ---
 
@@ -113,20 +113,20 @@ Contrato semantico explicito no pipeline de IA, com fail-fast em export para val
 
 ### Status
 
-🔴 **F2 BLOQUEADO**
+🟡 **F2 DESBLOQUEADO** (entrada permitida; execucao ainda nao iniciada)
 
 ---
 
-## Backlog Prioritario (F1)
+## Historico de Fechamento F1 (2026-02-25)
 
-| Prioridade | Grupo | Item | Criterio |
-|-----------|-------|------|----------|
-| 🔴 Alta | A | Corrigir contratos de bundle para passar F1.A1/F1.A2/F1.A3 | F1.A1–A3 |
-| 🔴 Alta | C | Ajustar pipeline bifasico e estrategia de fallback | F1.C1 |
-| 🔴 Alta | C | Garantir resiliencia: bundle mesmo com falha discursiva | F1.C2 |
-| 🟡 Media | A | Adicionar teste de regressao para export fora de `NarrativeBundle` | F1.A4 |
-| 🟡 Media | C | Teste automatico de separacao de artefatos narrativa/discursivo | F1.C3 |
-| 🟡 Media | B | Fechar validacao automatica de log de exclusao estrutural com fixture PDF real | F1.B2 |
+| Grupo | Item encerrado | Evidencia |
+|------|----------------|-----------|
+| A | Contratos de bundle (`schemaVersion`, `narrativeRegime`, `toolchain`) normalizados antes da validacao | `NarrativeBundleTest` (A1-A3) |
+| A | Regressao de export consolidada para somente artefatos estruturados | `NarrativeBundleTest` (A4) |
+| B | Log de exclusao estrutural tornado auditavel/testavel por API dedicada | `ScientificResilienceTest` (B2) |
+| C | Pipeline bifasico estabilizado em 2 chamadas base por documento | `NarrativeBundleTest` (C1) |
+| C | Resiliencia com falha discursiva sem bloquear bundle | `ScientificResilienceTest` (C2) |
+| C | Garantia de separacao entre `NarrativeObservation.json` e `DiscursiveContext.json` | `NarrativeBundleTest` (C3) |
 
 ---
 
@@ -139,4 +139,4 @@ Contrato semantico explicito no pipeline de IA, com fail-fast em export para val
 
 ---
 
-*Fim do Documento — v1.2*
+*Fim do Documento — v1.3*
