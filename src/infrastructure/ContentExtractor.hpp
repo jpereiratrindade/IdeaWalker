@@ -25,6 +25,12 @@
 
 namespace ideawalker::infrastructure {
     
+/// ADR-008 — Structural Exclusion Rule
+/// Threshold de recorrência para classificar uma linha como ruído estrutural.
+static constexpr float STRUCTURAL_EXCLUSION_THRESHOLD = 0.60f; ///< 60% of pages
+/// Janela posicional: top/bottom N linhas por página consideradas na vistoria.
+static constexpr size_t STRUCTURAL_POSITIONAL_WINDOW_SIZE = 3;
+
 namespace {
     // Normalizes line for structural comparison (ignore digits, trim, lower)
     std::string NormalizeStructuralLine(const std::string& line) {
@@ -389,7 +395,7 @@ private:
              // Build Frequency Map for Structural Zones (Top 3 / Bottom 3 lines)
              std::unordered_map<std::string, int> structuralFreq;
              int totalPages = pages.size();
-             int structuralThreshold = std::max(2, static_cast<int>(totalPages * 0.6)); // 60% recurrence
+             int structuralThreshold = std::max(2, static_cast<int>(totalPages * STRUCTURAL_EXCLUSION_THRESHOLD));
              
              // First pass: Count
              for (const auto& pageStr : pages) {
