@@ -1,5 +1,6 @@
 # Build artifacts
 build/
+build-test/
 bin/
 lib/
 _deps/
@@ -42,6 +43,7 @@ Thumbs.db
 *.py
 *.pyc
 __pycache__/
+!scripts/build_adr_catalog.py
 !CMakeLists.txt
 CMakeCache.txt
 CMakeFiles/

@@ -1,29 +1,37 @@
-ADR-XXX — Title
+# ADR-XXX: Title
 
-Status
+Status: Proposed
+Date: YYYY-MM-DD
+Decision Type: Foundational governance | Domain boundary | Contract | Hardening | Other
+Supersedes: ADR-YYY (optional)
+Superseded by: ADR-ZZZ (optional)
 
-Proposed | Accepted | Superseded | Deprecated
-
-Context
+## Context
 
 Describe the architectural or epistemological problem.
 
-Decision
+## Decision
 
 Describe the normative decision.
 
-Justification
+## Scope / Boundaries
 
-Explain rationale and alternatives considered.
+State where this ADR applies and where it does not.
 
-Consequences
+## Allowed and Prohibited Flows
+
+- Allowed:
+- Prohibited:
+
+## Consequences and Trade-offs
 
 List technical and institutional impacts.
 
-Invariants Derived
+## Validation Criteria
 
-Rules that become mandatory as a result of this decision.
+List executable checks, tests, or CI gates that enforce this ADR.
 
-Implementation Notes
+## Related References
 
-Modules, DTOs or pipelines affected.
+- Related ADRs:
+- Related docs:

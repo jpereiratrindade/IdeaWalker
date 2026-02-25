@@ -1,0 +1,156 @@
+{
+  "schemaVersion": "adr_catalog.v1",
+  "reportType": "ArchitectureDecisionIndex",
+  "type": "governance_observational_synthesis",
+  "generatedAt": "2026-02-25",
+  "sourceDirectory": "adr",
+  "decisionCount": 13,
+  "statusBreakdown": {
+    "Accepted": 13
+  },
+  "decisions": [
+    {
+      "adrId": "ADR-000",
+      "number": 0,
+      "title": "Governance Model Overview",
+      "status": "Accepted",
+      "date": "2026-02-25",
+      "decisionType": "Unspecified",
+      "path": "adr/ADR-000_Governance_Model_Overview.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-001",
+      "number": 1,
+      "title": "Narrative Observation is Non-Inferential",
+      "status": "Accepted",
+      "date": "Unknown",
+      "decisionType": "Unspecified",
+      "path": "adr/ADR-001_Narrative_Observation_Non_Inferential.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-002",
+      "number": 2,
+      "title": "NarrativeVector as Versioned DTO",
+      "status": "Accepted",
+      "date": "Unknown",
+      "decisionType": "Unspecified",
+      "path": "adr/ADR-002_NarrativeVector_Versioning.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-003",
+      "number": 3,
+      "title": "Epistemic Regime Explicit Declaration",
+      "status": "Accepted",
+      "date": "Unknown",
+      "decisionType": "Unspecified",
+      "path": "adr/ADR-003_Epistemic_Regime_Explicit.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-004",
+      "number": 4,
+      "title": "Deterministic Extraction Baseline",
+      "status": "Accepted",
+      "date": "Unknown",
+      "decisionType": "Unspecified",
+      "path": "adr/ADR-004_Deterministic_Extraction.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-005",
+      "number": 5,
+      "title": "Narrative Bundle Export Contract",
+      "status": "Accepted",
+      "date": "Unknown",
+      "decisionType": "Unspecified",
+      "path": "adr/ADR-005_Narrative_Bundle_Export_Contract.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-006",
+      "number": 6,
+      "title": "IW \u2194 STRATA Integration Contract",
+      "status": "Accepted",
+      "date": "Unknown",
+      "decisionType": "Unspecified",
+      "path": "adr/ADR-006_IW_STRATA_Integration_Contract.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-007",
+      "number": 7,
+      "title": "Bif\u00e1sic Scientific Ingestion Pipeline",
+      "status": "Accepted",
+      "date": "2026-02-25",
+      "decisionType": "Unspecified",
+      "path": "adr/ADR-007_Bifasic_Scientific_Ingestion.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-008",
+      "number": 8,
+      "title": "Structural Exclusion Rule",
+      "status": "Accepted",
+      "date": "2026-02-25",
+      "decisionType": "Unspecified",
+      "path": "adr/ADR-008_Structural_Exclusion_Rule.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-009",
+      "number": 9,
+      "title": "Autonomous Cognitive Orchestrator",
+      "status": "Accepted",
+      "date": "2026-02-25",
+      "decisionType": "Unspecified",
+      "path": "adr/ADR-009_Autonomous_Cognitive_Orchestrator.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-010",
+      "number": 10,
+      "title": "Async Task Manager",
+      "status": "Accepted",
+      "date": "2026-02-25",
+      "decisionType": "Unspecified",
+      "path": "adr/ADR-010_Async_Task_Manager.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-011",
+      "number": 11,
+      "title": "Contextual RAG Architecture",
+      "status": "Accepted",
+      "date": "2026-02-25",
+      "decisionType": "Unspecified",
+      "path": "adr/ADR-011_Contextual_RAG_Architecture.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-012",
+      "number": 12,
+      "title": "Semantic States and Consumption Contracts",
+      "status": "Accepted",
+      "date": "Unknown",
+      "decisionType": "Unspecified",
+      "path": "adr/ADR-012_Semantic_States_and_Contracts.md",
+      "supersedes": [],
+      "supersededBy": []
+    }
+  ]
+}

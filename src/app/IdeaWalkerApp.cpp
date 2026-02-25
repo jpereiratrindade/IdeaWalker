@@ -159,7 +159,11 @@ application::AppServices BuildServicesForRoot(const std::filesystem::path& root)
     services.knowledgeService = std::move(knowledge);
     services.aiProcessingService = std::move(processing);
     services.persistenceService = std::make_shared<infrastructure::PersistenceService>();
-    services.conversationService = std::make_unique<application::ConversationService>(sharedAi, services.persistenceService, root.string());
+    services.conversationService = std::make_unique<application::ConversationService>(
+        sharedAi,
+        services.persistenceService,
+        taskManager,
+        root.string());
 
     auto scanPath = (root / "inbox").string();
     auto obsPath = (root / "observations").string();

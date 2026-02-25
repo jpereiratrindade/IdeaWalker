@@ -51,7 +51,8 @@ int main() {
     std::filesystem::create_directories(testRoot);
     
     auto persistence = std::make_shared<ideawalker::infrastructure::PersistenceService>();
-    ideawalker::application::ConversationService service(aiService, persistence, testRoot);
+    auto taskManager = std::make_shared<ideawalker::application::AsyncTaskManager>();
+    ideawalker::application::ConversationService service(aiService, persistence, taskManager, testRoot);
 
     ideawalker::application::ContextBundle bundle;
     bundle.activeNoteId = "TestNote_Concurrency";

@@ -11,6 +11,7 @@
 #include <atomic>
 #include "domain/AIService.hpp"
 #include "application/ContextAssembler.hpp"
+#include "application/AsyncTaskManager.hpp"
 #include "infrastructure/PersistenceService.hpp"
 
 namespace ideawalker::application {
@@ -23,6 +24,7 @@ class ConversationService {
 public:
     ConversationService(std::shared_ptr<domain::AIService> aiService, 
                         std::shared_ptr<infrastructure::PersistenceService> persistence,
+                        std::shared_ptr<AsyncTaskManager> taskManager,
                         const std::string& projectRoot);
     
     /**
@@ -75,6 +77,7 @@ private:
 
     std::shared_ptr<domain::AIService> m_aiService;
     std::shared_ptr<infrastructure::PersistenceService> m_persistence;
+    std::shared_ptr<AsyncTaskManager> m_taskManager;
     std::string m_projectRoot;
     
     std::string m_currentNoteId;

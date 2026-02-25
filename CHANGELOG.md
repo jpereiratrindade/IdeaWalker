@@ -4,6 +4,38 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
 ## [Unreleased]
 
+## [v0.1.17-beta] - 2026-02-25
+### Governança ADR (alinhamento com SisterSTRATA)
+- **Fluxo ADR formalizado** com workflow de inclusão em `adr/README.md`.
+- **Template ADR atualizado** com metadados normativos (`Status`, `Date`, `Decision Type`, `Supersedes`).
+- **Nomenclatura ADR-000 normalizada** para `adr/ADR-000_Governance_Model_Overview.md`.
+- **Auditoria ADR endurecida**:
+  - `scripts/audit_adr_index.sh` agora valida consistência bidirecional (disco <-> índice) e duplicidades.
+- **Catálogo ADR gerado**:
+  - Novo `scripts/build_adr_catalog.py`.
+  - Novos artefatos versionados em `reports/architecture/ArchitectureDecisionIndex.latest.{json,md}`.
+- **CI de governança expandido**:
+  - Gate F1.D5 para validar catálogo ADR atualizado.
+
+### Hardening estrutural
+- **ADR-010 enforcement**:
+  - `ConversationService` migrou de `std::thread` direto para `AsyncTaskManager`.
+  - Gate F1.D3 passa sem violações em `src/application` e `src/ui`.
+- **Fix de compilação em ingestão científica**:
+  - Referência da constante `STRUCTURAL_EXCLUSION_THRESHOLD` corrigida com namespace explícito em `ScientificIngestionService.cpp`.
+
+### CI / testes
+- Workflow agora **publica e executa os 4 binários headless**:
+  - `ideawalker_test`
+  - `ideawalker_writing_test`
+  - `ideawalker_bundle_test`
+  - `ideawalker_resilience_test`
+
+### Documentação
+- `docs/IW_MATURITY_MODEL.md` atualizado para estado real de F0/F1/F2.
+- `docs/IW_INVARIANT_MATRIX.md` reestruturado com mapeamento ADR -> evidência -> gate.
+- `docs/TECHNICAL_GUIDE.md` atualizado com governança ADR/CI e arquitetura assíncrona atual.
+
 ## [v0.1.16-beta] - 2026-02-25
 ### Governança — F0 Concluído / F1 Iniciado
 - **ADR-000**: Governance Model Overview criado (arquivo faltava no disco)

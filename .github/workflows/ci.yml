@@ -43,6 +43,21 @@ jobs:
         run: |
           bash scripts/audit_adr_index.sh
 
+      - name: "[F1.D5] Audit — generated ADR catalog is up to date"
+        run: |
+          python3 scripts/build_adr_catalog.py
+          CHANGES=$(git status --porcelain -- \
+            reports/architecture/ArchitectureDecisionIndex.latest.json \
+            reports/architecture/ArchitectureDecisionIndex.latest.md)
+          if [ -n "$CHANGES" ]; then
+            echo "❌ FAIL: generated ADR catalog artifacts are not up to date."
+            echo "$CHANGES"
+            echo ""
+            echo "→ Run: python3 scripts/build_adr_catalog.py"
+            exit 1
+          fi
+          echo "✅ PASS: generated ADR catalog artifacts are up to date."
+
       - name: "[F1.B1] Audit — STRUCTURAL_EXCLUSION_THRESHOLD is a named constant"
         run: |
           echo "Checking for named STRUCTURAL_EXCLUSION_THRESHOLD constant..."
@@ -100,6 +115,8 @@ jobs:
           path: |
             build-ci/ideawalker_test
             build-ci/ideawalker_writing_test
+            build-ci/ideawalker_bundle_test
+            build-ci/ideawalker_resilience_test
           retention-days: 1
 
   # ─────────────────────────────────────────────────
@@ -117,7 +134,12 @@ jobs:
           path: bin/
 
       - name: Make binaries executable
-        run: chmod +x bin/ideawalker_test bin/ideawalker_writing_test
+        run: |
+          chmod +x \
+            bin/ideawalker_test \
+            bin/ideawalker_writing_test \
+            bin/ideawalker_bundle_test \
+            bin/ideawalker_resilience_test
 
       - name: "[F1] Run ConcurrencyTest"
         run: |
@@ -130,3 +152,15 @@ jobs:
           echo "Running WritingTrajectoryRoundTripTest..."
           ./bin/ideawalker_writing_test
           echo "✅ WritingTrajectoryRoundTripTest completed."
+
+      - name: "[F1] Run NarrativeBundleTest"
+        run: |
+          echo "Running NarrativeBundleTest..."
+          ./bin/ideawalker_bundle_test
+          echo "✅ NarrativeBundleTest completed."
+
+      - name: "[F1] Run ScientificResilienceTest"
+        run: |
+          echo "Running ScientificResilienceTest..."
+          ./bin/ideawalker_resilience_test
+          echo "✅ ScientificResilienceTest completed."

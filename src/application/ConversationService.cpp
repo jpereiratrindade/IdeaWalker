@@ -10,7 +10,6 @@
 #include <chrono>
 #include <iomanip>
 #include <iostream>
-#include <thread>
 #include <fstream> 
 
 namespace ideawalker::application {
@@ -19,8 +18,12 @@ namespace fs = std::filesystem;
 
 ConversationService::ConversationService(std::shared_ptr<domain::AIService> aiService, 
                                          std::shared_ptr<infrastructure::PersistenceService> persistence,
+                                         std::shared_ptr<AsyncTaskManager> taskManager,
                                          const std::string& projectRoot)
-    : m_aiService(std::move(aiService)), m_persistence(std::move(persistence)), m_projectRoot(projectRoot) {}
+    : m_aiService(std::move(aiService)),
+      m_persistence(std::move(persistence)),
+      m_taskManager(std::move(taskManager)),
+      m_projectRoot(projectRoot) {}
 
 void ConversationService::startSession(const ContextBundle& bundle) {
     std::lock_guard<std::mutex> lock(m_mutex);
@@ -56,10 +59,27 @@ void ConversationService::sendMessage(const std::string& userMessage) {
     // Save immediately after user message
     saveSession(historyCopy);
 
-    // AI Processing in background
-    std::thread([this, historyCopy]() {
+    if (!m_taskManager) {
         auto responseOpt = m_aiService->chat(historyCopy, false);
-        
+
+        std::vector<domain::AIService::ChatMessage> updatedHistorySnapshot;
+        {
+            std::lock_guard<std::mutex> lock(m_mutex);
+            m_isThinking.store(false);
+            if (responseOpt) {
+                m_history.push_back({domain::AIService::ChatMessage::Role::Assistant, *responseOpt});
+            } else {
+                m_history.push_back({domain::AIService::ChatMessage::Role::Assistant, "[Erro: Sem resposta da IA]"});
+            }
+            updatedHistorySnapshot = m_history;
+        }
+        saveSession(updatedHistorySnapshot);
+        return;
+    }
+
+    m_taskManager->SubmitTask(TaskType::AI_Processing, "Conversation: AI reply", [this, historyCopy](std::shared_ptr<TaskStatus>) {
+        auto responseOpt = m_aiService->chat(historyCopy, false);
+
         std::vector<domain::AIService::ChatMessage> updatedHistorySnapshot;
         {
             std::lock_guard<std::mutex> lock(m_mutex);
@@ -72,10 +92,8 @@ void ConversationService::sendMessage(const std::string& userMessage) {
             updatedHistorySnapshot = m_history;
         }
         
-        // Save after AI response using the NEW snapshot
         saveSession(updatedHistorySnapshot);
-
-    }).detach();
+    });
 }
 
 std::vector<domain::AIService::ChatMessage> ConversationService::getHistory() const {

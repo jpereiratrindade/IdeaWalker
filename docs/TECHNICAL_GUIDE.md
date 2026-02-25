@@ -18,8 +18,8 @@ Este documento descreve o fluxo de dados, os principais componentes e como o pro
 ## 3. Camada de Aplicação (Service Layer)
 - **KnowledgeService**: Gerenciamento puro de conhecimento (CRUD de Notas, Histórico, Backlinks). Isolado de lógica de IA.
 - **AIProcessingService**: Orquestrador de pipelines cognitivos. Gerencia o ciclo de vida de tarefas de IA (Inbox, Transcrição, Consolidação).
-- **ConversationService**: Gerencia o contexto e histórico do chat com a IA (RAG leve).
-- **AsyncTaskManager**: Centralizador de threads. Gerencia execução assíncrona, pools de threads e reporta progresso unificado para a UI.
+- **ConversationService**: Gerencia o contexto e histórico do chat com a IA (RAG leve), delegando execução assíncrona ao `AsyncTaskManager`.
+- **AsyncTaskManager**: Orquestrador central de tarefas em background. Gates de arquitetura proíbem `std::thread` direto em serviços/UI fora deste componente.
 
 ## 4. Infraestrutura
 - **FileRepository**: Implementação concreta de `ThoughtRepository`.
@@ -36,8 +36,14 @@ Este documento descreve o fluxo de dados, os principais componentes e como o pro
 - **ProjectService**: Centraliza a lógica de ciclo de vida (Novo/Abrir/Salvar).
 - **Navegação**: Modais padronizados via `UiFileBrowser`.
 
+## 7. Governança ADR e CI
+- **Registro canônico**: `adr/` (index manual em `adr/ADR_INDEX.md`).
+- **Auditoria de consistência**: `bash scripts/audit_adr_index.sh`.
+- **Catálogo ADR gerado**: `python3 scripts/build_adr_catalog.py` -> `reports/architecture/ArchitectureDecisionIndex.latest.{json,md}`.
+- **CI (F1 Hardening)**: workflow em `.github/workflows/ci.yml` com gates de invariantes, build headless e execução dos 4 binários de teste.
+
 ---
-*Versão do Documento: v0.1.8-beta*
+*Versão do Documento: v0.1.17-beta*
 
 ## Licença
 

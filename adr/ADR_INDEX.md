@@ -10,6 +10,7 @@ Este documento cataloga todos os Architecture Decision Records (ADR) ativos do I
 |--------|---------|
 | `Proposed` | Draft under review |
 | `Accepted` | Normatively binding |
+| `Rejected` | Reviewed and not adopted |
 | `Superseded` | Replaced by another ADR |
 | `Deprecated` | No longer applicable |
 
@@ -19,7 +20,7 @@ Este documento cataloga todos os Architecture Decision Records (ADR) ativos do I
 
 | ID | Title | Status | File |
 |----|-------|--------|------|
-| ADR-000 | Governance Model Overview | Accepted | `IW_ADR-000_Governance_Model_Overview_v0_1.md` |
+| ADR-000 | Governance Model Overview | Accepted | `ADR-000_Governance_Model_Overview.md` |
 | ADR-001 | Narrative Observation is Non-Inferential | Accepted | `ADR-001_Narrative_Observation_Non_Inferential.md` |
 | ADR-002 | NarrativeVector as Versioned DTO | Accepted | `ADR-002_NarrativeVector_Versioning.md` |
 | ADR-003 | Epistemic Regime Explicit Declaration | Accepted | `ADR-003_Epistemic_Regime_Explicit.md` |

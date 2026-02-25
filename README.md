@@ -56,6 +56,16 @@ O **Idea Walker** é um suporte cognitivo projetado para transformar pensamentos
 
 ---
 
+## 🧭 Governança ADR
+- **Registro canônico ADR**: [adr/README.md](adr/README.md)
+- **Índice normativo manual**: [adr/ADR_INDEX.md](adr/ADR_INDEX.md)
+- **Índice arquitetural gerado**: `reports/architecture/ArchitectureDecisionIndex.latest.json` e `.md`
+- **Comandos de governança**:
+  - `bash scripts/audit_adr_index.sh`
+  - `python3 scripts/build_adr_catalog.py`
+
+---
+
 ## 🚀 Como Rodar
 ### Pré-requisitos
 - **Ollama** rodando localmente (`ollama serve`).
@@ -92,7 +102,7 @@ O IdeaWalker suporta transcrição local offline usando **Whisper.cpp**.
 ---
 
 ## 🛡️ Governança
-- **Versão Atual**: v0.1.8-beta
+- **Versão Atual**: v0.1.17-beta (em hardening F1)
 - **Licença**: GPLv3
 - **Design System**: SisterSTRATA inspired.
 - **Recursos**: Brainstorming, Task Extraction, Backlinks, Heatmap e Chat Contextual (ConversationService).

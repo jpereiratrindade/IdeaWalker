@@ -1,41 +1,36 @@
-IdeaWalker (IW)
+# IdeaWalker (IW)
+## Invariant Matrix
 
-IW_INVARIANT_MATRIX
+**Data:** 2026-02-25  
+**Status:** Active governance artifact
 
-Este documento consolida invariantes derivados dos ADRs ativos.
+Este documento consolida invariantes derivados dos ADRs e mapeia evidencia executavel.
 
-============================================================ 1.
-Invariantes Epistemológicos
-============================================================
+| Invariante | Origem (ADR) | Evidencia executavel | Gate CI / Auditoria | Status |
+|---|---|---|---|---|
+| IW e exclusivamente observacional (sem inferencia causal/decisional). | ADR-001 | Regras de prompt + contrato de export | Revisao de ADR + testes de regressao de bundle | 🟡 Parcial |
+| `NarrativeVectorDTO` deve ter `schemaVersion` valido. | ADR-002 | `src/test/NarrativeBundleTest.cpp` | `run-tests` (`ideawalker_bundle_test`) | 🔴 Falhando |
+| `narrativeRegime` e obrigatorio em observacoes narrativas. | ADR-003 | `src/test/NarrativeBundleTest.cpp` | `run-tests` (`ideawalker_bundle_test`) | 🔴 Falhando |
+| Metadados de toolchain sao obrigatorios na extracao. | ADR-004 | `src/test/NarrativeBundleTest.cpp` | `run-tests` (`ideawalker_bundle_test`) | 🔴 Falhando |
+| Exportacao ocorre somente via `NarrativeBundle`. | ADR-005 | Teste de integracao dedicado (a consolidar) | Backlog F1.A4 | 🟡 Nao verificado |
+| Integracao IW->STRATA preserva contrato sem texto cru. | ADR-006 | Estrutura de artefatos consumiveis | Validacao de pipeline cientifico | 🟡 Parcial |
+| Ingestao cientifica e bifasica (narrativa + discursiva) com 2 chamadas por documento. | ADR-007 | `src/test/NarrativeBundleTest.cpp` | `run-tests` (`ideawalker_bundle_test`) | 🔴 Falhando |
+| Exclusao estrutural usa threshold nomeado (sem magic number). | ADR-008 | `src/infrastructure/ContentExtractor.hpp` | `Invariant Audit` (F1.B1) | ✅ Protegido |
+| Trabalho assincorno nao pode criar `std::thread` direto em servicos/UI fora do gerenciador central. | ADR-010 | `src/application/ConversationService.cpp` migrado para `AsyncTaskManager` | `Invariant Audit` (F1.D3) | ✅ Protegido |
+| Contexto e retrieval seguem papeis explicitos (RAG contextual). | ADR-011 | `ContextAssembler` + contratos de contexto | Revisao de arquitetura e testes de contexto | 🟡 Parcial |
+| Metadados semanticos de estado de extracao e LAA sao separados do bundle institucional. | ADR-012 | `ScientificIngestionService` + logs `.exclusions.log` | `ScientificResilienceTest` + validacao manual PDF | 🟡 Parcial |
+| `ADR_INDEX.md` reflete exatamente arquivos do diretorio `adr/`. | ADR-000 | `scripts/audit_adr_index.sh` | `Invariant Audit` (F1.D4) | ✅ Protegido |
+| Catalogo ADR gerado esta sincronizado com os ADRs canonicos. | ADR-000 | `scripts/build_adr_catalog.py` | `Invariant Audit` (F1.D5) | ✅ Protegido |
 
-I-001: IW é exclusivamente observacional. I-002: IW não realiza
-inferência causal. I-003: IW não gera recomendações. I-004: IW não
-altera estado externo.
+## Artefatos de Governanca Relacionados
 
-============================================================ 2.
-Invariantes Estruturais
-============================================================
+- `adr/ADR_INDEX.md`
+- `adr/ADR_TEMPLATE.md`
+- `scripts/audit_adr_index.sh`
+- `scripts/build_adr_catalog.py`
+- `reports/architecture/ArchitectureDecisionIndex.latest.json`
+- `reports/architecture/ArchitectureDecisionIndex.latest.md`
 
-S-001: Todo NarrativeVector possui schemaVersion obrigatório. S-002:
-NarrativeVectorDTO é imutável após exportação. S-003: narrativeRegime é
-campo obrigatório. S-004: toolchain metadata é obrigatório. S-005:
-Exportação ocorre apenas via NarrativeBundle.
+## Nota de Operacao
 
-============================================================ 3.
-Invariantes de Integração
-============================================================
-
-X-001: STRATA deve validar schemaVersion antes de ingestão. X-002:
-STRATA não processa texto cru do IW. X-003: STRATA não altera regime
-epistemológico declarado.
-
-============================================================ 4.
-Enforcement Recomendado
-
--   Validação de schema automática.
--   Testes unitários para exportação de Bundle.
--   Check CI para presença de subvetor epistemic.
--   Registro obrigatório de toolchain metadata.
-
-============================================================ Fim do
-Documento
+Invariante declarado so e considerado protegido quando existe evidencia executavel recorrente (teste/gate CI), nao apenas documentacao.

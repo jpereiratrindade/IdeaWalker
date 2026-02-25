@@ -689,7 +689,9 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::processA
                 logFile << "Artifact ID: " << artifactId << "\n";
                 logFile << "Timestamp: " << ToIsoTimestamp(std::chrono::system_clock::now()) << "\n";
                 logFile << "Classification: Local Audit Artifact (LAA) — ADR-012\n";
-                logFile << "Rule: Recurrence > " << (STRUCTURAL_EXCLUSION_THRESHOLD * 100) << "% in Top/Bottom 3 lines\n\n";
+                logFile << "Rule: Recurrence > "
+                        << (ideawalker::infrastructure::STRUCTURAL_EXCLUSION_THRESHOLD * 100)
+                        << "% in Top/Bottom 3 lines\n\n";
                 logFile << "Excluded Lines (" << resultData.structuralExclusions.size() << "):\n";
                 for (const auto& line : resultData.structuralExclusions) {
                     logFile << "  [EXCLUDED] " << line << "\n";
