@@ -10,7 +10,6 @@
 #include <fstream>
 #include <regex>
 #include <sstream>
-#include <thread>
 #include "infrastructure/ConfigLoader.hpp"
 #include <nlohmann/json.hpp>
 
@@ -177,18 +176,25 @@ void AppState::RefreshDialogueList() {
 
 void AppState::AnalyzeSuggestions() {
     if (!services.suggestionService || !services.knowledgeService || ui.isAnalyzingSuggestions) return;
-    std::thread([this]() {
-        services.suggestionService->indexProject(project.allInsights);
-        
-        if (!ui.selectedFilename.empty() && !ui.selectedNoteContent.empty()) {
-            auto suggestions = services.suggestionService->generateSemanticSuggestions(ui.selectedFilename, ui.selectedNoteContent);
-            std::lock_guard<std::mutex> lock(ui.suggestionsMutex);
-            ui.currentSuggestions = std::move(suggestions);
-        }
-        
-        ui.isAnalyzingSuggestions = false;
-        ui.pendingRefresh = true; 
-    }).detach();
+    if (!services.taskManager) return;
+
+    ui.isAnalyzingSuggestions = true;
+    services.taskManager->SubmitTask(
+        application::TaskType::Indexing,
+        "Análise de Sugestões Semânticas",
+        [this](auto /*status*/) {
+            services.suggestionService->indexProject(project.allInsights);
+
+            if (!ui.selectedFilename.empty() && !ui.selectedNoteContent.empty()) {
+                auto suggestions = services.suggestionService->generateSemanticSuggestions(
+                    ui.selectedFilename, ui.selectedNoteContent);
+                std::lock_guard<std::mutex> lock(ui.suggestionsMutex);
+                ui.currentSuggestions = std::move(suggestions);
+            }
+
+            ui.isAnalyzingSuggestions = false;
+            ui.pendingRefresh = true;
+        });
 }
 
 void AppState::RefreshAllInsights() {
@@ -255,40 +261,42 @@ void AppState::LoadHistory(const std::string& noteId) {
 
 void AppState::CheckForUpdates() {
     if (ui.isCheckingUpdates.exchange(true)) return;
-    
-    std::thread([this]() {
-        std::string command = "curl -s https://api.github.com/repos/jpereiratrindade/IdeaWalker/releases/latest";
-        
-        FILE* pipe = popen(command.c_str(), "r");
-        if (pipe) {
-            char buffer[128];
-            std::string result = "";
-            while (fgets(buffer, sizeof(buffer), pipe) != NULL) {
-                result += buffer;
-            }
-            pclose(pipe);
-            
-            try {
-                auto j = nlohmann::json::parse(result);
-                if (j.contains("tag_name")) {
-                    ui.latestVersion = j["tag_name"];
-                    // IDEAWALKER_VERSION is defined in CMakeLists.txt (e.g. "v0.1.7-beta")
-                    if (ui.latestVersion != IDEAWALKER_VERSION) {
-                        ui.updateAvailable = true;
-                    } else {
-                        ui.updateAvailable = false;
-                    }
-                }
-            } catch (...) {
-                AppendLog("[Sistema] Erro ao verificar atualizações (JSON inválido).\n");
-            }
-        } else {
-             AppendLog("[Sistema] Erro ao verificar atualizações (curl falhou).\n");
-        }
-        
+    if (!services.taskManager) {
         ui.isCheckingUpdates.store(false);
-        ui.showUpdate = true; // Show results
-    }).detach();
+        return;
+    }
+
+    services.taskManager->SubmitTask(
+        application::TaskType::UpdateCheck,
+        "Verificação de Atualizações",
+        [this](auto /*status*/) {
+            std::string command = "curl -s https://api.github.com/repos/jpereiratrindade/IdeaWalker/releases/latest";
+
+            FILE* pipe = popen(command.c_str(), "r");
+            if (pipe) {
+                char buffer[128];
+                std::string result;
+                while (fgets(buffer, sizeof(buffer), pipe) != NULL) {
+                    result += buffer;
+                }
+                pclose(pipe);
+
+                try {
+                    auto j = nlohmann::json::parse(result);
+                    if (j.contains("tag_name")) {
+                        ui.latestVersion = j["tag_name"];
+                        ui.updateAvailable = (ui.latestVersion != IDEAWALKER_VERSION);
+                    }
+                } catch (...) {
+                    AppendLog("[Sistema] Erro ao verificar atualizações (JSON inválido).\n");
+                }
+            } else {
+                AppendLog("[Sistema] Erro ao verificar atualizações (curl falhou).\n");
+            }
+
+            ui.isCheckingUpdates.store(false);
+            ui.showUpdate = true;
+        });
 }
 
 void AppState::RebuildGraph() {
