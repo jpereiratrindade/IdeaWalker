@@ -90,6 +90,9 @@ jobs:
       - name: Build ideawalker_bundle_test
         run: cmake --build build-ci --target ideawalker_bundle_test --parallel
 
+      - name: Build ideawalker_resilience_test
+        run: cmake --build build-ci --target ideawalker_resilience_test --parallel
+
       - name: Upload test binaries
         uses: actions/upload-artifact@v4
         with:

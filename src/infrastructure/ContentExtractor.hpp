@@ -55,6 +55,7 @@ public:
         bool success = false;
         std::string method; // "pdftotext", "ocrmypdf", "tesseract", "text-read"
         std::vector<std::string> warnings;
+        std::vector<std::string> structuralExclusions;
         std::string sourceSha256;
     };
 
@@ -423,7 +424,7 @@ private:
                  }
              }
 
-             // Second pass: Filter and Reassemble
+            // Second pass: Filter and Reassemble
              std::ostringstream finalContent;
              for (const auto& pageStr : pages) {
                  std::stringstream ss(pageStr);
@@ -432,6 +433,7 @@ private:
                      std::string norm = NormalizeStructuralLine(line);
                      // If line is short, in freq map, and high frequency -> SKIP
                      if (line.length() <= 160 && structuralFreq.count(norm) && structuralFreq[norm] >= structuralThreshold) {
+                         result.structuralExclusions.push_back(line); // F1.B2: Log exclusion
                          continue; // Structural Exclusion
                      }
                      finalContent << line << "\n";

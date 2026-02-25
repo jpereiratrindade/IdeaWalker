@@ -243,3 +243,22 @@ target_link_libraries(ideawalker_bundle_test PRIVATE
     Threads::Threads
     dl
 )
+
+add_executable(ideawalker_resilience_test
+    src/test/ScientificResilienceTest.cpp
+    src/application/scientific/ScientificIngestionService.cpp
+    src/application/scientific/EpistemicValidator.cpp
+    src/infrastructure/FileSystemArtifactScanner.cpp
+    src/infrastructure/PathUtils.cpp
+    src/infrastructure/PersistenceService.cpp
+)
+
+target_include_directories(ideawalker_resilience_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_link_libraries(ideawalker_resilience_test PRIVATE
+    nlohmann_json::nlohmann_json
+    Threads::Threads
+    dl
+)

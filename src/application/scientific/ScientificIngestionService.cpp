@@ -679,6 +679,23 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::processA
         std::string content = resultData.content;
         const std::string artifactId = buildArtifactId(artifact);
 
+        // --- F1.B2: Logging de Exclusão Estrutural ---
+        if (!resultData.structuralExclusions.empty()) {
+            std::string exclusionError;
+            fs::path exclusionLogPath = fs::path(m_observationsPath) / (artifactId + ".exclusions.log");
+            std::ofstream logFile(exclusionLogPath);
+            if (logFile.is_open()) {
+                logFile << "=== IdeaWalker Structural Exclusion Audit Log ===\n";
+                logFile << "Artifact ID: " << artifactId << "\n";
+                logFile << "Timestamp: " << ToIsoTimestamp(std::chrono::system_clock::now()) << "\n";
+                logFile << "Rule: Recurrence > " << (STRUCTURAL_EXCLUSION_THRESHOLD * 100) << "% in Top/Bottom 3 lines\n\n";
+                logFile << "Excluded Lines (" << resultData.structuralExclusions.size() << "):\n";
+                for (const auto& line : resultData.structuralExclusions) {
+                    logFile << "  [EXCLUDED] " << line << "\n";
+                }
+            }
+        }
+
         // --- Phase 1: Narrative Extraction ---
         if (statusCallback) statusCallback("Extraindo Narrativa (1/2)...");
         const std::string narrativeSystemPrompt = buildNarrativeSystemPrompt();
@@ -732,16 +749,20 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::processA
 
         auto discursiveResponse = m_aiService->generateJson(discursiveSystemPrompt, discursiveUserPrompt);
         nlohmann::json discursiveBundle = nlohmann::json::object();
+        bool discursiveFailed = false;
+
         if (discursiveResponse) {
              try {
                 discursiveBundle = nlohmann::json::parse(*discursiveResponse);
              } catch (...) {
                  std::string saveError;
                  saveErrorPayload(artifactId + "_discursive_err", *discursiveResponse, saveError);
-                 result.errors.push_back("JSON inválido (Discursiva) para " + artifact.filename + " (ignorando parcial)");
+                 result.errors.push_back("JSON inválido (Discursiva) para " + artifact.filename + " (prosseguindo parcial)");
+                 discursiveFailed = true;
              }
         } else {
-             result.errors.push_back("Falha na IA (Discursiva) para: " + artifact.filename + " (ignorando parcial)");
+             result.errors.push_back("Falha na IA (Discursiva) para: " + artifact.filename + " (prosseguindo parcial)");
+             discursiveFailed = true;
         }
 
         // Discursive fallback when everything is empty after anchoring
@@ -776,6 +797,10 @@ ScientificIngestionService::IngestionResult ScientificIngestionService::processA
 
         // --- Merge Bundles ---
         nlohmann::json bundle = narrativeBundle;
+        if (discursiveFailed) {
+            bundle["partialExtraction"] = true;
+            bundle["extractionStatus"] = "narrative_only";
+        }
         
         // Merge Discursive Context
         if (discursiveBundle.contains("discursiveContext")) {
