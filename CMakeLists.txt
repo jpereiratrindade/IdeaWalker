@@ -224,3 +224,22 @@ target_link_libraries(ideawalker_writing_test PRIVATE
     dl
     nlohmann_json::nlohmann_json
 )
+
+add_executable(ideawalker_bundle_test
+    src/test/NarrativeBundleTest.cpp
+    src/application/scientific/ScientificIngestionService.cpp
+    src/application/scientific/EpistemicValidator.cpp
+    src/infrastructure/FileSystemArtifactScanner.cpp
+    src/infrastructure/PathUtils.cpp
+    src/infrastructure/PersistenceService.cpp
+)
+
+target_include_directories(ideawalker_bundle_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_link_libraries(ideawalker_bundle_test PRIVATE
+    nlohmann_json::nlohmann_json
+    Threads::Threads
+    dl
+)
