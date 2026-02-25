@@ -87,7 +87,9 @@ jobs:
             cmake \
             build-essential \
             ninja-build \
-            libssl-dev
+            libssl-dev \
+            libsdl2-dev \
+            libgl1-mesa-dev
 
       - name: Configure CMake (test targets only)
         run: |
