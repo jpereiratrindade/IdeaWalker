@@ -42,6 +42,15 @@ require_contract_field() {
     fi
 }
 
+require_contract_contains() {
+    local pattern="$1"
+    local description="$2"
+    if ! grep -Eq "${pattern}" "${CONTRACT_FILE}" 2>/dev/null; then
+        echo "❌ Missing contract entry: ${description}"
+        FAILED=1
+    fi
+}
+
 require_registry_field() {
     local key="$1"
     if ! grep -Eq "^${key}:" "${REGISTRY_FILE}" 2>/dev/null; then
@@ -75,6 +84,14 @@ if [[ -f "${CONTRACT_FILE}" ]]; then
     require_contract_field "governance"
     require_contract_field "llm_assistance"
     require_contract_field "project_registry"
+    require_contract_field "filetype_enforcement"
+
+    require_contract_contains '^[[:space:]]*-[[:space:]]*"\.tex"' 'supported extension ".tex"'
+    require_contract_contains '^[[:space:]]*-[[:space:]]*"\.md"' 'supported extension ".md"'
+    require_contract_contains '^[[:space:]]*-[[:space:]]*"\.txt"' 'supported extension ".txt"'
+    require_contract_contains '^[[:space:]]*"\.tex":[[:space:]]*".*"' 'check/build command for ".tex"'
+    require_contract_contains '^[[:space:]]*"\.md":[[:space:]]*".*"' 'check/build command for ".md"'
+    require_contract_contains '^[[:space:]]*"\.txt":[[:space:]]*".*"' 'check/build command for ".txt"'
 fi
 
 if [[ -f "${REGISTRY_FILE}" ]]; then

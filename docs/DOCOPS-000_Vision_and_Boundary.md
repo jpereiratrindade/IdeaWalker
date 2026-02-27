@@ -30,6 +30,7 @@ DocOps não é ontologia (ORT), não é extração evidencial (IW) e não é mod
 
 - Selecionar um *workspace* (diretório-alvo).
 - Executar comandos de tooling declarados pelo usuário (presets) no workspace.
+- Aplicar checks/build por tipo de documento (`.tex`, `.md`, `.txt`) declarados no contrato do workspace.
 - Capturar stdout/stderr e exit code.
 - Facilitar workflows como:
   - `make check`
@@ -93,6 +94,7 @@ Integrações futuras (somente com ADR):
 - Execucao governada de checks/releases com logs e rastreabilidade operacional.
 - Nenhuma validação epistemológica do conteúdo.
 - Workspace contract minimo (`docops/docops.yaml` + `profiles` + `templates`).
+- Enforcement por extensao em `docops/docops.yaml` (`filetype_enforcement`) para checks/build reproduciveis.
 
 ### Fase 2 — DocOps com contratos de artefato (somente com ADR)
 

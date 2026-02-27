@@ -32,3 +32,17 @@ llm_assistance:
   enabled: true
   model_runtime: "local-or-configured-by-workspace"
   write_mode: "proposal_only"
+
+filetype_enforcement:
+  supported_extensions:
+    - ".tex"
+    - ".md"
+    - ".txt"
+  check_commands:
+    ".tex": "latexmk -pdf -interaction=nonstopmode -halt-on-error {file}"
+    ".md": "pandoc -f markdown -t html {file} -o /tmp/docops-md-check.html"
+    ".txt": "test -f {file}"
+  build_commands:
+    ".tex": "latexmk -pdf -interaction=nonstopmode -halt-on-error {file}"
+    ".md": "pandoc -f markdown -t html {file} -o /tmp/docops-md-build.html"
+    ".txt": "cp {file} /tmp/docops-txt-build.txt"

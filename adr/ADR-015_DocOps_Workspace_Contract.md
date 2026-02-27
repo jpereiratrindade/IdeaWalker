@@ -70,6 +70,7 @@ Nao se aplica a:
 - `docops/docops.yaml` presente no repositorio.
 - `docops/project_registry.yaml` presente com referencia explicita a DDD e ADR.
 - `docops/profiles/` e `docops/templates/` presentes.
+- `docops/docops.yaml` declara `filetype_enforcement` com extensoes suportadas (`.tex`, `.md`, `.txt`) e comandos por extensao para `check` e `build`.
 - `scripts/audit_docops_contract.sh` valida o contrato.
 - CI executa auditoria de contrato DocOps no job `invariant-audit`.
 
