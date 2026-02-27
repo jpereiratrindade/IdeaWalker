@@ -162,6 +162,38 @@ std::vector<std::filesystem::path> ListEditableDocuments(const std::filesystem::
     return files;
 }
 
+std::string TrimWhitespace(std::string text) {
+    auto isSpace = [](unsigned char c) { return std::isspace(c) != 0; };
+    while (!text.empty() && isSpace(static_cast<unsigned char>(text.front()))) text.erase(text.begin());
+    while (!text.empty() && isSpace(static_cast<unsigned char>(text.back()))) text.pop_back();
+    return text;
+}
+
+std::string ExtractAssistantPayloadForDocument(const std::string& assistantText) {
+    const std::string fence = "```";
+    const std::size_t startFence = assistantText.find(fence);
+    if (startFence == std::string::npos) return assistantText;
+
+    std::size_t lineEnd = assistantText.find('\n', startFence + fence.size());
+    if (lineEnd == std::string::npos) return assistantText;
+    std::size_t contentStart = lineEnd + 1;
+    std::size_t endFence = assistantText.find(fence, contentStart);
+    if (endFence == std::string::npos || endFence <= contentStart) return assistantText;
+
+    return TrimWhitespace(assistantText.substr(contentStart, endFence - contentStart));
+}
+
+std::string GetLastAssistantResponse(application::ConversationService* conversationService) {
+    if (!conversationService) return {};
+    const auto history = conversationService->getHistory();
+    for (auto it = history.rbegin(); it != history.rend(); ++it) {
+        if (it->role == domain::AIService::ChatMessage::Role::Assistant && !it->content.empty()) {
+            return it->content;
+        }
+    }
+    return {};
+}
+
 std::string BuildTargetFileTemplate(
     const std::filesystem::path& targetPath,
     const char* reason,
@@ -438,6 +470,11 @@ void DrawDocOpsTab(AppState& app) {
     static bool editorDirty = false;
     static std::string editorStatus = "idle";
     static std::string lastEditorWorkspace;
+    static bool textFocusMode = true;
+    static bool autoApplyLastAiToEditor = true;
+    static bool autoSaveAfterAiApply = false;
+    static bool applyPendingFromChat = false;
+    static std::string pendingAssistantBaseline;
 
     static std::mutex outputMutex;
     static std::string output;
@@ -518,6 +555,12 @@ void DrawDocOpsTab(AppState& app) {
         editorStatus = "workspace refreshed";
     }
 
+    ImGui::Checkbox("Modo foco no texto", &textFocusMode);
+    if (textFocusMode) {
+        ImGui::TextDisabled("Pre-configuracoes ficam em 'Assistente e Governanca'.");
+    }
+
+    if (ImGui::CollapsingHeader("Assistente e Governanca", textFocusMode ? 0 : ImGuiTreeNodeFlags_DefaultOpen)) {
     ImGui::Separator();
     ImGui::Text("Assistencia de edicao (MVP):");
     const char* editProfiles[] = {"architect", "author", "editor", "reviewer"};
@@ -698,6 +741,8 @@ void DrawDocOpsTab(AppState& app) {
                              && !app.services.conversationService->isThinking();
     if (!canSendChat) ImGui::BeginDisabled();
     if (ImGui::Button("Enviar para Chat")) {
+        pendingAssistantBaseline = GetLastAssistantResponse(app.services.conversationService.get());
+        applyPendingFromChat = autoApplyLastAiToEditor && !loadedEditorDocPath.empty();
         app.services.conversationService->sendMessage(llmPromptDraft);
         app.AppendLog("[DocOps] Prompt sent to Conversation chat.\n");
     }
@@ -705,6 +750,9 @@ void DrawDocOpsTab(AppState& app) {
     if (!canSendChat) {
         ImGui::TextDisabled("Para enviar ao LLM, inicie uma sessao no chat (painel inferior).");
     }
+    ImGui::Checkbox("Auto-aplicar resposta IA no editor", &autoApplyLastAiToEditor);
+    ImGui::SameLine();
+    ImGui::Checkbox("Auto-salvar apos aplicar", &autoSaveAfterAiApply);
     ImGui::SameLine();
     const bool canStartDocOpsSession =
         app.services.conversationService &&
@@ -777,6 +825,29 @@ void DrawDocOpsTab(AppState& app) {
     } else {
         ImGui::TextDisabled("Sessao inativa (%s)", docopsSessionStatus.c_str());
     }
+    }
+
+    if (applyPendingFromChat && !loadedEditorDocPath.empty()) {
+        const std::string currentAssistant = GetLastAssistantResponse(app.services.conversationService.get());
+        if (!currentAssistant.empty() && currentAssistant != pendingAssistantBaseline) {
+            editorBuffer = ExtractAssistantPayloadForDocument(currentAssistant);
+            editorDirty = true;
+            editorStatus = "assistant response applied";
+            applyPendingFromChat = false;
+            if (autoSaveAfterAiApply) {
+                if (WriteTextFile(loadedEditorDocPath, editorBuffer)) {
+                    editorDirty = false;
+                    editorStatus = "assistant applied and saved";
+                    app.AppendLog("[DocOps] Assistant response applied and saved: " + loadedEditorDocPath.string() + "\n");
+                } else {
+                    editorStatus = "assistant apply save failed";
+                    app.AppendLog("[DocOps] Assistant apply save failed: " + loadedEditorDocPath.string() + "\n");
+                }
+            } else {
+                app.AppendLog("[DocOps] Assistant response applied to editor buffer.\n");
+            }
+        }
+    }
 
     ImGui::Separator();
     ImGui::Text("Editor DocOps:");
@@ -789,9 +860,10 @@ void DrawDocOpsTab(AppState& app) {
         ImGui::Text("Arquivos elegiveis: %zu", editorDocFiles.size());
     }
 
+    const float editorPanelHeight = textFocusMode ? 460.0f : 320.0f;
     if (workspaceOk && ImGui::BeginTable("DocOpsEditorTable", 2,
                                          ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingStretchProp,
-                                         ImVec2(0, 320))) {
+                                         ImVec2(0, editorPanelHeight))) {
         ImGui::TableSetupColumn("Arquivos", ImGuiTableColumnFlags_WidthStretch, 0.32f);
         ImGui::TableSetupColumn("Editor", ImGuiTableColumnFlags_WidthStretch, 0.68f);
 
@@ -849,20 +921,29 @@ void DrawDocOpsTab(AppState& app) {
             }
             ImGui::SameLine();
             if (ImGui::Button("Aplicar ultima IA", ImVec2(140, 0))) {
-                std::string lastAssistantResponse;
-                if (app.services.conversationService) {
-                    const auto history = app.services.conversationService->getHistory();
-                    for (auto it = history.rbegin(); it != history.rend(); ++it) {
-                        if (it->role == domain::AIService::ChatMessage::Role::Assistant && !it->content.empty()) {
-                            lastAssistantResponse = it->content;
-                            break;
-                        }
-                    }
-                }
+                const std::string lastAssistantResponse = GetLastAssistantResponse(app.services.conversationService.get());
                 if (!lastAssistantResponse.empty()) {
-                    editorBuffer = lastAssistantResponse;
+                    editorBuffer = ExtractAssistantPayloadForDocument(lastAssistantResponse);
                     editorDirty = true;
                     editorStatus = "assistant response applied";
+                } else {
+                    editorStatus = "no assistant response available";
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Aplicar + Salvar", ImVec2(140, 0))) {
+                const std::string lastAssistantResponse = GetLastAssistantResponse(app.services.conversationService.get());
+                if (!lastAssistantResponse.empty()) {
+                    editorBuffer = ExtractAssistantPayloadForDocument(lastAssistantResponse);
+                    if (WriteTextFile(loadedEditorDocPath, editorBuffer)) {
+                        editorDirty = false;
+                        editorStatus = "assistant applied and saved";
+                        app.AppendLog("[DocOps] Assistant response applied and saved: " + loadedEditorDocPath.string() + "\n");
+                    } else {
+                        editorDirty = true;
+                        editorStatus = "assistant apply save failed";
+                        app.AppendLog("[DocOps] Assistant apply save failed: " + loadedEditorDocPath.string() + "\n");
+                    }
                 } else {
                     editorStatus = "no assistant response available";
                 }
