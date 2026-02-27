@@ -309,6 +309,27 @@ std::string BuildAdrDraft(const std::string& adrId, const std::string& title, co
     return oss.str();
 }
 
+application::ContextBundle BuildDocOpsFallbackBundle(
+    const std::filesystem::path& workspace,
+    const char* targetFile,
+    const char* reason,
+    const char* adrRef,
+    const char* profile
+) {
+    application::ContextBundle bundle;
+    bundle.activeNoteId = (targetFile && std::strlen(targetFile) > 0) ? targetFile : "DocOpsSession";
+    std::ostringstream content;
+    content << "DocOps Session Context\n";
+    content << "Workspace: " << workspace.string() << "\n";
+    content << "Profile: " << (profile ? profile : "editor") << "\n";
+    content << "Target: " << bundle.activeNoteId << "\n";
+    content << "Reason: " << ((reason && std::strlen(reason) > 0) ? reason : "<pending>") << "\n";
+    content << "ADR: " << ((adrRef && std::strlen(adrRef) > 0) ? adrRef : "editorial-only") << "\n";
+    content << "\nObservacao: arquivo alvo indisponivel no momento; continuar em modo de proposta.\n";
+    bundle.activeNoteContent = content.str();
+    return bundle;
+}
+
 } // namespace
 
 void DrawDocOpsTab(AppState& app) {
@@ -333,6 +354,7 @@ void DrawDocOpsTab(AppState& app) {
     static char newAdrTitle[256] = "";
     static int selectedAdrIndex = -1;
     static std::string llmPromptDraft;
+    static std::string docopsSessionStatus = "idle";
 
     static std::mutex outputMutex;
     static std::string output;
@@ -545,7 +567,6 @@ void DrawDocOpsTab(AppState& app) {
     ImGui::SameLine();
     const bool canStartDocOpsSession =
         app.services.conversationService &&
-        app.services.contextAssembler &&
         workspaceOk &&
         std::strlen(editTargetFile) > 0;
     if (!canStartDocOpsSession) ImGui::BeginDisabled();
@@ -557,23 +578,64 @@ void DrawDocOpsTab(AppState& app) {
         }
 
         if (targetPath.empty() || !std::filesystem::exists(targetPath) || !std::filesystem::is_regular_file(targetPath)) {
-            app.AppendLog("[DocOps] Target file not found for chat session: " + targetPath.string() +
-                          " (hint: use relative path from workspace, ex: doc/arquivo.tex)\n");
+            const auto fallback = BuildDocOpsFallbackBundle(
+                ws, editTargetFile, editReason, editAdrRef, editProfiles[editProfileIndex]
+            );
+            app.services.conversationService->startSession(fallback);
+            app.ui.selectedFilename = fallback.activeNoteId;
+            app.ui.selectedNoteContent = fallback.activeNoteContent;
+            docopsSessionStatus = "fallback:" + fallback.activeNoteId;
+            {
+                std::lock_guard<std::mutex> lock(outputMutex);
+                output += "[DocOps] Session started (fallback context): " + fallback.activeNoteId + "\n";
+            }
+            app.AppendLog("[DocOps] Target file not found; session started with fallback context.\n");
         } else {
             std::string fileContent;
             if (!ReadTextFile(targetPath, fileContent)) {
-                app.AppendLog("[DocOps] Failed reading target file for chat session: " + targetPath.string() + "\n");
+                const auto fallback = BuildDocOpsFallbackBundle(
+                    ws, editTargetFile, editReason, editAdrRef, editProfiles[editProfileIndex]
+                );
+                app.services.conversationService->startSession(fallback);
+                app.ui.selectedFilename = fallback.activeNoteId;
+                app.ui.selectedNoteContent = fallback.activeNoteContent;
+                docopsSessionStatus = "fallback-read-error:" + fallback.activeNoteId;
+                {
+                    std::lock_guard<std::mutex> lock(outputMutex);
+                    output += "[DocOps] Session started (read fallback): " + fallback.activeNoteId + "\n";
+                }
+                app.AppendLog("[DocOps] Failed reading target file; session started with fallback context.\n");
             } else {
                 const std::string noteId = targetPath.lexically_relative(ws).string();
-                auto bundle = app.services.contextAssembler->assemble(noteId, fileContent);
+                application::ContextBundle bundle;
+                if (app.services.contextAssembler) {
+                    bundle = app.services.contextAssembler->assemble(noteId, fileContent);
+                } else {
+                    bundle = BuildDocOpsFallbackBundle(
+                        ws, noteId.c_str(), editReason, editAdrRef, editProfiles[editProfileIndex]
+                    );
+                    bundle.activeNoteContent = fileContent;
+                }
                 app.services.conversationService->startSession(bundle);
                 app.ui.selectedFilename = noteId;
                 app.ui.selectedNoteContent = fileContent;
+                docopsSessionStatus = "file:" + noteId;
+                {
+                    std::lock_guard<std::mutex> lock(outputMutex);
+                    output += "[DocOps] Session started with file context: " + noteId + "\n";
+                }
                 app.AppendLog("[DocOps] Chat session started for target: " + targetPath.string() + "\n");
             }
         }
     }
     if (!canStartDocOpsSession) ImGui::EndDisabled();
+    ImGui::SameLine();
+    if (app.services.conversationService && app.services.conversationService->isSessionActive()) {
+        ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.4f, 1.0f), "Sessao ativa: %s",
+                           app.services.conversationService->getCurrentNoteId().c_str());
+    } else {
+        ImGui::TextDisabled("Sessao inativa (%s)", docopsSessionStatus.c_str());
+    }
 
     ImGui::Separator();
     ImGui::Text("Ações (presets):");
