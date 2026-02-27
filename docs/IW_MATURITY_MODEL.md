@@ -1,10 +1,10 @@
 # IdeaWalker (IW)
 ## Modelo de Maturidade Institucional — IW Maturity Model
 
-**Versao:** 1.3  
+**Versao:** 1.4  
 **Status:** Accepted  
-**Data:** 2026-02-25  
-**Revisao:** Atualizado apos fechamento completo de F1 (hardening estrutural).
+**Data:** 2026-02-27  
+**Revisao:** Atualizado para incluir DocOps-lite como grupo de hardening estrutural (F1.E).
 
 ---
 
@@ -39,7 +39,7 @@ Decisoes arquiteturais e epistemologicas formalizadas, com identidade institucio
 
 | # | Criterio | Verificacao | Status |
 |---|----------|-------------|--------|
-| F0.1 | ADR-000 a ADR-012 existentes em `adr/` | `find adr/ -name "*.md" \| grep -v INDEX \| grep -v TEMPLATE \| grep -v README` | ✅ Verificado |
+| F0.1 | ADR-000 a ADR-013 existentes em `adr/` | `find adr/ -name "*.md" \| grep -v INDEX \| grep -v TEMPLATE \| grep -v README` | ✅ Verificado |
 | F0.2 | `ADR_INDEX.md` lista todos os ADRs do diretorio | `bash scripts/audit_adr_index.sh` | ✅ Verificado |
 | F0.3 | `IW_INVARIANT_MATRIX.md` consolida invariantes | Inspecao documental | ✅ Verificado |
 | F0.4 | `ADR_TEMPLATE.md` padroniza novos ADRs | `ls adr/ADR_TEMPLATE.md` | ✅ Verificado |
@@ -95,9 +95,18 @@ Invariantes declarados nos ADRs sao executados por codigo, testes e gates de CI.
 | F1.D4 | CI valida consistencia `ADR_INDEX.md` x `adr/` | `scripts/audit_adr_index.sh` | ✅ Verificado |
 | F1.D5 | CI valida catalogo ADR gerado atualizado | `scripts/build_adr_catalog.py` + `git status` gate | ✅ Verificado |
 
+#### Grupo E — DocOps-lite (Bounded Context operacional)
+
+| # | Criterio | ADR | Verificacao | Status |
+|---|----------|-----|-------------|--------|
+| F1.E1 | `DocOpsContext` formalizado com fronteiras explicitas de escopo/nao-escopo | ADR-013 | `docs/DOCOPS-000_Vision_and_Boundary.md` | ✅ Verificado |
+| F1.E2 | Tab `DocOps` existe na UI principal ao lado de `Scientific` | ADR-013 | `src/ui/panels/TabOrchestrator.cpp` | ✅ Verificado |
+| F1.E3 | Execucao de comandos em workspace captura output e `exit code` auditavel | ADR-013 | `src/ui/panels/DocOpsPanel.cpp` | ✅ Verificado |
+| F1.E4 | DocOps permanece nao-epistemico (sem validacao de verdade/claim-strength) | ADR-013 + DOCOPS-000 | Inspecao de codigo + fronteiras documentadas | ✅ Verificado |
+
 ### Status
 
-✅ **F1 CONCLUIDO** (todos os criterios A, B, C e D atendidos com evidencia executavel)
+✅ **F1 CONCLUIDO** (todos os criterios A, B, C, D e E atendidos com evidencia executavel)
 
 ---
 
@@ -109,7 +118,7 @@ Contrato semantico explicito no pipeline de IA, com fail-fast em export para val
 
 ### Criterios de Entrada
 
-- F1 concluido (todos os grupos A, B, C e D satisfeitos).
+- F1 concluido (todos os grupos A, B, C, D e E satisfeitos).
 
 ### Status
 
@@ -128,6 +137,14 @@ Contrato semantico explicito no pipeline de IA, com fail-fast em export para val
 | C | Resiliencia com falha discursiva sem bloquear bundle | `ScientificResilienceTest` (C2) |
 | C | Garantia de separacao entre `NarrativeObservation.json` e `DiscursiveContext.json` | `NarrativeBundleTest` (C3) |
 
+## Historico de Evolucao DocOps (2026-02-27)
+
+| Grupo | Item encerrado | Evidencia |
+|------|----------------|-----------|
+| E | Tab `DocOps` introduzido como workbench operacional (workspace + presets + log/exit code) | `src/ui/panels/DocOpsPanel.cpp` |
+| E | Fronteiras de Bounded Context documentadas (DocOps-lite, nao-epistemico) | `docs/DOCOPS-000_Vision_and_Boundary.md` |
+| E | Governanca formal do contexto via ADR | `adr/ADR-013_DocOps_Governed_Document_Workbench.md` |
+
 ---
 
 ## Regras de Governanca
@@ -139,4 +156,4 @@ Contrato semantico explicito no pipeline de IA, com fail-fast em export para val
 
 ---
 
-*Fim do Documento — v1.3*
+*Fim do Documento — v1.4*

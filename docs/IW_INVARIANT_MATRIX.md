@@ -1,7 +1,7 @@
 # IdeaWalker (IW)
 ## Invariant Matrix
 
-**Data:** 2026-02-25  
+**Data:** 2026-02-27  
 **Status:** Active governance artifact (F1 concluido)
 
 Este documento consolida invariantes derivados dos ADRs e mapeia evidencia executavel.
@@ -19,6 +19,8 @@ Este documento consolida invariantes derivados dos ADRs e mapeia evidencia execu
 | Trabalho assincorno nao pode criar `std::thread` direto em servicos/UI fora do gerenciador central. | ADR-010 | `src/application/ConversationService.cpp` migrado para `AsyncTaskManager` | `Invariant Audit` (F1.D3) | ✅ Protegido |
 | Contexto e retrieval seguem papeis explicitos (RAG contextual). | ADR-011 | `ContextAssembler` + contratos de contexto | Revisao de arquitetura e testes de contexto | ✅ Verificado |
 | Metadados semanticos de estado de extracao e LAA sao separados do bundle institucional. | ADR-012 | `ScientificIngestionService` + logs `.exclusions.log` | `ScientificResilienceTest` (F1.B2/F1.C2) | ✅ Protegido |
+| DocOps executa regras declaradas pelo workspace, sem assumir papel de arbitro epistemologico. | ADR-013 + DOCOPS-000 | `docs/DOCOPS-000_Vision_and_Boundary.md` + `src/ui/panels/DocOpsPanel.cpp` | Revisao arquitetural + gate de maturidade F1.E | ✅ Verificado |
+| DocOps captura `stdout/stderr` e `exit code` para trilha operacional auditavel. | ADR-013 | `src/ui/panels/DocOpsPanel.cpp` | Validacao manual em UI + build | ✅ Verificado |
 | `ADR_INDEX.md` reflete exatamente arquivos do diretorio `adr/`. | ADR-000 | `scripts/audit_adr_index.sh` | `Invariant Audit` (F1.D4) | ✅ Protegido |
 | Catalogo ADR gerado esta sincronizado com os ADRs canonicos. | ADR-000 | `scripts/build_adr_catalog.py` | `Invariant Audit` (F1.D5) | ✅ Protegido |
 
