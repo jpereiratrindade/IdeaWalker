@@ -98,6 +98,35 @@ bool WriteTextFile(const std::filesystem::path& path, const std::string& content
     return true;
 }
 
+bool ReadTextFile(const std::filesystem::path& path, std::string& contentOut) {
+    std::ifstream in(path);
+    if (!in) return false;
+    std::stringstream buffer;
+    buffer << in.rdbuf();
+    contentOut = buffer.str();
+    return true;
+}
+
+std::filesystem::path ResolveTargetPath(const std::filesystem::path& wsRoot, const char* target) {
+    const std::filesystem::path raw = std::filesystem::path(target ? target : "");
+    if (raw.empty()) return {};
+    if (raw.is_absolute()) return raw;
+    return wsRoot / raw;
+}
+
+std::filesystem::path FindFileByNameInWorkspace(const std::filesystem::path& wsRoot, const std::string& filename) {
+    std::error_code ec;
+    if (filename.empty() || !std::filesystem::exists(wsRoot, ec)) return {};
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(wsRoot, ec)) {
+        if (ec) break;
+        if (!entry.is_regular_file(ec)) continue;
+        if (entry.path().filename() == filename) {
+            return entry.path();
+        }
+    }
+    return {};
+}
+
 bool EnsureDocOpsContractSkeleton(const std::filesystem::path& wsRoot, std::string& errorOut) {
     std::error_code ec;
     std::filesystem::create_directories(wsRoot / "docops" / "profiles", ec);
@@ -513,6 +542,38 @@ void DrawDocOpsTab(AppState& app) {
     if (!canSendChat) {
         ImGui::TextDisabled("Para enviar ao LLM, inicie uma sessao no chat (painel inferior).");
     }
+    ImGui::SameLine();
+    const bool canStartDocOpsSession =
+        app.services.conversationService &&
+        app.services.contextAssembler &&
+        workspaceOk &&
+        std::strlen(editTargetFile) > 0;
+    if (!canStartDocOpsSession) ImGui::BeginDisabled();
+    if (ImGui::Button("Iniciar sessao DocOps")) {
+        std::filesystem::path targetPath = ResolveTargetPath(ws, editTargetFile);
+        if ((!targetPath.empty() && !std::filesystem::exists(targetPath)) && std::string(editTargetFile).find('/') == std::string::npos) {
+            const std::filesystem::path found = FindFileByNameInWorkspace(ws, editTargetFile);
+            if (!found.empty()) targetPath = found;
+        }
+
+        if (targetPath.empty() || !std::filesystem::exists(targetPath) || !std::filesystem::is_regular_file(targetPath)) {
+            app.AppendLog("[DocOps] Target file not found for chat session: " + targetPath.string() +
+                          " (hint: use relative path from workspace, ex: doc/arquivo.tex)\n");
+        } else {
+            std::string fileContent;
+            if (!ReadTextFile(targetPath, fileContent)) {
+                app.AppendLog("[DocOps] Failed reading target file for chat session: " + targetPath.string() + "\n");
+            } else {
+                const std::string noteId = targetPath.lexically_relative(ws).string();
+                auto bundle = app.services.contextAssembler->assemble(noteId, fileContent);
+                app.services.conversationService->startSession(bundle);
+                app.ui.selectedFilename = noteId;
+                app.ui.selectedNoteContent = fileContent;
+                app.AppendLog("[DocOps] Chat session started for target: " + targetPath.string() + "\n");
+            }
+        }
+    }
+    if (!canStartDocOpsSession) ImGui::EndDisabled();
 
     ImGui::Separator();
     ImGui::Text("Ações (presets):");
