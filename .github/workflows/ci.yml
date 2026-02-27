@@ -47,6 +47,10 @@ jobs:
         run: |
           bash scripts/audit_evaluations.sh
 
+      - name: "[F1.D7] Audit — DocOps workspace contract"
+        run: |
+          bash scripts/audit_docops_contract.sh
+
       - name: "[F1.D5] Audit — generated ADR catalog is up to date"
         run: |
           python3 scripts/build_adr_catalog.py

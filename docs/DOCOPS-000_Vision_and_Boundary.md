@@ -1,8 +1,8 @@
 # DOCOPS-000 — Vision and Boundary (DocOpsContext)
 
-**Status:** Draft  
-**Data:** 2026-02-27  
-**Owner:** IW / STRATA ecosystem  
+**Status:** Active
+**Data:** 2026-02-27
+**Owner:** IW / STRATA ecosystem
 
 ---
 
@@ -90,8 +90,9 @@ Integrações futuras (somente com ADR):
 
 ### Fase 1 — DocOps-lite (agora)
 
-- Execução governada de checks/releases com logs e rastreabilidade operacional.
+- Execucao governada de checks/releases com logs e rastreabilidade operacional.
 - Nenhuma validação epistemológica do conteúdo.
+- Workspace contract minimo (`docops/docops.yaml` + `profiles` + `templates`).
 
 ### Fase 2 — DocOps com contratos de artefato (somente com ADR)
 
@@ -100,7 +101,7 @@ Integrações futuras (somente com ADR):
 
 ### Fase 3 — DocOps epistêmico (somente com ADR próprio)
 
-Se (e somente se) o ecossistema decidir avançar para tipagem de assertivas e estados de claim, criar um ADR dedicado (ex.: `ADR-014_Assertive_Typing_and_Citation_States.md`) explicitando:
+Se (e somente se) o ecossistema decidir avancar para tipagem de assertivas e estados de claim, criar um ADR dedicado (ex.: `ADR-018_Assertive_Typing_and_Citation_States.md`) explicitando:
 
 - tipos de assertiva (definição, hipótese, claim empírico, política interna, derivado de ADR);
 - status de citação (verificada, sugerida, ausente);
@@ -118,6 +119,9 @@ Se (e somente se) o ecossistema decidir avançar para tipagem de assertivas e es
 ## 9) Referências
 
 - ADR (IW): `adr/ADR-013_DocOps_Governed_Document_Workbench.md`
+- Contratos DocOps:
+  - `adr/ADR-015_DocOps_Workspace_Contract.md`
+  - `adr/ADR-016_DocOps_Prompt_Profile_Registry.md`
+  - `adr/ADR-017_DocOps_Controlled_Edit_Protocol.md`
 - Diretrizes de implementação: `👉 IW_Implementation_Guidelines_Post_Methodology.md`
 - Doc referência de governança: `adr/ADR-000_Governance_Model_Overview.md`
-

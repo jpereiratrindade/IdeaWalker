@@ -2,11 +2,11 @@
 
 Generated at: `2026-02-27`
 Source directory: `adr`
-Decision count: `15`
+Decision count: `18`
 
 ## Status Breakdown
 
-- `Accepted`: 15
+- `Accepted`: 18
 
 ## Decisions
 
@@ -27,3 +27,6 @@ Decision count: `15`
 | ADR-012 | Accepted | Unknown | Unspecified | adr/ADR-012_Semantic_States_and_Contracts.md | - | - |
 | ADR-013 | Accepted | 2026-02-27 | Other | adr/ADR-013_DocOps_Governed_Document_Workbench.md | - | - |
 | ADR-014 | Accepted | 2026-02-27 | Foundational governance | adr/ADR-014_Internal_Evaluations_Registry.md | - | - |
+| ADR-015 | Accepted | 2026-02-27 | Contract | adr/ADR-015_DocOps_Workspace_Contract.md | - | - |
+| ADR-016 | Accepted | 2026-02-27 | Contract | adr/ADR-016_DocOps_Prompt_Profile_Registry.md | - | - |
+| ADR-017 | Accepted | 2026-02-27 | Hardening | adr/ADR-017_DocOps_Controlled_Edit_Protocol.md | - | - |

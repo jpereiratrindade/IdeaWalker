@@ -4,9 +4,9 @@
   "type": "governance_observational_synthesis",
   "generatedAt": "2026-02-27",
   "sourceDirectory": "adr",
-  "decisionCount": 15,
+  "decisionCount": 18,
   "statusBreakdown": {
-    "Accepted": 15
+    "Accepted": 18
   },
   "decisions": [
     {
@@ -171,6 +171,39 @@
       "date": "2026-02-27",
       "decisionType": "Foundational governance",
       "path": "adr/ADR-014_Internal_Evaluations_Registry.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-015",
+      "number": 15,
+      "title": "DocOps Workspace Contract",
+      "status": "Accepted",
+      "date": "2026-02-27",
+      "decisionType": "Contract",
+      "path": "adr/ADR-015_DocOps_Workspace_Contract.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-016",
+      "number": 16,
+      "title": "DocOps Prompt Profile Registry",
+      "status": "Accepted",
+      "date": "2026-02-27",
+      "decisionType": "Contract",
+      "path": "adr/ADR-016_DocOps_Prompt_Profile_Registry.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-017",
+      "number": 17,
+      "title": "DocOps Controlled Edit Protocol",
+      "status": "Accepted",
+      "date": "2026-02-27",
+      "decisionType": "Hardening",
+      "path": "adr/ADR-017_DocOps_Controlled_Edit_Protocol.md",
       "supersedes": [],
       "supersededBy": []
     }

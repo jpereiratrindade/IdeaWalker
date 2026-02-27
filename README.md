@@ -63,6 +63,8 @@ O **Idea Walker** é um suporte cognitivo projetado para transformar pensamentos
 - **Índice arquitetural gerado**: `reports/architecture/ArchitectureDecisionIndex.latest.json` e `.md`
 - **Comandos de governança**:
   - `bash scripts/audit_adr_index.sh`
+  - `bash scripts/audit_evaluations.sh`
+  - `bash scripts/audit_docops_contract.sh`
   - `python3 scripts/build_adr_catalog.py`
 
 ---

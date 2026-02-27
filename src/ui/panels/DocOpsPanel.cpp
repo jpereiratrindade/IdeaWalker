@@ -2,10 +2,15 @@
 #include "imgui.h"
 
 #include <atomic>
+#include <chrono>
 #include <cstring>
 #include <cstdio>
+#include <ctime>
 #include <filesystem>
+#include <fstream>
+#include <iomanip>
 #include <mutex>
+#include <sstream>
 #include <string>
 
 #if !defined(_WIN32)
@@ -43,6 +48,32 @@ int ExtractExitCode(int pcloseStatus) {
 #endif
 }
 
+std::tm LocalTimeNow() {
+    const auto now = std::chrono::system_clock::now();
+    const std::time_t t = std::chrono::system_clock::to_time_t(now);
+    std::tm tm{};
+#if defined(_WIN32)
+    localtime_s(&tm, &t);
+#else
+    localtime_r(&t, &tm);
+#endif
+    return tm;
+}
+
+std::string CurrentDateIso() {
+    const std::tm tm = LocalTimeNow();
+    std::ostringstream oss;
+    oss << std::put_time(&tm, "%Y-%m-%d");
+    return oss.str();
+}
+
+std::string CurrentTimestampCompact() {
+    const std::tm tm = LocalTimeNow();
+    std::ostringstream oss;
+    oss << std::put_time(&tm, "%Y%m%d-%H%M%S");
+    return oss.str();
+}
+
 } // namespace
 
 void DrawDocOpsTab(AppState& app) {
@@ -59,6 +90,10 @@ void DrawDocOpsTab(AppState& app) {
     static std::string lastProjectRoot;
     static int presetIndex = 0;
     static char customCommand[512] = "make check";
+    static int editProfileIndex = 0;
+    static char editTargetFile[512] = "";
+    static char editReason[512] = "";
+    static char editAdrRef[128] = "";
 
     static std::mutex outputMutex;
     static std::string output;
@@ -100,8 +135,69 @@ void DrawDocOpsTab(AppState& app) {
 
     const std::filesystem::path ws(workspacePath);
     const bool workspaceOk = std::filesystem::exists(ws) && std::filesystem::is_directory(ws);
+    const bool hasDocOpsContract = workspaceOk && std::filesystem::exists(ws / "docops" / "docops.yaml");
     if (!workspaceOk) {
         ImGui::TextColored(ImVec4(1, 0.5f, 0.0f, 1), "Workspace inválido ou inexistente.");
+    } else if (!hasDocOpsContract) {
+        ImGui::TextColored(ImVec4(1, 0.75f, 0.2f, 1),
+                           "Workspace sem contrato DocOps (`docops/docops.yaml`).");
+    }
+
+    ImGui::Separator();
+    ImGui::Text("Assistencia de edicao (MVP):");
+    const char* editProfiles[] = {"architect", "author", "editor", "reviewer"};
+    ImGui::Combo("Perfil##docops_edit_profile", &editProfileIndex, editProfiles, IM_ARRAYSIZE(editProfiles));
+    ImGui::InputText("Arquivo alvo##docops_edit_target", editTargetFile, sizeof(editTargetFile));
+    ImGui::InputText("Motivo##docops_edit_reason", editReason, sizeof(editReason));
+    ImGui::InputText("ADR referencia##docops_edit_adr", editAdrRef, sizeof(editAdrRef));
+
+    const bool canCreateEditRequest = workspaceOk && hasDocOpsContract && !running.load();
+    if (!canCreateEditRequest) ImGui::BeginDisabled();
+    if (ImGui::Button(label("🧾 Gerar Edit Request", "Create edit request"), ImVec2(200, 0))) {
+        const std::filesystem::path requestDir = ws / "reports" / "docops" / "requests";
+        std::error_code ec;
+        std::filesystem::create_directories(requestDir, ec);
+
+        if (ec) {
+            app.AppendLog("[DocOps] Failed creating requests directory: " + requestDir.string() + "\n");
+        } else {
+            const std::string stamp = CurrentTimestampCompact();
+            const std::string date = CurrentDateIso();
+            const std::filesystem::path requestPath = requestDir / ("EDIT_REQUEST-" + stamp + ".md");
+            std::ofstream out(requestPath);
+            if (!out) {
+                app.AppendLog("[DocOps] Failed writing edit request file: " + requestPath.string() + "\n");
+            } else {
+                out << "# Edit Request\n\n";
+                out << "**Date:** " << date << "  \n";
+                out << "**Profile:** " << editProfiles[editProfileIndex] << "  \n";
+                out << "**Target File:** " << (std::strlen(editTargetFile) > 0 ? editTargetFile : "<pending>") << "  \n";
+                out << "**Reason:** " << (std::strlen(editReason) > 0 ? editReason : "<pending>") << "  \n";
+                out << "**ADR Reference:** "
+                    << (std::strlen(editAdrRef) > 0 ? editAdrRef : "editorial-only")
+                    << "  \n\n";
+                out << "---\n\n";
+                out << "## 1) Plan\n\n";
+                out << "Descreva o objetivo da mudanca.\n\n";
+                out << "## 2) Proposal\n\n";
+                out << "Descreva o patch/proposta.\n\n";
+                out << "## 3) Review Checklist\n\n";
+                out << "- [ ] Mantem consistencia com ADRs aplicaveis\n";
+                out << "- [ ] Mantem rastreabilidade\n";
+                out << "- [ ] Nao altera compromisso normativo sem ADR\n\n";
+                out << "## 4) Apply Decision\n\n";
+                out << "- [ ] Approved\n";
+                out << "- [ ] Rejected\n";
+                out << "- [ ] Needs revision\n";
+                out.close();
+
+                app.AppendLog("[DocOps] Edit request created: " + requestPath.string() + "\n");
+            }
+        }
+    }
+    if (!canCreateEditRequest) ImGui::EndDisabled();
+    if (!hasDocOpsContract && workspaceOk) {
+        ImGui::TextDisabled("Requer `docops/docops.yaml` para gerar Edit Request.");
     }
 
     ImGui::Separator();
@@ -112,12 +208,14 @@ void DrawDocOpsTab(AppState& app) {
         "make release-pdf",
         "make release-ort-pdf",
         "make release-rtv-pdf",
+        "bash scripts/audit_docops_contract.sh",
+        "bash scripts/audit_evaluations.sh",
         "git status --porcelain",
         "Custom command",
     };
     ImGui::Combo("##docops_preset", &presetIndex, presets, IM_ARRAYSIZE(presets));
 
-    if (presetIndex == 5) {
+    if (presetIndex == 7) {
         ImGui::Text("Comando customizado:");
         ImGui::PushItemWidth(-1);
         ImGui::InputText("##docops_custom", customCommand, sizeof(customCommand));
@@ -125,7 +223,7 @@ void DrawDocOpsTab(AppState& app) {
     }
 
     const std::string selectedCommand = [&]() -> std::string {
-        if (presetIndex == 5) return std::string(customCommand);
+        if (presetIndex == 7) return std::string(customCommand);
         return std::string(presets[presetIndex]);
     }();
 

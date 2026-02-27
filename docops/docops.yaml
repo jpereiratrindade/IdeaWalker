@@ -1,0 +1,32 @@
+version: "1.0"
+context: "DocOps-lite"
+profiles_dir: "docops/profiles"
+templates_dir: "docops/templates"
+
+workspace_layout:
+  required_paths:
+    - "adr"
+    - "docs"
+    - "scripts"
+    - "docops/profiles"
+    - "docops/templates"
+  optional_paths:
+    - "reports"
+    - "doc"
+    - "doc/releases"
+
+edit_protocol:
+  mode: "plan-propose-review-apply"
+  require_human_approval: true
+  require_diff_preview: true
+  require_adr_reference_for_structural_changes: true
+
+governance:
+  adr_index: "adr/ADR_INDEX.md"
+  evaluations_dir: "docs/avaliacoes"
+  release_log_dir: "reports/docops"
+
+llm_assistance:
+  enabled: true
+  model_runtime: "local-or-configured-by-workspace"
+  write_mode: "proposal_only"

@@ -35,6 +35,9 @@ Este documento cataloga todos os Architecture Decision Records (ADR) ativos do I
 | ADR-012 | Semantic States & Contracts | Accepted | `ADR-012_Semantic_States_and_Contracts.md` |
 | ADR-013 | DocOps — Governed Document Workbench (Tab) | Accepted | `ADR-013_DocOps_Governed_Document_Workbench.md` |
 | ADR-014 | Internal Evaluations Registry and Response Protocol | Accepted | `ADR-014_Internal_Evaluations_Registry.md` |
+| ADR-015 | DocOps Workspace Contract | Accepted | `ADR-015_DocOps_Workspace_Contract.md` |
+| ADR-016 | DocOps Prompt Profile Registry | Accepted | `ADR-016_DocOps_Prompt_Profile_Registry.md` |
+| ADR-017 | DocOps Controlled Edit Protocol | Accepted | `ADR-017_DocOps_Controlled_Edit_Protocol.md` |
 
 ---
 
