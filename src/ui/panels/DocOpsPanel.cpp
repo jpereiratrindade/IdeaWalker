@@ -162,6 +162,46 @@ std::vector<std::filesystem::path> ListEditableDocuments(const std::filesystem::
     return files;
 }
 
+std::string BuildTargetFileTemplate(
+    const std::filesystem::path& targetPath,
+    const char* reason,
+    const char* adrRef,
+    const char* profile
+) {
+    std::string ext = targetPath.extension().string();
+    std::transform(ext.begin(), ext.end(), ext.begin(),
+                   [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+
+    std::ostringstream oss;
+    const std::string reasonText = (reason && std::strlen(reason) > 0) ? reason : "<pending>";
+    const std::string adrText = (adrRef && std::strlen(adrRef) > 0) ? adrRef : "editorial-only";
+    const std::string profileText = (profile && std::strlen(profile) > 0) ? profile : "editor";
+
+    if (ext == ".tex") {
+        oss << "% DocOps target file scaffold\n";
+        oss << "% Profile: " << profileText << "\n";
+        oss << "% ADR: " << adrText << "\n";
+        oss << "% Motivo: " << reasonText << "\n\n";
+        oss << "\\section{Draft Inicial}\n\n";
+        oss << "Texto inicial gerado para iniciar a sessao DocOps.\n";
+    } else if (ext == ".md") {
+        oss << "# Draft Inicial\n\n";
+        oss << "- Profile: `" << profileText << "`\n";
+        oss << "- ADR: `" << adrText << "`\n";
+        oss << "- Motivo: " << reasonText << "\n\n";
+        oss << "## Conteudo\n\n";
+        oss << "Texto inicial gerado para iniciar a sessao DocOps.\n";
+    } else {
+        oss << "DocOps Draft\n";
+        oss << "Profile: " << profileText << "\n";
+        oss << "ADR: " << adrText << "\n";
+        oss << "Motivo: " << reasonText << "\n\n";
+        oss << "Texto inicial gerado para iniciar a sessao DocOps.\n";
+    }
+
+    return oss.str();
+}
+
 bool EnsureDocOpsContractSkeleton(const std::filesystem::path& wsRoot, std::string& errorOut) {
     std::error_code ec;
     std::filesystem::create_directories(wsRoot / "docops" / "profiles", ec);
@@ -485,6 +525,53 @@ void DrawDocOpsTab(AppState& app) {
     ImGui::InputText("Arquivo alvo##docops_edit_target", editTargetFile, sizeof(editTargetFile));
     ImGui::InputText("Motivo##docops_edit_reason", editReason, sizeof(editReason));
     ImGui::InputText("ADR referencia##docops_edit_adr", editAdrRef, sizeof(editAdrRef));
+
+    const std::filesystem::path editTargetResolved = ResolveTargetPath(ws, editTargetFile);
+    const bool hasTargetPathInput = std::strlen(editTargetFile) > 0;
+    const bool targetFileExists = hasTargetPathInput && !editTargetResolved.empty() &&
+                                  std::filesystem::exists(editTargetResolved) &&
+                                  std::filesystem::is_regular_file(editTargetResolved);
+    if (hasTargetPathInput) {
+        if (targetFileExists) {
+            ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.4f, 1.0f), "Arquivo alvo existe: %s", editTargetResolved.string().c_str());
+        } else {
+            ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.2f, 1.0f), "Arquivo alvo ausente: %s", editTargetResolved.string().c_str());
+        }
+    }
+    const bool canCreateTargetFile = workspaceOk && hasTargetPathInput && !targetFileExists;
+    if (!canCreateTargetFile) ImGui::BeginDisabled();
+    if (ImGui::Button("Criar arquivo alvo", ImVec2(160, 0))) {
+        std::error_code ec;
+        if (!editTargetResolved.parent_path().empty()) {
+            std::filesystem::create_directories(editTargetResolved.parent_path(), ec);
+        }
+        if (ec) {
+            app.AppendLog("[DocOps] Failed creating parent directories for target file.\n");
+        } else {
+            const std::string templateContent = BuildTargetFileTemplate(
+                editTargetResolved, editReason, editAdrRef, editProfiles[editProfileIndex]
+            );
+            if (WriteTextFile(editTargetResolved, templateContent)) {
+                app.AppendLog("[DocOps] Target file created: " + editTargetResolved.string() + "\n");
+                editorDocFiles = ListEditableDocuments(ws);
+                loadedEditorDocPath = editTargetResolved;
+                loadedEditorDocRelativePath = editTargetResolved.lexically_relative(ws);
+                editorBuffer = templateContent;
+                editorDirty = false;
+                editorStatus = "created " + loadedEditorDocRelativePath.string();
+                selectedEditorDocIndex = -1;
+                for (int index = 0; index < static_cast<int>(editorDocFiles.size()); ++index) {
+                    if (editorDocFiles[index] == loadedEditorDocRelativePath) {
+                        selectedEditorDocIndex = index;
+                        break;
+                    }
+                }
+            } else {
+                app.AppendLog("[DocOps] Failed creating target file: " + editTargetResolved.string() + "\n");
+            }
+        }
+    }
+    if (!canCreateTargetFile) ImGui::EndDisabled();
 
     const bool canCreateEditRequest = workspaceOk && hasDocOpsContract && hasProjectRegistry && !running.load();
     if (!canCreateEditRequest) ImGui::BeginDisabled();
