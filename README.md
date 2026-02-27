@@ -41,6 +41,7 @@ O **Idea Walker** é um suporte cognitivo projetado para transformar pensamentos
 ## ✨ Funcionalidades
 - **📂 Suporte Multi-formato**: Ingestão automática de `.txt`, `.pdf` (via pdftotext), `.md` e `.tex` do **inbox**.
 - **🧪 Ingestão Científica Governada**: Gera artefatos cognitivos tipados e exporta consumíveis STRATA (sem normatividade).
+- **📝 DocOps (Document Workbench)**: Executa checks/releases em workspaces documentais (ex.: ontologias/relatórios) com logs integrados e rastreáveis.
 - **✅ Validador Epistemológico (VE-IW)**: Gate obrigatório antes de exportar para STRATA, com relatório e selo de exportação.
 - **🧠 Orquestração Cognitiva Autônoma**: O sistema diagnostica o estado do texto e aplica automaticamente a sequência ideal de personas (Brainstormer, Analista, Secretário).
 - **🕸️ Neural Web & Mind Map**: Visualização interativa de conexões entre notas, tarefas e conceitos.

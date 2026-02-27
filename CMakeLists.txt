@@ -167,6 +167,7 @@ add_executable(${PROJECT_NAME}
     src/ui/panels/ExecutionPanel.cpp
     src/ui/panels/GraphPanel.cpp
     src/ui/panels/ScientificPanel.cpp
+    src/ui/panels/DocOpsPanel.cpp
     src/ui/panels/ExternalFilesPanel.cpp
     src/ui/panels/TabOrchestrator.cpp
     src/ui/panels/ModalPanels.cpp

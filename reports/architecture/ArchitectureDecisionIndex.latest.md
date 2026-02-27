@@ -1,12 +1,12 @@
 # Architecture Decision Index
 
-Generated at: `2026-02-25`
+Generated at: `2026-02-27`
 Source directory: `adr`
-Decision count: `13`
+Decision count: `14`
 
 ## Status Breakdown
 
-- `Accepted`: 13
+- `Accepted`: 14
 
 ## Decisions
 
@@ -25,3 +25,4 @@ Decision count: `13`
 | ADR-010 | Accepted | 2026-02-25 | Unspecified | adr/ADR-010_Async_Task_Manager.md | - | - |
 | ADR-011 | Accepted | 2026-02-25 | Unspecified | adr/ADR-011_Contextual_RAG_Architecture.md | - | - |
 | ADR-012 | Accepted | Unknown | Unspecified | adr/ADR-012_Semantic_States_and_Contracts.md | - | - |
+| ADR-013 | Accepted | 2026-02-27 | Other | adr/ADR-013_DocOps_Governed_Document_Workbench.md | - | - |

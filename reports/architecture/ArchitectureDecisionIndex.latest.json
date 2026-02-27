@@ -2,11 +2,11 @@
   "schemaVersion": "adr_catalog.v1",
   "reportType": "ArchitectureDecisionIndex",
   "type": "governance_observational_synthesis",
-  "generatedAt": "2026-02-25",
+  "generatedAt": "2026-02-27",
   "sourceDirectory": "adr",
-  "decisionCount": 13,
+  "decisionCount": 14,
   "statusBreakdown": {
-    "Accepted": 13
+    "Accepted": 14
   },
   "decisions": [
     {
@@ -149,6 +149,17 @@
       "date": "Unknown",
       "decisionType": "Unspecified",
       "path": "adr/ADR-012_Semantic_States_and_Contracts.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-013",
+      "number": 13,
+      "title": "DocOps \u2014 Governed Document Workbench (Tab)",
+      "status": "Accepted",
+      "date": "2026-02-27",
+      "decisionType": "Other",
+      "path": "adr/ADR-013_DocOps_Governed_Document_Workbench.md",
       "supersedes": [],
       "supersededBy": []
     }

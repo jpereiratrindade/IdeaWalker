@@ -11,6 +11,7 @@ void DrawExecutionTab(AppState& app);
 void DrawGraphTab(AppState& app);
 void DrawExternalFilesTab(AppState& app);
 void DrawScientificTab(AppState& app);
+void DrawDocOpsTab(AppState& app);
 
 // Components
 void DrawNodeGraph(AppState& app);

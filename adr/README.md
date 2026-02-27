@@ -33,6 +33,7 @@ Current ADRs:
 - [ADR-010_Async_Task_Manager.md](ADR-010_Async_Task_Manager.md)
 - [ADR-011_Contextual_RAG_Architecture.md](ADR-011_Contextual_RAG_Architecture.md)
 - [ADR-012_Semantic_States_and_Contracts.md](ADR-012_Semantic_States_and_Contracts.md)
+- [ADR-013_DocOps_Governed_Document_Workbench.md](ADR-013_DocOps_Governed_Document_Workbench.md)
 
 Normative governance reference:
 
