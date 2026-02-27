@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <cctype>
 
 #if !defined(_WIN32)
 #include <sys/wait.h>
@@ -125,6 +126,40 @@ std::filesystem::path FindFileByNameInWorkspace(const std::filesystem::path& wsR
         }
     }
     return {};
+}
+
+bool IsIgnoredDirectoryName(const std::string& name) {
+    return name == ".git" || name == "build" || name == "build-test" || name == ".iwcache" || name == "html";
+}
+
+bool IsEditableDocumentPath(const std::filesystem::path& filePath) {
+    std::string ext = filePath.extension().string();
+    std::transform(ext.begin(), ext.end(), ext.begin(),
+                   [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    return ext == ".md" || ext == ".tex" || ext == ".txt";
+}
+
+std::vector<std::filesystem::path> ListEditableDocuments(const std::filesystem::path& wsRoot) {
+    std::vector<std::filesystem::path> files;
+    std::error_code ec;
+    if (!std::filesystem::exists(wsRoot, ec) || !std::filesystem::is_directory(wsRoot, ec)) return files;
+
+    for (std::filesystem::recursive_directory_iterator it(wsRoot, ec), end; it != end; it.increment(ec)) {
+        if (ec) break;
+        const auto& entry = *it;
+        if (entry.is_directory(ec)) {
+            if (IsIgnoredDirectoryName(entry.path().filename().string())) {
+                it.disable_recursion_pending();
+            }
+            continue;
+        }
+        if (!entry.is_regular_file(ec)) continue;
+        if (!IsEditableDocumentPath(entry.path())) continue;
+        files.push_back(entry.path().lexically_relative(wsRoot));
+    }
+
+    std::sort(files.begin(), files.end());
+    return files;
 }
 
 bool EnsureDocOpsContractSkeleton(const std::filesystem::path& wsRoot, std::string& errorOut) {
@@ -355,6 +390,14 @@ void DrawDocOpsTab(AppState& app) {
     static int selectedAdrIndex = -1;
     static std::string llmPromptDraft;
     static std::string docopsSessionStatus = "idle";
+    static std::vector<std::filesystem::path> editorDocFiles;
+    static int selectedEditorDocIndex = -1;
+    static std::filesystem::path loadedEditorDocPath;
+    static std::filesystem::path loadedEditorDocRelativePath;
+    static std::string editorBuffer;
+    static bool editorDirty = false;
+    static std::string editorStatus = "idle";
+    static std::string lastEditorWorkspace;
 
     static std::mutex outputMutex;
     static std::string output;
@@ -422,6 +465,17 @@ void DrawDocOpsTab(AppState& app) {
                 app.AppendLog("[DocOps] Registry creation failed: " + err + "\n");
             }
         }
+    }
+
+    if (workspaceOk && lastEditorWorkspace != ws.string()) {
+        lastEditorWorkspace = ws.string();
+        editorDocFiles = ListEditableDocuments(ws);
+        selectedEditorDocIndex = -1;
+        loadedEditorDocPath.clear();
+        loadedEditorDocRelativePath.clear();
+        editorBuffer.clear();
+        editorDirty = false;
+        editorStatus = "workspace refreshed";
     }
 
     ImGui::Separator();
@@ -635,6 +689,106 @@ void DrawDocOpsTab(AppState& app) {
                            app.services.conversationService->getCurrentNoteId().c_str());
     } else {
         ImGui::TextDisabled("Sessao inativa (%s)", docopsSessionStatus.c_str());
+    }
+
+    ImGui::Separator();
+    ImGui::Text("Editor DocOps:");
+    if (workspaceOk) {
+        if (ImGui::Button("Atualizar arquivos")) {
+            editorDocFiles = ListEditableDocuments(ws);
+            editorStatus = "file list refreshed";
+        }
+        ImGui::SameLine();
+        ImGui::Text("Arquivos elegiveis: %zu", editorDocFiles.size());
+    }
+
+    if (workspaceOk && ImGui::BeginTable("DocOpsEditorTable", 2,
+                                         ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingStretchProp,
+                                         ImVec2(0, 320))) {
+        ImGui::TableSetupColumn("Arquivos", ImGuiTableColumnFlags_WidthStretch, 0.32f);
+        ImGui::TableSetupColumn("Editor", ImGuiTableColumnFlags_WidthStretch, 0.68f);
+
+        ImGui::TableNextColumn();
+        if (ImGui::BeginChild("DocOpsEditorFiles", ImVec2(0, 0), true)) {
+            for (int index = 0; index < static_cast<int>(editorDocFiles.size()); ++index) {
+                const std::string label = editorDocFiles[index].string();
+                const bool isSelected = (index == selectedEditorDocIndex);
+                if (ImGui::Selectable(label.c_str(), isSelected)) {
+                    selectedEditorDocIndex = index;
+                    const std::filesystem::path absPath = ws / editorDocFiles[index];
+                    std::string content;
+                    if (ReadTextFile(absPath, content)) {
+                        loadedEditorDocPath = absPath;
+                        loadedEditorDocRelativePath = editorDocFiles[index];
+                        editorBuffer = content;
+                        editorDirty = false;
+                        editorStatus = "loaded " + loadedEditorDocRelativePath.string();
+                    } else {
+                        editorStatus = "failed loading " + label;
+                    }
+                }
+            }
+        }
+        ImGui::EndChild();
+
+        ImGui::TableNextColumn();
+        if (loadedEditorDocPath.empty()) {
+            ImGui::TextDisabled("Selecione um arquivo .tex/.md/.txt para editar.");
+        } else {
+            ImGui::Text("Arquivo: %s", loadedEditorDocRelativePath.string().c_str());
+            const bool canSaveEditor = !loadedEditorDocPath.empty() && editorDirty;
+            if (!canSaveEditor) ImGui::BeginDisabled();
+            if (ImGui::Button("Salvar arquivo", ImVec2(120, 0))) {
+                if (WriteTextFile(loadedEditorDocPath, editorBuffer)) {
+                    editorDirty = false;
+                    editorStatus = "saved " + loadedEditorDocRelativePath.string();
+                    app.AppendLog("[DocOps] File saved: " + loadedEditorDocPath.string() + "\n");
+                } else {
+                    editorStatus = "save failed " + loadedEditorDocRelativePath.string();
+                    app.AppendLog("[DocOps] Save failed: " + loadedEditorDocPath.string() + "\n");
+                }
+            }
+            if (!canSaveEditor) ImGui::EndDisabled();
+            ImGui::SameLine();
+            if (ImGui::Button("Recarregar", ImVec2(120, 0))) {
+                std::string freshContent;
+                if (ReadTextFile(loadedEditorDocPath, freshContent)) {
+                    editorBuffer = freshContent;
+                    editorDirty = false;
+                    editorStatus = "reloaded " + loadedEditorDocRelativePath.string();
+                } else {
+                    editorStatus = "reload failed " + loadedEditorDocRelativePath.string();
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Aplicar ultima IA", ImVec2(140, 0))) {
+                std::string lastAssistantResponse;
+                if (app.services.conversationService) {
+                    const auto history = app.services.conversationService->getHistory();
+                    for (auto it = history.rbegin(); it != history.rend(); ++it) {
+                        if (it->role == domain::AIService::ChatMessage::Role::Assistant && !it->content.empty()) {
+                            lastAssistantResponse = it->content;
+                            break;
+                        }
+                    }
+                }
+                if (!lastAssistantResponse.empty()) {
+                    editorBuffer = lastAssistantResponse;
+                    editorDirty = true;
+                    editorStatus = "assistant response applied";
+                } else {
+                    editorStatus = "no assistant response available";
+                }
+            }
+
+            if (InputTextMultilineString("##docops_editor_buffer", &editorBuffer, ImVec2(-1, 250))) {
+                editorDirty = true;
+                editorStatus = "modified";
+            }
+            ImGui::TextColored(editorDirty ? ImVec4(1.0f, 0.8f, 0.2f, 1.0f) : ImVec4(0.6f, 0.9f, 0.6f, 1.0f),
+                               "Status: %s", editorStatus.c_str());
+        }
+        ImGui::EndTable();
     }
 
     ImGui::Separator();
