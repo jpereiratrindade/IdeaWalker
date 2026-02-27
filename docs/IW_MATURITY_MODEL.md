@@ -1,10 +1,10 @@
 # IdeaWalker (IW)
 ## Modelo de Maturidade Institucional — IW Maturity Model
 
-**Versao:** 1.4  
-**Status:** Accepted  
-**Data:** 2026-02-27  
-**Revisao:** Atualizado para incluir DocOps-lite como grupo de hardening estrutural (F1.E).
+**Versao:** 1.5
+**Status:** Accepted
+**Data:** 2026-02-27
+**Revisao:** Atualizado para incluir DocOps-lite (F1.E) e protocolo de avaliacoes internas (ADR-014 / F1.D6).
 
 ---
 
@@ -39,7 +39,7 @@ Decisoes arquiteturais e epistemologicas formalizadas, com identidade institucio
 
 | # | Criterio | Verificacao | Status |
 |---|----------|-------------|--------|
-| F0.1 | ADR-000 a ADR-013 existentes em `adr/` | `find adr/ -name "*.md" \| grep -v INDEX \| grep -v TEMPLATE \| grep -v README` | ✅ Verificado |
+| F0.1 | ADR-000 a ADR-014 existentes em `adr/` | `find adr/ -name "*.md" \| grep -v INDEX \| grep -v TEMPLATE \| grep -v README` | ✅ Verificado |
 | F0.2 | `ADR_INDEX.md` lista todos os ADRs do diretorio | `bash scripts/audit_adr_index.sh` | ✅ Verificado |
 | F0.3 | `IW_INVARIANT_MATRIX.md` consolida invariantes | Inspecao documental | ✅ Verificado |
 | F0.4 | `ADR_TEMPLATE.md` padroniza novos ADRs | `ls adr/ADR_TEMPLATE.md` | ✅ Verificado |
@@ -94,6 +94,7 @@ Invariantes declarados nos ADRs sao executados por codigo, testes e gates de CI.
 | F1.D3 | CI falha com `std::thread` direto em `src/application`/`src/ui` | Gate `Invariant Audit` | ✅ Verificado |
 | F1.D4 | CI valida consistencia `ADR_INDEX.md` x `adr/` | `scripts/audit_adr_index.sh` | ✅ Verificado |
 | F1.D5 | CI valida catalogo ADR gerado atualizado | `scripts/build_adr_catalog.py` + `git status` gate | ✅ Verificado |
+| F1.D6 | CI valida estrutura minima de avaliacoes internas | `scripts/audit_evaluations.sh` | ✅ Verificado |
 
 #### Grupo E — DocOps-lite (Bounded Context operacional)
 
@@ -145,6 +146,14 @@ Contrato semantico explicito no pipeline de IA, com fail-fast em export para val
 | E | Fronteiras de Bounded Context documentadas (DocOps-lite, nao-epistemico) | `docs/DOCOPS-000_Vision_and_Boundary.md` |
 | E | Governanca formal do contexto via ADR | `adr/ADR-013_DocOps_Governed_Document_Workbench.md` |
 
+## Historico de Evolucao de Avaliacoes Internas (2026-02-27)
+
+| Grupo | Item encerrado | Evidencia |
+|------|----------------|-----------|
+| D | Protocolo formal de avaliacoes internas e resposta institucional | `adr/ADR-014_Internal_Evaluations_Registry.md` |
+| D | Template e repositorio canonico em `docs/avaliacoes/` | `docs/avaliacoes/README.md`, `docs/avaliacoes/TEMPLATE.md` |
+| D | Gate de auditoria no CI para estrutura minima de avaliacoes | `scripts/audit_evaluations.sh`, `.github/workflows/ci.yml` |
+
 ---
 
 ## Regras de Governanca
@@ -156,4 +165,4 @@ Contrato semantico explicito no pipeline de IA, com fail-fast em export para val
 
 ---
 
-*Fim do Documento — v1.4*
+*Fim do Documento — v1.5*

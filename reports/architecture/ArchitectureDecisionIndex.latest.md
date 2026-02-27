@@ -2,11 +2,11 @@
 
 Generated at: `2026-02-27`
 Source directory: `adr`
-Decision count: `14`
+Decision count: `15`
 
 ## Status Breakdown
 
-- `Accepted`: 14
+- `Accepted`: 15
 
 ## Decisions
 
@@ -26,3 +26,4 @@ Decision count: `14`
 | ADR-011 | Accepted | 2026-02-25 | Unspecified | adr/ADR-011_Contextual_RAG_Architecture.md | - | - |
 | ADR-012 | Accepted | Unknown | Unspecified | adr/ADR-012_Semantic_States_and_Contracts.md | - | - |
 | ADR-013 | Accepted | 2026-02-27 | Other | adr/ADR-013_DocOps_Governed_Document_Workbench.md | - | - |
+| ADR-014 | Accepted | 2026-02-27 | Foundational governance | adr/ADR-014_Internal_Evaluations_Registry.md | - | - |

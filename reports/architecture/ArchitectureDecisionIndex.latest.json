@@ -4,9 +4,9 @@
   "type": "governance_observational_synthesis",
   "generatedAt": "2026-02-27",
   "sourceDirectory": "adr",
-  "decisionCount": 14,
+  "decisionCount": 15,
   "statusBreakdown": {
-    "Accepted": 14
+    "Accepted": 15
   },
   "decisions": [
     {
@@ -160,6 +160,17 @@
       "date": "2026-02-27",
       "decisionType": "Other",
       "path": "adr/ADR-013_DocOps_Governed_Document_Workbench.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-014",
+      "number": 14,
+      "title": "Internal Evaluations Registry and Response Protocol",
+      "status": "Accepted",
+      "date": "2026-02-27",
+      "decisionType": "Foundational governance",
+      "path": "adr/ADR-014_Internal_Evaluations_Registry.md",
       "supersedes": [],
       "supersededBy": []
     }

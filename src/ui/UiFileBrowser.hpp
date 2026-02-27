@@ -28,4 +28,10 @@ bool DrawFileBrowser(const char* id, char* pathBuffer, size_t bufferSize, const 
  */
 bool DrawFolderBrowser(const char* id, char* pathBuffer, size_t bufferSize, const std::string& fallbackRoot);
 
+/**
+ * @brief Tries to open a native folder picker dialog and writes the selected path to buffer.
+ * @return True if a folder was selected.
+ */
+bool PickFolderNative(char* pathBuffer, size_t bufferSize, const std::string& fallbackRoot);
+
 } // namespace ideawalker::ui

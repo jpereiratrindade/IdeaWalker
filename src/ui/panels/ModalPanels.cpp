@@ -92,6 +92,11 @@ void DrawProjectModals(AppState& app) {
     if (ImGui::BeginPopupModal("New Project", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
         ImGui::Text("Pasta do projeto:");
         ImGui::InputText("##newproject", app.project.pathBuffer, sizeof(app.project.pathBuffer));
+        if (ImGui::Button("Selecionar pasta...")) {
+            if (!PickFolderNative(app.project.pathBuffer, sizeof(app.project.pathBuffer), app.project.root)) {
+                app.AppendLog("[SYSTEM] Seletor nativo indisponivel; use o browser interno.\n");
+            }
+        }
         DrawFolderBrowser("new_project_browser",
                           app.project.pathBuffer,
                           sizeof(app.project.pathBuffer),
@@ -118,6 +123,11 @@ void DrawProjectModals(AppState& app) {
     if (ImGui::BeginPopupModal("Open Project", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
         ImGui::Text("Pasta do projeto:");
         ImGui::InputText("##openproject", app.project.pathBuffer, sizeof(app.project.pathBuffer));
+        if (ImGui::Button("Selecionar pasta...")) {
+            if (!PickFolderNative(app.project.pathBuffer, sizeof(app.project.pathBuffer), app.project.root)) {
+                app.AppendLog("[SYSTEM] Seletor nativo indisponivel; use o browser interno.\n");
+            }
+        }
         DrawFolderBrowser("open_project_browser",
                           app.project.pathBuffer,
                           sizeof(app.project.pathBuffer),
@@ -144,6 +154,11 @@ void DrawProjectModals(AppState& app) {
     if (ImGui::BeginPopupModal("Save Project As", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
         ImGui::Text("Pasta do projeto:");
         ImGui::InputText("##saveprojectas", app.project.pathBuffer, sizeof(app.project.pathBuffer));
+        if (ImGui::Button("Selecionar pasta...")) {
+            if (!PickFolderNative(app.project.pathBuffer, sizeof(app.project.pathBuffer), app.project.root)) {
+                app.AppendLog("[SYSTEM] Seletor nativo indisponivel; use o browser interno.\n");
+            }
+        }
         DrawFolderBrowser("save_project_browser",
                           app.project.pathBuffer,
                           sizeof(app.project.pathBuffer),

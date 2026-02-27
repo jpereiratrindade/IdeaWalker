@@ -34,6 +34,7 @@ Current ADRs:
 - [ADR-011_Contextual_RAG_Architecture.md](ADR-011_Contextual_RAG_Architecture.md)
 - [ADR-012_Semantic_States_and_Contracts.md](ADR-012_Semantic_States_and_Contracts.md)
 - [ADR-013_DocOps_Governed_Document_Workbench.md](ADR-013_DocOps_Governed_Document_Workbench.md)
+- [ADR-014_Internal_Evaluations_Registry.md](ADR-014_Internal_Evaluations_Registry.md)
 
 Normative governance reference:
 

@@ -21,6 +21,7 @@ Este documento consolida invariantes derivados dos ADRs e mapeia evidencia execu
 | Metadados semanticos de estado de extracao e LAA sao separados do bundle institucional. | ADR-012 | `ScientificIngestionService` + logs `.exclusions.log` | `ScientificResilienceTest` (F1.B2/F1.C2) | ✅ Protegido |
 | DocOps executa regras declaradas pelo workspace, sem assumir papel de arbitro epistemologico. | ADR-013 + DOCOPS-000 | `docs/DOCOPS-000_Vision_and_Boundary.md` + `src/ui/panels/DocOpsPanel.cpp` | Revisao arquitetural + gate de maturidade F1.E | ✅ Verificado |
 | DocOps captura `stdout/stderr` e `exit code` para trilha operacional auditavel. | ADR-013 | `src/ui/panels/DocOpsPanel.cpp` | Validacao manual em UI + build | ✅ Verificado |
+| Avaliacoes internas seguem estrutura minima e resposta institucional obrigatoria. | ADR-014 | `docs/avaliacoes/TEMPLATE.md` + docs de avaliacao | `scripts/audit_evaluations.sh` / CI (F1.D6) | ✅ Verificado |
 | `ADR_INDEX.md` reflete exatamente arquivos do diretorio `adr/`. | ADR-000 | `scripts/audit_adr_index.sh` | `Invariant Audit` (F1.D4) | ✅ Protegido |
 | Catalogo ADR gerado esta sincronizado com os ADRs canonicos. | ADR-000 | `scripts/build_adr_catalog.py` | `Invariant Audit` (F1.D5) | ✅ Protegido |
 
@@ -29,6 +30,7 @@ Este documento consolida invariantes derivados dos ADRs e mapeia evidencia execu
 - `adr/ADR_INDEX.md`
 - `adr/ADR_TEMPLATE.md`
 - `scripts/audit_adr_index.sh`
+- `scripts/audit_evaluations.sh`
 - `scripts/build_adr_catalog.py`
 - `reports/architecture/ArchitectureDecisionIndex.latest.json`
 - `reports/architecture/ArchitectureDecisionIndex.latest.md`

@@ -2,6 +2,7 @@
 #include "imgui.h"
 
 #include <atomic>
+#include <cstring>
 #include <cstdio>
 #include <filesystem>
 #include <mutex>
@@ -55,6 +56,7 @@ void DrawDocOpsTab(AppState& app) {
 
     static bool initialized = false;
     static char workspacePath[512] = "";
+    static std::string lastProjectRoot;
     static int presetIndex = 0;
     static char customCommand[512] = "make check";
 
@@ -65,7 +67,14 @@ void DrawDocOpsTab(AppState& app) {
 
     if (!initialized) {
         std::snprintf(workspacePath, sizeof(workspacePath), "%s", app.project.root.c_str());
+        lastProjectRoot = app.project.root;
         initialized = true;
+    } else if (app.project.root != lastProjectRoot) {
+        // Keep DocOps aligned with active project unless user explicitly changed workspace.
+        if (std::strlen(workspacePath) == 0 || std::string(workspacePath) == lastProjectRoot) {
+            std::snprintf(workspacePath, sizeof(workspacePath), "%s", app.project.root.c_str());
+        }
+        lastProjectRoot = app.project.root;
     }
 
     ImGui::TextWrapped(
@@ -203,4 +212,3 @@ void DrawDocOpsTab(AppState& app) {
 }
 
 } // namespace ideawalker::ui
-

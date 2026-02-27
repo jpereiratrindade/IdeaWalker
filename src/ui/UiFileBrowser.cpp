@@ -5,8 +5,60 @@
 #include <algorithm>
 #include <string>
 #include <cstdio>
+#include <array>
+#include <cstdlib>
 
 namespace ideawalker::ui {
+
+namespace {
+
+bool CommandExists(const char* command) {
+#if defined(_WIN32)
+    (void) command;
+    return false;
+#else
+    std::string cmd = "command -v ";
+    cmd += command;
+    cmd += " >/dev/null 2>&1";
+    return std::system(cmd.c_str()) == 0;
+#endif
+}
+
+std::string EscapeDoubleQuoted(const std::string& value) {
+    std::string out;
+    out.reserve(value.size() + 8);
+    for (char c : value) {
+        switch (c) {
+            case '\\': out += "\\\\"; break;
+            case '"': out += "\\\""; break;
+            case '$': out += "\\$"; break;
+            case '`': out += "\\`"; break;
+            default: out += c; break;
+        }
+    }
+    return out;
+}
+
+bool RunPickerCommand(const std::string& command, std::string& selectedPath) {
+    std::array<char, 512> buffer{};
+    FILE* pipe = popen(command.c_str(), "r");
+    if (!pipe) return false;
+
+    selectedPath.clear();
+    while (fgets(buffer.data(), static_cast<int>(buffer.size()), pipe) != nullptr) {
+        selectedPath += buffer.data();
+    }
+
+    int rc = pclose(pipe);
+    if (rc != 0) return false;
+
+    while (!selectedPath.empty() && (selectedPath.back() == '\n' || selectedPath.back() == '\r')) {
+        selectedPath.pop_back();
+    }
+    return !selectedPath.empty();
+}
+
+} // namespace
 
 
 std::filesystem::path ResolveBrowsePath(const char* buffer, const std::string& fallbackRoot) {
@@ -157,6 +209,44 @@ bool DrawFolderBrowser(const char* id, char* pathBuffer, size_t bufferSize, cons
 
     ImGui::PopID();
     return updated; 
+}
+
+bool PickFolderNative(char* pathBuffer, size_t bufferSize, const std::string& fallbackRoot) {
+    namespace fs = std::filesystem;
+    fs::path current = ResolveBrowsePath(pathBuffer, fallbackRoot);
+    std::string startPath = EscapeDoubleQuoted(current.string());
+
+#if defined(_WIN32)
+    (void) startPath;
+    return false;
+#elif defined(__APPLE__)
+    std::string selected;
+    std::string cmd =
+        "osascript -e 'set p to POSIX path of (choose folder with prompt \"Select project folder\")' 2>/dev/null";
+    if (RunPickerCommand(cmd, selected)) {
+        SetPathBuffer(pathBuffer, bufferSize, fs::path(selected));
+        return true;
+    }
+    return false;
+#else
+    std::string selected;
+    if (CommandExists("kdialog")) {
+        std::string cmd = "kdialog --getexistingdirectory \"" + startPath + "\" 2>/dev/null";
+        if (RunPickerCommand(cmd, selected)) {
+            SetPathBuffer(pathBuffer, bufferSize, fs::path(selected));
+            return true;
+        }
+    }
+    if (CommandExists("zenity")) {
+        std::string cmd =
+            "zenity --file-selection --directory --filename=\"" + startPath + "/\" 2>/dev/null";
+        if (RunPickerCommand(cmd, selected)) {
+            SetPathBuffer(pathBuffer, bufferSize, fs::path(selected));
+            return true;
+        }
+    }
+    return false;
+#endif
 }
 
 bool DrawFileBrowser(const char* id, char* pathBuffer, size_t bufferSize, const std::string& fallbackRoot) {
