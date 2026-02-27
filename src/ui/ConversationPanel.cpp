@@ -41,6 +41,9 @@ void ConversationPanel::DrawContent(AppState& app) {
 
     auto& service = *app.services.conversationService;
     std::string activeNoteId = app.ui.selectedFilename;
+    if (activeNoteId.empty() && service.isSessionActive()) {
+        activeNoteId = service.getCurrentNoteId();
+    }
     
     // Dialogue Selection
     if (!app.ui.dialogueFiles.empty()) {
