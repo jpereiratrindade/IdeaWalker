@@ -22,7 +22,7 @@ Este documento consolida invariantes derivados dos ADRs e mapeia evidencia execu
 | DocOps executa regras declaradas pelo workspace, sem assumir papel de arbitro epistemologico. | ADR-013 + DOCOPS-000 | `docs/DOCOPS-000_Vision_and_Boundary.md` + `src/ui/panels/DocOpsPanel.cpp` | Revisao arquitetural + gate de maturidade F1.E | ✅ Verificado |
 | DocOps captura `stdout/stderr` e `exit code` para trilha operacional auditavel. | ADR-013 | `src/ui/panels/DocOpsPanel.cpp` | Validacao manual em UI + build | ✅ Verificado |
 | Avaliacoes internas seguem estrutura minima e resposta institucional obrigatoria. | ADR-014 | `docs/avaliacoes/TEMPLATE.md` + docs de avaliacao | `scripts/audit_evaluations.sh` / CI (F1.D6) | ✅ Verificado |
-| Workspace DocOps segue contrato minimo com estrutura declarada. | ADR-015 | `docops/docops.yaml` + `docops/README.md` | `scripts/audit_docops_contract.sh` / CI (F1.D7) | ✅ Protegido |
+| Workspace DocOps segue contrato minimo com estrutura declarada e registro de DDD/ADR. | ADR-015 | `docops/docops.yaml` + `docops/project_registry.yaml` | `scripts/audit_docops_contract.sh` / CI (F1.D7) | ✅ Protegido |
 | Assistencia LLM em DocOps usa perfis versionados e limitados por escopo. | ADR-016 | `docops/profiles/*.yaml` | `scripts/audit_docops_contract.sh` / CI (F1.D7) | ✅ Protegido |
 | Edicao assistida segue fluxo Plan->Propose->Review->Apply sem escrita silenciosa. | ADR-017 | `docops/templates/EDIT_REQUEST_TEMPLATE.md` + contrato `edit_protocol` | `scripts/audit_docops_contract.sh` / CI (F1.D7) | ✅ Protegido |
 | `ADR_INDEX.md` reflete exatamente arquivos do diretorio `adr/`. | ADR-000 | `scripts/audit_adr_index.sh` | `Invariant Audit` (F1.D4) | ✅ Protegido |

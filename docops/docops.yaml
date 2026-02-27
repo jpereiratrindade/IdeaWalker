@@ -2,6 +2,7 @@ version: "1.0"
 context: "DocOps-lite"
 profiles_dir: "docops/profiles"
 templates_dir: "docops/templates"
+project_registry: "docops/project_registry.yaml"
 
 workspace_layout:
   required_paths:
@@ -23,6 +24,7 @@ edit_protocol:
 
 governance:
   adr_index: "adr/ADR_INDEX.md"
+  ddd_reference: "docs/DDD_CONTEXT.md"
   evaluations_dir: "docs/avaliacoes"
   release_log_dir: "reports/docops"
 

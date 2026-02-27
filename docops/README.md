@@ -5,6 +5,7 @@ Este diretorio define o contrato minimo para operacao governada de documentos no
 ## Estrutura canonica
 
 - `docops/docops.yaml` - configuracao normativa do workspace DocOps.
+- `docops/project_registry.yaml` - registro de governanca do projeto (DDD + ADR).
 - `docops/profiles/` - perfis de prompt versionados.
 - `docops/templates/` - templates operacionais (ex.: solicitacao de edicao).
 

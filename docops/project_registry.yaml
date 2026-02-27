@@ -1,0 +1,14 @@
+project_name: "IdeaWalker"
+governance_status: "baseline"
+
+ddd:
+  required: true
+  canonical_doc: "DDD_IdeaWalker_Architecture.md"
+
+adr:
+  required: true
+  index: "adr/ADR_INDEX.md"
+  readme: "adr/README.md"
+
+notes:
+  - "Todo projeto DocOps deve explicitar DDD e ADR antes de fluxos de escrita assistida."

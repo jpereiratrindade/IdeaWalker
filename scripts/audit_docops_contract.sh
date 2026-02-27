@@ -8,6 +8,7 @@ set -euo pipefail
 ROOT_DIR="${1:-.}"
 DOCOPS_DIR="${ROOT_DIR}/docops"
 CONTRACT_FILE="${DOCOPS_DIR}/docops.yaml"
+REGISTRY_FILE="${DOCOPS_DIR}/project_registry.yaml"
 PROFILES_DIR="${DOCOPS_DIR}/profiles"
 TEMPLATES_DIR="${DOCOPS_DIR}/templates"
 
@@ -41,6 +42,14 @@ require_contract_field() {
     fi
 }
 
+require_registry_field() {
+    local key="$1"
+    if ! grep -Eq "^${key}:" "${REGISTRY_FILE}" 2>/dev/null; then
+        echo "❌ Missing project registry field: ${key}"
+        FAILED=1
+    fi
+}
+
 require_profile_field() {
     local profile_file="$1"
     local key="$2"
@@ -52,6 +61,7 @@ require_profile_field() {
 
 require_dir "${DOCOPS_DIR}"
 require_file "${CONTRACT_FILE}"
+require_file "${REGISTRY_FILE}"
 require_dir "${PROFILES_DIR}"
 require_dir "${TEMPLATES_DIR}"
 
@@ -64,6 +74,14 @@ if [[ -f "${CONTRACT_FILE}" ]]; then
     require_contract_field "edit_protocol"
     require_contract_field "governance"
     require_contract_field "llm_assistance"
+    require_contract_field "project_registry"
+fi
+
+if [[ -f "${REGISTRY_FILE}" ]]; then
+    require_registry_field "project_name"
+    require_registry_field "governance_status"
+    require_registry_field "ddd"
+    require_registry_field "adr"
 fi
 
 if [[ -d "${PROFILES_DIR}" ]]; then

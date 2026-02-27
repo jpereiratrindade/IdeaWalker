@@ -23,9 +23,10 @@ Definir um contrato de workspace DocOps baseado em `docops/docops.yaml` e uma es
 Contrato minimo:
 
 1. Arquivo canonico: `docops/docops.yaml`.
-2. Diretorio de perfis: `docops/profiles/`.
-3. Diretorio de templates operacionais: `docops/templates/`.
-4. Todo workspace deve declarar:
+2. Registro de governanca do projeto: `docops/project_registry.yaml` com DDD e ADR.
+3. Diretorio de perfis: `docops/profiles/`.
+4. Diretorio de templates operacionais: `docops/templates/`.
+5. Todo workspace deve declarar:
    - versao do contrato;
    - estrutura minima esperada;
    - protocolo de edicao controlada;
@@ -67,6 +68,7 @@ Nao se aplica a:
 ## Validation Criteria
 
 - `docops/docops.yaml` presente no repositorio.
+- `docops/project_registry.yaml` presente com referencia explicita a DDD e ADR.
 - `docops/profiles/` e `docops/templates/` presentes.
 - `scripts/audit_docops_contract.sh` valida o contrato.
 - CI executa auditoria de contrato DocOps no job `invariant-audit`.

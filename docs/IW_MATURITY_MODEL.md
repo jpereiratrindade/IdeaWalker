@@ -105,7 +105,7 @@ Invariantes declarados nos ADRs sao executados por codigo, testes e gates de CI.
 | F1.E2 | Tab `DocOps` existe na UI principal ao lado de `Scientific` | ADR-013 | `src/ui/panels/TabOrchestrator.cpp` | ✅ Verificado |
 | F1.E3 | Execucao de comandos em workspace captura output e `exit code` auditavel | ADR-013 | `src/ui/panels/DocOpsPanel.cpp` | ✅ Verificado |
 | F1.E4 | DocOps permanece nao-epistemico (sem validacao de verdade/claim-strength) | ADR-013 + DOCOPS-000 | Inspecao de codigo + fronteiras documentadas | ✅ Verificado |
-| F1.E5 | Workspace DocOps tem contrato minimo e templates de operacao | ADR-015 + ADR-017 | `docops/docops.yaml` + `docops/templates/` | ✅ Verificado |
+| F1.E5 | Workspace DocOps tem contrato minimo com registro de DDD/ADR e templates de operacao | ADR-015 + ADR-017 | `docops/docops.yaml` + `docops/project_registry.yaml` + `docops/templates/` | ✅ Verificado |
 | F1.E6 | Perfis de prompt sao versionados e auditaveis | ADR-016 | `docops/profiles/*.yaml` + `scripts/audit_docops_contract.sh` | ✅ Verificado |
 
 ### Status
@@ -161,7 +161,7 @@ Contrato semantico explicito no pipeline de IA, com fail-fast em export para val
 
 | Grupo | Item encerrado | Evidencia |
 |------|----------------|-----------|
-| E | Contrato minimo de workspace DocOps institucionalizado | `adr/ADR-015_DocOps_Workspace_Contract.md`, `docops/docops.yaml` |
+| E | Contrato minimo de workspace DocOps institucionalizado com registro de DDD/ADR | `adr/ADR-015_DocOps_Workspace_Contract.md`, `docops/docops.yaml`, `docops/project_registry.yaml` |
 | E | Registro canonico de perfis de prompt criado | `adr/ADR-016_DocOps_Prompt_Profile_Registry.md`, `docops/profiles/` |
 | E | Protocolo de edicao controlada (Plan -> Propose -> Review -> Apply) formalizado | `adr/ADR-017_DocOps_Controlled_Edit_Protocol.md`, `docops/templates/EDIT_REQUEST_TEMPLATE.md` |
 | D | Gate CI para auditoria de contrato DocOps | `scripts/audit_docops_contract.sh`, `.github/workflows/ci.yml` |
