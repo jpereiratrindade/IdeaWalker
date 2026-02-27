@@ -4,6 +4,12 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
 ## [Unreleased]
 
+## [v0.1.19-beta] - 2026-02-27
+### DocOps-lite (produção documental governada)
+- Novo tab **DocOps** (ao lado de `Scientific`) para executar checks/releases em workspaces documentais e capturar logs/exit code.
+- Documento de visão e fronteiras do novo Bounded Context: `docs/DOCOPS-000_Vision_and_Boundary.md`.
+- Governança formal do tab via ADR: `adr/ADR-013_DocOps_Governed_Document_Workbench.md`.
+
 ## [v0.1.18-beta] - 2026-02-25
 ### F1 Closure — Hardening estrutural concluído
 - **Fechamento dos critérios F1.A1/F1.A2/F1.A3**:

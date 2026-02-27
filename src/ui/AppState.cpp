@@ -18,7 +18,7 @@
 namespace ideawalker::ui {
 
 AppState::AppState() {
-    ui.outputLog = "Idea Walker v0.1.8-beta - Núcleo DDD inicializado.\n";
+    ui.outputLog = std::string("Idea Walker ") + IDEAWALKER_VERSION + " - Núcleo DDD inicializado.\n";
  }
 
 AppState::~AppState() {
