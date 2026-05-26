@@ -17,12 +17,12 @@ Este projeto segue uma abordagem de Design Orientado a Domínio (DDD) para garan
     - `OllamaAdapter`: Implementa `AIService` usando a API local do Ollama (Qwen 2.5).
 
 ### 3. Camada de Aplicação (`src/application`)
-- **Serviços**:
-    - `OrganizerService`: Orquestra o fluxo entre o Domínio e a Infraestrutura.
+- **Serviços**: Lógicas de orquestração específicas (ex: KnowledgeService, IngestionService).
+- **AppController**: Controlador central (MVC/MVVM) que delega ações da UI para os serviços e gerencia o ciclo de vida do projeto.
 
 ### 4. Camada de Apresentação (`src/ui`)
-- **UiRenderer**: Telas ImGui (Dashboard & Inbox, Organized Knowledge, Execução).
-- **AppState**: Estado da UI, seleções, raiz do projeto e flags de atualização em segundo plano.
+- **UiRenderer**: Telas ImGui divididas em múltiplos painéis modulares (Dashboard, Knowledge, DocOps, etc).
+- **ViewModel**: Estrutura de dados com *binding* puramente visual, contendo estado da interface, seleções, buffers e variáveis *thread-safe* para atualização assíncrona.
 
 ### 5. Camada de App (`src/app`)
 - **IdeaWalkerApp**: Ciclo de vida do app, carregamento de fontes e loop principal.

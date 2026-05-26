@@ -41,6 +41,7 @@ Este documento cataloga todos os Architecture Decision Records (ADR) ativos do I
 | ADR-018 | ORT Core and Dimensions Boundary (RTV Decoupling) | Accepted | `ADR-018_ORT_Core_and_Dimensions_Boundary.md` |
 | ADR-019 | ESTRAT Integration Protocol | Accepted | `ADR-019_ESTRAT_Integration_Protocol.md` |
 | ADR-020 | Infrastructure Decoupling Phase 1 | Accepted | `ADR-020_Infrastructure_Decoupling_Phase1.md` |
+| ADR-021 | AppState Decomposition (AppController and ViewModel) | Accepted | `ADR-021_AppController_ViewModel_Decomposition.md` |
 
 ---
 
