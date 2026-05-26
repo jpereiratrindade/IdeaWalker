@@ -1,10 +1,19 @@
 cmake_minimum_required(VERSION 3.15)
-project(IdeaWalker VERSION 0.1.16 LANGUAGES CXX)
+project(IdeaWalker VERSION 0.1.19 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_definitions(-DIDEAWALKER_VERSION="v0.1.19-beta")
+
+function(iw_apply_warnings target_name)
+    if(MSVC)
+        target_compile_options(${target_name} PRIVATE /W4)
+    else()
+        target_compile_options(${target_name} PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+endfunction()
 
 # --- Debug & Sanitization (Uncomment to enable) ---
 # set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address,undefined -g -O1 -fno-omit-frame-pointer")
@@ -167,11 +176,13 @@ add_executable(${PROJECT_NAME}
     src/ui/panels/ExecutionPanel.cpp
     src/ui/panels/GraphPanel.cpp
     src/ui/panels/ScientificPanel.cpp
+    src/ui/panels/DocOpsUtils.cpp
     src/ui/panels/DocOpsPanel.cpp
     src/ui/panels/ExternalFilesPanel.cpp
     src/ui/panels/TabOrchestrator.cpp
     src/ui/panels/ModalPanels.cpp
     src/ui/panels/MenuBarPanel.cpp
+    src/ui/panels/StatusBarPanel.cpp
 
 )
 
@@ -190,8 +201,17 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     imgui
     imnodes
 )
+iw_apply_warnings(${PROJECT_NAME})
 
 # --- Test Executable (Headless) ---
+enable_testing()
+
+add_executable(ideawalker_smoke_test
+    src/test/SmokeTest.cpp
+)
+iw_apply_warnings(ideawalker_smoke_test)
+add_test(NAME ideawalker_smoke_test COMMAND ideawalker_smoke_test)
+
 add_executable(ideawalker_test
     src/test/ConcurrencyTest.cpp
     src/application/ConversationService.cpp
@@ -207,6 +227,8 @@ target_link_libraries(ideawalker_test PRIVATE
     Threads::Threads
     dl
 )
+iw_apply_warnings(ideawalker_test)
+add_test(NAME ideawalker_test COMMAND ideawalker_test)
 
 add_executable(ideawalker_writing_test
     src/test/WritingTrajectoryRoundTripTest.cpp
@@ -225,6 +247,8 @@ target_link_libraries(ideawalker_writing_test PRIVATE
     dl
     nlohmann_json::nlohmann_json
 )
+iw_apply_warnings(ideawalker_writing_test)
+add_test(NAME ideawalker_writing_test COMMAND ideawalker_writing_test)
 
 add_executable(ideawalker_bundle_test
     src/test/NarrativeBundleTest.cpp
@@ -244,6 +268,8 @@ target_link_libraries(ideawalker_bundle_test PRIVATE
     Threads::Threads
     dl
 )
+iw_apply_warnings(ideawalker_bundle_test)
+add_test(NAME ideawalker_bundle_test COMMAND ideawalker_bundle_test)
 
 add_executable(ideawalker_resilience_test
     src/test/ScientificResilienceTest.cpp
@@ -263,3 +289,42 @@ target_link_libraries(ideawalker_resilience_test PRIVATE
     Threads::Threads
     dl
 )
+iw_apply_warnings(ideawalker_resilience_test)
+add_test(NAME ideawalker_resilience_test COMMAND ideawalker_resilience_test)
+
+# --- InsightDomain Test (pure domain, no external dependencies) ---
+add_executable(ideawalker_insight_test
+    src/test/InsightDomainTest.cpp
+)
+
+target_include_directories(ideawalker_insight_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_link_libraries(ideawalker_insight_test PRIVATE
+    Threads::Threads
+)
+iw_apply_warnings(ideawalker_insight_test)
+add_test(NAME ideawalker_insight_test COMMAND ideawalker_insight_test)
+
+# --- PersonaOrchestrator Test (orchestrator + PromptCatalog, offline) ---
+add_executable(ideawalker_orchestrator_test
+    src/test/PersonaOrchestratorTest.cpp
+    src/infrastructure/PersonaOrchestrator.cpp
+    src/infrastructure/PromptCatalog.cpp
+    src/infrastructure/OllamaClient.cpp
+    src/infrastructure/PathUtils.cpp
+)
+
+target_include_directories(ideawalker_orchestrator_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_link_libraries(ideawalker_orchestrator_test PRIVATE
+    nlohmann_json::nlohmann_json
+    httplib::httplib
+    Threads::Threads
+    dl
+)
+iw_apply_warnings(ideawalker_orchestrator_test)
+add_test(NAME ideawalker_orchestrator_test COMMAND ideawalker_orchestrator_test)

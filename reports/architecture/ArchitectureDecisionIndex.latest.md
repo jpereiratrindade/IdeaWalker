@@ -1,12 +1,12 @@
 # Architecture Decision Index
 
-Generated at: `2026-02-27`
+Generated at: `2026-03-02`
 Source directory: `adr`
-Decision count: `18`
+Decision count: `19`
 
 ## Status Breakdown
 
-- `Accepted`: 18
+- `Accepted`: 19
 
 ## Decisions
 
@@ -30,3 +30,4 @@ Decision count: `18`
 | ADR-015 | Accepted | 2026-02-27 | Contract | adr/ADR-015_DocOps_Workspace_Contract.md | - | - |
 | ADR-016 | Accepted | 2026-02-27 | Contract | adr/ADR-016_DocOps_Prompt_Profile_Registry.md | - | - |
 | ADR-017 | Accepted | 2026-02-27 | Hardening | adr/ADR-017_DocOps_Controlled_Edit_Protocol.md | - | - |
+| ADR-018 | Accepted | 2026-03-02 | Domain boundary | adr/ADR-018_ORT_Core_and_Dimensions_Boundary.md | - | - |

@@ -9,6 +9,7 @@
 #include "application/AsyncTaskManager.hpp"
 #include "domain/AIService.hpp"
 #include "domain/TranscriptionService.hpp"
+#include "infrastructure/Logger.hpp"
 #include <memory>
 #include <string>
 #include <functional>
@@ -27,7 +28,8 @@ public:
                         std::shared_ptr<domain::AIService> ai,
                         std::shared_ptr<AsyncTaskManager> taskManager,
                         std::unique_ptr<domain::TranscriptionService> transcriber,
-                        std::shared_ptr<scientific::ScientificIngestionService> scientificService = nullptr);
+                        std::shared_ptr<scientific::ScientificIngestionService> scientificService = nullptr,
+                        std::shared_ptr<infrastructure::ILogger> logger = nullptr);
 
     /** @brief Triggers background processing of the entire inbox. */
     void ProcessInboxAsync(bool force = false, bool fastMode = false);
@@ -50,6 +52,7 @@ private:
     std::shared_ptr<AsyncTaskManager> m_taskManager;
     std::unique_ptr<domain::TranscriptionService> m_transcriber;
     std::shared_ptr<scientific::ScientificIngestionService> m_scientificService;
+    std::shared_ptr<infrastructure::ILogger> m_logger;
 
     // Internal helpers
     static std::string NormalizeToId(const std::string& filename);

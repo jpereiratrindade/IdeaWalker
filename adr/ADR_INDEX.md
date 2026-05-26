@@ -38,6 +38,9 @@ Este documento cataloga todos os Architecture Decision Records (ADR) ativos do I
 | ADR-015 | DocOps Workspace Contract | Accepted | `ADR-015_DocOps_Workspace_Contract.md` |
 | ADR-016 | DocOps Prompt Profile Registry | Accepted | `ADR-016_DocOps_Prompt_Profile_Registry.md` |
 | ADR-017 | DocOps Controlled Edit Protocol | Accepted | `ADR-017_DocOps_Controlled_Edit_Protocol.md` |
+| ADR-018 | ORT Core and Dimensions Boundary (RTV Decoupling) | Accepted | `ADR-018_ORT_Core_and_Dimensions_Boundary.md` |
+| ADR-019 | ESTRAT Integration Protocol | Accepted | `ADR-019_ESTRAT_Integration_Protocol.md` |
+| ADR-020 | Infrastructure Decoupling Phase 1 | Accepted | `ADR-020_Infrastructure_Decoupling_Phase1.md` |
 
 ---
 

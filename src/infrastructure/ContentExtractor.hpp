@@ -22,6 +22,7 @@
 #include <iomanip>
 #include <unordered_map>
 #include <sstream>
+#include "infrastructure/ShellUtils.hpp"
 
 namespace ideawalker::infrastructure {
     
@@ -377,7 +378,7 @@ private:
         }
         
         // Tier 1: Try standard extraction (pdftotext)
-        std::string rawContent = RunCommand("pdftotext \"" + path + "\" - 2>/dev/null");
+        std::string rawContent = RunCommand("pdftotext " + ShellEscape(path) + " - 2>/dev/null");
 
         if (IsValidContent(rawContent)) {
              // Apply Structural Exclusion Rule
@@ -464,7 +465,7 @@ private:
             // Check if already exists to skip re-processing (simple cache)
             if (std::filesystem::exists(ocrPath)) {
                  if (statusCallback) statusCallback("[OCR] Usando versão em cache (.ocr/)...");
-                 std::string ocrContent = RunCommand("pdftotext \"" + tempPdf + "\" - 2>/dev/null");
+                 std::string ocrContent = RunCommand("pdftotext " + ShellEscape(tempPdf) + " - 2>/dev/null");
                  if (IsValidContent(ocrContent)) {
                      result.content = ocrContent;
                      result.success = true;
@@ -474,11 +475,9 @@ private:
                  }
             }
 
-            // Minimal flags as per user success
-            // --jobs 4: safe parallelism
-            // 2>&1: required for progress capture
-            std::string cmd = "ocrmypdf --jobs 4 --output-type pdf \"" + path + "\" \"" + tempPdf + "\" 2>&1";
-            std::cout << "[DEBUG] Running OCR command: " << cmd << std::endl;
+            // Minimal flags for reliable OCR
+            // --jobs 4: safe parallelism | 2>&1: required for progress capture
+            std::string cmd = "ocrmypdf --jobs 4 --output-type pdf " + ShellEscape(path) + " " + ShellEscape(tempPdf) + " 2>&1";
             
             // Run with progress capture
             bool ocrSuccess = RunCommandWithCallback(cmd, [&statusCallback](const std::string& line) {
@@ -491,7 +490,7 @@ private:
             });
             
             if (ocrSuccess) {
-                 std::string ocrContent = RunCommand("pdftotext \"" + tempPdf + "\" - 2>/dev/null");
+                 std::string ocrContent = RunCommand("pdftotext " + ShellEscape(tempPdf) + " - 2>/dev/null");
                  // std::filesystem::remove(tempPdf); // KEEP FILE PERSISTENT
                  
                  if (IsValidContent(ocrContent)) {
@@ -511,7 +510,7 @@ private:
         // Tier 3: Last Resort (Raw Tesseract)
         if (HasTool("tesseract")) {
              if (statusCallback) statusCallback("[OCR] Tentando fallback para Tesseract (raw)...");
-             std::string cmd = "tesseract \"" + path + "\" stdout 2>/dev/null";
+             std::string cmd = "tesseract " + ShellEscape(path) + " stdout 2>/dev/null";
              std::string tesseractContent = RunCommand(cmd);
              if (IsValidContent(tesseractContent)) {
                  result.content = tesseractContent;

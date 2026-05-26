@@ -29,5 +29,6 @@ void DrawAllModals(AppState& app);
 void DrawMenuBar(AppState& app);
 void DrawWorkspace(AppState& app);
 void DrawMainWindow(AppState& app);
+void DrawStatusBar(AppState& app);
 
 } // namespace ideawalker::ui

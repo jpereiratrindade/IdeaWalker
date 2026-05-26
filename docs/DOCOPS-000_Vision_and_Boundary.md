@@ -21,6 +21,7 @@ DocOps não é ontologia (ORT), não é extração evidencial (IW) e não é mod
 3. **DocOps não redefine teoria.** Ele organiza produção, não altera ontologias, modelos ou regimes epistemológicos.
 4. **Todo efeito deve ser auditável.** Cada operação deve deixar trilha (log, ponteiros LATEST, artefatos, exit codes).
 5. **Sem “rigor performativo”.** Nada pode parecer mais verdadeiro só porque foi bem formatado; o sistema deve evitar automatismos que criem aparência de evidência.
+6. **Dimensão emergente entra por fonte normativa externa.** DocOps apenas operacionaliza dimensões aprovadas em ORT/ADR; não cria categorias ontológicas.
 
 ---
 
@@ -42,6 +43,7 @@ DocOps não é ontologia (ORT), não é extração evidencial (IW) e não é mod
 - Classificar “força de claim” (empírico vs hipótese) automaticamente.
 - Verificar validade de citação bibliográfica como “verdade”.
 - Bloquear releases por “inconsistência epistemológica” (sem ADR próprio e sem regime explícito).
+- Introduzir nova categoria ontológica (ex.: "Pecuária Familiar") sem deliberação explícita em ORT/ADR.
 - Reescrever documentos por conta própria.
 
 ---
@@ -57,6 +59,11 @@ STRATA  → modela, integra, simula e operacionaliza contratos
 
 DocOps é infraestrutura. ORT/IW/STRATA são fontes normativas do “o que significa”.
 
+Nota de boundary (ORT):
+
+- ORT deve ser tratado como estrutura geral de compromissos ontológicos.
+- RTV (ou qualquer outra hipótese) deve ser tratado como dimensão emergente, nunca como sinônimo do ORT.
+
 ---
 
 ## 5) Bounded Context (interfaces)
@@ -67,6 +74,17 @@ Interfaces mínimas:
 
 - **Entrada:** caminho do workspace + comando/preset.
 - **Saída:** log de execução + exit code + (quando aplicável) caminho do artefato gerado.
+
+Interface normativa ORT → DocOps (quando houver "Dimensão Emergente"):
+
+- **Fonte:** documento ORT ou ADR que nomeia a dimensão e seu escopo.
+- **Pacote mínimo declarativo:** definição curta + critérios de reconhecimento + evidências aceitas.
+- **Critérios recomendados para reconhecimento territorial:**
+  - ancoragem territorial (uso, permanência e reprodução social local);
+  - regimes de reconhecimento (Estado, mercado, comunidade);
+  - marcadores sociais (raça, classe, gênero, geração);
+  - operacionalização documental (campos, tags, checks e evidências rastreáveis).
+- **Papel do DocOps:** verificar presença, completude e rastreabilidade do pacote; nunca inferir "verdade territorial".
 
 Integrações futuras (somente com ADR):
 
@@ -103,7 +121,7 @@ Integrações futuras (somente com ADR):
 
 ### Fase 3 — DocOps epistêmico (somente com ADR próprio)
 
-Se (e somente se) o ecossistema decidir avancar para tipagem de assertivas e estados de claim, criar um ADR dedicado (ex.: `ADR-018_Assertive_Typing_and_Citation_States.md`) explicitando:
+Se (e somente se) o ecossistema decidir avancar para tipagem de assertivas e estados de claim, criar um ADR dedicado (ex.: `ADR-XXX_Assertive_Typing_and_Citation_States.md`) explicitando:
 
 - tipos de assertiva (definição, hipótese, claim empírico, política interna, derivado de ADR);
 - status de citação (verificada, sugerida, ausente);
@@ -113,7 +131,8 @@ Se (e somente se) o ecossistema decidir avancar para tipagem de assertivas e est
 
 ## 8) Exemplos de uso (workspace)
 
-- ORT (ontologia/documentos): rodar `make check`, gerar `make release-rtv-pdf`, atualizar ponteiros `LATEST-*`.
+- ORT (core ontológico e documentos): rodar `make check`, gerar `make release-ort-pdf` (ou target equivalente no workspace), atualizar ponteiros `LATEST-*`.
+- ORT (dimensão emergente): se ORT/ADR aprovar "Pecuária Familiar", DocOps aplica checks de completude do pacote declarativo e gera artefatos auditáveis.
 - Projetos científicos: rodar checagens formais, build de LaTeX, e gerar releases reprodutíveis.
 
 ---
@@ -125,5 +144,7 @@ Se (e somente se) o ecossistema decidir avancar para tipagem de assertivas e est
   - `adr/ADR-015_DocOps_Workspace_Contract.md`
   - `adr/ADR-016_DocOps_Prompt_Profile_Registry.md`
   - `adr/ADR-017_DocOps_Controlled_Edit_Protocol.md`
+- Boundary ORT:
+  - `adr/ADR-018_ORT_Core_and_Dimensions_Boundary.md`
 - Diretrizes de implementação: `👉 IW_Implementation_Guidelines_Post_Methodology.md`
 - Doc referência de governança: `adr/ADR-000_Governance_Model_Overview.md`

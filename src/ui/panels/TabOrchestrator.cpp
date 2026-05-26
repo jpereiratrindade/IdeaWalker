@@ -64,6 +64,7 @@ void DrawMainWindow(AppState& app) {
     
     DrawMenuBar(app);
     DrawWorkspace(app);
+    DrawStatusBar(app);
     
     ImGui::End();
 }

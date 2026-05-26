@@ -6,7 +6,6 @@
 #include "application/DocumentIngestionService.hpp"
 #include "imgui.h"
 #include <algorithm>
-#include <iostream>
 #include <thread>
 #include <chrono>
 
@@ -50,8 +49,6 @@ void DrawDashboardTab(AppState& app) {
             if (processing) ImGui::BeginDisabled();
             auto statusHandler = [&app](const std::string& s) {
                 app.SetProcessingStatus(s);
-                std::cout << "[Organizer] " << s << std::endl;
-
                 if (s.find("Executando:") != std::string::npos || 
                     s.find("Orquestrador:") != std::string::npos ||
                     s.find("Persona:") != std::string::npos) {

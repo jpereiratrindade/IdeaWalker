@@ -1,0 +1,38 @@
+# ESTRAT-SEED v1.0
+type: seed
+protocol_version: "1.0"
+id: "SEED-1744310400"
+source_project: "IdeaWalker"
+ve_iw_approved: true
+ve_iw_seal: "a3f8c9d2e1b7045698fa12cd3e0b4a8d9c7f2e5b1a3d6089c4f7e2b5a8d1c3f6"
+
+insight_title: "Reflexividade como condição de inteligibilidade socioecológica"
+insight_summary: |
+  A dificuldade em articular o papel das Humanidades na ecologia computacional
+  não decorre de falta de dados, mas de um regime de conhecimento que instrumentaliza
+  o saber sem interrogar suas condições de possibilidade.
+
+raw_intuition: |
+  Estou pensando em como os sistemas computacionais de ecologia sempre partem do 
+  pressuposto de que o conhecimento sobre o território é dado. Mas quem define o 
+  que conta como dado? E por quê certas formas de saber (indígenas, locais, 
+  narrativas) ficam de fora? Acho que o problema não é a falta de dados, é a 
+  moldura epistemológica que os seleciona. Isso tem a ver com Humanidades de um 
+  jeito que ainda não consigo articular bem.
+
+structured_note_path: "notas/Nota_reflexividade_socioecologica.md"
+
+task_actions:
+  - "Investigar como regimes de conhecimento filtram dados territoriais"
+  - "Articular conexão entre epistemologia crítica e ecologia computacional"
+  - "Revisar literatura sobre saber local em modelagem ambiental"
+
+connections:
+  - "SisterSTRATA"
+  - "Resiliência como quarta dimensão"
+  - "Modelagem Socioecológica"
+
+epistemic_flags:
+  has_teleology: false
+  has_normative_claim: false
+  has_linear_causality: false

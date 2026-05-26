@@ -5,6 +5,7 @@
 #include "app/IdeaWalkerApp.hpp"
 
 #include "ui/UiRenderer.hpp"
+#include "ui/IdeaWalkerTheme.hpp"
 
 #include "imnodes.h"
 #include "imgui.h"
@@ -94,7 +95,7 @@ bool LoadFonts(ImGuiIO& io) {
 
     std::string emojiPath = FindFontPath(emojiCandidates);
     if (!emojiPath.empty()) {
-        std::cout << "[IdeaWalkerApp] Found Emoji Font: " << emojiPath << std::endl;
+        std::fprintf(stdout, "[IdeaWalkerApp] Found Emoji Font: %s\n", emojiPath.c_str());
         ImFontConfig config;
         config.MergeMode = true;
         config.PixelSnapH = true;
@@ -116,7 +117,7 @@ bool LoadFonts(ImGuiIO& io) {
         ImFont* emojiFont = io.Fonts->AddFontFromFileTTF(emojiPath.c_str(), baseFontSize, &config, ranges.Data);
         emojiLoaded = (emojiFont != nullptr);
     } else {
-        std::cerr << "[IdeaWalkerApp] WARNING: No Emoji font found in system paths. Icons will be disabled." << std::endl;
+        std::fprintf(stderr, "[IdeaWalkerApp] WARNING: No Emoji font found. Icons will be disabled.\n");
     }
 
     return emojiLoaded;
@@ -133,9 +134,8 @@ application::AppServices BuildServicesForRoot(const std::filesystem::path& root)
     
     auto savedModel = infrastructure::ConfigLoader::GetAIModelPreference(root.string());
     if (savedModel) {
-        std::cout << "[IdeaWalkerApp] Loading saved model preference: " << *savedModel << std::endl;
+        std::fprintf(stdout, "[IdeaWalkerApp] Loading saved model preference: %s\n", savedModel->c_str());
         sharedAi->setModel(*savedModel);
-        // Skipping replacement for now, need to find usage first.
     }
 
     sharedAi->initialize();
@@ -214,10 +214,10 @@ bool IdeaWalkerApp::Init() {
     auto videoDriver = infrastructure::ConfigLoader::GetVideoDriverPreference(defaultRoot);
     if (videoDriver) {
         if (*videoDriver == "x11") {
-            std::cout << "[IdeaWalkerApp] Enforcing X11 Video Driver via settings.json" << std::endl;
+            std::fprintf(stdout, "[IdeaWalkerApp] Enforcing X11 Video Driver via settings.json\n");
             SDL_SetHint(SDL_HINT_VIDEODRIVER, "x11");
         } else if (*videoDriver == "wayland") {
-            std::cout << "[IdeaWalkerApp] Enforcing Wayland Video Driver via settings.json" << std::endl;
+            std::fprintf(stdout, "[IdeaWalkerApp] Enforcing Wayland Video Driver via settings.json\n");
             SDL_SetHint(SDL_HINT_VIDEODRIVER, "wayland");
         }
     }
@@ -257,7 +257,8 @@ bool IdeaWalkerApp::Init() {
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     m_state.ui.emojiEnabled = LoadFonts(io);
-    ImGui::StyleColorsDark();
+    // Apply unified IdeaWalker visual theme (replaces StyleColorsDark)
+    ui::Theme::Apply();
 
     ImNodes::CreateContext();
     ImNodes::StyleColorsDark();
@@ -331,7 +332,8 @@ int IdeaWalkerApp::Run() {
         ImGui::Render();
         ImGuiIO& io = ImGui::GetIO();
         glViewport(0, 0, static_cast<int>(io.DisplaySize.x), static_cast<int>(io.DisplaySize.y));
-        glClearColor(0.10f, 0.10f, 0.10f, 1.00f);
+        // Clear color matches the BG_BASE from IdeaWalkerTheme
+        glClearColor(0.07f, 0.07f, 0.10f, 1.00f);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(m_window);

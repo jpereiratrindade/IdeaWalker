@@ -38,6 +38,7 @@ Current ADRs:
 - [ADR-015_DocOps_Workspace_Contract.md](ADR-015_DocOps_Workspace_Contract.md)
 - [ADR-016_DocOps_Prompt_Profile_Registry.md](ADR-016_DocOps_Prompt_Profile_Registry.md)
 - [ADR-017_DocOps_Controlled_Edit_Protocol.md](ADR-017_DocOps_Controlled_Edit_Protocol.md)
+- [ADR-018_ORT_Core_and_Dimensions_Boundary.md](ADR-018_ORT_Core_and_Dimensions_Boundary.md)
 
 Normative governance reference:
 

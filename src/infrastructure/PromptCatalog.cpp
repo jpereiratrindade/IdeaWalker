@@ -1,8 +1,49 @@
 #include "infrastructure/PromptCatalog.hpp"
+#include <filesystem>
+#include <fstream>
+#include <sstream>
 
 namespace ideawalker::infrastructure {
 
-std::string PromptCatalog::GetSystemPrompt(domain::AIPersona persona) {
+// ─── Private helpers ─────────────────────────────────────────────────────────
+
+std::string PromptCatalog::TryLoadFromFile(const std::string& promptsDir, const std::string& filename) {
+    if (promptsDir.empty() || filename.empty()) return {};
+    std::filesystem::path path = std::filesystem::path(promptsDir) / filename;
+    std::ifstream f(path);
+    if (!f.is_open()) return {};
+    std::ostringstream ss;
+    ss << f.rdbuf();
+    std::string content = ss.str();
+    // Strip UTF-8 BOM if present
+    if (content.size() >= 3 &&
+        static_cast<unsigned char>(content[0]) == 0xEF &&
+        static_cast<unsigned char>(content[1]) == 0xBB &&
+        static_cast<unsigned char>(content[2]) == 0xBF) {
+        content.erase(0, 3);
+    }
+    return content;
+}
+
+std::string PromptCatalog::GetPromptFilename(domain::AIPersona persona) {
+    switch (persona) {
+        case domain::AIPersona::AnalistaCognitivo:  return "AnalistaCognitivo.md";
+        case domain::AIPersona::SecretarioExecutivo: return "SecretarioExecutivo.md";
+        case domain::AIPersona::Brainstormer:       return "Brainstormer.md";
+        case domain::AIPersona::Orquestrador:       return "Orquestrador.md";
+        case domain::AIPersona::ScientificObserver: return "ScientificObserver.md";
+        case domain::AIPersona::Tecelao:            return "Tecelao.md";
+    }
+    return {};
+}
+
+// ─── Public API ──────────────────────────────────────────────────────────────
+std::string PromptCatalog::GetSystemPrompt(domain::AIPersona persona, const std::string& promptsDir) {
+    // File override takes priority — allows prompt iteration without recompilation.
+    std::string fromFile = TryLoadFromFile(promptsDir, GetPromptFilename(persona));
+    if (!fromFile.empty()) return fromFile;
+
+    // Hardcoded fallback (always available, even without a project open).
     switch (persona) {
     case domain::AIPersona::AnalistaCognitivo:
         return 
@@ -151,7 +192,10 @@ std::string PromptCatalog::GetSystemPrompt(domain::AIPersona persona) {
     return "";
 }
 
-std::string PromptCatalog::GetConsolidationPrompt() {
+std::string PromptCatalog::GetConsolidationPrompt(const std::string& promptsDir) {
+    std::string fromFile = TryLoadFromFile(promptsDir, "consolidation.md");
+    if (!fromFile.empty()) return fromFile;
+
     return 
         "Você é um consolidadores de tarefas. Receberá uma lista de tarefas com checkboxes, "
         "possivelmente duplicadas ou com redações semelhantes.\n\n"

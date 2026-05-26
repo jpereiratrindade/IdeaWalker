@@ -5,6 +5,7 @@
 
 #include "application/AIProcessingService.hpp"
 #include "application/scientific/ScientificIngestionService.hpp"
+#include "infrastructure/Logger.hpp"
 #include <sstream>
 #include <iostream>
 
@@ -14,8 +15,17 @@ AIProcessingService::AIProcessingService(KnowledgeService& knowledge,
                                          std::shared_ptr<domain::AIService> ai,
                                          std::shared_ptr<AsyncTaskManager> taskManager,
                                          std::unique_ptr<domain::TranscriptionService> transcriber,
-                                         std::shared_ptr<scientific::ScientificIngestionService> scientificService)
-    : m_knowledge(knowledge), m_ai(std::move(ai)), m_taskManager(std::move(taskManager)), m_transcriber(std::move(transcriber)), m_scientificService(std::move(scientificService)) {}
+                                         std::shared_ptr<scientific::ScientificIngestionService> scientificService,
+                                         std::shared_ptr<infrastructure::ILogger> logger)
+    : m_knowledge(knowledge)
+    , m_ai(std::move(ai))
+    , m_taskManager(std::move(taskManager))
+    , m_transcriber(std::move(transcriber))
+    , m_scientificService(std::move(scientificService))
+    , m_logger(logger ? std::move(logger) : std::make_shared<infrastructure::NullLogger>()) {}
+
+/// Tag that routes an insight to ScientificIngestionService instead of standard note persistence.
+static constexpr std::string_view TAG_SCIENTIFIC_OBSERVER = "#ScientificObserver";
 
 std::string AIProcessingService::NormalizeToId(const std::string& filename) {
     std::string base = filename;
@@ -69,10 +79,9 @@ void AIProcessingService::ProcessInboxAsync(bool force, bool fastMode) {
             if (insight) {
                 auto meta = insight->getMetadata();
                 
-                // INTENT ROUTING
                 bool isScientific = false;
                 for (const auto& tag : meta.tags) {
-                    if (tag == "#ScientificObserver") isScientific = true;
+                    if (tag == TAG_SCIENTIFIC_OBSERVER) isScientific = true;
                 }
 
                 if (isScientific && m_scientificService) {
@@ -102,17 +111,15 @@ void AIProcessingService::ProcessItemAsync(const std::string& filename, bool for
                     return;
                 }
 
-                // Injection: Check for existing Narrative Observation
-                std::cout << "[AI] Checking context for: " << thought.filename << std::endl;
+                m_logger->info("[AI] Checking context for: " + thought.filename);
                 auto observation = m_knowledge.GetObservationContent(thought.filename);
                 std::string processedContent = thought.content;
                 
                 if (observation && !observation->empty()) {
-                    std::cout << "[AI] Context FOUND (" << observation->size() << " bytes). Injecting at START..." << std::endl;
-                    // PREPEND context so it appears before the main content
+                    m_logger->info("[AI] Context FOUND (" + std::to_string(observation->size()) + " bytes). Injecting at START...");
                     processedContent = "[CONTEXTO PRE-EXISTENTE (Observação Narrativa)]\n" + *observation + "\n[FIM DO CONTEXTO]\n\n" + processedContent;
                 } else {
-                    std::cout << "[AI] No context found or empty." << std::endl;
+                    m_logger->debug("[AI] No context found or empty.");
                 }
 
                 auto insight = m_ai->processRawThought(processedContent, fastMode);
@@ -122,7 +129,7 @@ void AIProcessingService::ProcessItemAsync(const std::string& filename, bool for
                     // INTENT ROUTING
                     bool isScientific = false;
                     for (const auto& tag : meta.tags) {
-                        if (tag == "#ScientificObserver") isScientific = true;
+                        if (tag == TAG_SCIENTIFIC_OBSERVER) isScientific = true;
                     }
 
                     if (isScientific && m_scientificService) {

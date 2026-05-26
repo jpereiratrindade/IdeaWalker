@@ -2,11 +2,11 @@
   "schemaVersion": "adr_catalog.v1",
   "reportType": "ArchitectureDecisionIndex",
   "type": "governance_observational_synthesis",
-  "generatedAt": "2026-02-27",
+  "generatedAt": "2026-03-02",
   "sourceDirectory": "adr",
-  "decisionCount": 18,
+  "decisionCount": 19,
   "statusBreakdown": {
-    "Accepted": 18
+    "Accepted": 19
   },
   "decisions": [
     {
@@ -204,6 +204,17 @@
       "date": "2026-02-27",
       "decisionType": "Hardening",
       "path": "adr/ADR-017_DocOps_Controlled_Edit_Protocol.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-018",
+      "number": 18,
+      "title": "ORT Core and Dimensions Boundary (RTV Decoupling)",
+      "status": "Accepted",
+      "date": "2026-03-02",
+      "decisionType": "Domain boundary",
+      "path": "adr/ADR-018_ORT_Core_and_Dimensions_Boundary.md",
       "supersedes": [],
       "supersededBy": []
     }

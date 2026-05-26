@@ -5,6 +5,9 @@ on:
     branches: ["main", "develop", "f1-hardening"]
   pull_request:
     branches: ["main", "develop"]
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * 1"
 
 jobs:
   # ─────────────────────────────────────────────────
@@ -17,6 +20,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: "[F1.D3] Audit — No direct std::thread in application or ui layers"
         run: |
@@ -87,6 +92,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install dependencies
         run: |
@@ -104,10 +111,14 @@ jobs:
           cmake -B build-ci \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
-            -DFETCHCONTENT_UPDATES_DISCONNECTED=ON
+            -DFETCHCONTENT_UPDATES_DISCONNECTED=ON \
+            -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build ideawalker_test
         run: cmake --build build-ci --target ideawalker_test --parallel
+
+      - name: Build ideawalker_smoke_test
+        run: cmake --build build-ci --target ideawalker_smoke_test --parallel
 
       - name: Build ideawalker_writing_test
         run: cmake --build build-ci --target ideawalker_writing_test --parallel
@@ -123,6 +134,7 @@ jobs:
         with:
           name: test-binaries
           path: |
+            build-ci/ideawalker_smoke_test
             build-ci/ideawalker_test
             build-ci/ideawalker_writing_test
             build-ci/ideawalker_bundle_test
@@ -146,10 +158,17 @@ jobs:
       - name: Make binaries executable
         run: |
           chmod +x \
+            bin/ideawalker_smoke_test \
             bin/ideawalker_test \
             bin/ideawalker_writing_test \
             bin/ideawalker_bundle_test \
             bin/ideawalker_resilience_test
+
+      - name: "Run SmokeTest"
+        run: |
+          echo "Running SmokeTest..."
+          ./bin/ideawalker_smoke_test
+          echo "✅ SmokeTest completed."
 
       - name: "[F1] Run ConcurrencyTest"
         run: |
@@ -174,3 +193,60 @@ jobs:
           echo "Running ScientificResilienceTest..."
           ./bin/ideawalker_resilience_test
           echo "✅ ScientificResilienceTest completed."
+
+  quality-gates:
+    name: "Quality Gates"
+    runs-on: ubuntu-latest
+    needs: invariant-audit
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install quality tools
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y --no-install-recommends \
+            clang-format \
+            cppcheck \
+            python3-pip
+          python3 -m pip install --user lizard
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Format check
+        run: bash scripts/check_format.sh
+
+      - name: Static analysis
+        run: bash scripts/check_static_analysis.sh
+
+      - name: Complexity guard
+        run: bash scripts/check_complexity.sh 40
+
+      - name: Include cycle guard
+        run: bash scripts/check_include_cycles.sh
+
+  leak-check-nightly:
+    name: "Nightly Leak Check"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    needs: build-tests
+    steps:
+      - name: Download test binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: test-binaries
+          path: bin/
+
+      - name: Install valgrind
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y --no-install-recommends valgrind
+
+      - name: Make binaries executable
+        run: chmod +x bin/ideawalker_smoke_test bin/ideawalker_writing_test
+
+      - name: Run leak checks
+        run: |
+          valgrind --leak-check=full --error-exitcode=1 ./bin/ideawalker_smoke_test
+          valgrind --leak-check=full --error-exitcode=1 ./bin/ideawalker_writing_test

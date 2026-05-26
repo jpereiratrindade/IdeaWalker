@@ -1,0 +1,8 @@
+# Default ownership for IdeaWalker changes.
+* @maintainers
+
+# Governance and methodology artifacts require explicit review.
+/adr/ @maintainers
+/docs/ @maintainers
+/policies/ @maintainers
+/scripts/ @maintainers

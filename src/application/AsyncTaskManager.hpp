@@ -46,12 +46,47 @@ struct TaskStatus {
 /**
  * @class AsyncTaskManager
  * @brief Manages background execution and provides unified status tracking.
+ *
+ * Uses std::async() with stored futures instead of detached threads.
+ * The destructor waits for all in-flight tasks to complete, preventing
+ * undefined behavior from dangling references after shutdown.
  */
 class AsyncTaskManager {
 public:
     AsyncTaskManager() = default;
+
+    /**
+     * @brief Destructor — blocks until all active tasks have completed.
+     *
+     * This ensures that background lambdas (which may capture `this` pointers
+     * or references to AppState members) do not execute after the owning
+     * objects have been destroyed.
+     */
     ~AsyncTaskManager() {
-        // In a real implementation, we would wait for tasks or cancel them.
+        WaitAll();
+    }
+
+    /**
+     * @brief Signals all tasks to stop at the next opportunity and waits.
+     *
+     * Sets a cancellation flag (tasks may check IsShutdownRequested()) and then
+     * blocks until all futures have resolved.
+     */
+    void Shutdown() {
+        m_stopRequested.store(true);
+        WaitAll();
+    }
+
+    /**
+     * @brief Returns true if shutdown has been requested.
+     *
+     * Background task lambdas can poll this to exit early:
+     * @code
+     * if (manager->IsShutdownRequested()) return;
+     * @endcode
+     */
+    bool IsShutdownRequested() const {
+        return m_stopRequested.load();
     }
 
     /** @brief Submits a new task to be executed in the background. */
@@ -67,24 +102,40 @@ public:
             m_activeTasks.push_back(status);
         }
 
-        // C++17 compatible thread launch
-        std::thread([this, status](auto userFunc, auto... userArgs) {
-            try {
-                // Call the user function with status as first arg, followed by other args
-                userFunc(status, std::move(userArgs)...);
-                status->isCompleted = true;
-                status->progress = 1.0f;
-            } catch (const std::exception& e) {
-                status->failed = true;
-                status->errorMessage = e.what();
-                status->isCompleted = true;
-            } catch (...) {
-                status->failed = true;
-                status->errorMessage = "Unknown error during task execution.";
-                status->isCompleted = true;
-            }
-            CleanupCompletedTasks();
-        }, std::forward<F>(f), std::forward<Args>(args)...).detach();
+        // Launch via std::async — future is stored so destructor can join.
+        // This replaces the previous std::thread::detach() pattern that could
+        // cause UB when tasks outlived the AppState they captured by reference.
+        auto fut = std::async(std::launch::async,
+            [this, status](auto userFunc, auto... userArgs) {
+                try {
+                    userFunc(status, std::move(userArgs)...);
+                    status->isCompleted = true;
+                    status->progress = 1.0f;
+                } catch (const std::exception& e) {
+                    status->failed = true;
+                    status->errorMessage = e.what();
+                    status->isCompleted = true;
+                } catch (...) {
+                    status->failed = true;
+                    status->errorMessage = "Unknown error during task execution.";
+                    status->isCompleted = true;
+                }
+                CleanupCompletedTasks();
+            },
+            std::forward<F>(f), std::forward<Args>(args)...);
+
+        {
+            std::lock_guard<std::mutex> lock(m_futuresMutex);
+            // Prune already-resolved futures before appending to keep the list small
+            m_futures.erase(
+                std::remove_if(m_futures.begin(), m_futures.end(),
+                    [](const std::future<void>& fut) {
+                        return fut.valid() &&
+                               fut.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+                    }),
+                m_futures.end());
+            m_futures.push_back(std::move(fut));
+        }
 
         return status;
     }
@@ -96,18 +147,34 @@ public:
     }
 
 private:
+    /** @brief Blocks until all stored futures resolve. */
+    void WaitAll() {
+        std::lock_guard<std::mutex> lock(m_futuresMutex);
+        for (auto& fut : m_futures) {
+            if (fut.valid()) {
+                fut.wait();
+            }
+        }
+        m_futures.clear();
+    }
+
     void CleanupCompletedTasks() {
         std::lock_guard<std::mutex> lock(m_tasksMutex);
         m_activeTasks.erase(
-            std::remove_if(m_activeTasks.begin(), m_activeTasks.end(), 
+            std::remove_if(m_activeTasks.begin(), m_activeTasks.end(),
                 [](const auto& s) { return s->isCompleted.load(); }),
             m_activeTasks.end()
         );
     }
 
     std::atomic<int> m_nextId{0};
+    std::atomic<bool> m_stopRequested{false};
+
     std::vector<std::shared_ptr<TaskStatus>> m_activeTasks;
     std::mutex m_tasksMutex;
+
+    std::vector<std::future<void>> m_futures;
+    std::mutex m_futuresMutex;
 };
 
 } // namespace ideawalker::application

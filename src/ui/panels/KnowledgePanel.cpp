@@ -48,7 +48,30 @@ void DrawKnowledgeTab(AppState& app) {
             } else {
                 // Coluna da Esquerda: Lista de Arquivos
                 ImGui::BeginChild("NotesList", ImVec2(250, 0), true);
+                
+                // UX: Search filter
+                static char searchFilter[128] = "";
+                ImGui::PushItemWidth(-1.0f);
+                ImGui::InputTextWithHint("##Search", label("🔍 Buscar notas...", "Buscar notas..."), searchFilter, sizeof(searchFilter));
+                ImGui::PopItemWidth();
+                ImGui::Separator();
+                
+                std::string filterLower = searchFilter;
+                std::transform(filterLower.begin(), filterLower.end(), filterLower.begin(), ::tolower);
+
                 for (auto& insight : app.project.allInsights) {
+                    std::string title = insight.getMetadata().title.empty() ? insight.getMetadata().id : insight.getMetadata().title;
+                    
+                    if (!filterLower.empty()) {
+                        std::string titleLower = title;
+                        std::transform(titleLower.begin(), titleLower.end(), titleLower.begin(), ::tolower);
+                        std::string filenameLower = insight.getMetadata().id;
+                        std::transform(filenameLower.begin(), filenameLower.end(), filenameLower.begin(), ::tolower);
+                        if (titleLower.find(filterLower) == std::string::npos && filenameLower.find(filterLower) == std::string::npos) {
+                            continue; // Skip this item if it doesn't match the search
+                        }
+                    }
+
                     ImGui::PushID(insight.getMetadata().id.c_str());
 
                     // Header with History Button
@@ -60,7 +83,6 @@ void DrawKnowledgeTab(AppState& app) {
                     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Ver Trajetória (Histórico)");
                     ImGui::SameLine(0.0f, 6.0f);
 
-                    std::string title = insight.getMetadata().title.empty() ? insight.getMetadata().id : insight.getMetadata().title;
                     bool open = ImGui::CollapsingHeader(
                         (title + "###header").c_str(),
                         ImGuiTreeNodeFlags_DefaultOpen
@@ -96,11 +118,22 @@ void DrawKnowledgeTab(AppState& app) {
                 // Coluna da Direita: Conteudo / Editor
                 ImGui::BeginChild("NoteContent", ImVec2(0, 0), true);
                 if (!app.ui.selectedFilename.empty()) {
-                    if (ImGui::Button(label("💾 Save Changes", "Save Changes"), ImVec2(150, 30))) {
+                    auto doSave = [&app]() {
                         app.services.knowledgeService->UpdateNote(app.ui.selectedFilename, app.ui.selectedNoteContent);
                         app.AppendLog("[SYSTEM] Saved changes to " + app.ui.selectedFilename + "\n");
                         app.RefreshAllInsights();
+                    };
+
+                    // UX: Keyboard shortcut Ctrl+S
+                    if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && 
+                        ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_S)) {
+                        doSave();
                     }
+
+                    if (ImGui::Button(label("💾 Save Changes", "Save Changes"), ImVec2(150, 30))) {
+                        doSave();
+                    }
+                    if (ImGui::IsItemHovered()) ImGui::SetTooltip("Atalho: Ctrl+S");
                     ImGui::SameLine();
 
                     ImGui::SetNextItemWidth(200.0f);
