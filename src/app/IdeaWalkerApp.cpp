@@ -256,7 +256,7 @@ bool IdeaWalkerApp::Init() {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    m_state.ui.emojiEnabled = LoadFonts(io);
+    m_state.GetViewModel().ui.emojiEnabled = LoadFonts(io);
     // Apply unified IdeaWalker visual theme (replaces StyleColorsDark)
     ui::Theme::Apply();
 
@@ -325,7 +325,7 @@ int IdeaWalkerApp::Run() {
         ImGui::NewFrame();
 
         ui::DrawUI(m_state);
-        if (m_state.ui.requestExit) {
+        if (m_state.GetViewModel().ui.requestExit) {
             done = true;
         }
 

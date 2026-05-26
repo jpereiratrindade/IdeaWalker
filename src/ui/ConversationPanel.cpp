@@ -33,27 +33,27 @@ bool InputTextMultilineString(const char* label, std::string* str, const ImVec2&
 
 namespace ideawalker::ui {
 
-void ConversationPanel::DrawContent(AppState& app) {
-    if (!app.services.conversationService) {
+void ConversationPanel::DrawContent(application::AppController& app) {
+    if (!app.GetServices().conversationService) {
         ImGui::Text("Service not available (No project open?)");
         return;
     }
 
-    auto& service = *app.services.conversationService;
-    std::string activeNoteId = app.ui.selectedFilename;
+    auto& service = *app.GetServices().conversationService;
+    std::string activeNoteId = app.GetViewModel().ui.selectedFilename;
     if (activeNoteId.empty() && service.isSessionActive()) {
         activeNoteId = service.getCurrentNoteId();
     }
     
     // Dialogue Selection
-    if (!app.ui.dialogueFiles.empty()) {
+    if (!app.GetViewModel().ui.dialogueFiles.empty()) {
         ImGui::SetNextItemWidth(250.0f);
-        if (ImGui::BeginCombo("##dialogue_select", app.ui.selectedDialogueIndex >= 0 ? app.ui.dialogueFiles[app.ui.selectedDialogueIndex].c_str() : "Selecionar diálogo anterior...")) {
-            for (int i = 0; i < (int)app.ui.dialogueFiles.size(); i++) {
-                bool isSelected = (app.ui.selectedDialogueIndex == i);
-                if (ImGui::Selectable(app.ui.dialogueFiles[i].c_str(), isSelected)) {
-                    app.ui.selectedDialogueIndex = i;
-                    service.loadSession(app.ui.dialogueFiles[i]);
+        if (ImGui::BeginCombo("##dialogue_select", app.GetViewModel().ui.selectedDialogueIndex >= 0 ? app.GetViewModel().ui.dialogueFiles[app.GetViewModel().ui.selectedDialogueIndex].c_str() : "Selecionar diálogo anterior...")) {
+            for (int i = 0; i < (int)app.GetViewModel().ui.dialogueFiles.size(); i++) {
+                bool isSelected = (app.GetViewModel().ui.selectedDialogueIndex == i);
+                if (ImGui::Selectable(app.GetViewModel().ui.dialogueFiles[i].c_str(), isSelected)) {
+                    app.GetViewModel().ui.selectedDialogueIndex = i;
+                    service.loadSession(app.GetViewModel().ui.dialogueFiles[i]);
                 }
                 if (isSelected) ImGui::SetItemDefaultFocus();
             }
@@ -80,8 +80,8 @@ void ConversationPanel::DrawContent(AppState& app) {
             ImGui::PopStyleColor();
             
             if (ImGui::Button("Iniciar Sessão de Diálogo")) {
-                 if (app.services.contextAssembler) {
-                     auto bundle = app.services.contextAssembler->assemble(activeNoteId, app.ui.selectedNoteContent);
+                 if (app.GetServices().contextAssembler) {
+                     auto bundle = app.GetServices().contextAssembler->assemble(activeNoteId, app.GetViewModel().ui.selectedNoteContent);
                      service.startSession(bundle);
                  }
             }
@@ -90,8 +90,8 @@ void ConversationPanel::DrawContent(AppState& app) {
              ImGui::SameLine();
              
              if (ImGui::SmallButton("Reiniciar")) {
-                 if (app.services.contextAssembler) {
-                     auto bundle = app.services.contextAssembler->assemble(activeNoteId, app.ui.selectedNoteContent);
+                 if (app.GetServices().contextAssembler) {
+                     auto bundle = app.GetServices().contextAssembler->assemble(activeNoteId, app.GetViewModel().ui.selectedNoteContent);
                      service.startSession(bundle);
                  }
              }
@@ -145,9 +145,9 @@ void ConversationPanel::DrawContent(AppState& app) {
         ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Pensando... (aguarde)");
         // Force scroll to see thinking
         ImGui::SetScrollHereY(1.0f);
-    } else if (newMessages || app.ui.activeTab == -999) {
+    } else if (newMessages || app.GetViewModel().ui.activeTab == -999) {
         ImGui::SetScrollHereY(1.0f);
-        if (app.ui.activeTab == -999) app.ui.activeTab = 0;
+        if (app.GetViewModel().ui.activeTab == -999) app.GetViewModel().ui.activeTab = 0;
     }
     
     ImGui::EndChild();

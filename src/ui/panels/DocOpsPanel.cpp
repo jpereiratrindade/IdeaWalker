@@ -29,14 +29,14 @@ namespace {
 } // namespace
 
 
-void DrawDocOpsTab(AppState& app) {
+void DrawDocOpsTab(application::AppController& app) {
     auto label = [&app](const char* withEmoji, const char* plain) {
-        return app.ui.emojiEnabled ? withEmoji : plain;
+        return app.GetViewModel().ui.emojiEnabled ? withEmoji : plain;
     };
 
     if (!ImGui::BeginTabItem(label("📝 DocOps", "DocOps"))) return;
 
-    app.ui.activeTab = 6;
+    app.GetViewModel().ui.activeTab = 6;
 
     static bool initialized = false;
     static char workspacePath[512] = "";
@@ -76,15 +76,15 @@ void DrawDocOpsTab(AppState& app) {
     const char* editProfiles[] = {"architect", "author", "editor", "reviewer"};
 
     if (!initialized) {
-        std::snprintf(workspacePath, sizeof(workspacePath), "%s", app.project.root.c_str());
-        lastProjectRoot = app.project.root;
+        std::snprintf(workspacePath, sizeof(workspacePath), "%s", app.GetViewModel().project.root.c_str());
+        lastProjectRoot = app.GetViewModel().project.root;
         initialized = true;
-    } else if (app.project.root != lastProjectRoot) {
+    } else if (app.GetViewModel().project.root != lastProjectRoot) {
         // Keep DocOps aligned with active project unless user explicitly changed workspace.
         if (std::strlen(workspacePath) == 0 || std::string(workspacePath) == lastProjectRoot) {
-            std::snprintf(workspacePath, sizeof(workspacePath), "%s", app.project.root.c_str());
+            std::snprintf(workspacePath, sizeof(workspacePath), "%s", app.GetViewModel().project.root.c_str());
         }
-        lastProjectRoot = app.project.root;
+        lastProjectRoot = app.GetViewModel().project.root;
     }
 
     ImGui::TextWrapped(
@@ -99,7 +99,7 @@ void DrawDocOpsTab(AppState& app) {
     ImGui::PopItemWidth();
 
     if (ImGui::Button(label("📌 Usar raiz do projeto atual", "Use current project root"))) {
-        std::snprintf(workspacePath, sizeof(workspacePath), "%s", app.project.root.c_str());
+        std::snprintf(workspacePath, sizeof(workspacePath), "%s", app.GetViewModel().project.root.c_str());
     }
     ImGui::SameLine();
     if (ImGui::Button(label("🧹 Limpar saída", "Clear output"))) {
@@ -120,9 +120,9 @@ void DrawDocOpsTab(AppState& app) {
         if (ImGui::Button(label("🧱 Inicializar contrato DocOps", "Initialize DocOps contract"))) {
             std::string err;
             if (EnsureDocOpsContractSkeleton(ws, err)) {
-                app.AppendLog("[DocOps] Contract initialized in workspace.\n");
+                app.GetViewModel().AppendLog("[DocOps] Contract initialized in workspace.\n");
             } else {
-                app.AppendLog("[DocOps] Contract initialization failed: " + err + "\n");
+                app.GetViewModel().AppendLog("[DocOps] Contract initialization failed: " + err + "\n");
             }
         }
     } else if (!hasProjectRegistry) {
@@ -131,9 +131,9 @@ void DrawDocOpsTab(AppState& app) {
         if (ImGui::Button(label("🧱 Gerar project_registry", "Create project_registry"))) {
             std::string err;
             if (EnsureDocOpsContractSkeleton(ws, err)) {
-                app.AppendLog("[DocOps] project_registry created.\n");
+                app.GetViewModel().AppendLog("[DocOps] project_registry created.\n");
             } else {
-                app.AppendLog("[DocOps] Registry creation failed: " + err + "\n");
+                app.GetViewModel().AppendLog("[DocOps] Registry creation failed: " + err + "\n");
             }
         }
     }
@@ -150,7 +150,7 @@ void DrawDocOpsTab(AppState& app) {
     }
 
     auto runCommandAsync = [&](const std::string& cmdStr) -> bool {
-        if (!workspaceOk || !app.services.taskManager || running.load() || cmdStr.empty()) return false;
+        if (!workspaceOk || !app.GetServices().taskManager || running.load() || cmdStr.empty()) return false;
         running.store(true);
 
         const std::string wsStr = ws.string();
@@ -161,10 +161,10 @@ void DrawDocOpsTab(AppState& app) {
             output += "[DocOps] Command:   " + cmdStr + "\n\n";
             lastCommandState = "running: " + cmdStr;
         }
-        app.AppendLog("[DocOps] Running: " + cmdStr + " (in " + wsStr + ")\n");
-        app.SetProcessingStatus("DocOps: running command...");
+        app.GetViewModel().AppendLog("[DocOps] Running: " + cmdStr + " (in " + wsStr + ")\n");
+        app.GetViewModel().SetProcessingStatus("DocOps: running command...");
 
-        app.services.taskManager->SubmitTask(
+        app.GetServices().taskManager->SubmitTask(
             application::TaskType::Indexing,
             "DocOps",
             [wsStr, cmdStr, &app](std::shared_ptr<application::TaskStatus> status) {
@@ -200,8 +200,8 @@ void DrawDocOpsTab(AppState& app) {
                     lastExitCode = exitCode;
                 }
 
-                app.AppendLog("[DocOps] Completed with exit code: " + std::to_string(exitCode) + "\n");
-                app.SetProcessingStatus("DocOps: done");
+                app.GetViewModel().AppendLog("[DocOps] Completed with exit code: " + std::to_string(exitCode) + "\n");
+                app.GetViewModel().SetProcessingStatus("DocOps: done");
                 status->progress.store(1.0f);
                 running.store(false);
             }
@@ -242,13 +242,13 @@ void DrawDocOpsTab(AppState& app) {
             std::filesystem::create_directories(editTargetResolved.parent_path(), ec);
         }
         if (ec) {
-            app.AppendLog("[DocOps] Failed creating parent directories for target file.\n");
+            app.GetViewModel().AppendLog("[DocOps] Failed creating parent directories for target file.\n");
         } else {
             const std::string templateContent = BuildTargetFileTemplate(
                 editTargetResolved, editReason, editAdrRef, editProfiles[editProfileIndex]
             );
             if (WriteTextFile(editTargetResolved, templateContent)) {
-                app.AppendLog("[DocOps] Target file created: " + editTargetResolved.string() + "\n");
+                app.GetViewModel().AppendLog("[DocOps] Target file created: " + editTargetResolved.string() + "\n");
                 editorDocFiles = ListEditableDocuments(ws);
                 loadedEditorDocPath = editTargetResolved;
                 loadedEditorDocRelativePath = editTargetResolved.lexically_relative(ws);
@@ -263,7 +263,7 @@ void DrawDocOpsTab(AppState& app) {
                     }
                 }
             } else {
-                app.AppendLog("[DocOps] Failed creating target file: " + editTargetResolved.string() + "\n");
+                app.GetViewModel().AppendLog("[DocOps] Failed creating target file: " + editTargetResolved.string() + "\n");
             }
         }
     }
@@ -277,14 +277,14 @@ void DrawDocOpsTab(AppState& app) {
         std::filesystem::create_directories(requestDir, ec);
 
         if (ec) {
-            app.AppendLog("[DocOps] Failed creating requests directory: " + requestDir.string() + "\n");
+            app.GetViewModel().AppendLog("[DocOps] Failed creating requests directory: " + requestDir.string() + "\n");
         } else {
             const std::string stamp = CurrentTimestampCompact();
             const std::string date = CurrentDateIso();
             const std::filesystem::path requestPath = requestDir / ("EDIT_REQUEST-" + stamp + ".md");
             std::ofstream out(requestPath);
             if (!out) {
-                app.AppendLog("[DocOps] Failed writing edit request file: " + requestPath.string() + "\n");
+                app.GetViewModel().AppendLog("[DocOps] Failed writing edit request file: " + requestPath.string() + "\n");
             } else {
                 out << "# Edit Request\n\n";
                 out << "**Date:** " << date << "  \n";
@@ -309,7 +309,7 @@ void DrawDocOpsTab(AppState& app) {
                 out << "- [ ] Needs revision\n";
                 out.close();
 
-                app.AppendLog("[DocOps] Edit request created: " + requestPath.string() + "\n");
+                app.GetViewModel().AppendLog("[DocOps] Edit request created: " + requestPath.string() + "\n");
             }
         }
     }
@@ -348,7 +348,7 @@ void DrawDocOpsTab(AppState& app) {
         if (!canCreateAdr) ImGui::BeginDisabled();
         if (ImGui::Button(label("📄 Gerar ADR draft", "Create ADR draft"), ImVec2(180, 0))) {
             if (std::strlen(newAdrTitle) == 0) {
-                app.AppendLog("[DocOps] ADR title is required.\n");
+                app.GetViewModel().AppendLog("[DocOps] ADR title is required.\n");
             } else {
                 const int nextNumber = NextAdrNumber(adrIds);
                 std::ostringstream idOss;
@@ -359,9 +359,9 @@ void DrawDocOpsTab(AppState& app) {
                 const std::string content = BuildAdrDraft(adrId, newAdrTitle, decisionTypes[adrDecisionTypeIndex]);
                 if (WriteTextFile(adrPath, content)) {
                     std::snprintf(editAdrRef, sizeof(editAdrRef), "%s", adrId.c_str());
-                    app.AppendLog("[DocOps] ADR draft created: " + adrPath.string() + "\n");
+                    app.GetViewModel().AppendLog("[DocOps] ADR draft created: " + adrPath.string() + "\n");
                 } else {
-                    app.AppendLog("[DocOps] Failed creating ADR draft: " + adrPath.string() + "\n");
+                    app.GetViewModel().AppendLog("[DocOps] Failed creating ADR draft: " + adrPath.string() + "\n");
                 }
             }
         }
@@ -386,17 +386,17 @@ void DrawDocOpsTab(AppState& app) {
         ImGui::SameLine();
         if (ImGui::Button("Copiar prompt")) {
             ImGui::SetClipboardText(llmPromptDraft.c_str());
-            app.AppendLog("[DocOps] Prompt copied to clipboard.\n");
+            app.GetViewModel().AppendLog("[DocOps] Prompt copied to clipboard.\n");
         }
         ImGui::SameLine();
-        const bool canSendChat = app.services.conversationService && app.services.conversationService->isSessionActive()
-                                 && !app.services.conversationService->isThinking();
+        const bool canSendChat = app.GetServices().conversationService && app.GetServices().conversationService->isSessionActive()
+                                 && !app.GetServices().conversationService->isThinking();
         if (!canSendChat) ImGui::BeginDisabled();
         if (ImGui::Button("Enviar para Chat")) {
-            pendingAssistantBaseline = GetLastAssistantResponse(app.services.conversationService.get());
+            pendingAssistantBaseline = GetLastAssistantResponse(app.GetServices().conversationService.get());
             applyPendingFromChat = autoApplyLastAiToEditor && !loadedEditorDocPath.empty();
-            app.services.conversationService->sendMessage(llmPromptDraft);
-            app.AppendLog("[DocOps] Prompt sent to Conversation chat.\n");
+            app.GetServices().conversationService->sendMessage(llmPromptDraft);
+            app.GetViewModel().AppendLog("[DocOps] Prompt sent to Conversation chat.\n");
         }
         if (!canSendChat) ImGui::EndDisabled();
         if (!canSendChat) {
@@ -408,7 +408,7 @@ void DrawDocOpsTab(AppState& app) {
     }
 
     const bool canStartDocOpsSession =
-        app.services.conversationService &&
+        app.GetServices().conversationService &&
         workspaceOk &&
         std::strlen(editTargetFile) > 0;
     if (!canStartDocOpsSession) ImGui::BeginDisabled();
@@ -423,57 +423,57 @@ void DrawDocOpsTab(AppState& app) {
             const auto fallback = BuildDocOpsFallbackBundle(
                 ws, editTargetFile, editReason, editAdrRef, editProfiles[editProfileIndex]
             );
-            app.services.conversationService->startSession(fallback);
-            app.ui.selectedFilename = fallback.activeNoteId;
-            app.ui.selectedNoteContent = fallback.activeNoteContent;
+            app.GetServices().conversationService->startSession(fallback);
+            app.GetViewModel().ui.selectedFilename = fallback.activeNoteId;
+            app.GetViewModel().ui.selectedNoteContent = fallback.activeNoteContent;
             docopsSessionStatus = "fallback:" + fallback.activeNoteId;
             {
                 std::lock_guard<std::mutex> lock(outputMutex);
                 output += "[DocOps] Session started (fallback context): " + fallback.activeNoteId + "\n";
             }
-            app.AppendLog("[DocOps] Target file not found; session started with fallback context.\n");
+            app.GetViewModel().AppendLog("[DocOps] Target file not found; session started with fallback context.\n");
         } else {
             std::string fileContent;
             if (!ReadTextFile(targetPath, fileContent)) {
                 const auto fallback = BuildDocOpsFallbackBundle(
                     ws, editTargetFile, editReason, editAdrRef, editProfiles[editProfileIndex]
                 );
-                app.services.conversationService->startSession(fallback);
-                app.ui.selectedFilename = fallback.activeNoteId;
-                app.ui.selectedNoteContent = fallback.activeNoteContent;
+                app.GetServices().conversationService->startSession(fallback);
+                app.GetViewModel().ui.selectedFilename = fallback.activeNoteId;
+                app.GetViewModel().ui.selectedNoteContent = fallback.activeNoteContent;
                 docopsSessionStatus = "fallback-read-error:" + fallback.activeNoteId;
                 {
                     std::lock_guard<std::mutex> lock(outputMutex);
                     output += "[DocOps] Session started (read fallback): " + fallback.activeNoteId + "\n";
                 }
-                app.AppendLog("[DocOps] Failed reading target file; session started with fallback context.\n");
+                app.GetViewModel().AppendLog("[DocOps] Failed reading target file; session started with fallback context.\n");
             } else {
                 const std::string noteId = targetPath.lexically_relative(ws).string();
                 application::ContextBundle bundle;
-                if (app.services.contextAssembler) {
-                    bundle = app.services.contextAssembler->assemble(noteId, fileContent);
+                if (app.GetServices().contextAssembler) {
+                    bundle = app.GetServices().contextAssembler->assemble(noteId, fileContent);
                 } else {
                     bundle = BuildDocOpsFallbackBundle(
                         ws, noteId.c_str(), editReason, editAdrRef, editProfiles[editProfileIndex]
                     );
                     bundle.activeNoteContent = fileContent;
                 }
-                app.services.conversationService->startSession(bundle);
-                app.ui.selectedFilename = noteId;
-                app.ui.selectedNoteContent = fileContent;
+                app.GetServices().conversationService->startSession(bundle);
+                app.GetViewModel().ui.selectedFilename = noteId;
+                app.GetViewModel().ui.selectedNoteContent = fileContent;
                 docopsSessionStatus = "file:" + noteId;
                 {
                     std::lock_guard<std::mutex> lock(outputMutex);
                     output += "[DocOps] Session started with file context: " + noteId + "\n";
                 }
-                app.AppendLog("[DocOps] Chat session started for target: " + targetPath.string() + "\n");
+                app.GetViewModel().AppendLog("[DocOps] Chat session started for target: " + targetPath.string() + "\n");
             }
         }
     }
     if (!canStartDocOpsSession) ImGui::EndDisabled();
     ImGui::SameLine();
-    if (app.services.conversationService && app.services.conversationService->isSessionActive()) {
-        const std::string activeSession = ToSingleLineCompact(app.services.conversationService->getCurrentNoteId(), 90);
+    if (app.GetServices().conversationService && app.GetServices().conversationService->isSessionActive()) {
+        const std::string activeSession = ToSingleLineCompact(app.GetServices().conversationService->getCurrentNoteId(), 90);
         ImGui::TextColored(ImVec4(0.4f, 1.0f, 0.4f, 1.0f), "Sessao ativa: %s", activeSession.c_str());
     } else {
         const std::string inactiveStatus = ToSingleLineCompact(docopsSessionStatus, 90);
@@ -482,7 +482,7 @@ void DrawDocOpsTab(AppState& app) {
     }
 
     if (applyPendingFromChat && !loadedEditorDocPath.empty()) {
-        const std::string currentAssistant = GetLastAssistantResponse(app.services.conversationService.get());
+        const std::string currentAssistant = GetLastAssistantResponse(app.GetServices().conversationService.get());
         if (!currentAssistant.empty() && currentAssistant != pendingAssistantBaseline) {
             editorBuffer = ExtractAssistantPayloadForDocument(currentAssistant);
             editorDirty = true;
@@ -492,13 +492,13 @@ void DrawDocOpsTab(AppState& app) {
                 if (WriteTextFile(loadedEditorDocPath, editorBuffer)) {
                     editorDirty = false;
                     editorStatus = "assistant applied and saved";
-                    app.AppendLog("[DocOps] Assistant response applied and saved: " + loadedEditorDocPath.string() + "\n");
+                    app.GetViewModel().AppendLog("[DocOps] Assistant response applied and saved: " + loadedEditorDocPath.string() + "\n");
                 } else {
                     editorStatus = "assistant apply save failed";
-                    app.AppendLog("[DocOps] Assistant apply save failed: " + loadedEditorDocPath.string() + "\n");
+                    app.GetViewModel().AppendLog("[DocOps] Assistant apply save failed: " + loadedEditorDocPath.string() + "\n");
                 }
             } else {
-                app.AppendLog("[DocOps] Assistant response applied to editor buffer.\n");
+                app.GetViewModel().AppendLog("[DocOps] Assistant response applied to editor buffer.\n");
             }
         }
     }
@@ -515,7 +515,7 @@ void DrawDocOpsTab(AppState& app) {
         ImGui::SameLine();
         const std::string quickCheckCommand = BuildDocTypeCommand(ws, loadedEditorDocRelativePath, false);
         const std::string quickBuildCommand = BuildDocTypeCommand(ws, loadedEditorDocRelativePath, true);
-        const bool canRunQuickDocAction = workspaceOk && app.services.taskManager && !running.load();
+        const bool canRunQuickDocAction = workspaceOk && app.GetServices().taskManager && !running.load();
         if (!canRunQuickDocAction || quickCheckCommand.empty()) ImGui::BeginDisabled();
         if (ImGui::Button("Doc Check", ImVec2(110, 0))) {
             if (runCommandAsync(quickCheckCommand)) {
@@ -598,10 +598,10 @@ void DrawDocOpsTab(AppState& app) {
                     if (WriteTextFile(loadedEditorDocPath, editorBuffer)) {
                         editorDirty = false;
                         editorStatus = "saved " + loadedEditorDocRelativePath.string();
-                        app.AppendLog("[DocOps] File saved: " + loadedEditorDocPath.string() + "\n");
+                        app.GetViewModel().AppendLog("[DocOps] File saved: " + loadedEditorDocPath.string() + "\n");
                     } else {
                         editorStatus = "save failed " + loadedEditorDocRelativePath.string();
-                        app.AppendLog("[DocOps] Save failed: " + loadedEditorDocPath.string() + "\n");
+                        app.GetViewModel().AppendLog("[DocOps] Save failed: " + loadedEditorDocPath.string() + "\n");
                     }
                 }
                 if (!canSaveEditor) ImGui::EndDisabled();
@@ -618,7 +618,7 @@ void DrawDocOpsTab(AppState& app) {
                 }
                 ImGui::SameLine();
                 if (ImGui::Button("Aplicar ultima IA", ImVec2(140, 0))) {
-                    const std::string lastAssistantResponse = GetLastAssistantResponse(app.services.conversationService.get());
+                    const std::string lastAssistantResponse = GetLastAssistantResponse(app.GetServices().conversationService.get());
                     if (!lastAssistantResponse.empty()) {
                         editorBuffer = ExtractAssistantPayloadForDocument(lastAssistantResponse);
                         editorDirty = true;
@@ -629,17 +629,17 @@ void DrawDocOpsTab(AppState& app) {
                 }
                 ImGui::SameLine();
                 if (ImGui::Button("Aplicar + Salvar", ImVec2(140, 0))) {
-                    const std::string lastAssistantResponse = GetLastAssistantResponse(app.services.conversationService.get());
+                    const std::string lastAssistantResponse = GetLastAssistantResponse(app.GetServices().conversationService.get());
                     if (!lastAssistantResponse.empty()) {
                         editorBuffer = ExtractAssistantPayloadForDocument(lastAssistantResponse);
                         if (WriteTextFile(loadedEditorDocPath, editorBuffer)) {
                             editorDirty = false;
                             editorStatus = "assistant applied and saved";
-                            app.AppendLog("[DocOps] Assistant response applied and saved: " + loadedEditorDocPath.string() + "\n");
+                            app.GetViewModel().AppendLog("[DocOps] Assistant response applied and saved: " + loadedEditorDocPath.string() + "\n");
                         } else {
                             editorDirty = true;
                             editorStatus = "assistant apply save failed";
-                            app.AppendLog("[DocOps] Assistant apply save failed: " + loadedEditorDocPath.string() + "\n");
+                            app.GetViewModel().AppendLog("[DocOps] Assistant apply save failed: " + loadedEditorDocPath.string() + "\n");
                         }
                     } else {
                         editorStatus = "no assistant response available";
@@ -647,14 +647,14 @@ void DrawDocOpsTab(AppState& app) {
                 }
                 ImGui::SameLine();
                 if (ImGui::Button("Aplicar patch IA (seguro)", ImVec2(190, 0))) {
-                    const std::string lastAssistantResponse = GetLastAssistantResponse(app.services.conversationService.get());
+                    const std::string lastAssistantResponse = GetLastAssistantResponse(app.GetServices().conversationService.get());
                     if (lastAssistantResponse.empty()) {
                         editorStatus = "no assistant response available";
                     } else {
                         const std::string patchCandidate = ExtractUnifiedDiffCandidate(lastAssistantResponse);
                         if (patchCandidate.empty()) {
                             editorStatus = "assistant response has no unified diff patch";
-                            app.AppendLog("[DocOps] Patch apply skipped: no unified diff found in assistant response.\n");
+                            app.GetViewModel().AppendLog("[DocOps] Patch apply skipped: no unified diff found in assistant response.\n");
                         } else {
                             CommandResult patchResult;
                             if (ApplyUnifiedDiffPatch(ws, patchCandidate, patchResult)) {
@@ -664,10 +664,10 @@ void DrawDocOpsTab(AppState& app) {
                                     editorDirty = false;
                                 }
                                 editorStatus = "assistant patch applied";
-                                app.AppendLog("[DocOps] Assistant patch applied successfully.\n");
+                                app.GetViewModel().AppendLog("[DocOps] Assistant patch applied successfully.\n");
                             } else {
                                 editorStatus = "assistant patch apply failed";
-                                app.AppendLog("[DocOps] Assistant patch failed (exit " + std::to_string(patchResult.exitCode) + ").\n");
+                                app.GetViewModel().AppendLog("[DocOps] Assistant patch failed (exit " + std::to_string(patchResult.exitCode) + ").\n");
                             }
                             if (!patchResult.output.empty()) {
                                 std::lock_guard<std::mutex> lock(outputMutex);
@@ -689,7 +689,7 @@ void DrawDocOpsTab(AppState& app) {
                     std::filesystem::create_directories(evalDir, ec);
                     if (ec) {
                         editorStatus = "failed creating docs/avaliacoes";
-                        app.AppendLog("[DocOps] Failed creating docs/avaliacoes.\n");
+                        app.GetViewModel().AppendLog("[DocOps] Failed creating docs/avaliacoes.\n");
                     } else {
                         const std::string timestamp = CurrentTimestampCompact();
                         const std::string dateIso = CurrentDateIso();
@@ -708,10 +708,10 @@ void DrawDocOpsTab(AppState& app) {
                         );
                         if (WriteTextFile(evalPath, draft)) {
                             editorStatus = "conformity evaluation submitted";
-                            app.AppendLog("[DocOps] Conformity evaluation created: " + evalPath.string() + "\n");
+                            app.GetViewModel().AppendLog("[DocOps] Conformity evaluation created: " + evalPath.string() + "\n");
                         } else {
                             editorStatus = "conformity evaluation write failed";
-                            app.AppendLog("[DocOps] Failed writing conformity evaluation: " + evalPath.string() + "\n");
+                            app.GetViewModel().AppendLog("[DocOps] Failed writing conformity evaluation: " + evalPath.string() + "\n");
                         }
                     }
                 }
@@ -720,13 +720,13 @@ void DrawDocOpsTab(AppState& app) {
                     const std::filesystem::path auditScript = ws / "scripts" / "audit_evaluations.sh";
                     if (!std::filesystem::exists(auditScript)) {
                         editorStatus = "audit script not found";
-                        app.AppendLog("[DocOps] Missing script: " + auditScript.string() + "\n");
+                        app.GetViewModel().AppendLog("[DocOps] Missing script: " + auditScript.string() + "\n");
                     } else {
                         CommandResult auditResult = RunShellCommandInWorkspace(ws, "bash scripts/audit_evaluations.sh");
                         editorStatus = auditResult.exitCode == 0
                             ? "evaluation audit passed"
                             : "evaluation audit failed";
-                        app.AppendLog("[DocOps] Evaluation audit finished with exit code: " + std::to_string(auditResult.exitCode) + "\n");
+                        app.GetViewModel().AppendLog("[DocOps] Evaluation audit finished with exit code: " + std::to_string(auditResult.exitCode) + "\n");
                         std::lock_guard<std::mutex> lock(outputMutex);
                         output += "\n[DocOps] Evaluation audit output:\n";
                         output += auditResult.output;
@@ -741,13 +741,13 @@ void DrawDocOpsTab(AppState& app) {
                 InputTextMultilineString("##docops_direct_instruction", &directEditInstruction, ImVec2(-FLT_MIN, 62));
 
                 const bool canSendDirectInstruction =
-                    app.services.conversationService &&
-                    app.services.conversationService->isSessionActive() &&
-                    !app.services.conversationService->isThinking() &&
+                    app.GetServices().conversationService &&
+                    app.GetServices().conversationService->isSessionActive() &&
+                    !app.GetServices().conversationService->isThinking() &&
                     !directEditInstruction.empty();
                 if (!canSendDirectInstruction) ImGui::BeginDisabled();
                 if (ImGui::Button("Enviar instrucao IA", ImVec2(170, 0))) {
-                    pendingAssistantBaseline = GetLastAssistantResponse(app.services.conversationService.get());
+                    pendingAssistantBaseline = GetLastAssistantResponse(app.GetServices().conversationService.get());
                     applyPendingFromChat = autoApplyLastAiToEditor;
                     const std::string prompt = BuildDirectEditPrompt(
                         editProfiles[editProfileIndex],
@@ -757,9 +757,9 @@ void DrawDocOpsTab(AppState& app) {
                         directEditInstruction,
                         editorBuffer
                     );
-                    app.services.conversationService->sendMessage(prompt);
+                    app.GetServices().conversationService->sendMessage(prompt);
                     editorStatus = "direct instruction sent to assistant";
-                    app.AppendLog("[DocOps] Direct editor instruction sent to assistant.\n");
+                    app.GetViewModel().AppendLog("[DocOps] Direct editor instruction sent to assistant.\n");
                 }
                 if (!canSendDirectInstruction) ImGui::EndDisabled();
                 ImGui::SameLine();
@@ -819,7 +819,7 @@ void DrawDocOpsTab(AppState& app) {
         ImGui::TextDisabled("Selecione um arquivo .tex/.md/.txt no editor para usar este preset.");
     }
 
-    const bool canRun = workspaceOk && app.services.taskManager && !running.load() && !selectedCommand.empty();
+    const bool canRun = workspaceOk && app.GetServices().taskManager && !running.load() && !selectedCommand.empty();
     if (!canRun) ImGui::BeginDisabled();
     if (ImGui::Button(label("▶️ Executar", "Run"), ImVec2(140, 0))) {
         running.store(true);
@@ -833,10 +833,10 @@ void DrawDocOpsTab(AppState& app) {
             output += "[DocOps] Workspace: " + wsStr + "\n";
             output += "[DocOps] Command:   " + cmdStr + "\n\n";
         }
-        app.AppendLog("[DocOps] Running: " + cmdStr + " (in " + wsStr + ")\n");
-        app.SetProcessingStatus("DocOps: running command...");
+        app.GetViewModel().AppendLog("[DocOps] Running: " + cmdStr + " (in " + wsStr + ")\n");
+        app.GetViewModel().SetProcessingStatus("DocOps: running command...");
 
-        app.services.taskManager->SubmitTask(
+        app.GetServices().taskManager->SubmitTask(
             application::TaskType::Indexing,
             "DocOps",
             [wsStr, cmdStr, &app](std::shared_ptr<application::TaskStatus> status) {
@@ -869,8 +869,8 @@ void DrawDocOpsTab(AppState& app) {
                     lastExitCode = exitCode;
                 }
 
-                app.AppendLog("[DocOps] Completed with exit code: " + std::to_string(exitCode) + "\n");
-                app.SetProcessingStatus("DocOps: done");
+                app.GetViewModel().AppendLog("[DocOps] Completed with exit code: " + std::to_string(exitCode) + "\n");
+                app.GetViewModel().SetProcessingStatus("DocOps: done");
                 status->progress.store(1.0f);
                 running.store(false);
             }

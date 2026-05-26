@@ -5,19 +5,19 @@
 
 #pragma once
 
-#include "ui/AppState.hpp"
+#include "application/AppController.hpp"
 
 namespace ideawalker::ui {
 
 /**
  * @brief Renders the list of writing trajectories.
  */
-void DrawTrajectoryPanel(AppState& state);
+void DrawTrajectoryPanel(application::AppController& state);
 
 /**
  * @brief Renders the editor for the active writing trajectory.
  */
-void DrawSegmentEditorPanel(AppState& state);
-void DrawDefensePanel(AppState& state);
+void DrawSegmentEditorPanel(application::AppController& state);
+void DrawDefensePanel(application::AppController& state);
 
 } // namespace ideawalker::ui

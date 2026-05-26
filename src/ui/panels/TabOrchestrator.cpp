@@ -4,7 +4,7 @@
 
 namespace ideawalker::ui {
 
-void DrawMainTabs(AppState& app) {
+void DrawMainTabs(application::AppController& app) {
     if (ImGui::BeginTabBar("MyTabs")) {
         DrawDashboardTab(app);
         DrawKnowledgeTab(app);
@@ -17,7 +17,7 @@ void DrawMainTabs(AppState& app) {
     }
 }
 
-void DrawWorkspace(AppState& app) {
+void DrawWorkspace(application::AppController& app) {
     static float chatHeight = 250.0f;
     const float minChatHeight = 80.0f;
     const float maxChatHeight = 800.0f;
@@ -25,7 +25,7 @@ void DrawWorkspace(AppState& app) {
     float availableHeight = ImGui::GetContentRegionAvail().y;
     float workspaceHeight = availableHeight;
 
-    if (app.ui.showConversation) {
+    if (app.GetViewModel().ui.showConversation) {
         workspaceHeight = availableHeight - chatHeight - 4.0f; // 4px for splitter
         if (workspaceHeight < 150.0f) workspaceHeight = 150.0f; // Minimal workspace
     }
@@ -36,7 +36,7 @@ void DrawWorkspace(AppState& app) {
     ImGui::EndChild();
 
     // Splitter & Chat (Bottom)
-    if (app.ui.showConversation) {
+    if (app.GetViewModel().ui.showConversation) {
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
         ImGui::Button("##Splitter", ImVec2(-1, 4.0f));
         ImGui::PopStyleColor();
@@ -54,7 +54,7 @@ void DrawWorkspace(AppState& app) {
     }
 }
 
-void DrawMainWindow(AppState& app) {
+void DrawMainWindow(application::AppController& app) {
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(viewport->WorkPos);
     ImGui::SetNextWindowSize(viewport->WorkSize);

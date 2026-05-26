@@ -9,39 +9,39 @@
 
 namespace ideawalker::ui {
 
-void DrawKnowledgeTab(AppState& app) {
+void DrawKnowledgeTab(application::AppController& app) {
     auto label = [&app](const char* withEmoji, const char* plain) {
-        return app.ui.emojiEnabled ? withEmoji : plain;
+        return app.GetViewModel().ui.emojiEnabled ? withEmoji : plain;
     };
-    const bool hasProject = (app.services.knowledgeService != nullptr);
+    const bool hasProject = (app.GetServices().knowledgeService != nullptr);
 
-    ImGuiTabItemFlags flags1 = (app.ui.requestedTab == 1) ? ImGuiTabItemFlags_SetSelected : 0;
+    ImGuiTabItemFlags flags1 = (app.GetViewModel().ui.requestedTab == 1) ? ImGuiTabItemFlags_SetSelected : 0;
     if (ImGui::BeginTabItem(label("📚 Organized Knowledge", "Organized Knowledge"), NULL, flags1)) {
-        if (app.ui.requestedTab == 1) app.ui.requestedTab = -1;
-        bool enteringKnowledge = (app.ui.activeTab != 1);
-        app.ui.activeTab = 1;
-        if (enteringKnowledge && hasProject && !app.ui.isProcessing.load()) {
+        if (app.GetViewModel().ui.requestedTab == 1) app.GetViewModel().ui.requestedTab = -1;
+        bool enteringKnowledge = (app.GetViewModel().ui.activeTab != 1);
+        app.GetViewModel().ui.activeTab = 1;
+        if (enteringKnowledge && hasProject && !app.GetViewModel().ui.isProcessing.load()) {
             app.RefreshAllInsights();
         }
         if (!hasProject) {
             ImGui::TextDisabled("Nenhum projeto aberto.");
             ImGui::TextDisabled("Use File > New Project ou File > Open Project para comecar.");
         } else {
-            ImGui::Checkbox("Visao unificada", &app.ui.unifiedKnowledgeView);
+            ImGui::Checkbox("Visao unificada", &app.GetViewModel().ui.unifiedKnowledgeView);
             ImGui::Separator();
 
-            if (app.ui.unifiedKnowledgeView) {
+            if (app.GetViewModel().ui.unifiedKnowledgeView) {
                 ImGui::SameLine();
-                ImGui::Checkbox("Modo Preview", &app.ui.unifiedPreviewMode);
+                ImGui::Checkbox("Modo Preview", &app.GetViewModel().ui.unifiedPreviewMode);
 
                 ImGui::BeginChild("UnifiedKnowledge", ImVec2(0, 0), true);
-                if (app.ui.unifiedKnowledge.empty()) {
+                if (app.GetViewModel().ui.unifiedKnowledge.empty()) {
                     ImGui::TextDisabled("Nenhum insight disponivel.");
                 } else {
-                    if (app.ui.unifiedPreviewMode) {
-                            DrawMarkdownPreview(app, app.ui.unifiedKnowledge, false);
+                    if (app.GetViewModel().ui.unifiedPreviewMode) {
+                            DrawMarkdownPreview(app, app.GetViewModel().ui.unifiedKnowledge, false);
                     } else {
-                            InputTextMultilineString("##unifiedRaw", &app.ui.unifiedKnowledge, ImVec2(-FLT_MIN, -FLT_MIN), ImGuiInputTextFlags_ReadOnly);
+                            InputTextMultilineString("##unifiedRaw", &app.GetViewModel().ui.unifiedKnowledge, ImVec2(-FLT_MIN, -FLT_MIN), ImGuiInputTextFlags_ReadOnly);
                     }
                 }
                 ImGui::EndChild();
@@ -59,7 +59,7 @@ void DrawKnowledgeTab(AppState& app) {
                 std::string filterLower = searchFilter;
                 std::transform(filterLower.begin(), filterLower.end(), filterLower.begin(), ::tolower);
 
-                for (auto& insight : app.project.allInsights) {
+                for (auto& insight : app.GetViewModel().project.allInsights) {
                     std::string title = insight.getMetadata().title.empty() ? insight.getMetadata().id : insight.getMetadata().title;
                     
                     if (!filterLower.empty()) {
@@ -77,7 +77,7 @@ void DrawKnowledgeTab(AppState& app) {
                     // Header with History Button
                     ImGui::BeginGroup();
                     if (ImGui::SmallButton(label("🕰️", "Hist"))) {
-                        app.ui.showHistory = true;
+                        app.GetViewModel().ui.showHistory = true;
                         app.LoadHistory(insight.getMetadata().id);
                     }
                     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Ver Trajetória (Histórico)");
@@ -91,21 +91,21 @@ void DrawKnowledgeTab(AppState& app) {
 
                     if (open) {
                         const std::string& filename = insight.getMetadata().id;
-                        bool isSelected = (app.ui.selectedFilename == filename);
+                        bool isSelected = (app.GetViewModel().ui.selectedFilename == filename);
                         if (ImGui::Selectable((filename + "###selectable").c_str(), isSelected)) {
-                            app.ui.selectedFilename = filename;
-                            app.ui.selectedNoteContent = insight.getContent();
-                            std::snprintf(app.ui.saveAsFilename, sizeof(app.ui.saveAsFilename), "%s", filename.c_str());
+                            app.GetViewModel().ui.selectedFilename = filename;
+                            app.GetViewModel().ui.selectedNoteContent = insight.getContent();
+                            std::snprintf(app.GetViewModel().ui.saveAsFilename, sizeof(app.GetViewModel().ui.saveAsFilename), "%s", filename.c_str());
 
                             // Update Domain Insight
                             domain::Insight::Metadata meta;
                             meta.id = filename;
-                            app.project.currentInsight = std::make_unique<domain::Insight>(meta, app.ui.selectedNoteContent);
-                            app.project.currentInsight->parseActionablesFromContent();
+                            app.GetViewModel().project.currentInsight = std::make_unique<domain::Insight>(meta, app.GetViewModel().ui.selectedNoteContent);
+                            app.GetViewModel().project.currentInsight->parseActionablesFromContent();
 
                             // Fetch Backlinks
-                            if (app.services.knowledgeService) {
-                                app.ui.currentBacklinks = app.services.knowledgeService->GetBacklinks(filename);
+                            if (app.GetServices().knowledgeService) {
+                                app.GetViewModel().ui.currentBacklinks = app.GetServices().knowledgeService->GetBacklinks(filename);
                             }
                         }
                     }
@@ -117,10 +117,10 @@ void DrawKnowledgeTab(AppState& app) {
 
                 // Coluna da Direita: Conteudo / Editor
                 ImGui::BeginChild("NoteContent", ImVec2(0, 0), true);
-                if (!app.ui.selectedFilename.empty()) {
+                if (!app.GetViewModel().ui.selectedFilename.empty()) {
                     auto doSave = [&app]() {
-                        app.services.knowledgeService->UpdateNote(app.ui.selectedFilename, app.ui.selectedNoteContent);
-                        app.AppendLog("[SYSTEM] Saved changes to " + app.ui.selectedFilename + "\n");
+                        app.GetServices().knowledgeService->UpdateNote(app.GetViewModel().ui.selectedFilename, app.GetViewModel().ui.selectedNoteContent);
+                        app.GetViewModel().AppendLog("[SYSTEM] Saved changes to " + app.GetViewModel().ui.selectedFilename + "\n");
                         app.RefreshAllInsights();
                     };
 
@@ -137,17 +137,17 @@ void DrawKnowledgeTab(AppState& app) {
                     ImGui::SameLine();
 
                     ImGui::SetNextItemWidth(200.0f);
-                    ImGui::InputText("##saveasname", app.ui.saveAsFilename, sizeof(app.ui.saveAsFilename));
+                    ImGui::InputText("##saveasname", app.GetViewModel().ui.saveAsFilename, sizeof(app.GetViewModel().ui.saveAsFilename));
                     ImGui::SameLine();
                     if (ImGui::Button(label("📂 Save As", "Save As"), ImVec2(100, 30))) {
-                        std::string newName = app.ui.saveAsFilename;
+                        std::string newName = app.GetViewModel().ui.saveAsFilename;
                         if (!newName.empty()) {
                             if (newName.find(".md") == std::string::npos && newName.find(".txt") == std::string::npos) {
                                 newName += ".md";
                             }
-                            app.services.knowledgeService->UpdateNote(newName, app.ui.selectedNoteContent);
-                            app.ui.selectedFilename = newName;
-                            app.AppendLog("[SYSTEM] Saved as " + newName + "\n");
+                            app.GetServices().knowledgeService->UpdateNote(newName, app.GetViewModel().ui.selectedNoteContent);
+                            app.GetViewModel().ui.selectedFilename = newName;
+                            app.GetViewModel().AppendLog("[SYSTEM] Saved as " + newName + "\n");
                             app.RefreshAllInsights();
                         }
                     }
@@ -157,48 +157,48 @@ void DrawKnowledgeTab(AppState& app) {
                     // Editor / Visual Switcher
                     if (ImGui::BeginTabBar("EditorTabs")) {
                         if (ImGui::BeginTabItem(label("📝 Editor", "Editor"))) {
-                            app.ui.previewMode = false;
+                            app.GetViewModel().ui.previewMode = false;
                             ImGui::EndTabItem();
                         }
                         if (ImGui::BeginTabItem(label("👁️ Visual", "Visual"))) {
-                            app.ui.previewMode = true;
+                            app.GetViewModel().ui.previewMode = true;
                             ImGui::EndTabItem();
                         }
                         ImGui::EndTabBar();
                     }
 
-                    if (app.ui.previewMode) {
+                    if (app.GetViewModel().ui.previewMode) {
                         ImGui::BeginChild("PreviewScroll", ImVec2(0, -200), true);
-                        DrawMarkdownPreview(app, app.ui.selectedNoteContent, false);
+                        DrawMarkdownPreview(app, app.GetViewModel().ui.selectedNoteContent, false);
                         ImGui::EndChild();
                     } else {
                         // Editor de texto (InputTextMultiline com Resize)
-                        if (InputTextMultilineString("##editor", &app.ui.selectedNoteContent, ImVec2(-FLT_MIN, -200))) {
-                            if (app.project.currentInsight) {
-                                app.project.currentInsight->setContent(app.ui.selectedNoteContent);
-                                app.project.currentInsight->parseActionablesFromContent();
+                        if (InputTextMultilineString("##editor", &app.GetViewModel().ui.selectedNoteContent, ImVec2(-FLT_MIN, -200))) {
+                            if (app.GetViewModel().project.currentInsight) {
+                                app.GetViewModel().project.currentInsight->setContent(app.GetViewModel().ui.selectedNoteContent);
+                                app.GetViewModel().project.currentInsight->parseActionablesFromContent();
                             }
                         }
                     }
                     
                     ImGui::Separator();
                     ImGui::Text("%s", label("🔗 Backlinks (Mencionado em):", "Backlinks (Mencionado em):"));
-                    if (app.ui.currentBacklinks.empty()) {
+                    if (app.GetViewModel().ui.currentBacklinks.empty()) {
                         ImGui::TextDisabled("Nenhuma referencia encontrada.");
                     } else {
-                        for (const auto& link : app.ui.currentBacklinks) {
+                        for (const auto& link : app.GetViewModel().ui.currentBacklinks) {
                             if (ImGui::Button(link.c_str())) {
-                                app.AppendLog("[UI] Jumping to " + link + "\n");
-                                app.ui.selectedFilename = link;
-                                if (app.services.knowledgeService) {
-                                    app.ui.selectedNoteContent = app.services.knowledgeService->GetNoteContent(link);
-                                    std::snprintf(app.ui.saveAsFilename, sizeof(app.ui.saveAsFilename), "%s", link.c_str());
+                                app.GetViewModel().AppendLog("[UI] Jumping to " + link + "\n");
+                                app.GetViewModel().ui.selectedFilename = link;
+                                if (app.GetServices().knowledgeService) {
+                                    app.GetViewModel().ui.selectedNoteContent = app.GetServices().knowledgeService->GetNoteContent(link);
+                                    std::snprintf(app.GetViewModel().ui.saveAsFilename, sizeof(app.GetViewModel().ui.saveAsFilename), "%s", link.c_str());
                                     
                                     domain::Insight::Metadata meta;
                                     meta.id = link;
-                                    app.project.currentInsight = std::make_unique<domain::Insight>(meta, app.ui.selectedNoteContent);
-                                    app.project.currentInsight->parseActionablesFromContent();
-                                    app.ui.currentBacklinks = app.services.knowledgeService->GetBacklinks(link);
+                                    app.GetViewModel().project.currentInsight = std::make_unique<domain::Insight>(meta, app.GetViewModel().ui.selectedNoteContent);
+                                    app.GetViewModel().project.currentInsight->parseActionablesFromContent();
+                                    app.GetViewModel().ui.currentBacklinks = app.GetServices().knowledgeService->GetBacklinks(link);
                                     app.AnalyzeSuggestions();
                                 }
                             }
@@ -209,24 +209,24 @@ void DrawKnowledgeTab(AppState& app) {
 
                     ImGui::Separator();
                     ImGui::Text("%s", label("🧠 Ressonância Semântica (Sugestões):", "Semantic Resonance (Suggestions):"));
-                    if (app.ui.isAnalyzingSuggestions) {
+                    if (app.GetViewModel().ui.isAnalyzingSuggestions) {
                         ImGui::TextDisabled("Analisando conexões...");
-                    } else if (app.ui.currentSuggestions.empty()) {
+                    } else if (app.GetViewModel().ui.currentSuggestions.empty()) {
                         ImGui::TextDisabled("Nenhuma conexão óbvia detectada.");
                     } else {
-                        std::lock_guard<std::mutex> lock(app.ui.suggestionsMutex);
-                        for (const auto& sug : app.ui.currentSuggestions) {
+                        std::lock_guard<std::mutex> lock(app.GetViewModel().ui.suggestionsMutex);
+                        for (const auto& sug : app.GetViewModel().ui.currentSuggestions) {
                             std::string sugLabel = sug.targetId + " (" + (sug.reasons.empty() ? "" : sug.reasons[0].evidence) + ")";
                             if (ImGui::Button(sugLabel.c_str())) {
-                                app.ui.selectedNoteContent += "\n\n[[" + sug.targetId + "]]";
-                                if (app.project.currentInsight) {
-                                    app.project.currentInsight->setContent(app.ui.selectedNoteContent);
+                                app.GetViewModel().ui.selectedNoteContent += "\n\n[[" + sug.targetId + "]]";
+                                if (app.GetViewModel().project.currentInsight) {
+                                    app.GetViewModel().project.currentInsight->setContent(app.GetViewModel().ui.selectedNoteContent);
                                     // Auto-save to disk to ensure backlinks are detectable immediately
-                                    if (app.services.knowledgeService) {
-                                        app.services.knowledgeService->UpdateNote(app.ui.selectedFilename, app.ui.selectedNoteContent);
+                                    if (app.GetServices().knowledgeService) {
+                                        app.GetServices().knowledgeService->UpdateNote(app.GetViewModel().ui.selectedFilename, app.GetViewModel().ui.selectedNoteContent);
                                     }
                                 }
-                                app.AppendLog("[UI] Conectado a: " + sug.targetId + "\n");
+                                app.GetViewModel().AppendLog("[UI] Conectado a: " + sug.targetId + "\n");
                             }
                             if (ImGui::IsItemHovered()) {
                                 ImGui::SetTooltip("Ponte: %s", sug.reasons[0].kind.c_str());

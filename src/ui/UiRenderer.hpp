@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "ui/AppState.hpp"
+#include "application/AppController.hpp"
 
 namespace ideawalker::ui {
 
@@ -13,6 +13,6 @@ namespace ideawalker::ui {
  * @brief Main UI rendering entry point. Call once per frame.
  * @param app The shared application state.
  */
-void DrawUI(AppState& app);
+void DrawUI(application::AppController& app);
 
 } // namespace ideawalker::ui

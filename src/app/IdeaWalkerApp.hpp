@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "ui/AppState.hpp"
+#include "application/AppController.hpp"
 
 struct SDL_Window;
 
@@ -37,7 +37,7 @@ private:
      */
     void Shutdown();
 
-    ui::AppState m_state; ///< Core application state and project management.
+    application::AppController m_state; ///< Core application state and project management.
     SDL_Window* m_window = nullptr; ///< SDL window handle.
     void* m_glContext = nullptr; ///< OpenGL context.
     bool m_sdlInitialized = false; ///< Flag indicating SDL initialization status.

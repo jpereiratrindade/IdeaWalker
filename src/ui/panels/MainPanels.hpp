@@ -1,34 +1,34 @@
 #pragma once
 
-#include "ui/AppState.hpp"
+#include "application/AppController.hpp"
 
 namespace ideawalker::ui {
 
 // Tabs
-void DrawDashboardTab(AppState& app);
-void DrawKnowledgeTab(AppState& app);
-void DrawExecutionTab(AppState& app);
-void DrawGraphTab(AppState& app);
-void DrawExternalFilesTab(AppState& app);
-void DrawScientificTab(AppState& app);
-void DrawDocOpsTab(AppState& app);
+void DrawDashboardTab(application::AppController& app);
+void DrawKnowledgeTab(application::AppController& app);
+void DrawExecutionTab(application::AppController& app);
+void DrawGraphTab(application::AppController& app);
+void DrawExternalFilesTab(application::AppController& app);
+void DrawScientificTab(application::AppController& app);
+void DrawDocOpsTab(application::AppController& app);
 
 // Components
-void DrawNodeGraph(AppState& app);
-void DrawMainTabs(AppState& app);
+void DrawNodeGraph(application::AppController& app);
+void DrawMainTabs(application::AppController& app);
 
 // Modals
-void DrawHistoryModal(AppState& app);
-void DrawProjectModals(AppState& app);
-void DrawTaskDetailsModal(AppState& app);
-void DrawHelpModal(AppState& app);
-void DrawUpdateModal(AppState& app);
-void DrawAllModals(AppState& app);
+void DrawHistoryModal(application::AppController& app);
+void DrawProjectModals(application::AppController& app);
+void DrawTaskDetailsModal(application::AppController& app);
+void DrawHelpModal(application::AppController& app);
+void DrawUpdateModal(application::AppController& app);
+void DrawAllModals(application::AppController& app);
 
 // Main Blocks
-void DrawMenuBar(AppState& app);
-void DrawWorkspace(AppState& app);
-void DrawMainWindow(AppState& app);
-void DrawStatusBar(AppState& app);
+void DrawMenuBar(application::AppController& app);
+void DrawWorkspace(application::AppController& app);
+void DrawMainWindow(application::AppController& app);
+void DrawStatusBar(application::AppController& app);
 
 } // namespace ideawalker::ui

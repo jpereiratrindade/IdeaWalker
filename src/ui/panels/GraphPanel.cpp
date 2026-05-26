@@ -6,17 +6,17 @@
 
 namespace ideawalker::ui {
 
-void DrawNodeGraph(AppState& app) {
+void DrawNodeGraph(application::AppController& app) {
     auto label = [&app](const char* withEmoji, const char* plain) {
-        return app.ui.emojiEnabled ? withEmoji : plain;
+        return app.GetViewModel().ui.emojiEnabled ? withEmoji : plain;
     };
-    ImNodes::EditorContextSet((ImNodesEditorContext*)app.neuralWeb.mainContext);
+    ImNodes::EditorContextSet((ImNodesEditorContext*)app.GetViewModel().neuralWeb.mainContext);
     ImNodes::BeginNodeEditor();
 
     // 1. Draw Nodes
-    for (auto& node : app.neuralWeb.nodes) {
+    for (auto& node : app.GetViewModel().neuralWeb.nodes) {
         // Set position for physics, but skip if currently selected (let user drag)
-        if (app.neuralWeb.physicsEnabled && !ImNodes::IsNodeSelected(node.id)) {
+        if (app.GetViewModel().neuralWeb.physicsEnabled && !ImNodes::IsNodeSelected(node.id)) {
             ImNodes::SetNodeGridSpacePos(node.id, ImVec2(node.x, node.y));
         }
 
@@ -74,7 +74,7 @@ void DrawNodeGraph(AppState& app) {
     }
 
     // 2. Draw Links
-    for (const auto& link : app.neuralWeb.links) {
+    for (const auto& link : app.GetViewModel().neuralWeb.links) {
         int startAttr = (link.startNode << 8);
         int endAttr = (link.endNode << 8) + 1;
         ImNodes::Link(link.id, startAttr, endAttr);
@@ -83,7 +83,7 @@ void DrawNodeGraph(AppState& app) {
     ImNodes::EndNodeEditor();
 
     // 3. Sync User Dragging back to AppState
-    for (auto& node : app.neuralWeb.nodes) {
+    for (auto& node : app.GetViewModel().neuralWeb.nodes) {
         if (ImNodes::IsNodeSelected(node.id)) {
             ImVec2 pos = ImNodes::GetNodeGridSpacePos(node.id);
             node.x = pos.x;
@@ -94,17 +94,17 @@ void DrawNodeGraph(AppState& app) {
     }
 }
 
-void DrawGraphTab(AppState& app) {
+void DrawGraphTab(application::AppController& app) {
     auto label = [&app](const char* withEmoji, const char* plain) {
-        return app.ui.emojiEnabled ? withEmoji : plain;
+        return app.GetViewModel().ui.emojiEnabled ? withEmoji : plain;
     };
-    const bool hasProject = (app.services.knowledgeService != nullptr);
+    const bool hasProject = (app.GetServices().knowledgeService != nullptr);
 
-    ImGuiTabItemFlags flags3 = (app.ui.requestedTab == 3) ? ImGuiTabItemFlags_SetSelected : 0;
+    ImGuiTabItemFlags flags3 = (app.GetViewModel().ui.requestedTab == 3) ? ImGuiTabItemFlags_SetSelected : 0;
     if (ImGui::BeginTabItem(label("🕸️ Neural Web", "Neural Web"), NULL, flags3)) {
-        if (app.ui.requestedTab == 3) app.ui.requestedTab = -1;
-        bool enteringGraph = (app.ui.activeTab != 3);
-        app.ui.activeTab = 3;
+        if (app.GetViewModel().ui.requestedTab == 3) app.GetViewModel().ui.requestedTab = -1;
+        bool enteringGraph = (app.GetViewModel().ui.activeTab != 3);
+        app.GetViewModel().ui.activeTab = 3;
 
         if (enteringGraph && hasProject) {
             app.RebuildGraph();

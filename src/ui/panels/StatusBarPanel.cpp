@@ -44,7 +44,7 @@ static std::string Truncate(const std::string& s, size_t maxLen) {
  * Must be called while a parent window is open (between Begin/End).
  * The bar overlays the bottom edge of the window with a fixed-height child region.
  */
-void DrawStatusBar(AppState& app) {
+void DrawStatusBar(application::AppController& app) {
     constexpr float BAR_HEIGHT = 24.0f;
 
     // Reserve space at the bottom of the parent window for the status bar
@@ -58,10 +58,10 @@ void DrawStatusBar(AppState& app) {
                       ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
     // ── Left section: project name ──────────────────────────────────────────
-    const bool hasProject = !app.project.root.empty();
+    const bool hasProject = !app.GetViewModel().project.root.empty();
     std::string projectLabel;
     if (hasProject) {
-        const std::string name = std::filesystem::path(app.project.root).filename().string();
+        const std::string name = std::filesystem::path(app.GetViewModel().project.root).filename().string();
         projectLabel = "\xf0\x9f\x93\x81 " + Truncate(name, 28); // 📁
     } else {
         projectLabel = "\xe2\x96\xaa Sem projeto";
@@ -78,8 +78,8 @@ void DrawStatusBar(AppState& app) {
 
     // ── Center: AI model ────────────────────────────────────────────────────
     std::string modelLabel;
-    if (hasProject && app.services.aiProcessingService && app.services.aiProcessingService->GetAI()) {
-        const std::string model = app.services.aiProcessingService->GetAI()->getCurrentModel();
+    if (hasProject && app.GetServices().aiProcessingService && app.GetServices().aiProcessingService->GetAI()) {
+        const std::string model = app.GetServices().aiProcessingService->GetAI()->getCurrentModel();
         modelLabel = "\xf0\x9f\xa4\x96 " + Truncate(model, 24); // 🤖
     } else {
         modelLabel = "\xf0\x9f\xa4\x96 \xe2\x80\x94"; // 🤖 —
@@ -91,8 +91,8 @@ void DrawStatusBar(AppState& app) {
     ImGui::PopStyleColor();
 
     // ── Task spinner ─────────────────────────────────────────────────────────
-    if (app.services.taskManager) {
-        const auto activeTasks = app.services.taskManager->GetActiveTasks();
+    if (app.GetServices().taskManager) {
+        const auto activeTasks = app.GetServices().taskManager->GetActiveTasks();
         if (!activeTasks.empty()) {
             ImGui::SameLine();
             ImGui::PushStyleColor(ImGuiCol_Text, Theme::COLOR_WARNING);

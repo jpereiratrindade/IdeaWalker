@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ui/AppState.hpp"
+#include "application/AppController.hpp"
 #include <string>
 
 namespace ideawalker::ui {
@@ -19,7 +19,7 @@ NodeSizeResult EstimateNodeSizeAdaptive(const std::string& text, float minWrap, 
 /**
  * @brief Renders a Markdown preview in an ImGui context.
  */
-void DrawMarkdownPreview(AppState& app, const std::string& content, bool staticMermaidPreview);
+void DrawMarkdownPreview(application::AppController& app, const std::string& content, bool staticMermaidPreview);
 
 /**
  * @brief Draws a static preview of a Mermaid graph.

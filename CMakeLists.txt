@@ -135,7 +135,7 @@ endif()
 add_executable(${PROJECT_NAME}
     main.cpp
     src/app/IdeaWalkerApp.cpp
-    src/ui/AppState.cpp
+    src/application/AppController.cpp
     src/ui/UiRenderer.cpp
     src/ui/ConversationPanel.cpp
     src/infrastructure/OllamaAdapter.cpp

@@ -7,15 +7,15 @@
 
 namespace ideawalker::ui {
 
-void DrawScientificTab(AppState& app) {
+void DrawScientificTab(application::AppController& app) {
     auto label = [&app](const char* withEmoji, const char* plain) {
-        return app.ui.emojiEnabled ? withEmoji : plain;
+        return app.GetViewModel().ui.emojiEnabled ? withEmoji : plain;
     };
 
     if (ImGui::BeginTabItem(label("🧪 Scientific", "Scientific"))) {
-        app.ui.activeTab = 5; // Assign a new ID for this tab
+        app.GetViewModel().ui.activeTab = 5; // Assign a new ID for this tab
 
-        if (!app.services.scientificIngestionService) {
+        if (!app.GetServices().scientificIngestionService) {
             ImGui::TextDisabled("Serviço de Ingestão Científica não disponível.");
             ImGui::EndTabItem();
             return;
@@ -23,46 +23,46 @@ void DrawScientificTab(AppState& app) {
 
         // --- Toolbar ---
         if (ImGui::Button("♻️ Refresh Inbox")) {
-            app.ui.scientificInboxArtifacts = app.services.scientificIngestionService->listInboxArtifacts();
-            app.ui.scientificInboxSelected.clear();
-            app.ui.scientificInboxLoaded = true;
+            app.GetViewModel().ui.scientificInboxArtifacts = app.GetServices().scientificIngestionService->listInboxArtifacts();
+            app.GetViewModel().ui.scientificInboxSelected.clear();
+            app.GetViewModel().ui.scientificInboxLoaded = true;
         }
         ImGui::SameLine();
         if (ImGui::Button("Process All")) {
-             app.AppendLog("[SYSTEM] Starting scientific ingestion (All)...\n");
-             app.services.taskManager->SubmitTask(application::TaskType::Indexing, "Ingestão Científica", [&app](std::shared_ptr<application::TaskStatus> status) {
-                auto result = app.services.scientificIngestionService->ingestPending([&app, status](const std::string& s) {
-                    app.SetProcessingStatus(s);
-                    app.AppendLog("[SCIENTIFIC] " + s + "\n");
+             app.GetViewModel().AppendLog("[SYSTEM] Starting scientific ingestion (All)...\n");
+             app.GetServices().taskManager->SubmitTask(application::TaskType::Indexing, "Ingestão Científica", [&app](std::shared_ptr<application::TaskStatus> status) {
+                auto result = app.GetServices().scientificIngestionService->ingestPending([&app, status](const std::string& s) {
+                    app.GetViewModel().SetProcessingStatus(s);
+                    app.GetViewModel().AppendLog("[SCIENTIFIC] " + s + "\n");
                 });
                 for (const auto& err : result.errors) {
-                    app.AppendLog("[SCIENTIFIC][ERRO] " + err + "\n");
+                    app.GetViewModel().AppendLog("[SCIENTIFIC][ERRO] " + err + "\n");
                 }
-                app.ui.pendingRefresh.store(true);
+                app.GetViewModel().ui.pendingRefresh.store(true);
             });
         }
         ImGui::SameLine();
         
-        bool hasSelection = !app.ui.scientificInboxSelected.empty();
+        bool hasSelection = !app.GetViewModel().ui.scientificInboxSelected.empty();
         if (!hasSelection) ImGui::BeginDisabled();
         if (ImGui::Button("Process Selected")) {
              std::vector<domain::SourceArtifact> selected;
-            for (const auto& artifact : app.ui.scientificInboxArtifacts) {
-                if (app.ui.scientificInboxSelected.count(artifact.path) > 0) {
+            for (const auto& artifact : app.GetViewModel().ui.scientificInboxArtifacts) {
+                if (app.GetViewModel().ui.scientificInboxSelected.count(artifact.path) > 0) {
                     selected.push_back(artifact);
                 }
             }
             if (!selected.empty()) {
-                app.AppendLog("[SCIENTIFIC] Starting selected scientific ingestion...\n");
-                app.services.taskManager->SubmitTask(application::TaskType::Indexing, "Ingestão Científica (Selecionados)", [selected, &app](std::shared_ptr<application::TaskStatus> status) {
-                    auto result = app.services.scientificIngestionService->ingestSelected(selected, false, [&app, status](const std::string& s) {
-                        app.SetProcessingStatus(s);
-                        app.AppendLog("[SCIENTIFIC] " + s + "\n");
+                app.GetViewModel().AppendLog("[SCIENTIFIC] Starting selected scientific ingestion...\n");
+                app.GetServices().taskManager->SubmitTask(application::TaskType::Indexing, "Ingestão Científica (Selecionados)", [selected, &app](std::shared_ptr<application::TaskStatus> status) {
+                    auto result = app.GetServices().scientificIngestionService->ingestSelected(selected, false, [&app, status](const std::string& s) {
+                        app.GetViewModel().SetProcessingStatus(s);
+                        app.GetViewModel().AppendLog("[SCIENTIFIC] " + s + "\n");
                     });
                     for (const auto& err : result.errors) {
-                        app.AppendLog("[SCIENTIFIC][ERRO] " + err + "\n");
+                        app.GetViewModel().AppendLog("[SCIENTIFIC][ERRO] " + err + "\n");
                     }
-                    app.ui.pendingRefresh.store(true);
+                    app.GetViewModel().ui.pendingRefresh.store(true);
                 });
             }
         }
@@ -76,20 +76,20 @@ void DrawScientificTab(AppState& app) {
         
         // Left Column: Inbox List
         ImGui::BeginChild("ScientificLeft", ImVec2(leftWidth, 0), true);
-        ImGui::Text("📥 Inbox (%zu files)", app.ui.scientificInboxArtifacts.size());
+        ImGui::Text("📥 Inbox (%zu files)", app.GetViewModel().ui.scientificInboxArtifacts.size());
         ImGui::Separator();
         
-        if (!app.ui.scientificInboxLoaded) {
-             app.ui.scientificInboxArtifacts = app.services.scientificIngestionService->listInboxArtifacts();
-             app.ui.scientificInboxLoaded = true;
+        if (!app.GetViewModel().ui.scientificInboxLoaded) {
+             app.GetViewModel().ui.scientificInboxArtifacts = app.GetServices().scientificIngestionService->listInboxArtifacts();
+             app.GetViewModel().ui.scientificInboxLoaded = true;
         }
 
-        for (const auto& artifact : app.ui.scientificInboxArtifacts) {
-            bool selected = app.ui.scientificInboxSelected.count(artifact.path) > 0;
+        for (const auto& artifact : app.GetViewModel().ui.scientificInboxArtifacts) {
+            bool selected = app.GetViewModel().ui.scientificInboxSelected.count(artifact.path) > 0;
             ImGui::PushID(artifact.path.c_str());
             if (ImGui::Checkbox("##select", &selected)) {
-                if (selected) app.ui.scientificInboxSelected.insert(artifact.path);
-                else app.ui.scientificInboxSelected.erase(artifact.path);
+                if (selected) app.GetViewModel().ui.scientificInboxSelected.insert(artifact.path);
+                else app.GetViewModel().ui.scientificInboxSelected.erase(artifact.path);
             }
             ImGui::SameLine();
             if (ImGui::Selectable(artifact.filename.c_str(), false)) {
@@ -117,9 +117,9 @@ void DrawScientificTab(AppState& app) {
         ImGui::Text("📊 Pipeline Status");
         ImGui::Separator();
 
-        ImGui::Text("Bundles Generated: %zu", app.services.scientificIngestionService->getBundlesCount());
+        ImGui::Text("Bundles Generated: %zu", app.GetServices().scientificIngestionService->getBundlesCount());
         
-        if (auto summary = app.services.scientificIngestionService->getLatestValidationSummary()) {
+        if (auto summary = app.GetServices().scientificIngestionService->getLatestValidationSummary()) {
             ImGui::Spacing();
             ImGui::TextColored(ImVec4(0,1,1,1), "📝 Latest Validation Report:");
             ImGui::Text("Status: %s", summary->status.c_str());
@@ -139,8 +139,8 @@ void DrawScientificTab(AppState& app) {
             ImGui::TextWrapped("Report Path: %s", summary->path.c_str());
             
             if (ImGui::Button("Print Full Report to Log")) {
-                 app.AppendLog("[VE-IW] " + summary->path + "\n");
-                 app.AppendLog(summary->reportJson + "\n");
+                 app.GetViewModel().AppendLog("[VE-IW] " + summary->path + "\n");
+                 app.GetViewModel().AppendLog(summary->reportJson + "\n");
             }
         } else {
             ImGui::TextDisabled("No validation report available.");

@@ -1,5 +1,5 @@
 #include "WritingPanels.hpp"
-#include "../../ui/AppState.hpp"
+#include "../../application/AppController.hpp"
 #include "../../domain/writing/WritingTrajectory.hpp"
 #include "../../domain/writing/services/DefensePromptFactory.hpp"
 #include "../../domain/writing/services/CoherenceLensService.hpp"
@@ -30,19 +30,19 @@ static std::string generateDefenseUUID() {
     return s;
 }
 
-void DrawDefensePanel(AppState& state) {
-    if (!state.ui.showDefensePanel) return;
+void DrawDefensePanel(application::AppController& state) {
+    if (!state.GetViewModel().ui.showDefensePanel) return;
 
     ImGui::SetNextWindowSize(ImVec2(600, 500), ImGuiCond_FirstUseEver);
-    if (ImGui::Begin("Defense Mode", &state.ui.showDefensePanel)) {
+    if (ImGui::Begin("Defense Mode", &state.GetViewModel().ui.showDefensePanel)) {
         
-        if (state.ui.activeTrajectoryId.empty()) {
+        if (state.GetViewModel().ui.activeTrajectoryId.empty()) {
             ImGui::Text("No active trajectory selected.");
             ImGui::End();
             return;
         }
 
-        auto trajPtr = state.services.writingTrajectoryService->getTrajectory(state.ui.activeTrajectoryId);
+        auto trajPtr = state.GetServices().writingTrajectoryService->getTrajectory(state.GetViewModel().ui.activeTrajectoryId);
         if (!trajPtr) {
             ImGui::Text("Trajectory not found.");
             ImGui::End();
@@ -54,12 +54,12 @@ void DrawDefensePanel(AppState& state) {
 
         // 0. Coherence Lens
         if (ImGui::Button("Run Coherence Lens")) {
-            state.ui.coherenceIssues = CoherenceLensService::analyze(*trajPtr);
+            state.GetViewModel().ui.coherenceIssues = CoherenceLensService::analyze(*trajPtr);
         }
         
-        if (!state.ui.coherenceIssues.empty()) {
-            ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), "Coherence Issues Detected (%zu):", state.ui.coherenceIssues.size());
-            for (const auto& issue : state.ui.coherenceIssues) {
+        if (!state.GetViewModel().ui.coherenceIssues.empty()) {
+            ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), "Coherence Issues Detected (%zu):", state.GetViewModel().ui.coherenceIssues.size());
+            for (const auto& issue : state.GetViewModel().ui.coherenceIssues) {
                 ImGui::BulletText("[%s] %s (%s)", issue.severity.c_str(), issue.description.c_str(), issue.type.c_str());
             }
             ImGui::Separator();
@@ -70,8 +70,8 @@ void DrawDefensePanel(AppState& state) {
             auto prompts = DefensePromptFactory::generatePrompts(*trajPtr);
             for (const auto& p : prompts) {
                 // Check if already exists? For MVP just add.
-                state.services.writingTrajectoryService->addDefenseCard(
-                    state.ui.activeTrajectoryId, 
+                state.GetServices().writingTrajectoryService->addDefenseCard(
+                    state.GetViewModel().ui.activeTrajectoryId, 
                     generateDefenseUUID(), 
                     p.segmentId, 
                     p.prompt, 
@@ -121,11 +121,11 @@ void DrawDefensePanel(AppState& state) {
                         ImGui::InputTextMultiline(("##response" + card.cardId).c_str(), defenseBuf, sizeof(defenseBuf), ImVec2(-FLT_MIN, 100));
                         
                         if (ImGui::Button("Mark Rehearsed")) {
-                            state.services.writingTrajectoryService->updateDefenseStatus(state.ui.activeTrajectoryId, card.cardId, DefenseStatus::Rehearsed, defenseBuf);
+                            state.GetServices().writingTrajectoryService->updateDefenseStatus(state.GetViewModel().ui.activeTrajectoryId, card.cardId, DefenseStatus::Rehearsed, defenseBuf);
                         }
                         ImGui::SameLine();
                         if (ImGui::Button("Pass Defense")) {
-                            state.services.writingTrajectoryService->updateDefenseStatus(state.ui.activeTrajectoryId, card.cardId, DefenseStatus::Passed, "Passed via UI");
+                            state.GetServices().writingTrajectoryService->updateDefenseStatus(state.GetViewModel().ui.activeTrajectoryId, card.cardId, DefenseStatus::Passed, "Passed via UI");
                         }
                     } else {
                         ImGui::TextWrapped("Defense Passed! (Locked)");

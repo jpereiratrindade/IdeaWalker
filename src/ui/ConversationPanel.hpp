@@ -4,7 +4,7 @@
  */
 
 #pragma once
-#include "ui/AppState.hpp"
+#include "application/AppController.hpp"
 
 namespace ideawalker::ui {
 
@@ -18,7 +18,7 @@ public:
      * @brief Draws the panel contents (must be called inside an ImGui container).
      * @param app The application state.
      */
-    static void DrawContent(AppState& app);
+    static void DrawContent(application::AppController& app);
 };
 
 } // namespace ideawalker::ui

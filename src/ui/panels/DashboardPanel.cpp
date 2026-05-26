@@ -11,16 +11,16 @@
 
 namespace ideawalker::ui {
 
-void DrawDashboardTab(AppState& app) {
+void DrawDashboardTab(application::AppController& app) {
     auto label = [&app](const char* withEmoji, const char* plain) {
-        return app.ui.emojiEnabled ? withEmoji : plain;
+        return app.GetViewModel().ui.emojiEnabled ? withEmoji : plain;
     };
-    const bool hasProject = (app.services.knowledgeService != nullptr);
+    const bool hasProject = (app.GetServices().knowledgeService != nullptr);
 
-    ImGuiTabItemFlags flags0 = (app.ui.requestedTab == 0) ? ImGuiTabItemFlags_SetSelected : 0;
+    ImGuiTabItemFlags flags0 = (app.GetViewModel().ui.requestedTab == 0) ? ImGuiTabItemFlags_SetSelected : 0;
     if (ImGui::BeginTabItem(label("🎙️ Dashboard & Inbox", "Dashboard & Inbox"), NULL, flags0)) {
-        if (app.ui.requestedTab == 0) app.ui.requestedTab = -1;
-        app.ui.activeTab = 0;
+        if (app.GetViewModel().ui.requestedTab == 0) app.GetViewModel().ui.requestedTab = -1;
+        app.GetViewModel().ui.activeTab = 0;
         if (!hasProject) {
             ImGui::TextDisabled("Nenhum projeto aberto.");
             ImGui::TextDisabled("Use File > New Project ou File > Open Project para comecar.");
@@ -33,47 +33,47 @@ void DrawDashboardTab(AppState& app) {
             
             ImGui::Separator();
             
-            ImGui::Text("Entrada (%zu ideias):", app.project.inboxThoughts.size());
+            ImGui::Text("Entrada (%zu ideias):", app.GetViewModel().project.inboxThoughts.size());
             ImGui::BeginChild("InboxList", ImVec2(0, 200), true);
-            for (const auto& thought : app.project.inboxThoughts) {
-                bool isSelected = (app.ui.selectedInboxFilename == thought.filename);
+            for (const auto& thought : app.GetViewModel().project.inboxThoughts) {
+                bool isSelected = (app.GetViewModel().ui.selectedInboxFilename == thought.filename);
                 if (ImGui::Selectable(thought.filename.c_str(), isSelected)) {
-                    app.ui.selectedInboxFilename = thought.filename;
+                    app.GetViewModel().ui.selectedInboxFilename = thought.filename;
                 }
             }
             ImGui::EndChild();
 
             ImGui::Spacing();
             
-            bool processing = app.ui.isProcessing.load();
+            bool processing = app.GetViewModel().ui.isProcessing.load();
             if (processing) ImGui::BeginDisabled();
             auto statusHandler = [&app](const std::string& s) {
-                app.SetProcessingStatus(s);
+                app.GetViewModel().SetProcessingStatus(s);
                 if (s.find("Executando:") != std::string::npos || 
                     s.find("Orquestrador:") != std::string::npos ||
                     s.find("Persona:") != std::string::npos) {
-                    app.AppendLog("[AI] " + s + "\n");
+                    app.GetViewModel().AppendLog("[AI] " + s + "\n");
                 }
             };
 
             auto startBatch = [&app](bool force) {
-                app.AppendLog(force ? "[SYSTEM] Starting AI reprocess (batch)...\n" : "[SYSTEM] Starting AI batch processing...\n");
-                app.services.aiProcessingService->ProcessInboxAsync(force, app.ui.fastMode);
+                app.GetViewModel().AppendLog(force ? "[SYSTEM] Starting AI reprocess (batch)...\n" : "[SYSTEM] Starting AI batch processing...\n");
+                app.GetServices().aiProcessingService->ProcessInboxAsync(force, app.GetViewModel().ui.fastMode);
             };
 
             auto startSingle = [&app](const std::string& filename, bool force) {
-                app.AppendLog(force ? "[SYSTEM] Starting AI reprocess for " + filename + "...\n"
+                app.GetViewModel().AppendLog(force ? "[SYSTEM] Starting AI reprocess for " + filename + "...\n"
                                     : "[SYSTEM] Starting AI processing for " + filename + "...\n");
-                app.services.aiProcessingService->ProcessItemAsync(filename, force, app.ui.fastMode);
+                app.GetServices().aiProcessingService->ProcessItemAsync(filename, force, app.GetViewModel().ui.fastMode);
             };
 
-            const bool hasSelection = !app.ui.selectedInboxFilename.empty();
+            const bool hasSelection = !app.GetViewModel().ui.selectedInboxFilename.empty();
             const char* runLabel = hasSelection
                 ? label("🧠 Run Selected", "Run Selected")
                 : label("🧠 Run AI Orchestrator", "Run AI Orchestrator");
             if (ImGui::Button(runLabel, ImVec2(250, 50))) {
                 if (hasSelection) {
-                    startSingle(app.ui.selectedInboxFilename, false);
+                    startSingle(app.GetViewModel().ui.selectedInboxFilename, false);
                 } else {
                     startBatch(false);
                 }
@@ -85,7 +85,7 @@ void DrawDashboardTab(AppState& app) {
                 }
                 ImGui::SameLine();
                 if (ImGui::Button(label("🔁 Reprocess Selected", "Reprocess Selected"), ImVec2(180, 50))) {
-                    startSingle(app.ui.selectedInboxFilename, true);
+                    startSingle(app.GetViewModel().ui.selectedInboxFilename, true);
                 }
             } else {
                 ImGui::SameLine();
@@ -95,8 +95,8 @@ void DrawDashboardTab(AppState& app) {
             }
             if (processing) ImGui::EndDisabled();
 
-            if (app.services.taskManager) {
-                auto activeTasks = app.services.taskManager->GetActiveTasks();
+            if (app.GetServices().taskManager) {
+                auto activeTasks = app.GetServices().taskManager->GetActiveTasks();
                 for (const auto& task : activeTasks) {
                     ImGui::SameLine();
                     ImGui::TextColored(ImVec4(1, 1, 0, 1), "⏳ [%s] %.0f%%", task->description.c_str(), task->progress.load() * 100.0f);
@@ -107,10 +107,10 @@ void DrawDashboardTab(AppState& app) {
             ImGui::Text("System Log:");
             float maxLogHeight = ImGui::GetContentRegionAvail().y - 200.0f;
             if (maxLogHeight < 120.0f) maxLogHeight = 120.0f;
-            app.ui.dashboardLogHeight = std::clamp(app.ui.dashboardLogHeight, 80.0f, maxLogHeight);
+            app.GetViewModel().ui.dashboardLogHeight = std::clamp(app.GetViewModel().ui.dashboardLogHeight, 80.0f, maxLogHeight);
 
-            ImGui::BeginChild("Log", ImVec2(0, app.ui.dashboardLogHeight), true);
-            std::string logSnapshot = app.GetLogSnapshot();
+            ImGui::BeginChild("Log", ImVec2(0, app.GetViewModel().ui.dashboardLogHeight), true);
+            std::string logSnapshot = app.GetViewModel().GetLogSnapshot();
             ImGui::TextUnformatted(logSnapshot.c_str());
             if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
                 ImGui::SetScrollHereY(1.0f);
@@ -118,8 +118,8 @@ void DrawDashboardTab(AppState& app) {
 
             ImGui::InvisibleButton("LogSplitter", ImVec2(-1.0f, 6.0f));
             if (ImGui::IsItemActive()) {
-                app.ui.dashboardLogHeight += ImGui::GetIO().MouseDelta.y;
-                app.ui.dashboardLogHeight = std::clamp(app.ui.dashboardLogHeight, 80.0f, maxLogHeight);
+                app.GetViewModel().ui.dashboardLogHeight += ImGui::GetIO().MouseDelta.y;
+                app.GetViewModel().ui.dashboardLogHeight = std::clamp(app.GetViewModel().ui.dashboardLogHeight, 80.0f, maxLogHeight);
             }
             if (ImGui::IsItemHovered()) {
                 ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeNS);
@@ -127,21 +127,21 @@ void DrawDashboardTab(AppState& app) {
 
             ImGui::Separator();
             ImGui::Text("%s", label("📥 Ingestão de Documentos (Observacional)", "Ingestion of Documents (Observational)"));
-            if (app.services.ingestionService) {
+            if (app.GetServices().ingestionService) {
                 if (ImGui::Button("Sincronizar Inbox & Gerar Observações")) {
-                    app.AppendLog("[SYSTEM] Starting document ingestion...\n");
-                    app.services.taskManager->SubmitTask(application::TaskType::Indexing, "Ingestão de Documentos", [&app](std::shared_ptr<application::TaskStatus> status) {
-                        app.services.ingestionService->ingestPending([&app, status](const std::string& s) {
-                            app.SetProcessingStatus(s);
-                            app.AppendLog("[INGEST] " + s + "\n");
+                    app.GetViewModel().AppendLog("[SYSTEM] Starting document ingestion...\n");
+                    app.GetServices().taskManager->SubmitTask(application::TaskType::Indexing, "Ingestão de Documentos", [&app](std::shared_ptr<application::TaskStatus> status) {
+                        app.GetServices().ingestionService->ingestPending([&app, status](const std::string& s) {
+                            app.GetViewModel().SetProcessingStatus(s);
+                            app.GetViewModel().AppendLog("[INGEST] " + s + "\n");
                         });
-                        app.ui.pendingRefresh.store(true);
+                        app.GetViewModel().ui.pendingRefresh.store(true);
                     });
                 }
                 ImGui::SameLine();
                 if (ImGui::IsItemHovered()) ImGui::SetTooltip("Processa .txt, .md, .pdf, .tex na /inbox sem alterar originais.");
 
-                auto observations = app.services.ingestionService->getObservations();
+                auto observations = app.GetServices().ingestionService->getObservations();
                 ImGui::Text("Observações geradas: %zu", observations.size());
                 if (ImGui::IsItemHovered()) {
                     ImGui::SetTooltip("Total de registros sintéticos criados a partir dos documentos processados na Inbox.");
@@ -158,7 +158,7 @@ void DrawDashboardTab(AppState& app) {
             float size = 15.0f;
             float spacing = 3.0f;
             int maxCount = 0;
-            for (const auto& entry : app.project.activityHistory) {
+            for (const auto& entry : app.GetViewModel().project.activityHistory) {
                 if (entry.second > maxCount) maxCount = entry.second;
             }
             const auto now = std::chrono::system_clock::now();
@@ -170,8 +170,8 @@ void DrawDashboardTab(AppState& app) {
                 std::tm tm = ToLocalTime(tt);
                 char buffer[11];
                 std::strftime(buffer, sizeof(buffer), "%Y-%m-%d", &tm);
-                auto it = app.project.activityHistory.find(buffer);
-                int count = (it != app.project.activityHistory.end()) ? it->second : 0;
+                auto it = app.GetViewModel().project.activityHistory.find(buffer);
+                int count = (it != app.GetViewModel().project.activityHistory.end()) ? it->second : 0;
                 if (count > 0) {
                     float intensity = (maxCount > 0) ? (static_cast<float>(count) / maxCount) : 0.0f;
                     float green = 0.3f + (0.7f * intensity);

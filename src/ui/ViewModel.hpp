@@ -1,36 +1,29 @@
 /**
- * @file AppState.hpp
- * @brief Core application state and UI logic coordination.
+ * @file ViewModel.hpp
+ * @brief Pure UI and Data State binding for ImGui views.
  */
 
 #pragma once
 
 #include <atomic>
-#include <functional>
 #include <map>
-#include <memory>
 #include <mutex>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <memory>
 
 #include "domain/Insight.hpp"
-#include "domain/ThoughtRepository.hpp"
-#include "domain/AIService.hpp"
+
 #include "domain/Suggestion.hpp"
 #include "domain/SourceArtifact.hpp"
 #include "domain/writing/MermaidGraph.hpp"
 #include "domain/writing/services/CoherenceLensService.hpp"
 #include "domain/writing/services/RevisionQualityService.hpp"
-#include "application/AppServices.hpp"
-
-namespace ideawalker::infrastructure { class PersistenceService; }
 
 namespace ideawalker::ui {
 
-    // Moved NodeType, NodeShape, LayoutOrientation, GraphNode, GraphLink to domain/writing/MermaidGraph.hpp
-    
     using domain::writing::NodeType;
     using domain::writing::NodeShape;
     using domain::writing::LayoutOrientation;
@@ -172,89 +165,39 @@ namespace ideawalker::ui {
         std::string activeTrajectoryId;
     };
 
-/**
- * @struct AppState
- * @brief Singleton-like state containing all data needed for UI rendering and application flow.
- */
-struct AppState {
-    ProjectState project;
-    NeuralWebState neuralWeb;
-    ExternalFilesState external;
-    UiState ui;
+    /**
+     * @struct ViewModel
+     * @brief Pure UI and Data State binding for ImGui views.
+     */
+    struct ViewModel {
+        ProjectState project;
+        NeuralWebState neuralWeb;
+        ExternalFilesState external;
+        UiState ui;
 
-    application::AppServices services; ///< Injected services.
-    std::function<application::AppServices(const std::string&)> servicesFactory; ///< Builds services for a project root.
+        /** @brief Thread-safe log append. */
+        void AppendLog(const std::string& line) {
+            std::lock_guard<std::mutex> lock(ui.logMutex);
+            ui.outputLog += line;
+        }
 
-    AppState();
-    ~AppState();
+        /** @brief Thread-safe log retrieval. */
+        std::string GetLogSnapshot() {
+            std::lock_guard<std::mutex> lock(ui.logMutex);
+            return ui.outputLog;
+        }
 
-    /** @brief Initializes ImNodes contexts. */
-    void InitImNodes();
-    /** @brief Destroys ImNodes contexts. */
-    void ShutdownImNodes();
+        /** @brief Thread-safe processing status update. */
+        void SetProcessingStatus(const std::string& status) {
+            std::lock_guard<std::mutex> lock(ui.statusMutex);
+            ui.processingStatus = status;
+        }
 
-    /** @brief Creates and opens a new project at the given path. */
-    bool NewProject(const std::string& rootPath);
-    /** @brief Opens an existing project. */
-    bool OpenProject(const std::string& rootPath);
-    /** @brief Saves current metadata (future-proofing). */
-    bool SaveProject();
-    /** @brief Clones the project data to a new directory and opens it. */
-    bool SaveProjectAs(const std::string& rootPath);
-    /** @brief Resets the state and clears all project data from memory. */
-    bool CloseProject();
-    /** @brief Triggers a reload of the inbox from the filesystem. */
-    void RefreshInbox();
-    /** @brief Triggers a reload of all notes and rebuilds the Neural Web graph. */
-    void RefreshAllInsights();
-    /** @brief Handles file dnd events (e.g., audio files for transcription). */
-    void HandleFileDrop(const std::string& filePath);
-    /** @brief Explicitly requests transcription for a file path. */
-    void RequestTranscription(const std::string& filePath);
-    /** @brief Regenerates the Neural Web graph nodes and links from notes. */
-    void RebuildGraph();
-    /** @brief Thread-safe log append. */
-    void AppendLog(const std::string& line);
-    /** @brief Thread-safe log retrieval. */
-    std::string GetLogSnapshot();
-    /** @brief Thread-safe processing status update. */
-    void SetProcessingStatus(const std::string& status);
-    /** @brief Thread-safe processing status retrieval. */
-    std::string GetProcessingStatus();
-    /** @brief Loads history versions and resets selection for a note. */
-    void LoadHistory(const std::string& noteId);
-
-    /** @brief Injects the required services into the state. */
-    void InjectServices(application::AppServices&& newServices);
-
-    /** @brief Triggers a background indexing and suggestion generation session. */
-    void AnalyzeSuggestions();
-
-    /** @brief Serializes the current Neural Web state to a Mermaid mindmap. */
-    std::string ExportToMermaid() const;
-    /** @brief Exports the entire knowledge base to a single Markdown file with Mermaid diagrams. */
-    std::string ExportFullMarkdown() const;
-    /** @brief Advances the force-directed graph physics by one step. */
-    void UpdateGraphPhysics(const std::unordered_set<int>& selectedNodes = {});
-    /** @brief Resets all node positions to the center of the viewport. */
-    void CenterGraph();
-
-    /** @brief Loads a file from outside the project hierarchy. */
-    void OpenExternalFile(const std::string& path);
-    /** @brief Writes an external file's memory buffer back to disk. */
-    void SaveExternalFile(int index);
-
-    /** @brief Loads application settings from the project root. */
-    void LoadConfig();
-    /** @brief Saves application settings to the project root. */
-    void SaveConfig();
-    /** @brief Sets the AI model and persists the choice. */
-    void SetAIModel(const std::string& modelName);
-
-    /** @brief Triggers an asynchronous check for updates on GitHub. */
-    void CheckForUpdates();
-
-    void RefreshDialogueList();
-};
+        /** @brief Thread-safe processing status retrieval. */
+        std::string GetProcessingStatus() {
+            std::lock_guard<std::mutex> lock(ui.statusMutex);
+            return ui.processingStatus;
+        }
+    };
 
 } // namespace ideawalker::ui

@@ -8,9 +8,9 @@
 
 namespace ideawalker::ui {
 
-void DrawUI(AppState& app) {
+void DrawUI(application::AppController& app) {
     // Check if we need to refresh data (e.g., after AI finishing in background)
-    if (app.ui.pendingRefresh.exchange(false)) {
+    if (app.GetViewModel().ui.pendingRefresh.exchange(false)) {
         app.RefreshInbox();
         app.RefreshAllInsights();
     }
