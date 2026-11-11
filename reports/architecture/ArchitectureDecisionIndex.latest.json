@@ -2,11 +2,11 @@
   "schemaVersion": "adr_catalog.v1",
   "reportType": "ArchitectureDecisionIndex",
   "type": "governance_observational_synthesis",
-  "generatedAt": "2026-03-02",
+  "generatedAt": "2026-05-26",
   "sourceDirectory": "adr",
-  "decisionCount": 19,
+  "decisionCount": 22,
   "statusBreakdown": {
-    "Accepted": 19
+    "Accepted": 22
   },
   "decisions": [
     {
@@ -215,6 +215,39 @@
       "date": "2026-03-02",
       "decisionType": "Domain boundary",
       "path": "adr/ADR-018_ORT_Core_and_Dimensions_Boundary.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-019",
+      "number": 19,
+      "title": "ESTRAT Integration Protocol",
+      "status": "Accepted",
+      "date": "2026-04-10",
+      "decisionType": "Contract",
+      "path": "adr/ADR-019_ESTRAT_Integration_Protocol.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-020",
+      "number": 20,
+      "title": "Infrastructure Decoupling Phase 1",
+      "status": "Accepted",
+      "date": "2026-05-26",
+      "decisionType": "Architectural / Technical Debt Reduction",
+      "path": "adr/ADR-020_Infrastructure_Decoupling_Phase1.md",
+      "supersedes": [],
+      "supersededBy": []
+    },
+    {
+      "adrId": "ADR-021",
+      "number": 21,
+      "title": "AppState Decomposition (AppController and ViewModel)",
+      "status": "Accepted",
+      "date": "2026-05-26",
+      "decisionType": "Architectural / UI Decoupling",
+      "path": "adr/ADR-021_AppController_ViewModel_Decomposition.md",
       "supersedes": [],
       "supersededBy": []
     }
