@@ -113,3 +113,9 @@ O IdeaWalker suporta transcrição local offline usando **Whisper.cpp**.
 ---
 
 *Desenvolvido com curiosidade intelectual e resiliência cognitiva.*
+
+## Premissas de desenvolvimento
+
+**Simples, leve. Sempre pronto. Sempre incompleto!**
+
+[Significado e símbolos das premissas](docs/sister-principles/README.md).
